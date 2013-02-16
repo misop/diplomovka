@@ -22,7 +22,6 @@ void SQMAlgorithm::setRoot(SQMNode *newRoot) {
 		delete root;
 
 	root = newRoot;
-	drawingMode = 0;
 }
 
 #pragma endregion
