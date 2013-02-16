@@ -93,6 +93,13 @@ void GLCamera::update() {
 void GLCamera::lookFromCamera() {
 	glLoadIdentity();
 	gluLookAt(eye[X], eye[Y], eye[Z], look[X], look[Y], look[Z], up[X], up[Y], up[Z]);
+
+	//show camera position
+	glColor3f(0.9, 0.45, 0);
+	glPushMatrix();
+	glTranslatef(look[X], look[Y],look[Z]);
+	gluSphere(gluNewQuadric(), 2, 10, 10);
+	glPopMatrix();
 }
 
 GLCamera::~GLCamera(void)

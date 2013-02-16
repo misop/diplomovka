@@ -149,7 +149,7 @@ void SQMNode::draw() {
 
 void SQMNode::draw2() {
 	//draw polyhedron
-	glColor3f(1, 1, 1);
+	/*glColor3f(1, 1, 1);
 	if (polyhedron != NULL) {
 		OpenMesh::PolyConnectivity::FaceIter it = polyhedron->faces_begin();
 		OpenMesh::PolyConnectivity::FaceIter fit = polyhedron->faces_end();
@@ -167,6 +167,9 @@ void SQMNode::draw2() {
 			glVertex3fv(&polyhedron->point(fvit)[0]);
 			glEnd();
 		}
+	}*/
+	if (polyhedron != NULL) {
+		drawMeshHalfEdges(polyhedron);
 	}
 	for (int i = 0; i < nodes.size(); i++) {
 		nodes[i]->draw2();

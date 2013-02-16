@@ -48,7 +48,7 @@ void SQMAlgorithm::draw() {
 
 void SQMAlgorithm::draw2() {
 	//draw polyhedron
-	glColor3f(1, 1, 1);
+	/*glColor3f(1, 1, 1);
 	if (mesh != NULL) {
 		OpenMesh::PolyConnectivity::FaceIter it = mesh->faces_begin();
 		OpenMesh::PolyConnectivity::FaceIter fit = mesh->faces_end();
@@ -66,7 +66,8 @@ void SQMAlgorithm::draw2() {
 			glVertex3fv(&mesh->point(fvit)[0]);
 			glEnd();
 		}
-	}
+	}*/
+	drawMeshHalfEdges(mesh);
 }
 
 void SQMAlgorithm::getBoundingSphere(float &x, float &y, float &z, float &d) {
