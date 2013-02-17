@@ -169,7 +169,7 @@ void SQMNode::draw2() {
 		}
 	}*/
 	if (polyhedron != NULL) {
-		drawMeshHalfEdges(polyhedron);
+		drawMeshEdgesWithArrows(polyhedron);
 	}
 	for (int i = 0; i < nodes.size(); i++) {
 		nodes[i]->draw2();
@@ -747,12 +747,13 @@ void SQMNode::extendMesh(MyMesh* mesh, SQMNode* parentBNPNode, vector<MyMesh::Ve
 		newOneRing.push_back(mesh->add_vertex(points[i]));
 	}
 	//create new faces for the points
+	vector<MyMesh::FaceHandle> temp;
 	for (int i = 0; i < newOneRing.size(); i++) {
 		int j = 0;
 		if (i + 1 < newOneRing.size()) {
 			j = i + 1;
 		}
-		mesh->add_face(oneRing[i], newOneRing[i], newOneRing[j], oneRing[j]);
+		temp.push_back(mesh->add_face(oneRing[i], newOneRing[i], newOneRing[j], oneRing[j]));
 	}
 	//remember inseted points
 	meshIntersectionVHandles = newOneRing;

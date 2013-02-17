@@ -1,0 +1,10 @@
+Skeleton straightening
+Convex hull computation
+Convex hull subdivision
+BNP joining
+PolyMeshT::add_face: complex edge
+PolyMeshT::add_face: complex edge
+PolyMeshT::add_face: complex edge
+PolyMeshT::add_face: complex edge
+PolyMeshT::add_face: complex edge
+PolyMeshT::add_face: complex edge

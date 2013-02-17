@@ -14,3 +14,4 @@ bool OpenMeshEqualVHandles(MyMesh::VHandle& h1, MyMesh::VHandle& h2);
 
 void drawMeshHalfEdges(MyMesh* mesh);
 void drawMeshEdges(MyMesh* mesh);
+void drawMeshEdgesWithArrows(MyMesh* mesh);

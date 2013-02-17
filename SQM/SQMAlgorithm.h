@@ -1,10 +1,14 @@
 #pragma once
 #include "SQMNode.h"
+#include <fstream>
+#include <ostream>
 
 class SQMAlgorithm {
 	SQMNode *root;
 	int drawingMode;
 	MyMesh* mesh;
+	filebuf *fb;
+	ostream *os;
 public:
 	SQMAlgorithm(void);
 	~SQMAlgorithm(void);

@@ -1,10 +1,14 @@
 #include "stdafx.h"
 #include "SQMAlgorithm.h"
+#include <OpenMesh\Core\System\mostream.hh>
 
 SQMAlgorithm::SQMAlgorithm(void) : root(NULL)
 {
 	drawingMode = 0;
 	mesh = NULL;
+	fb = new filebuf();
+	os = new ostream(fb);
+	omerr().connect(*os);
 }
 
 
@@ -13,6 +17,10 @@ SQMAlgorithm::~SQMAlgorithm(void)
 	if (mesh != NULL) {
 		delete mesh;
 	}
+	if (fb->is_open())
+		fb->close();
+	delete fb;
+	delete os;
 }
 
 #pragma region Setters
@@ -67,7 +75,7 @@ void SQMAlgorithm::draw2() {
 			glEnd();
 		}
 	}*/
-	drawMeshHalfEdges(mesh);
+	drawMeshEdgesWithArrows(mesh);
 }
 
 void SQMAlgorithm::getBoundingSphere(float &x, float &y, float &z, float &d) {
@@ -113,10 +121,13 @@ void SQMAlgorithm::getBoundingSphere(float &x, float &y, float &z, float &d) {
 #pragma region SQM Algorithm
 
 void SQMAlgorithm::straightenSkeleton() {
+	fb->open("log.txt", ios::out);
+	(*os) << "Skeleton straightening\n";
 	root->straightenSkeleton(OpenMesh::Vec3f(0, 0, 0));
 }
 
 void SQMAlgorithm::computeConvexHull() {
+	(*os) << "Convex hull computation\n";
 	vector<SQMNode*> stack;
 	stack.push_back(root);
 	while (!stack.empty()) {
@@ -130,12 +141,19 @@ void SQMAlgorithm::computeConvexHull() {
 }
 
 void SQMAlgorithm::subdivideConvexHull() {
+	(*os) << "Convex hull subdivision\n";
 	root->subdividePolyhedra(NULL, 0);
 }
 
 void SQMAlgorithm::joinBNPs() {
 	//deletition is messed up :-(
 	//maybe delete just faces and let vertices be?
+	//filebuf fb;
+	//fb.open ("test.txt", ios::out);
+	//ostream os(&fb);
+	(*os) << "BNP joining\n";
+	//omerr().connect(os);
+
 	if (mesh != NULL) {
 		delete mesh;
 	}
@@ -143,7 +161,8 @@ void SQMAlgorithm::joinBNPs() {
 	vector<MyMesh::VertexHandle> vector;
 	root->joinBNPs(mesh, NULL, vector, OpenMesh::Vec3f(0, 0, 0));
 	drawingMode = 3;
-	//mesh->garbage_collection();
+
+	fb->close();
 }
 
 void SQMAlgorithm::executeSQMAlgorithm() {
