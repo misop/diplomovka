@@ -164,9 +164,9 @@ void drawMeshHalfEdgesWithArrows(MyMesh* mesh) {
 			Q = Q + (Centroid - Q).normalize()*0.3;
 			MyMesh::Point C = P*0.5 + Q*0.5;
 			//centroids
-			float red[] = {1, 0, 0};
+			/*float red[] = {1, 0, 0};
 			glColor3f(1, 1, 1);
-			drawArrowBetweenPointsWithColor(C, Centroid, red);
+			drawArrowBetweenPointsWithColor(C, Centroid, red);*/
 		}
 		//drawing
 		float white[] = {1, 1, 1};

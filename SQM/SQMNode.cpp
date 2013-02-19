@@ -615,9 +615,14 @@ void SQMNode::addPolyhedronAndRememberVHandles(MyMesh* mesh, SQMNode* parentBNPN
 		oneRingsOfPolyhedron.push_back(vhandles);
 	}
 	//connect to the rest of the mesh temp censore :D
-	/*if (parentBNPNode != NULL) {
+	if (parentBNPNode != NULL) {
 		//order newOneRingArray
-		vector<MyMesh::VHandle> oldOneRing = oneRingsOfPolyhedron.back();
+		vector<MyMesh::VHandle> oldOneRing = oneRingsOfPolyhedron.back();		
+		vector<MyMesh::VHandle> flipped;
+		for (vector<MyMesh::VHandle>::reverse_iterator rit = oldOneRing.rbegin(); rit != oldOneRing.rend(); rit++) {
+			flipped.push_back(*rit);
+		}
+		oldOneRing = flipped;
 		vector<MyMesh::VertexHandle> newOneRing;
 		MyMesh::Point P = mesh->point(oneRing[0]);
 		float minDist = 0;
@@ -645,7 +650,7 @@ void SQMNode::addPolyhedronAndRememberVHandles(MyMesh* mesh, SQMNode* parentBNPN
 			}
 			mesh->add_face(oneRing[i], newOneRing[i], newOneRing[j], oneRing[j]);
 		}
-	}*/
+	}
 	/*
 	//get all vertices of polyhedron add non interescting vertices and filter faces coresponding to intersecting vertices
 	vector<MyMesh::VHandle> vertices;
