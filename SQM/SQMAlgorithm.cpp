@@ -75,7 +75,7 @@ void SQMAlgorithm::draw2() {
 			glEnd();
 		}
 	}*/
-	drawMeshEdgesWithArrows(mesh);
+	drawMeshHalfEdgesWithArrows(mesh);
 }
 
 void SQMAlgorithm::getBoundingSphere(float &x, float &y, float &z, float &d) {

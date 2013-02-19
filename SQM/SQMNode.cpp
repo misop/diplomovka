@@ -169,7 +169,7 @@ void SQMNode::draw2() {
 		}
 	}*/
 	if (polyhedron != NULL) {
-		drawMeshEdgesWithArrows(polyhedron);
+		drawMeshHalfEdgesWithArrows(polyhedron);
 	}
 	for (int i = 0; i < nodes.size(); i++) {
 		nodes[i]->draw2();

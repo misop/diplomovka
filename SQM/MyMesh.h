@@ -12,6 +12,8 @@ typedef OpenMesh::PolyMesh_ArrayKernelT<MyTraits> MyMesh;
 
 bool OpenMeshEqualVHandles(MyMesh::VHandle& h1, MyMesh::VHandle& h2);
 
+void drawArrowBetweenPointsWithColor(MyMesh::Point Q, MyMesh::Point P, float *c);
 void drawMeshHalfEdges(MyMesh* mesh);
 void drawMeshEdges(MyMesh* mesh);
 void drawMeshEdgesWithArrows(MyMesh* mesh);
+void drawMeshHalfEdgesWithArrows(MyMesh* mesh);

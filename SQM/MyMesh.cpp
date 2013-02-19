@@ -8,6 +8,26 @@ bool OpenMeshEqualVHandles(MyMesh::VHandle& h1, MyMesh::VHandle& h2) {
 	return h1.idx() == h2.idx();
 }
 
+void drawArrowBetweenPointsWithColor(MyMesh::Point Q, MyMesh::Point P, float *c) {
+	OpenMesh::Vec3f u = P - Q;
+	u = u.normalize();
+
+	glPushMatrix();
+	glTranslatef(P[0], P[1], P[2]);
+	for (int i = 1; i < 20; i++) {
+		float t = 0.005*i;
+		glTranslatef(-u[0]*t, -u[1]*t, -u[2]*t);
+		gluSphere(gluNewQuadric(), t, 10, 10);
+	}
+	glPopMatrix();
+
+	glColor3f(c[0], c[1], c[2]);
+	glBegin(GL_LINES);
+	glVertex3fv(Q.values_);
+	glVertex3fv(P.values_);
+	glEnd();
+}
+
 void drawMeshHalfEdges(MyMesh* mesh) {
 	MyMesh::HalfedgeIter he_it = mesh->halfedges_begin();
 	MyMesh::HalfedgeIter fheh_it = mesh->halfedges_end();
@@ -71,7 +91,7 @@ void drawMeshEdgesWithArrows(MyMesh* mesh) {
 		float height = u.norm();
 		u = u.normalize();
 		v = v.normalize();
-		
+
 		glColor3f(0, 0, 1);
 		glPushMatrix();
 		glTranslatef(P[0], P[1], P[2]);
@@ -99,7 +119,7 @@ void drawMeshEdgesWithArrows(MyMesh* mesh) {
 		float theta = acos(u[1]);
 		glRotatef(phi*180/M_PI - 90, 0, 0, 1);
 		glRotatef(theta*180/M_PI, 1, 0, 0);
-		
+
 		glColor3f(0, 0, 1);
 		//gluCylinder(gluNewQuadric(), 0.2, 0, height/5, 10, 10);
 		glPopMatrix();
@@ -111,7 +131,7 @@ void drawMeshEdgesWithArrows(MyMesh* mesh) {
 		theta = acos(v[2]);
 		glRotatef(phi*180/M_PI - 90, 0, 0, 1);
 		glRotatef(theta*180/M_PI, 1, 0, 0);
-		
+
 		glColor3f(0, 1, 0);
 		gluCylinder(gluNewQuadric(), 0.2, 0, height/5, 10, 10);
 		glPopMatrix();*/
@@ -121,5 +141,36 @@ void drawMeshEdgesWithArrows(MyMesh* mesh) {
 		glVertex3fv(Q.values_);
 		glVertex3fv(P.values_);
 		glEnd();
+	}
+}
+
+void drawMeshHalfEdgesWithArrows(MyMesh* mesh) {
+	MyMesh::HalfedgeIter he_it = mesh->halfedges_begin();
+	MyMesh::HalfedgeIter fheh_it = mesh->halfedges_end();
+
+	for (; he_it != fheh_it; ++he_it) {
+		MyMesh::HalfedgeHandle heh1 = he_it.handle();
+		MyMesh::HalfedgeHandle heh2 = mesh->opposite_halfedge_handle(heh1);
+		MyMesh::VertexHandle vh1 = mesh->to_vertex_handle(heh1);
+		MyMesh::VertexHandle vh2 = mesh->to_vertex_handle(heh2);
+		MyMesh::Point P = mesh->point(vh1);
+		MyMesh::Point Q = mesh->point(vh2);
+
+		if (!mesh->is_boundary(heh1)) {
+			MyMesh::FaceHandle fh = mesh->face_handle(heh1);
+			MyMesh::Point Centroid;
+			mesh->calc_face_centroid(fh, Centroid);
+			P = P + (Centroid - P).normalize()*0.3;
+			Q = Q + (Centroid - Q).normalize()*0.3;
+			MyMesh::Point C = P*0.5 + Q*0.5;
+			//centroids
+			float red[] = {1, 0, 0};
+			glColor3f(1, 1, 1);
+			drawArrowBetweenPointsWithColor(C, Centroid, red);
+		}
+		//drawing
+		float white[] = {1, 1, 1};
+		glColor3f(0, 1, 0);
+		drawArrowBetweenPointsWithColor(Q, P, white);
 	}
 }
