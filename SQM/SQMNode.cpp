@@ -148,27 +148,8 @@ void SQMNode::draw() {
 }
 
 void SQMNode::draw2() {
-	//draw polyhedron
-	/*glColor3f(1, 1, 1);
 	if (polyhedron != NULL) {
-		OpenMesh::PolyConnectivity::FaceIter it = polyhedron->faces_begin();
-		OpenMesh::PolyConnectivity::FaceIter fit = polyhedron->faces_end();
-		for (; it != fit; ++it)	{
-			glBegin(GL_LINES);
-			MyMesh::ConstFaceVertexIter fvit = polyhedron->cfv_begin(it);
-			MyMesh::ConstFaceVertexIter ffvit = polyhedron->cfv_end(it);
-			glVertex3fv(&polyhedron->point(fvit)[0]);
-			fvit++;
-			for (; fvit != ffvit; ++fvit) {
-				glVertex3fv(&polyhedron->point(fvit)[0]);
-				glVertex3fv(&polyhedron->point(fvit)[0]);
-			}
-			fvit = polyhedron->cfv_begin(it);
-			glVertex3fv(&polyhedron->point(fvit)[0]);
-			glEnd();
-		}
-	}*/
-	if (polyhedron != NULL) {
+		//draw polyhedron
 		drawMeshHalfEdgesWithArrows(polyhedron);
 	}
 	for (int i = 0; i < nodes.size(); i++) {
@@ -530,45 +511,19 @@ void SQMNode::joinBNPs(MyMesh* mesh, SQMNode* parentBNPNode, vector<MyMesh::Vert
 void SQMNode::addPolyhedronToMesh(MyMesh* mesh, SQMNode* parentBNPNode, vector<MyMesh::VertexHandle>& oneRing, OpenMesh::Vec3f& directionVector) {
 	//connect mesh to existing one
 	vector<vector<MyMesh::VHandle> > oneRingsOfPolyhedron;
-	addPolyhedronAndRememberVHandles(mesh, parentBNPNode, oneRing, oneRingsOfPolyhedron);
+	addPolyhedronAndRememberVHandles(mesh, parentBNPNode, oneRing, oneRingsOfPolyhedron, directionVector);
 	//for each son send him points on intersection perimeter
 	for (int i = 0; i < nodes.size(); i++) {
 		OpenMesh::Vec3f u = (nodes[i]->getPosition() - position).normalize();
 		nodes[i]->joinBNPs(mesh, this, oneRingsOfPolyhedron[i], u);
 	}
-	/*
-	//for each son delete intersection and send him points on intersection perimeter
-	for (int i = 0; i < nodes.size(); i++) {
-		//get intersection one ring neighborhood
-		//one ring is invalid due to index reorder delete at end of algorithm
-		vector<MyMesh::VertexHandle> newOneRing;
-		MyMesh::VertexHandle vh = meshIntersectionVHandles[i];
-		for (MyMesh::VVIter vv_it = mesh->vv_begin(vh); vv_it != mesh->vv_end(vh); ++vv_it) {
-			newOneRing.push_back(vv_it.handle());
-		}
-		//delete intersection
-		vector<MyMesh::FaceHandle> facesToDelete;
-		for (MyMesh::VFIter vf_it = mesh->vf_begin(vh); vf_it != mesh->vf_end(vh); ++vf_it) {
-			facesToDelete.push_back(vf_it.handle());
-		}
-		for (int i = 0; i < facesToDelete.size(); i++) {
-			mesh->delete_face(facesToDelete[i], false);
-		}
-		//mesh->garbage_collection();
-		//mesh->delete_vertex(vh, false);
-		//continue joining BNPs
-		OpenMesh::Vec3f u = (nodes[i]->getPosition() - position).normalize();
-		nodes[i]->joinBNPs(mesh, this, newOneRing, u);
-	}
-	*/
 }
 
-void SQMNode::addPolyhedronAndRememberVHandles(MyMesh* mesh, SQMNode* parentBNPNode, vector<MyMesh::VertexHandle>& oneRing, vector<vector<MyMesh::VHandle> >& oneRingsOfPolyhedron) {
+void SQMNode::addPolyhedronAndRememberVHandles(MyMesh* mesh, SQMNode* parentBNPNode, vector<MyMesh::VertexHandle>& oneRing, vector<vector<MyMesh::VHandle> >& oneRingsOfPolyhedron, OpenMesh::Vec3f& directionVector) {
 	//get non intersecting vhandles and remember one rings
 	int vectorSize = intersectionVHandles.size();
 	vector<vector<int> > intersectionOneRingIndexes(vectorSize);
 	vector<MyMesh::VHandle> addedVHandles;
-	//vector<MyMesh::FaceHandle> intersectionFaceHandles;
 	for (MyMesh::VIter v_it = polyhedron->vertices_begin(); v_it != polyhedron->vertices_end(); ++v_it) {
 		MyMesh::VHandle vhandle = v_it.handle();
 		int position = getPositionInArray<MyMesh::VHandle>(vhandle, intersectionVHandles);
@@ -581,30 +536,8 @@ void SQMNode::addPolyhedronAndRememberVHandles(MyMesh* mesh, SQMNode* parentBNPN
 			for (MyMesh::VVIter vv_it = polyhedron->vv_begin(vhandle); vv_it != polyhedron->vv_end(vhandle); ++vv_it) {
 				intersectionOneRingIndexes[position].push_back(vv_it.handle().idx());
 			}
-			/*//collect face indexis
-			for (MyMesh::VFIter vf_it = polyhedron->vf_begin(vhandle); vf_it != polyhedron->vf_end(vhandle); ++vf_it) {
-				intersectionFaceHandles.push_back(vf_it.handle());
-			}*/
 		}
 	}
-	//sort face handles unnecesary
-	/*sort(intersectionFaceHandles.begin(), intersectionFaceHandles.end(), lesser);
-	//add faces of collected vertices
-	int index = 0;
-	for (MyMesh::FaceIter f_it = polyhedron->faces_begin(); f_it != polyhedron->faces_end(); ++f_it) {
-		if (index < intersectionFaceHandles.size() && f_it.handle().idx() == intersectionFaceHandles[index].idx()) {
-			index++;
-		} else {//adding new face
-			vector<MyMesh::VertexHandle> face_vhandles;
-			for (MyMesh::FVIter fv_it = polyhedron->fv_iter(f_it.handle()); fv_it != polyhedron->fv_end(f_it.handle()); ++fv_it) {
-				int index = fv_it.handle().idx();
-				face_vhandles.push_back(addedVHandles[index]);
-			}
-			if (validTriFace(face_vhandles)) {
-				mesh->add_face(face_vhandles);
-			}
-		}
-	}*/
 	//prepare one rings
 	for (int i = 0; i < intersectionOneRingIndexes.size(); i++) {
 		vector<MyMesh::VHandle> vhandles;
@@ -614,15 +547,39 @@ void SQMNode::addPolyhedronAndRememberVHandles(MyMesh* mesh, SQMNode* parentBNPN
 		}
 		oneRingsOfPolyhedron.push_back(vhandles);
 	}
-	//connect to the rest of the mesh temp censore :D
+	//connect to the rest of the mesh
 	if (parentBNPNode != NULL) {
 		//order newOneRingArray
-		vector<MyMesh::VHandle> oldOneRing = oneRingsOfPolyhedron.back();		
-		vector<MyMesh::VHandle> flipped;
-		for (vector<MyMesh::VHandle>::reverse_iterator rit = oldOneRing.rbegin(); rit != oldOneRing.rend(); rit++) {
-			flipped.push_back(*rit);
+		vector<MyMesh::VHandle> oldOneRing = oneRingsOfPolyhedron.back();	
+		//flip one ring if it has different orientation
+		bool shouldFlip = false;
+		if (oldOneRing.size() > 1) {
+			MyMesh::Point P0 = mesh->point(oldOneRing[0]);
+			MyMesh::Point P1 = mesh->point(oldOneRing[1]);
+			MyMesh::Point Q0 = mesh->point(oneRing[0]);
+			MyMesh::Point Q1 = mesh->point(oneRing[1]);
+			CVector3 d(directionVector.values_);
+			CVector3 A0(P0.values_);
+			CVector3 A1(P1.values_);
+			CVector3 B0(Q0.values_);
+			CVector3 B1(Q1.values_);
+			//calculate base with cross product
+			CVector3 u = Cross(A0, A1);
+			CVector3 v = Cross(B0, B1);
+			//project base onto direction vector
+			float d1 = Dot(u, d);
+			float d2 = Dot(v, d);
+			//if both have same sign both have same direction 
+			shouldFlip = (d1 >= 0 && d2 < 0) || (d1 < 0 && d2 >= 0);
 		}
-		oldOneRing = flipped;
+		if (shouldFlip) {
+			vector<MyMesh::VHandle> flipped;
+			for (vector<MyMesh::VHandle>::reverse_iterator rit = oldOneRing.rbegin(); rit != oldOneRing.rend(); rit++) {
+				flipped.push_back(*rit);
+			}
+			oldOneRing = flipped;
+		}
+		//find closest point
 		vector<MyMesh::VertexHandle> newOneRing;
 		MyMesh::Point P = mesh->point(oneRing[0]);
 		float minDist = 0;
@@ -635,6 +592,7 @@ void SQMNode::addPolyhedronAndRememberVHandles(MyMesh* mesh, SQMNode* parentBNPN
 				index = i;
 			}
 		}
+		//reorder array
 		for (int i = 0; i < oldOneRing.size(); i++) {
 			if (index == oldOneRing.size()) {
 				index = 0;
@@ -651,89 +609,17 @@ void SQMNode::addPolyhedronAndRememberVHandles(MyMesh* mesh, SQMNode* parentBNPN
 			mesh->add_face(oneRing[i], newOneRing[i], newOneRing[j], oneRing[j]);
 		}
 	}
-	/*
-	//get all vertices of polyhedron add non interescting vertices and filter faces coresponding to intersecting vertices
-	vector<MyMesh::VHandle> vertices;
-	vector<MyMesh::FaceHandle> filteredFaces;
-	for (MyMesh::VertexIter v_it = polyhedron->vertices_begin(); v_it != polyhedron->vertices_end(); ++v_it) {
-		if (getPositionInArray<MyMesh::VHandle>(v_it.handle(), intersectionVHandles) == -1) {
-			vertices.push_back(v_it.handle());
-		} else {
-
-		}
-	}
-	//push them into new mesh
-	vector<MyMesh::VertexHandle> addedVertices;
-	for (int i = 0; i < vertices.size(); i++) {
-		MyMesh::Point P = polyhedron->point(vertices[i]);
-		addedVertices.push_back(mesh->add_vertex(P));
-	}
-	//get intersection vhandles
-	for (int i = 0; i < intersectionVHandles.size(); i++) {
-		int index = intersectionVHandles[i].idx();
-		meshIntersectionVHandles.push_back(addedVertices[index]);
-	}
-	//reconstruct mesh faces
-	for (MyMesh::FaceIter f_it = polyhedron->faces_begin(); f_it != polyhedron->faces_end(); ++f_it) {
-		vector<MyMesh::VertexHandle> face_vhandles;
-		for (MyMesh::FVIter fv_it = polyhedron->fv_iter(f_it.handle()); fv_it != polyhedron->fv_end(f_it.handle()); ++fv_it) {
-			int index = fv_it.handle().idx();
-			face_vhandles.push_back(addedVertices[index]);
-		}
-		mesh->add_face(face_vhandles);
-	}
-	//delete vertex and join mesh
-	if (parentBNPNode != NULL) {
-		//get intersection one ring neighborhood
-		vector<MyMesh::VertexHandle> tempOneRing;
-		MyMesh::VertexHandle vh = meshIntersectionVHandles.back();
-		for (MyMesh::VVIter vv_it = mesh->vv_begin(vh); vv_it != mesh->vv_end(vh); ++vv_it) {
-			tempOneRing.push_back(vv_it.handle());
-		}
-		//delete intersection
-		vector<MyMesh::FaceHandle> facesToDelete;
-		for (MyMesh::VFIter vf_it = mesh->vf_begin(vh); vf_it != mesh->vf_end(vh); ++vf_it) {
-			facesToDelete.push_back(vf_it.handle());
-		}
-		for (int i = 0; i < facesToDelete.size(); i++) {
-			mesh->delete_face(facesToDelete[i], false);
-		}
-		//mesh->garbage_collection();
-		//mesh->delete_vertex(vh, false);
-		//order newOneRingArray	
-		vector<MyMesh::VertexHandle> newOneRing;
-		for (int i = 0; i < oneRing.size(); i++) {//increase performance from O(n^2)
-			MyMesh::Point P = mesh->point(oneRing[i]);
-			float minDist = 0;
-			int index = 0;
-			for (int j = 0; j < tempOneRing.size(); j++) {
-				MyMesh::Point Q = mesh->point(tempOneRing[j]);
-				float dist = (P - Q).norm();
-				if (j == 0 || dist < minDist) {
-					minDist = dist;
-					index = j;
-				}
-			}
-			newOneRing.push_back(tempOneRing[index]);
-		}
-		//create new faces for the points
-		for (int i = 0; i < newOneRing.size(); i++) {
-			int j = 0;
-			if (i + 1 < newOneRing.size()) {
-				j = i + 1;
-			}
-			mesh->add_face(oneRing[i], newOneRing[i], newOneRing[j], oneRing[j]);
-		}
-	}
-	*/
 }
 
 void SQMNode::extendMesh(MyMesh* mesh, SQMNode* parentBNPNode, vector<MyMesh::VertexHandle>& oneRing, OpenMesh::Vec3f& directionVector) {
 	//create new points by translating parent points in the direction of the vector
+	float d = -(position[0]*directionVector[0] + position[1]*directionVector[1] + position[2]*directionVector[2]);
 	vector<MyMesh::Point> points;
 	for (int i = 0; i < oneRing.size(); i++) {
 		MyMesh::Point P = mesh->point(oneRing[i]);
-		OpenMesh::Vec3f u = (position - parentBNPNode->getPosition()).norm() * directionVector;
+		//OpenMesh::Vec3f u = (position - parentBNPNode->getPosition()).norm() * directionVector;
+		float dist = fabsf(directionVector[0]*P[0] + directionVector[1]*P[1] + directionVector[2]*P[2] + d);
+		OpenMesh::Vec3f u = directionVector * dist;
 		MyMesh::Point Q = P + u;
 		points.push_back(Q);
 	}
