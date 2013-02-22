@@ -26,7 +26,43 @@ namespace OpenGLForm
 		System::Drawing::Point lastPositionLeftMouse;
 		GLCamera *glCamera;
 #pragma endregion
+		
+#pragma region Inits
+		COpenGL(System::Windows::Forms::Panel ^ parentPanel, GLsizei iWidth, GLsizei iHeight)
+		{
+			CreateParams^ cp = gcnew CreateParams;
 
+			// Set the position on the form
+			cp->X = 0;
+			cp->Y = 0;
+			cp->Height = iHeight;
+			cp->Width = iWidth;
+
+			// Specify the form as the parent.
+			cp->Parent = parentPanel->Handle;
+
+			// Create as a child of the specified parent and make OpenGL compliant (no clipping)
+			cp->Style = WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS | WS_CLIPCHILDREN;
+
+			// Create the actual window
+			this->CreateHandle(cp);
+
+			m_hDC = GetDC((HWND)this->Handle.ToPointer());
+
+			if(m_hDC)
+			{
+				MySetPixelFormat(m_hDC);
+				resize(iWidth, iHeight);
+				InitGL();
+			}
+
+			rtri = 0.0f;
+			rquad = 0.0f;
+
+			sqmControler = new SQMControler();
+			glCamera = new GLCamera();
+		}
+		
 		COpenGL(System::Windows::Forms::Form ^ parentForm, GLsizei iWidth, GLsizei iHeight)
 		{
 			CreateParams^ cp = gcnew CreateParams;
@@ -61,7 +97,7 @@ namespace OpenGLForm
 			sqmControler = new SQMControler();
 			glCamera = new GLCamera();
 		}
-
+#pragma endregion
 
 		System::Void Render(System::Void)
 		{

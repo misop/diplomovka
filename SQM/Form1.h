@@ -37,7 +37,7 @@ namespace SQM {
 			//
 			//TODO: Add the constructor code here
 			//
-			OpenGL = gcnew COpenGL(this, 640, 640);
+			OpenGL = gcnew COpenGL(this->panel1, 732, 473);
 		}
 
 	protected:
@@ -74,6 +74,7 @@ namespace SQM {
 	private: System::Windows::Forms::ToolStripMenuItem^  subdivideConvexHullToolStripMenuItem;
 	private: System::Windows::Forms::ToolStripMenuItem^  joinVranchNodePolyhedronsToolStripMenuItem;
 	private: System::Windows::Forms::ToolStripMenuItem^  executeSQMAlgorithmToolStripMenuItem;
+	private: System::Windows::Forms::Panel^  panel1;
 
 
 
@@ -98,9 +99,10 @@ namespace SQM {
 				 this->computeConvexHullToolStripMenuItem = (gcnew System::Windows::Forms::ToolStripMenuItem());
 				 this->subdivideConvexHullToolStripMenuItem = (gcnew System::Windows::Forms::ToolStripMenuItem());
 				 this->joinVranchNodePolyhedronsToolStripMenuItem = (gcnew System::Windows::Forms::ToolStripMenuItem());
+				 this->executeSQMAlgorithmToolStripMenuItem = (gcnew System::Windows::Forms::ToolStripMenuItem());
 				 this->openFileDialog1 = (gcnew System::Windows::Forms::OpenFileDialog());
 				 this->saveFileDialog1 = (gcnew System::Windows::Forms::SaveFileDialog());
-				 this->executeSQMAlgorithmToolStripMenuItem = (gcnew System::Windows::Forms::ToolStripMenuItem());
+				 this->panel1 = (gcnew System::Windows::Forms::Panel());
 				 this->toolStrip1->SuspendLayout();
 				 this->SuspendLayout();
 				 // 
@@ -185,10 +187,6 @@ namespace SQM {
 				 this->joinVranchNodePolyhedronsToolStripMenuItem->Text = L"Join Branch Node Polyhedrons";
 				 this->joinVranchNodePolyhedronsToolStripMenuItem->Click += gcnew System::EventHandler(this, &Form1::joinVranchNodePolyhedronsToolStripMenuItem_Click);
 				 // 
-				 // openFileDialog1
-				 // 
-				 this->openFileDialog1->FileName = L"openFileDialog1";
-				 // 
 				 // executeSQMAlgorithmToolStripMenuItem
 				 // 
 				 this->executeSQMAlgorithmToolStripMenuItem->Name = L"executeSQMAlgorithmToolStripMenuItem";
@@ -196,11 +194,23 @@ namespace SQM {
 				 this->executeSQMAlgorithmToolStripMenuItem->Text = L"Execute SQM Algorithm";
 				 this->executeSQMAlgorithmToolStripMenuItem->Click += gcnew System::EventHandler(this, &Form1::executeSQMAlgorithmToolStripMenuItem_Click);
 				 // 
+				 // openFileDialog1
+				 // 
+				 this->openFileDialog1->FileName = L"openFileDialog1";
+				 // 
+				 // panel1
+				 // 
+				 this->panel1->Location = System::Drawing::Point(0, 28);
+				 this->panel1->Name = L"panel1";
+				 this->panel1->Size = System::Drawing::Size(732, 473);
+				 this->panel1->TabIndex = 1;
+				 // 
 				 // Form1
 				 // 
 				 this->AutoScaleDimensions = System::Drawing::SizeF(6, 13);
 				 this->AutoScaleMode = System::Windows::Forms::AutoScaleMode::Font;
 				 this->ClientSize = System::Drawing::Size(744, 513);
+				 this->Controls->Add(this->panel1);
 				 this->Controls->Add(this->toolStrip1);
 				 this->Name = L"Form1";
 				 this->Text = L"Form1";
@@ -209,7 +219,7 @@ namespace SQM {
 				 this->toolStrip1->PerformLayout();
 				 this->ResumeLayout(false);
 				 this->PerformLayout();
-				 this->KeyPress += gcnew KeyPressEventHandler(this, &Form1::Form1_KeyPress);
+
 			 }
 #pragma endregion
 	private: System::Void timer1_Tick(System::Object^  sender, System::EventArgs^  e)
