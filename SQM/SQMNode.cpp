@@ -285,15 +285,15 @@ OpenMesh::Vec3f SQMNode::translatedPointToSphereWithFaceNormals(OpenMesh::Vec3f 
 	//float b = 2.0*(u.values_[0]*CA.values_[0] + u.values_[1]*CA.values_[1] + u.values_[2]*CA.values_[2]);
 	//float c = pow(CA.values_[0], 2) + pow(CA.values_[1], 2) + pow(CA.values_[2], 2) + pow(nodeRadius, 2);
 	//float a = 1.0;//dot(u, u); u is unit vector simplified
-	float b = dot(u, p - CA);//2*dot(u, p - CA); simplified
+	float b = 2*dot(u, p - CA);//2*dot(u, p - CA); simplified
 	float c = dot(CA, CA) - nodeRadius*nodeRadius;
 	float delta = b*b - c;//b*b - 4.0*a*c; simplified
 	if (delta < FLOAT_ZERO) {
 		return p;
 	}
 	//determinate correct intersection
-	float d1 = -b - sqrt(delta);//(-b - sqrt(delta)) / (2.0*a); simplified
-	float d2 = -b + sqrt(delta);//(-b + sqrt(delta)) / (2.0*a); simplified
+	float d1 = (-b - sqrt(delta))/2.0;//(-b - sqrt(delta)) / (2.0*a); simplified
+	float d2 = (-b + sqrt(delta))/2.0;//(-b + sqrt(delta)) / (2.0*a); simplified
 	//parameter has to be bigger than 0 thus moving in the direction of leading vector
 	//or just the smaller one?
 	float d = fabs(d1) < fabs(d2) ? d1 : d2;
