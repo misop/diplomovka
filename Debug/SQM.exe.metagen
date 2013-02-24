@@ -36,6 +36,7 @@ Class OpenGLForm.COpenGL: AutoLayout, AnsiClass, Class, Public, BeforeFieldInit
     computeConvexHull(): PrivateScope, Public, HideBySig
     subdivideConvexHull(): PrivateScope, Public, HideBySig
     joinBNPs(): PrivateScope, Public, HideBySig
+    executeSQMAlgorithm(SQMState): PrivateScope, Public, HideBySig
     executeSQMAlgorithm(): PrivateScope, Public, HideBySig
     Dispose(): PrivateScope, Public, Final, Virtual, HideBySig
 Class SQM.Form1: AutoLayout, AnsiClass, Class, Public, BeforeFieldInit

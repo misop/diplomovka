@@ -108,4 +108,8 @@ void SQMControler::executeSQMAlgorithm() {
 	sqmALgorithm->executeSQMAlgorithm();
 }
 
+void SQMControler::executeSQMAlgorithm(SQMState state) {
+	sqmALgorithm->executeSQMAlgorithm(state);
+}
+
 #pragma endregion

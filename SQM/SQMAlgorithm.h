@@ -3,9 +3,18 @@
 #include <fstream>
 #include <ostream>
 
+typedef enum {
+	SQMStart = 0,
+	SQMStraighten,
+	SQMComputeConvexHull,
+	SQMSubdivideConvexHull,
+	SQMJoinBNPs
+} SQMState;
+
 class SQMAlgorithm {
 	SQMNode *root;
 	int drawingMode;
+	SQMState sqmState;
 	MyMesh* mesh;
 	filebuf *fb;
 	ostream *os;
@@ -25,5 +34,6 @@ public:
 	void subdivideConvexHull();
 	void joinBNPs();
 	void executeSQMAlgorithm();
+	void executeSQMAlgorithm(SQMState state);
 };
 

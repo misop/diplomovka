@@ -20,6 +20,7 @@ public:
 	void subdivideConvexHull();
 	void joinBNPs();
 	void executeSQMAlgorithm();
+	void executeSQMAlgorithm(SQMState state);
 
 	void draw();
 	void getBoundingSphere(float &x, float &y, float &z, float &d);

@@ -37,7 +37,7 @@ namespace SQM {
 			//
 			//TODO: Add the constructor code here
 			//
-			OpenGL = gcnew COpenGL(this->panel1, 732, 473);
+			OpenGL = gcnew COpenGL(this->panel1, 720, 449);
 		}
 
 	protected:
@@ -63,18 +63,27 @@ namespace SQM {
 		Point lastPosition;
 #pragma endregion
 	private: System::Windows::Forms::ToolStrip^  toolStrip1;
-	private: System::Windows::Forms::ToolStripDropDownButton^  toolStripDropDownButton1;
-	private: System::Windows::Forms::ToolStripMenuItem^  openToolStripMenuItem;
+
+
 	private: System::Windows::Forms::OpenFileDialog^  openFileDialog1;
-	private: System::Windows::Forms::ToolStripMenuItem^  saveToolStripMenuItem;
+
 	private: System::Windows::Forms::SaveFileDialog^  saveFileDialog1;
-	private: System::Windows::Forms::ToolStripDropDownButton^  toolStripDropDownButton2;
-	private: System::Windows::Forms::ToolStripMenuItem^  straightenToolStripMenuItem;
-	private: System::Windows::Forms::ToolStripMenuItem^  computeConvexHullToolStripMenuItem;
-	private: System::Windows::Forms::ToolStripMenuItem^  subdivideConvexHullToolStripMenuItem;
-	private: System::Windows::Forms::ToolStripMenuItem^  joinVranchNodePolyhedronsToolStripMenuItem;
-	private: System::Windows::Forms::ToolStripMenuItem^  executeSQMAlgorithmToolStripMenuItem;
+
+
+
+
+
+
 	private: System::Windows::Forms::Panel^  panel1;
+	private: System::Windows::Forms::MenuStrip^  menuStrip1;
+	private: System::Windows::Forms::ToolStripMenuItem^  fileToolStripMenuItem;
+	private: System::Windows::Forms::ToolStripMenuItem^  loadToolStripMenuItem;
+	private: System::Windows::Forms::ToolStripMenuItem^  saveToolStripMenuItem1;
+	private: System::Windows::Forms::ToolStripMenuItem^  sQMToolStripMenuItem;
+	private: System::Windows::Forms::ToolStripMenuItem^  straightenToolStripMenuItem1;
+	private: System::Windows::Forms::ToolStripMenuItem^  computeConvexHullToolStripMenuItem1;
+	private: System::Windows::Forms::ToolStripMenuItem^  subdivideConvexHullToolStripMenuItem1;
+	private: System::Windows::Forms::ToolStripMenuItem^  joinBranchNodePolyhedronsToolStripMenuItem;
 
 
 
@@ -88,22 +97,21 @@ namespace SQM {
 			 void InitializeComponent(void)
 			 {
 				 this->components = (gcnew System::ComponentModel::Container());
-				 System::ComponentModel::ComponentResourceManager^  resources = (gcnew System::ComponentModel::ComponentResourceManager(Form1::typeid));
 				 this->timer1 = (gcnew System::Windows::Forms::Timer(this->components));
 				 this->toolStrip1 = (gcnew System::Windows::Forms::ToolStrip());
-				 this->toolStripDropDownButton1 = (gcnew System::Windows::Forms::ToolStripDropDownButton());
-				 this->openToolStripMenuItem = (gcnew System::Windows::Forms::ToolStripMenuItem());
-				 this->saveToolStripMenuItem = (gcnew System::Windows::Forms::ToolStripMenuItem());
-				 this->toolStripDropDownButton2 = (gcnew System::Windows::Forms::ToolStripDropDownButton());
-				 this->straightenToolStripMenuItem = (gcnew System::Windows::Forms::ToolStripMenuItem());
-				 this->computeConvexHullToolStripMenuItem = (gcnew System::Windows::Forms::ToolStripMenuItem());
-				 this->subdivideConvexHullToolStripMenuItem = (gcnew System::Windows::Forms::ToolStripMenuItem());
-				 this->joinVranchNodePolyhedronsToolStripMenuItem = (gcnew System::Windows::Forms::ToolStripMenuItem());
-				 this->executeSQMAlgorithmToolStripMenuItem = (gcnew System::Windows::Forms::ToolStripMenuItem());
 				 this->openFileDialog1 = (gcnew System::Windows::Forms::OpenFileDialog());
 				 this->saveFileDialog1 = (gcnew System::Windows::Forms::SaveFileDialog());
 				 this->panel1 = (gcnew System::Windows::Forms::Panel());
-				 this->toolStrip1->SuspendLayout();
+				 this->menuStrip1 = (gcnew System::Windows::Forms::MenuStrip());
+				 this->fileToolStripMenuItem = (gcnew System::Windows::Forms::ToolStripMenuItem());
+				 this->loadToolStripMenuItem = (gcnew System::Windows::Forms::ToolStripMenuItem());
+				 this->saveToolStripMenuItem1 = (gcnew System::Windows::Forms::ToolStripMenuItem());
+				 this->sQMToolStripMenuItem = (gcnew System::Windows::Forms::ToolStripMenuItem());
+				 this->straightenToolStripMenuItem1 = (gcnew System::Windows::Forms::ToolStripMenuItem());
+				 this->computeConvexHullToolStripMenuItem1 = (gcnew System::Windows::Forms::ToolStripMenuItem());
+				 this->subdivideConvexHullToolStripMenuItem1 = (gcnew System::Windows::Forms::ToolStripMenuItem());
+				 this->joinBranchNodePolyhedronsToolStripMenuItem = (gcnew System::Windows::Forms::ToolStripMenuItem());
+				 this->menuStrip1->SuspendLayout();
 				 this->SuspendLayout();
 				 // 
 				 // timer1
@@ -114,85 +122,11 @@ namespace SQM {
 				 // 
 				 // toolStrip1
 				 // 
-				 this->toolStrip1->Items->AddRange(gcnew cli::array< System::Windows::Forms::ToolStripItem^  >(2) {this->toolStripDropDownButton1, 
-					 this->toolStripDropDownButton2});
-				 this->toolStrip1->Location = System::Drawing::Point(0, 0);
+				 this->toolStrip1->Location = System::Drawing::Point(0, 24);
 				 this->toolStrip1->Name = L"toolStrip1";
 				 this->toolStrip1->Size = System::Drawing::Size(744, 25);
 				 this->toolStrip1->TabIndex = 0;
 				 this->toolStrip1->Text = L"toolStrip1";
-				 // 
-				 // toolStripDropDownButton1
-				 // 
-				 this->toolStripDropDownButton1->DisplayStyle = System::Windows::Forms::ToolStripItemDisplayStyle::Text;
-				 this->toolStripDropDownButton1->DropDownItems->AddRange(gcnew cli::array< System::Windows::Forms::ToolStripItem^  >(2) {this->openToolStripMenuItem, 
-					 this->saveToolStripMenuItem});
-				 this->toolStripDropDownButton1->Image = (cli::safe_cast<System::Drawing::Image^  >(resources->GetObject(L"toolStripDropDownButton1.Image")));
-				 this->toolStripDropDownButton1->ImageTransparentColor = System::Drawing::Color::Magenta;
-				 this->toolStripDropDownButton1->Name = L"toolStripDropDownButton1";
-				 this->toolStripDropDownButton1->Size = System::Drawing::Size(38, 22);
-				 this->toolStripDropDownButton1->Text = L"File";
-				 // 
-				 // openToolStripMenuItem
-				 // 
-				 this->openToolStripMenuItem->Name = L"openToolStripMenuItem";
-				 this->openToolStripMenuItem->Size = System::Drawing::Size(103, 22);
-				 this->openToolStripMenuItem->Text = L"Open";
-				 this->openToolStripMenuItem->Click += gcnew System::EventHandler(this, &Form1::openToolStripMenuItem_Click);
-				 // 
-				 // saveToolStripMenuItem
-				 // 
-				 this->saveToolStripMenuItem->Name = L"saveToolStripMenuItem";
-				 this->saveToolStripMenuItem->Size = System::Drawing::Size(103, 22);
-				 this->saveToolStripMenuItem->Text = L"Save";
-				 this->saveToolStripMenuItem->Click += gcnew System::EventHandler(this, &Form1::saveToolStripMenuItem_Click);
-				 // 
-				 // toolStripDropDownButton2
-				 // 
-				 this->toolStripDropDownButton2->DisplayStyle = System::Windows::Forms::ToolStripItemDisplayStyle::Text;
-				 this->toolStripDropDownButton2->DropDownItems->AddRange(gcnew cli::array< System::Windows::Forms::ToolStripItem^  >(5) {this->straightenToolStripMenuItem, 
-					 this->computeConvexHullToolStripMenuItem, this->subdivideConvexHullToolStripMenuItem, this->joinVranchNodePolyhedronsToolStripMenuItem, 
-					 this->executeSQMAlgorithmToolStripMenuItem});
-				 this->toolStripDropDownButton2->Image = (cli::safe_cast<System::Drawing::Image^  >(resources->GetObject(L"toolStripDropDownButton2.Image")));
-				 this->toolStripDropDownButton2->ImageTransparentColor = System::Drawing::Color::Magenta;
-				 this->toolStripDropDownButton2->Name = L"toolStripDropDownButton2";
-				 this->toolStripDropDownButton2->Size = System::Drawing::Size(46, 22);
-				 this->toolStripDropDownButton2->Text = L"SQM";
-				 // 
-				 // straightenToolStripMenuItem
-				 // 
-				 this->straightenToolStripMenuItem->Name = L"straightenToolStripMenuItem";
-				 this->straightenToolStripMenuItem->Size = System::Drawing::Size(236, 22);
-				 this->straightenToolStripMenuItem->Text = L"Straighten";
-				 this->straightenToolStripMenuItem->Click += gcnew System::EventHandler(this, &Form1::straightenToolStripMenuItem_Click);
-				 // 
-				 // computeConvexHullToolStripMenuItem
-				 // 
-				 this->computeConvexHullToolStripMenuItem->Name = L"computeConvexHullToolStripMenuItem";
-				 this->computeConvexHullToolStripMenuItem->Size = System::Drawing::Size(236, 22);
-				 this->computeConvexHullToolStripMenuItem->Text = L"Compute Convex Hull";
-				 this->computeConvexHullToolStripMenuItem->Click += gcnew System::EventHandler(this, &Form1::computeConvexHullToolStripMenuItem_Click);
-				 // 
-				 // subdivideConvexHullToolStripMenuItem
-				 // 
-				 this->subdivideConvexHullToolStripMenuItem->Name = L"subdivideConvexHullToolStripMenuItem";
-				 this->subdivideConvexHullToolStripMenuItem->Size = System::Drawing::Size(236, 22);
-				 this->subdivideConvexHullToolStripMenuItem->Text = L"Subdivide Convex Hull";
-				 this->subdivideConvexHullToolStripMenuItem->Click += gcnew System::EventHandler(this, &Form1::subdivideConvexHullToolStripMenuItem_Click);
-				 // 
-				 // joinVranchNodePolyhedronsToolStripMenuItem
-				 // 
-				 this->joinVranchNodePolyhedronsToolStripMenuItem->Name = L"joinVranchNodePolyhedronsToolStripMenuItem";
-				 this->joinVranchNodePolyhedronsToolStripMenuItem->Size = System::Drawing::Size(236, 22);
-				 this->joinVranchNodePolyhedronsToolStripMenuItem->Text = L"Join Branch Node Polyhedrons";
-				 this->joinVranchNodePolyhedronsToolStripMenuItem->Click += gcnew System::EventHandler(this, &Form1::joinVranchNodePolyhedronsToolStripMenuItem_Click);
-				 // 
-				 // executeSQMAlgorithmToolStripMenuItem
-				 // 
-				 this->executeSQMAlgorithmToolStripMenuItem->Name = L"executeSQMAlgorithmToolStripMenuItem";
-				 this->executeSQMAlgorithmToolStripMenuItem->Size = System::Drawing::Size(236, 22);
-				 this->executeSQMAlgorithmToolStripMenuItem->Text = L"Execute SQM Algorithm";
-				 this->executeSQMAlgorithmToolStripMenuItem->Click += gcnew System::EventHandler(this, &Form1::executeSQMAlgorithmToolStripMenuItem_Click);
 				 // 
 				 // openFileDialog1
 				 // 
@@ -200,10 +134,78 @@ namespace SQM {
 				 // 
 				 // panel1
 				 // 
-				 this->panel1->Location = System::Drawing::Point(0, 28);
+				 this->panel1->Location = System::Drawing::Point(12, 52);
 				 this->panel1->Name = L"panel1";
-				 this->panel1->Size = System::Drawing::Size(732, 473);
+				 this->panel1->Size = System::Drawing::Size(720, 449);
 				 this->panel1->TabIndex = 1;
+				 // 
+				 // menuStrip1
+				 // 
+				 this->menuStrip1->Items->AddRange(gcnew cli::array< System::Windows::Forms::ToolStripItem^  >(2) {this->fileToolStripMenuItem, 
+					 this->sQMToolStripMenuItem});
+				 this->menuStrip1->Location = System::Drawing::Point(0, 0);
+				 this->menuStrip1->Name = L"menuStrip1";
+				 this->menuStrip1->Size = System::Drawing::Size(744, 24);
+				 this->menuStrip1->TabIndex = 2;
+				 this->menuStrip1->Text = L"menuStrip1";
+				 // 
+				 // fileToolStripMenuItem
+				 // 
+				 this->fileToolStripMenuItem->DropDownItems->AddRange(gcnew cli::array< System::Windows::Forms::ToolStripItem^  >(2) {this->loadToolStripMenuItem, 
+					 this->saveToolStripMenuItem1});
+				 this->fileToolStripMenuItem->Name = L"fileToolStripMenuItem";
+				 this->fileToolStripMenuItem->Size = System::Drawing::Size(37, 20);
+				 this->fileToolStripMenuItem->Text = L"File";
+				 // 
+				 // loadToolStripMenuItem
+				 // 
+				 this->loadToolStripMenuItem->Name = L"loadToolStripMenuItem";
+				 this->loadToolStripMenuItem->Size = System::Drawing::Size(152, 22);
+				 this->loadToolStripMenuItem->Text = L"Open";
+				 this->loadToolStripMenuItem->Click += gcnew System::EventHandler(this, &Form1::loadToolStripMenuItem_Click);
+				 // 
+				 // saveToolStripMenuItem1
+				 // 
+				 this->saveToolStripMenuItem1->Name = L"saveToolStripMenuItem1";
+				 this->saveToolStripMenuItem1->Size = System::Drawing::Size(152, 22);
+				 this->saveToolStripMenuItem1->Text = L"Save";
+				 this->saveToolStripMenuItem1->Click += gcnew System::EventHandler(this, &Form1::saveToolStripMenuItem1_Click);
+				 // 
+				 // sQMToolStripMenuItem
+				 // 
+				 this->sQMToolStripMenuItem->DropDownItems->AddRange(gcnew cli::array< System::Windows::Forms::ToolStripItem^  >(4) {this->straightenToolStripMenuItem1, 
+					 this->computeConvexHullToolStripMenuItem1, this->subdivideConvexHullToolStripMenuItem1, this->joinBranchNodePolyhedronsToolStripMenuItem});
+				 this->sQMToolStripMenuItem->Name = L"sQMToolStripMenuItem";
+				 this->sQMToolStripMenuItem->Size = System::Drawing::Size(45, 20);
+				 this->sQMToolStripMenuItem->Text = L"SQM";
+				 // 
+				 // straightenToolStripMenuItem1
+				 // 
+				 this->straightenToolStripMenuItem1->Name = L"straightenToolStripMenuItem1";
+				 this->straightenToolStripMenuItem1->Size = System::Drawing::Size(236, 22);
+				 this->straightenToolStripMenuItem1->Text = L"Straighten";
+				 this->straightenToolStripMenuItem1->Click += gcnew System::EventHandler(this, &Form1::straightenToolStripMenuItem1_Click);
+				 // 
+				 // computeConvexHullToolStripMenuItem1
+				 // 
+				 this->computeConvexHullToolStripMenuItem1->Name = L"computeConvexHullToolStripMenuItem1";
+				 this->computeConvexHullToolStripMenuItem1->Size = System::Drawing::Size(236, 22);
+				 this->computeConvexHullToolStripMenuItem1->Text = L"Compute Convex Hull";
+				 this->computeConvexHullToolStripMenuItem1->Click += gcnew System::EventHandler(this, &Form1::computeConvexHullToolStripMenuItem1_Click);
+				 // 
+				 // subdivideConvexHullToolStripMenuItem1
+				 // 
+				 this->subdivideConvexHullToolStripMenuItem1->Name = L"subdivideConvexHullToolStripMenuItem1";
+				 this->subdivideConvexHullToolStripMenuItem1->Size = System::Drawing::Size(236, 22);
+				 this->subdivideConvexHullToolStripMenuItem1->Text = L"Subdivide Convex Hull";
+				 this->subdivideConvexHullToolStripMenuItem1->Click += gcnew System::EventHandler(this, &Form1::subdivideConvexHullToolStripMenuItem1_Click);
+				 // 
+				 // joinBranchNodePolyhedronsToolStripMenuItem
+				 // 
+				 this->joinBranchNodePolyhedronsToolStripMenuItem->Name = L"joinBranchNodePolyhedronsToolStripMenuItem";
+				 this->joinBranchNodePolyhedronsToolStripMenuItem->Size = System::Drawing::Size(236, 22);
+				 this->joinBranchNodePolyhedronsToolStripMenuItem->Text = L"Join Branch Node Polyhedrons";
+				 this->joinBranchNodePolyhedronsToolStripMenuItem->Click += gcnew System::EventHandler(this, &Form1::joinBranchNodePolyhedronsToolStripMenuItem_Click);
 				 // 
 				 // Form1
 				 // 
@@ -212,11 +214,13 @@ namespace SQM {
 				 this->ClientSize = System::Drawing::Size(744, 513);
 				 this->Controls->Add(this->panel1);
 				 this->Controls->Add(this->toolStrip1);
+				 this->Controls->Add(this->menuStrip1);
+				 this->MainMenuStrip = this->menuStrip1;
 				 this->Name = L"Form1";
 				 this->Text = L"Form1";
 				 this->MouseWheel += gcnew System::Windows::Forms::MouseEventHandler(this, &Form1::Form1_MouseWheel);
-				 this->toolStrip1->ResumeLayout(false);
-				 this->toolStrip1->PerformLayout();
+				 this->menuStrip1->ResumeLayout(false);
+				 this->menuStrip1->PerformLayout();
 				 this->ResumeLayout(false);
 				 this->PerformLayout();
 
@@ -228,27 +232,6 @@ namespace SQM {
 				 UNREFERENCED_PARAMETER(e);
 				 OpenGL->Render();
 				 OpenGL->SwapOpenGLBuffers();
-			 }
-
-
-	private: System::Void openToolStripMenuItem_Click(System::Object^  sender, System::EventArgs^  e) {
-				 if (this->openFileDialog1->ShowDialog() == System::Windows::Forms::DialogResult::OK)
-				 {
-					 string fileName = "";
-					 MarshalString(this->openFileDialog1->FileName, fileName);
-					 //MessageBox::Show(this->openFileDialog1->FileName);
-					 OpenGL->loadSkeletonFromFile(fileName);
-				 }
-			 }
-	private: System::Void saveToolStripMenuItem_Click(System::Object^  sender, System::EventArgs^  e) {
-				 if (this->saveFileDialog1->ShowDialog() == System::Windows::Forms::DialogResult::OK) {
-					 string fileName = "";
-					 MarshalString(this->saveFileDialog1->FileName, fileName);
-					 OpenGL->saveSkeletonToFile(fileName);
-				 }
-			 }
-	private: System::Void straightenToolStripMenuItem_Click(System::Object^  sender, System::EventArgs^  e) {
-				 OpenGL->straightenSkeleton();
 			 }
 
 #pragma region Mouse Handling
@@ -288,18 +271,34 @@ namespace SQM {
 			 }
 
 #pragma endregion
-	private: System::Void computeConvexHullToolStripMenuItem_Click(System::Object^  sender, System::EventArgs^  e) {
-				 OpenGL->computeConvexHull();
+	private: System::Void loadToolStripMenuItem_Click(System::Object^  sender, System::EventArgs^  e) {
+				 if (this->openFileDialog1->ShowDialog() == System::Windows::Forms::DialogResult::OK)
+				 {
+					 string fileName = "";
+					 MarshalString(this->openFileDialog1->FileName, fileName);
+					 //MessageBox::Show(this->openFileDialog1->FileName);
+					 OpenGL->loadSkeletonFromFile(fileName);
+				 }
 			 }
-private: System::Void subdivideConvexHullToolStripMenuItem_Click(System::Object^  sender, System::EventArgs^  e) {
-			 OpenGL->subdivideConvexHull();
-		 }
-private: System::Void joinVranchNodePolyhedronsToolStripMenuItem_Click(System::Object^  sender, System::EventArgs^  e) {
-			 OpenGL->joinBNPs();
-		 }
-private: System::Void executeSQMAlgorithmToolStripMenuItem_Click(System::Object^  sender, System::EventArgs^  e) {
-			 OpenGL->executeSQMAlgorithm();
-		 }
-};
+	private: System::Void saveToolStripMenuItem1_Click(System::Object^  sender, System::EventArgs^  e) {
+				 if (this->saveFileDialog1->ShowDialog() == System::Windows::Forms::DialogResult::OK) {
+					 string fileName = "";
+					 MarshalString(this->saveFileDialog1->FileName, fileName);
+					 OpenGL->saveSkeletonToFile(fileName);
+				 }
+			 }
+	private: System::Void straightenToolStripMenuItem1_Click(System::Object^  sender, System::EventArgs^  e) {
+				 OpenGL->executeSQMAlgorithm(SQMStraighten);
+			 }
+	private: System::Void computeConvexHullToolStripMenuItem1_Click(System::Object^  sender, System::EventArgs^  e) {
+				 OpenGL->executeSQMAlgorithm(SQMComputeConvexHull);
+			 }
+	private: System::Void subdivideConvexHullToolStripMenuItem1_Click(System::Object^  sender, System::EventArgs^  e) {
+				 OpenGL->executeSQMAlgorithm(SQMSubdivideConvexHull);
+			 }
+	private: System::Void joinBranchNodePolyhedronsToolStripMenuItem_Click(System::Object^  sender, System::EventArgs^  e) {
+				 OpenGL->executeSQMAlgorithm(SQMJoinBNPs);
+			 }
+	};
 }
 

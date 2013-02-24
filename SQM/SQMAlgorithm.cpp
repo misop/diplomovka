@@ -5,6 +5,7 @@
 SQMAlgorithm::SQMAlgorithm(void) : root(NULL)
 {
 	drawingMode = 0;
+	sqmState = SQMStart;
 	mesh = NULL;
 	fb = new filebuf();
 	os = new ostream(fb);
@@ -31,6 +32,7 @@ void SQMAlgorithm::setRoot(SQMNode *newRoot) {
 
 	root = newRoot;
 	drawingMode = 0;
+	sqmState = SQMStart;
 }
 
 #pragma endregion
@@ -124,6 +126,7 @@ void SQMAlgorithm::straightenSkeleton() {
 	fb->open("log.txt", ios::out);
 	(*os) << "Skeleton straightening\n";
 	root->straightenSkeleton(OpenMesh::Vec3f(0, 0, 0));
+	sqmState = SQMStraighten;
 }
 
 void SQMAlgorithm::computeConvexHull() {
@@ -138,11 +141,13 @@ void SQMAlgorithm::computeConvexHull() {
 		stack.insert(stack.end(), node->getNodes()->begin(), node->getNodes()->end());
 	}
 	drawingMode = 2;
+	sqmState = SQMComputeConvexHull;
 }
 
 void SQMAlgorithm::subdivideConvexHull() {
 	(*os) << "Convex hull subdivision\n";
 	root->subdividePolyhedra(NULL, 0);
+	sqmState = SQMSubdivideConvexHull;
 }
 
 void SQMAlgorithm::joinBNPs() {
@@ -161,6 +166,7 @@ void SQMAlgorithm::joinBNPs() {
 	vector<MyMesh::VertexHandle> vector;
 	root->joinBNPs(mesh, NULL, vector, OpenMesh::Vec3f(0, 0, 0));
 	drawingMode = 3;
+	sqmState = SQMJoinBNPs;
 
 	fb->close();
 }
@@ -170,6 +176,24 @@ void SQMAlgorithm::executeSQMAlgorithm() {
 	computeConvexHull();
 	subdivideConvexHull();
 	joinBNPs();
+}
+
+
+void SQMAlgorithm::executeSQMAlgorithm(SQMState state) {
+	if (sqmState < state) {
+		if (sqmState < SQMStraighten && state >= SQMStraighten) {
+			straightenSkeleton();
+		}
+		if (sqmState < SQMComputeConvexHull && state >= SQMComputeConvexHull) {
+			computeConvexHull();
+		}
+		if (sqmState < SQMSubdivideConvexHull && state >= SQMSubdivideConvexHull) {
+			subdivideConvexHull();
+		}
+		if (sqmState < SQMJoinBNPs && state >= SQMJoinBNPs) {
+			joinBNPs();
+		}
+	}
 }
 
 #pragma endregion

@@ -67,6 +67,42 @@ vector<MyMesh::VertexHandle>* SQMNode::getIntersectionVHandles() {
 
 #pragma endregion
 
+#pragma region Drawing
+
+void SQMNode::draw() {
+	//draw connections
+	glColor3f(0, 1, 0);
+	glBegin(GL_LINES);
+	for (int i = 0; i < nodes.size(); i++) {
+		OpenMesh::Vec3f nodePosition = nodes[i]->getPosition();
+		glVertex3f(position[0], position[1], position[2]);
+		glVertex3f(nodePosition[0], nodePosition[1], nodePosition[2]);
+	}
+	glEnd();
+	//draw ball
+	glColor3f(1, 0, 0);
+	glPushMatrix();
+	glTranslatef(position[0], position[1], position[2]);
+	gluSphere(gluNewQuadric(), nodeRadius, 10, 10);
+	glPopMatrix();
+	glColor3f(0, 0, 1);
+	for (int i = 0; i < nodes.size(); i++) {
+		nodes[i]->draw();
+	}
+}
+
+void SQMNode::draw2() {
+	if (polyhedron != NULL) {
+		//draw polyhedron
+		drawMeshHalfEdgesWithArrows(polyhedron);
+	}
+	for (int i = 0; i < nodes.size(); i++) {
+		nodes[i]->draw2();
+	}
+}
+
+#pragma endregion
+
 #pragma region Skeleton Straightening
 
 void SQMNode::straightenSkeleton(OpenMesh::Vec3f *lineVector) {
@@ -123,56 +159,12 @@ void SQMNode::straightenSkeleton(OpenMesh::Vec3f lineVector) {
 
 #pragma endregion
 
-#pragma region Drawing
-
-void SQMNode::draw() {
-	//draw connections
-	glColor3f(0, 1, 0);
-	glBegin(GL_LINES);
-	for (int i = 0; i < nodes.size(); i++) {
-		OpenMesh::Vec3f nodePosition = nodes[i]->getPosition();
-		glVertex3f(position[0], position[1], position[2]);
-		glVertex3f(nodePosition[0], nodePosition[1], nodePosition[2]);
-	}
-	glEnd();
-	//draw ball
-	glColor3f(1, 0, 0);
-	glPushMatrix();
-	glTranslatef(position[0], position[1], position[2]);
-	gluSphere(gluNewQuadric(), nodeRadius, 10, 10);
-	glPopMatrix();
-	glColor3f(0, 0, 1);
-	for (int i = 0; i < nodes.size(); i++) {
-		nodes[i]->draw();
-	}
-}
-
-void SQMNode::draw2() {
-	if (polyhedron != NULL) {
-		//draw polyhedron
-		drawMeshHalfEdgesWithArrows(polyhedron);
-	}
-	for (int i = 0; i < nodes.size(); i++) {
-		nodes[i]->draw2();
-	}
-}
-
-#pragma endregion
-
 #pragma region BNP generation
 
 void SQMNode::calculateConvexHull() {
 	vector<OpenMesh::Vec3i> triangles;
 	Delaunay_on_sphere(intersections, triangles);
 	createPolyhedra(triangles);
-	MyMesh::EdgeIter eit = polyhedron->edges_begin();
-	if (parent != NULL) return;
-	//SPLIT FTW
-	/*MyMesh::FaceIter fit = polyhedron->faces_begin();
-	MyMesh::Point x(5, 5, 5);
-	MyMesh::VertexHandle vh = polyhedron->add_vertex(x);
-	polyhedron->split_edge(polyhedron->edge_handle(polyhedron->halfedge_handle(fit.handle())), vh);
-	polyhedron->split(fit.handle(), vh);*/
 }
 
 void SQMNode::createPolyhedra(vector<OpenMesh::Vec3i> triangles) {
@@ -281,11 +273,9 @@ OpenMesh::Vec3f SQMNode::translatedPointToSphereWithFaceNormals(OpenMesh::Vec3f 
 	}
 	//calculate intersections -> always 2
 	OpenMesh::Vec3f CA = p - position;
-	//float a = pow(u.values_[0], 2) + pow(u.values_[1], 2) + pow(u.values_[2], 2);
-	//float b = 2.0*(u.values_[0]*CA.values_[0] + u.values_[1]*CA.values_[1] + u.values_[2]*CA.values_[2]);
-	//float c = pow(CA.values_[0], 2) + pow(CA.values_[1], 2) + pow(CA.values_[2], 2) + pow(nodeRadius, 2);
 	//float a = 1.0;//dot(u, u); u is unit vector simplified
-	float b = 2*dot(u, p - CA);//2*dot(u, p - CA); simplified
+	//float b = 2*dot(u, p - CA);//old
+	float b = 2*dot(u, p - position);
 	float c = dot(CA, CA) - nodeRadius*nodeRadius;
 	float delta = b*b - c;//b*b - 4.0*a*c; simplified
 	if (delta < FLOAT_ZERO) {
