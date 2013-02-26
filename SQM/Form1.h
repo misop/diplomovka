@@ -138,6 +138,10 @@ namespace SQM {
 				 this->panel1->Name = L"panel1";
 				 this->panel1->Size = System::Drawing::Size(720, 449);
 				 this->panel1->TabIndex = 1;
+				 this->panel1->MouseDown += gcnew System::Windows::Forms::MouseEventHandler(this, &Form1::Panel1_MouseDown);
+				 this->panel1->MouseMove += gcnew System::Windows::Forms::MouseEventHandler(this, &Form1::Panel1_MouseMove);
+				 this->panel1->MouseUp += gcnew System::Windows::Forms::MouseEventHandler(this, &Form1::Panel1_MouseUp);
+				 this->panel1->MouseWheel += gcnew System::Windows::Forms::MouseEventHandler(this, &Form1::Panel1_MouseWheel);
 				 // 
 				 // menuStrip1
 				 // 
@@ -218,7 +222,6 @@ namespace SQM {
 				 this->MainMenuStrip = this->menuStrip1;
 				 this->Name = L"Form1";
 				 this->Text = L"Form1";
-				 this->MouseWheel += gcnew System::Windows::Forms::MouseEventHandler(this, &Form1::Form1_MouseWheel);
 				 this->menuStrip1->ResumeLayout(false);
 				 this->menuStrip1->PerformLayout();
 				 this->ResumeLayout(false);
@@ -236,23 +239,35 @@ namespace SQM {
 
 #pragma region Mouse Handling
 
-			 void Form1_MouseDown( Object^ /*sender*/, System::Windows::Forms::MouseEventArgs^ e ) {
+			 void Panel1_MouseDown( Object^ /*sender*/, System::Windows::Forms::MouseEventArgs^ e ) {
+				 lastPosition.X = e->X;
+				 lastPosition.Y = e->Y;
 			 }
-			 void Form1_MouseMove( Object^ /*sender*/, System::Windows::Forms::MouseEventArgs^ e )
+			 void Panel1_MouseMove( Object^ /*sender*/, System::Windows::Forms::MouseEventArgs^ e )
 			 {
 				 // Update the mouse path that is drawn onto the Panel. 
 				 float dx = e->X - lastPosition.X;
 				 float dy = e->Y - lastPosition.Y;
+				 //rotate scene
 				 if (e->Button == ::MouseButtons::Right) {
-					 OpenGL->cameraFi += dx * 0.3;
-					 OpenGL->cameraTheta += dy * 0.3;
+					 GLCamera *glCamera = OpenGL->glCamera;
+					 glCamera->setFi(glCamera->fi - dx*0.3);
+					 glCamera->setTheta(glCamera->theta - dy*0.3);
+					 //OpenGL->cameraFi += dx * 0.3;
+					 //OpenGL->cameraTheta += dy * 0.3;
+				 }
+				 //move scene
+				 if (e->Button == ::MouseButtons::Left) {
+					 GLCamera *glCamera = OpenGL->glCamera;
+					 glCamera->strafeHorizontal(dx*0.3);
+					 glCamera->strafeVertical(dy*0.3);
 				 }
 				 lastPosition.X = e->X;
 				 lastPosition.Y = e->Y;
 				 this->Invalidate();
 			 }
 
-			 void Form1_MouseWheel( Object^ /*sender*/, System::Windows::Forms::MouseEventArgs^ e )
+			 void Panel1_MouseWheel( Object^ /*sender*/, System::Windows::Forms::MouseEventArgs^ e )
 			 {
 				 if (Control::ModifierKeys == Keys::Shift)
 					 OpenGL->glCamera->setDist(OpenGL->glCamera->dist - e->Delta/20);
@@ -262,7 +277,7 @@ namespace SQM {
 				 this->Invalidate();
 			 }
 
-			 void Form1_MouseUp( Object^ /*sender*/, System::Windows::Forms::MouseEventArgs^ e )
+			 void Panel1_MouseUp( Object^ /*sender*/, System::Windows::Forms::MouseEventArgs^ e )
 			 {
 			 }
 
