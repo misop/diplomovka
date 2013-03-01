@@ -37,6 +37,14 @@ void SQMAlgorithm::setRoot(SQMNode *newRoot) {
 
 #pragma endregion
 
+#pragma region Getters
+
+SQMNode* SQMAlgorithm::getRoot() {
+	return root;
+}
+
+#pragma endregion
+
 #pragma region Drawing
 
 void SQMAlgorithm::draw() {

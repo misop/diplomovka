@@ -48,6 +48,7 @@ public:
 	MyMesh* getPolyhedron();
 	vector<SQMNode*>* getDescendants();
 	vector<MyMesh::VertexHandle>* getIntersectionVHandles();
+	float getNodeRadius();
 #pragma endregion
 
 #pragma region Skeleton Straightening

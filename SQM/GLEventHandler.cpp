@@ -38,7 +38,8 @@ void GLEventHandler::mouseUp(int positionX, int positionY) {
 	//cleanup
 	mouse = 0;
 	if (state == NodeEditState) {
-		sqmControler->selected = NULL;
+		//finish editing in some way
+		//sqmControler->selected = NULL;
 	}
 }
 

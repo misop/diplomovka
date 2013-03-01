@@ -8,6 +8,7 @@
 #pragma pop
 #include <iostream>
 #include <fstream>
+#include "FloatArithmetic.h"
 
 using namespace std;
 
@@ -75,6 +76,64 @@ void SQMControler::saveSkeletonToFile(string fileName) {
 		errorLog << "Exception: " << e.what() << endl;
 		throw e;
 	}
+}
+
+#pragma endregion
+
+#pragma region Node Selection
+
+void SQMControler::selectNodeInRay(OpenMesh::Vec3f position, OpenMesh::Vec3f direction) {
+	vector<SQMNode*> stack;
+	stack.push_back(sqmALgorithm->getRoot());
+	float minDistance = 0;
+	SQMNode *tempClosest = NULL;
+
+	while (!stack.empty()) {
+		SQMNode *node = stack.back();
+		stack.pop_back();
+		float distance = 0;
+		bool ok = closestNodeRayIntersection(node, position, direction, distance);
+		if (ok && (distance < minDistance || tempClosest == NULL)) {
+			minDistance = distance;
+			tempClosest = node;
+		}
+		for (vector<SQMNode*>::iterator it = node->getDescendants()->begin(); it != node->getDescendants()->end(); it++) {
+			stack.push_back(*it);
+		}
+	}
+
+	selected = tempClosest;
+}
+
+bool closestNodeRayIntersection(SQMNode *node, OpenMesh::Vec3f rayPosition, OpenMesh::Vec3f direction, float& dist) {
+	//initialize
+	OpenMesh::Vec3f u = direction;
+	float nodeRadius = node->getNodeRadius();
+	OpenMesh::Vec3f p = rayPosition;
+	OpenMesh::Vec3f position = node->getPosition();
+	//calculate intersections -> always 2
+	OpenMesh::Vec3f CA = p - position;
+	//float a = 1.0;//dot(u, u); u is unit vector simplified
+	//float b = 2*dot(u, p - CA);//old
+	float b = 2*dot(u, p - position);
+	float c = dot(CA, CA) - nodeRadius*nodeRadius;
+	float delta = b*b - c;//b*b - 4.0*a*c; simplified
+	if (delta < FLOAT_ZERO) {
+		return false;
+	}
+	//determinate correct intersection
+	float d1 = (-b - sqrt(delta))/2.0;//(-b - sqrt(delta)) / (2.0*a); simplified
+	float d2 = (-b + sqrt(delta))/2.0;//(-b + sqrt(delta)) / (2.0*a); simplified
+	//parameter has to be bigger than 0 thus moving in the direction of leading vector
+	if (d1 > 0 && d2 < 0) {
+		dist = d1;
+	} else if (d1 < 0 && d2 > 0) {
+		dist = d2;
+	} else if (d1 > 0 && d2 > 0) {
+		dist = d1 < d2 ? d1 : d2;
+	}
+
+	return true;
 }
 
 #pragma endregion

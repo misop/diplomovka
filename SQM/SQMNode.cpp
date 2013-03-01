@@ -65,6 +65,10 @@ vector<MyMesh::VertexHandle>* SQMNode::getIntersectionVHandles() {
 	return &intersectionVHandles;
 }
 
+float SQMNode::getNodeRadius() {
+	return nodeRadius;
+}
+
 #pragma endregion
 
 #pragma region Drawing

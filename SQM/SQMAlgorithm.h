@@ -23,6 +23,7 @@ public:
 	~SQMAlgorithm(void);
 
 	void setRoot(SQMNode *newRoot);
+	SQMNode* getRoot();
 
 	void straightenSkeleton();
 
