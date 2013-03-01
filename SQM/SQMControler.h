@@ -9,6 +9,8 @@ class SQMControler
 private:
 	SQMAlgorithm *sqmALgorithm;
 public:
+	SQMNode *selected;
+
 	SQMControler(void);
 	~SQMControler(void);
 

@@ -27,6 +27,7 @@ Class OpenGLForm.COpenGL: AutoLayout, AnsiClass, Class, Public, BeforeFieldInit
     System.Drawing.Point lastPositionRightMouse : Public
     System.Drawing.Point lastPositionLeftMouse : Public
     GLCamera* glCamera : Public
+    GLEventHandler* glEventHandler : Public
   Methods:
     Render(): PrivateScope, Public, HideBySig
     SwapOpenGLBuffers(): PrivateScope, Public, HideBySig

@@ -10,7 +10,7 @@
 #define Z 2
 
 GLCamera::GLCamera(void) {
-	fi = 0;
+	/*fi = 0;
 	theta = 90;
 	dist = 700;
 
@@ -28,7 +28,8 @@ GLCamera::GLCamera(void) {
 
 	right[X] = 1;
 	right[Y] = 0;
-	right[Z] = 0;
+	right[Z] = 0;*/
+	reset();
 }
 
 void GLCamera::setFi(float newFi) {
@@ -100,6 +101,28 @@ void GLCamera::lookFromCamera() {
 	glTranslatef(look[X], look[Y],look[Z]);
 	gluSphere(gluNewQuadric(), 2, 10, 10);
 	glPopMatrix();
+}
+
+void GLCamera::reset() {
+	fi = 0;
+	theta = 90;
+	dist = 700;
+
+	eye[X] = 0;
+	eye[Y] = 0;
+	eye[Z] = 700;
+
+	look[X] = 0;
+	look[Y] = 0;
+	look[Z] = 0;
+
+	up[X] = 0;
+	up[Y] = 1;
+	up[Z] = 0;
+
+	right[X] = 1;
+	right[Y] = 0;
+	right[Z] = 0;
 }
 
 GLCamera::~GLCamera(void)

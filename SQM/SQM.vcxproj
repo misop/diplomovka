@@ -95,6 +95,7 @@
     <ClCompile Include="EdgeLength.cpp" />
     <ClCompile Include="FloatArithmetic.cpp" />
     <ClCompile Include="GLCamera.cpp" />
+    <ClCompile Include="GLEventHandler.cpp" />
     <ClCompile Include="MyMesh.cpp" />
     <ClCompile Include="m_math.cpp" />
     <ClCompile Include="OpenMeshVecOperations.cpp" />
@@ -116,6 +117,7 @@
       <FileType>CppForm</FileType>
     </ClInclude>
     <ClInclude Include="GLCamera.h" />
+    <ClInclude Include="GLEventHandler.h" />
     <ClInclude Include="MyMesh.h" />
     <ClInclude Include="m_math.h" />
     <ClInclude Include="OpenGL.h" />

@@ -84,6 +84,8 @@ namespace SQM {
 	private: System::Windows::Forms::ToolStripMenuItem^  computeConvexHullToolStripMenuItem1;
 	private: System::Windows::Forms::ToolStripMenuItem^  subdivideConvexHullToolStripMenuItem1;
 	private: System::Windows::Forms::ToolStripMenuItem^  joinBranchNodePolyhedronsToolStripMenuItem;
+	private: System::Windows::Forms::ToolStripButton^  toolStripButton1;
+	private: System::Windows::Forms::ToolStripButton^  toolStripButton2;
 
 
 
@@ -97,6 +99,7 @@ namespace SQM {
 			 void InitializeComponent(void)
 			 {
 				 this->components = (gcnew System::ComponentModel::Container());
+				 System::ComponentModel::ComponentResourceManager^  resources = (gcnew System::ComponentModel::ComponentResourceManager(Form1::typeid));
 				 this->timer1 = (gcnew System::Windows::Forms::Timer(this->components));
 				 this->toolStrip1 = (gcnew System::Windows::Forms::ToolStrip());
 				 this->openFileDialog1 = (gcnew System::Windows::Forms::OpenFileDialog());
@@ -111,6 +114,9 @@ namespace SQM {
 				 this->computeConvexHullToolStripMenuItem1 = (gcnew System::Windows::Forms::ToolStripMenuItem());
 				 this->subdivideConvexHullToolStripMenuItem1 = (gcnew System::Windows::Forms::ToolStripMenuItem());
 				 this->joinBranchNodePolyhedronsToolStripMenuItem = (gcnew System::Windows::Forms::ToolStripMenuItem());
+				 this->toolStripButton1 = (gcnew System::Windows::Forms::ToolStripButton());
+				 this->toolStripButton2 = (gcnew System::Windows::Forms::ToolStripButton());
+				 this->toolStrip1->SuspendLayout();
 				 this->menuStrip1->SuspendLayout();
 				 this->SuspendLayout();
 				 // 
@@ -122,6 +128,8 @@ namespace SQM {
 				 // 
 				 // toolStrip1
 				 // 
+				 this->toolStrip1->Items->AddRange(gcnew cli::array< System::Windows::Forms::ToolStripItem^  >(2) {this->toolStripButton1, 
+					 this->toolStripButton2});
 				 this->toolStrip1->Location = System::Drawing::Point(0, 24);
 				 this->toolStrip1->Name = L"toolStrip1";
 				 this->toolStrip1->Size = System::Drawing::Size(744, 25);
@@ -141,7 +149,7 @@ namespace SQM {
 				 this->panel1->MouseDown += gcnew System::Windows::Forms::MouseEventHandler(this, &Form1::Panel1_MouseDown);
 				 this->panel1->MouseMove += gcnew System::Windows::Forms::MouseEventHandler(this, &Form1::Panel1_MouseMove);
 				 this->panel1->MouseUp += gcnew System::Windows::Forms::MouseEventHandler(this, &Form1::Panel1_MouseUp);
-				 this->panel1->MouseWheel += gcnew System::Windows::Forms::MouseEventHandler(this, &Form1::Panel1_MouseWheel);
+				 this->MouseWheel += gcnew System::Windows::Forms::MouseEventHandler(this, &Form1::Panel1_MouseWheel);
 				 // 
 				 // menuStrip1
 				 // 
@@ -211,6 +219,26 @@ namespace SQM {
 				 this->joinBranchNodePolyhedronsToolStripMenuItem->Text = L"Join Branch Node Polyhedrons";
 				 this->joinBranchNodePolyhedronsToolStripMenuItem->Click += gcnew System::EventHandler(this, &Form1::joinBranchNodePolyhedronsToolStripMenuItem_Click);
 				 // 
+				 // toolStripButton1
+				 // 
+				 this->toolStripButton1->DisplayStyle = System::Windows::Forms::ToolStripItemDisplayStyle::Image;
+				 this->toolStripButton1->Image = (cli::safe_cast<System::Drawing::Image^  >(resources->GetObject(L"toolStripButton1.Image")));
+				 this->toolStripButton1->ImageTransparentColor = System::Drawing::Color::Magenta;
+				 this->toolStripButton1->Name = L"toolStripButton1";
+				 this->toolStripButton1->Size = System::Drawing::Size(23, 22);
+				 this->toolStripButton1->Text = L"toolStripButton1";
+				 this->toolStripButton1->Click += gcnew System::EventHandler(this, &Form1::toolStripButton1_Click);
+				 // 
+				 // toolStripButton2
+				 // 
+				 this->toolStripButton2->DisplayStyle = System::Windows::Forms::ToolStripItemDisplayStyle::Image;
+				 this->toolStripButton2->Image = (cli::safe_cast<System::Drawing::Image^  >(resources->GetObject(L"toolStripButton2.Image")));
+				 this->toolStripButton2->ImageTransparentColor = System::Drawing::Color::Magenta;
+				 this->toolStripButton2->Name = L"toolStripButton2";
+				 this->toolStripButton2->Size = System::Drawing::Size(23, 22);
+				 this->toolStripButton2->Text = L"toolStripButton2";
+				 this->toolStripButton2->Click += gcnew System::EventHandler(this, &Form1::toolStripButton2_Click);
+				 // 
 				 // Form1
 				 // 
 				 this->AutoScaleDimensions = System::Drawing::SizeF(6, 13);
@@ -222,6 +250,8 @@ namespace SQM {
 				 this->MainMenuStrip = this->menuStrip1;
 				 this->Name = L"Form1";
 				 this->Text = L"Form1";
+				 this->toolStrip1->ResumeLayout(false);
+				 this->toolStrip1->PerformLayout();
 				 this->menuStrip1->ResumeLayout(false);
 				 this->menuStrip1->PerformLayout();
 				 this->ResumeLayout(false);
@@ -240,31 +270,38 @@ namespace SQM {
 #pragma region Mouse Handling
 
 			 void Panel1_MouseDown( Object^ /*sender*/, System::Windows::Forms::MouseEventArgs^ e ) {
-				 lastPosition.X = e->X;
-				 lastPosition.Y = e->Y;
+				 //lastPosition.X = e->X;
+				 //lastPosition.Y = e->Y;
+				 int mouseFlags = 0;
+				 if (e->Button == ::MouseButtons::Right)
+					 mouseFlags |= RIGHT_MOUSE_DOWN;
+				 if (e->Button == ::MouseButtons::Left)
+					 mouseFlags |= LEFT_MOUSE_DOWN;
+				 OpenGL->glEventHandler->mouseDown(e->X, e->Y, mouseFlags);
 			 }
 			 void Panel1_MouseMove( Object^ /*sender*/, System::Windows::Forms::MouseEventArgs^ e )
 			 {
-				 // Update the mouse path that is drawn onto the Panel. 
+				 /*// Update the mouse path that is drawn onto the Panel. 
 				 float dx = e->X - lastPosition.X;
 				 float dy = e->Y - lastPosition.Y;
 				 //rotate scene
 				 if (e->Button == ::MouseButtons::Right) {
-					 GLCamera *glCamera = OpenGL->glCamera;
-					 glCamera->setFi(glCamera->fi - dx*0.3);
-					 glCamera->setTheta(glCamera->theta - dy*0.3);
-					 //OpenGL->cameraFi += dx * 0.3;
-					 //OpenGL->cameraTheta += dy * 0.3;
+				 GLCamera *glCamera = OpenGL->glCamera;
+				 glCamera->setFi(glCamera->fi - dx*0.3);
+				 glCamera->setTheta(glCamera->theta - dy*0.3);
+				 //OpenGL->cameraFi += dx * 0.3;
+				 //OpenGL->cameraTheta += dy * 0.3;
 				 }
 				 //move scene
 				 if (e->Button == ::MouseButtons::Left) {
-					 GLCamera *glCamera = OpenGL->glCamera;
-					 glCamera->strafeHorizontal(dx*0.3);
-					 glCamera->strafeVertical(dy*0.3);
+				 GLCamera *glCamera = OpenGL->glCamera;
+				 glCamera->strafeHorizontal(dx*0.3);
+				 glCamera->strafeVertical(dy*0.3);
 				 }
 				 lastPosition.X = e->X;
 				 lastPosition.Y = e->Y;
-				 this->Invalidate();
+				 this->Invalidate();*/
+				 OpenGL->glEventHandler->mouseMoved(e->X, e->Y);
 			 }
 
 			 void Panel1_MouseWheel( Object^ /*sender*/, System::Windows::Forms::MouseEventArgs^ e )
@@ -279,6 +316,7 @@ namespace SQM {
 
 			 void Panel1_MouseUp( Object^ /*sender*/, System::Windows::Forms::MouseEventArgs^ e )
 			 {
+				 OpenGL->glEventHandler->mouseUp(e->X, e->Y);
 			 }
 
 			 void Form1_KeyPress(Object^ sender, KeyPressEventArgs^ e)
@@ -313,6 +351,12 @@ namespace SQM {
 			 }
 	private: System::Void joinBranchNodePolyhedronsToolStripMenuItem_Click(System::Object^  sender, System::EventArgs^  e) {
 				 OpenGL->executeSQMAlgorithm(SQMJoinBNPs);
+			 }
+	private: System::Void toolStripButton1_Click(System::Object^  sender, System::EventArgs^  e) {
+				 OpenGL->glEventHandler->state = CameraMoveState;
+			 }
+	private: System::Void toolStripButton2_Click(System::Object^  sender, System::EventArgs^  e) {
+				 OpenGL->glEventHandler->state = NodeEditState;
 			 }
 	};
 }

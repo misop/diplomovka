@@ -14,6 +14,7 @@ using namespace std;
 SQMControler::SQMControler(void)
 {
 	sqmALgorithm = new SQMAlgorithm();
+	selected = NULL;
 }
 
 

@@ -7,6 +7,7 @@
 #include "SQMControler.h"
 #include <string>
 #include "GLCamera.h"
+#include "GLEventHandler.h"
 
 using namespace std;
 using namespace System::Windows::Forms;
@@ -25,13 +26,13 @@ namespace OpenGLForm
 		System::Drawing::Point lastPositionRightMouse;
 		System::Drawing::Point lastPositionLeftMouse;
 		GLCamera *glCamera;
+		GLEventHandler *glEventHandler;
 #pragma endregion
 		
 #pragma region Inits
 		COpenGL(System::Windows::Forms::Panel ^ parentPanel, GLsizei iWidth, GLsizei iHeight)
 		{
-			CreateParams^ cp = gcnew CreateParams;
-
+			/*CreateParams^ cp = gcnew CreateParams;
 			// Set the position on the form
 			cp->X = 0;
 			cp->Y = 0;
@@ -47,7 +48,8 @@ namespace OpenGLForm
 			// Create the actual window
 			this->CreateHandle(cp);
 
-			m_hDC = GetDC((HWND)this->Handle.ToPointer());
+			m_hDC = GetDC((HWND)this->Handle.ToPointer());*/
+			m_hDC = GetDC((HWND)parentPanel->Handle.ToPointer());
 
 			if(m_hDC)
 			{
@@ -61,6 +63,7 @@ namespace OpenGLForm
 
 			sqmControler = new SQMControler();
 			glCamera = new GLCamera();
+			glEventHandler = new GLEventHandler(glCamera, sqmControler);
 		}
 		
 		COpenGL(System::Windows::Forms::Form ^ parentForm, GLsizei iWidth, GLsizei iHeight)
@@ -96,6 +99,7 @@ namespace OpenGLForm
 
 			sqmControler = new SQMControler();
 			glCamera = new GLCamera();
+			glEventHandler = new GLEventHandler(glCamera, sqmControler);
 		}
 #pragma endregion
 
@@ -136,6 +140,7 @@ namespace OpenGLForm
 			this->DestroyHandle();
 			delete sqmControler;
 			delete glCamera;
+			delete glEventHandler;
 		}
 
 		GLint MySetPixelFormat(HDC hdc)
@@ -322,6 +327,7 @@ namespace OpenGLForm
 	public:
 		void loadSkeletonFromFile(string fileName) {
 			sqmControler->loadSkeletonFromFile(fileName);
+			glCamera->reset();
 			//setupView();
 		}
 		void saveSkeletonToFile(string fileName) {

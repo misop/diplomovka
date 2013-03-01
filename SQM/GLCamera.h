@@ -22,6 +22,7 @@ public:
 	void update();
 
 	void lookFromCamera();
+	void reset();
 
 	GLCamera(void);
 	~GLCamera(void);
