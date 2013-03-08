@@ -49,6 +49,7 @@ public:
 	vector<SQMNode*>* getDescendants();
 	vector<MyMesh::VertexHandle>* getIntersectionVHandles();
 	float getNodeRadius();
+	void setNodeRadius(float newNodeRadius);
 #pragma endregion
 
 #pragma region Skeleton Straightening
@@ -89,6 +90,7 @@ public:
 
 #pragma region Drawing
 	void draw();
+	void draw(CVector3 lineColor, CVector3 nodeColor);
 	void draw2();
 #pragma endregion
 

@@ -38,6 +38,7 @@ void SQMControler::loadSkeletonFromFile(string fileName) {
 		errorLog << "Exception: " << e.what() << endl;
 		throw e;
 	}
+	selected = NULL;
 	SQMNode *sqmNode = new SQMNode(*node, NULL);
 	sqmALgorithm->setRoot(sqmNode);
 	delete node;
@@ -82,7 +83,7 @@ void SQMControler::saveSkeletonToFile(string fileName) {
 
 #pragma region Node Selection
 
-void SQMControler::selectNodeInRay(OpenMesh::Vec3f position, OpenMesh::Vec3f direction) {
+bool SQMControler::selectNodeInRay(OpenMesh::Vec3f position, OpenMesh::Vec3f direction) {
 	vector<SQMNode*> stack;
 	stack.push_back(sqmALgorithm->getRoot());
 	float minDistance = 0;
@@ -103,10 +104,11 @@ void SQMControler::selectNodeInRay(OpenMesh::Vec3f position, OpenMesh::Vec3f dir
 	}
 
 	selected = tempClosest;
+	return selected != NULL;
 }
 
-bool closestNodeRayIntersection(SQMNode *node, OpenMesh::Vec3f rayPosition, OpenMesh::Vec3f direction, float& dist) {
-	//initialize
+bool SQMControler::closestNodeRayIntersection(SQMNode *node, OpenMesh::Vec3f rayPosition, OpenMesh::Vec3f direction, float& dist) {
+	/*//initialize
 	OpenMesh::Vec3f u = direction;
 	float nodeRadius = node->getNodeRadius();
 	OpenMesh::Vec3f p = rayPosition;
@@ -119,21 +121,40 @@ bool closestNodeRayIntersection(SQMNode *node, OpenMesh::Vec3f rayPosition, Open
 	float c = dot(CA, CA) - nodeRadius*nodeRadius;
 	float delta = b*b - c;//b*b - 4.0*a*c; simplified
 	if (delta < FLOAT_ZERO) {
-		return false;
+	return false;
 	}
 	//determinate correct intersection
 	float d1 = (-b - sqrt(delta))/2.0;//(-b - sqrt(delta)) / (2.0*a); simplified
 	float d2 = (-b + sqrt(delta))/2.0;//(-b + sqrt(delta)) / (2.0*a); simplified
 	//parameter has to be bigger than 0 thus moving in the direction of leading vector
 	if (d1 > 0 && d2 < 0) {
-		dist = d1;
+	dist = d1;
 	} else if (d1 < 0 && d2 > 0) {
-		dist = d2;
+	dist = d2;
 	} else if (d1 > 0 && d2 > 0) {
-		dist = d1 < d2 ? d1 : d2;
+	dist = d1 < d2 ? d1 : d2;
 	}
 
-	return true;
+	return true;*/
+
+	//initialize
+	float r = node->getNodeRadius();
+	float a = dot(direction, direction);
+	float b = dot(direction, ((rayPosition - node->getPosition())*2.0));
+	float c = dot(node->getPosition(), node->getPosition()) + dot(rayPosition, rayPosition) - (2.0 * dot(rayPosition, node->getPosition())) - (r * r);
+	float D = b * b + (-4.0) * a * c;
+	// If ray can not intersect then stop
+	if (D < 0)
+		return false;
+	// Ray can intersect the sphere, solve the closer hitpoint
+	float t = (-0.5) * (b + D) / a;
+	if (t > 0.0)
+	{
+		dist = t;
+		return true;
+	}
+
+	return false;
 }
 
 #pragma endregion
@@ -150,6 +171,9 @@ void SQMControler::computeConvexHull() {
 
 void SQMControler::draw() {
 	sqmALgorithm->draw();
+	if (selected != NULL) {
+		selected->draw(CVector3(0, 1, 0), CVector3(1, 1, 0));
+	}
 }
 
 void SQMControler::getBoundingSphere(float &x, float &y, float &z, float &d) {

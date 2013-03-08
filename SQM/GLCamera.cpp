@@ -1,7 +1,5 @@
 #include "stdafx.h"
 #include "GLCamera.h"
-#include <GL/gl.h>
-#include <GL/glu.h>
 #include <math.h>
 #include "m_math.h"
 
@@ -30,6 +28,8 @@ GLCamera::GLCamera(void) {
 	right[Y] = 0;
 	right[Z] = 0;*/
 	reset();
+	dir = OpenMesh::Vec3f(0, 0, 0);
+	pos = OpenMesh::Vec3f(0, 0, 0);
 }
 
 void GLCamera::setFi(float newFi) {
@@ -83,12 +83,30 @@ void GLCamera::update() {
 	CVector3 lookVector(look);
 	CVector3 normal = Normalize(lookVector - eyeVector);
 	CVector3 upVector(up);
-	upVector = upVector - normal*(Dot(upVector, normal));
-	upVector = Normalize(upVector);
+	//upVector = upVector - normal*(Dot(upVector, normal));
+	//upVector = Normalize(upVector);
 	CVector3 rightVector = Normalize(Cross(upVector, normal));
-		
-	up[X] = upVector.x; up[Y] = upVector.y; up[Z] = upVector.z;
+	//upVector = Normalize(Cross(rightVector, normal));
+	upVector = Normalize(Cross(normal, rightVector));
+
+	//up[X] = upVector.x; up[Y] = upVector.y; up[Z] = upVector.z;
 	right[X] = rightVector.x; right[Y] = rightVector.y; right[Z] = rightVector.z;
+
+	calculateMatrices();
+}
+
+void GLCamera::calculateMatrices() {
+	glPushMatrix();
+
+	glLoadIdentity();
+	gluLookAt(eye[X], eye[Y], eye[Z], look[X], look[Y], look[Z], up[X], up[Y], up[Z]);
+
+	//get matrices
+	glGetIntegerv(GL_VIEWPORT, viewport);
+	glGetDoublev(GL_MODELVIEW_MATRIX, modelview);
+	glGetDoublev(GL_PROJECTION_MATRIX, projection);
+
+	glPopMatrix();
 }
 
 void GLCamera::lookFromCamera() {
@@ -123,8 +141,28 @@ void GLCamera::reset() {
 	right[X] = 1;
 	right[Y] = 0;
 	right[Z] = 0;
+
+	calculateMatrices();
 }
 
 GLCamera::~GLCamera(void)
 {
+}
+
+OpenMesh::Vec3f GLCamera::getRight() {
+	return OpenMesh::Vec3f(right);
+}
+
+OpenMesh::Vec3f GLCamera::getUp() {
+	return OpenMesh::Vec3f(up);
+}
+
+OpenMesh::Vec3f GLCamera::getView() {
+	OpenMesh::Vec3f lookV(look);
+	OpenMesh::Vec3f eyeV(eye);
+	return (eyeV - lookV).normalize();
+}
+
+OpenMesh::Vec3f GLCamera::getEye() {
+	return OpenMesh::Vec3f(eye);
 }

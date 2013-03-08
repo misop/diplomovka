@@ -14,6 +14,7 @@ SQMNode::SQMNode(void) {
 
 SQMNode::SQMNode(SkeletonNode &node, SQMNode* newParent) : parent(newParent) {
 	position = OpenMesh::Vec3f(node.point.x, node.point.y, node.point.z);
+	//nodeRadius = (float)(rand()%100)/100*10 + 5;
 	nodeRadius = 10;
 	for (int i = 0; i < node.nodes.size(); i++) {
 		SQMNode *newNode = new SQMNode(*node.nodes[i], this);
@@ -69,13 +70,21 @@ float SQMNode::getNodeRadius() {
 	return nodeRadius;
 }
 
+void SQMNode::setNodeRadius(float newNodeRadius) {
+	nodeRadius = newNodeRadius;
+}
+
 #pragma endregion
 
 #pragma region Drawing
 
 void SQMNode::draw() {
+	draw(CVector3(0, 1, 0), CVector3(1, 0, 0));
+}
+
+void SQMNode::draw(CVector3 lineColor, CVector3 nodeColor) {
 	//draw connections
-	glColor3f(0, 1, 0);
+	glColor3f(lineColor.x, lineColor.y, lineColor.z);
 	glBegin(GL_LINES);
 	for (int i = 0; i < nodes.size(); i++) {
 		OpenMesh::Vec3f nodePosition = nodes[i]->getPosition();
@@ -84,7 +93,7 @@ void SQMNode::draw() {
 	}
 	glEnd();
 	//draw ball
-	glColor3f(1, 0, 0);
+	glColor3f(nodeColor.x, nodeColor.y, nodeColor.z);
 	glPushMatrix();
 	glTranslatef(position[0], position[1], position[2]);
 	gluSphere(gluNewQuadric(), nodeRadius, 10, 10);
@@ -94,6 +103,7 @@ void SQMNode::draw() {
 		nodes[i]->draw();
 	}
 }
+
 
 void SQMNode::draw2() {
 	if (polyhedron != NULL) {
@@ -279,19 +289,21 @@ OpenMesh::Vec3f SQMNode::translatedPointToSphereWithFaceNormals(OpenMesh::Vec3f 
 	OpenMesh::Vec3f CA = p - position;
 	//float a = 1.0;//dot(u, u); u is unit vector simplified
 	//float b = 2*dot(u, p - CA);//old
-	float b = 2*dot(u, p - position);
+	float b = 2.0*dot(u, p - position);
 	float c = dot(CA, CA) - nodeRadius*nodeRadius;
-	float delta = b*b - c;//b*b - 4.0*a*c; simplified
+	float delta = b*b - 4.0*c;//b*b - 4.0*a*c; simplified
 	if (delta < FLOAT_ZERO) {
-		return p;
+	return p;
 	}
 	//determinate correct intersection
 	float d1 = (-b - sqrt(delta))/2.0;//(-b - sqrt(delta)) / (2.0*a); simplified
 	float d2 = (-b + sqrt(delta))/2.0;//(-b + sqrt(delta)) / (2.0*a); simplified
 	//parameter has to be bigger than 0 thus moving in the direction of leading vector
 	//or just the smaller one?
-	float d = fabs(d1) < fabs(d2) ? d1 : d2;
-	return OpenMesh::Vec3f(p.values_[0] + d*u.values_[0], p.values_[1] + d*u.values_[1], p.values_[2] + d*u.values_[2]);
+	//float d = fabs(d1) < fabs(d2) ? d1 : d2;
+	float d = d1 < 0 ? d2 : d1;
+	return p + (d*u);
+	//return OpenMesh::Vec3f(p.values_[0] + d*u.values_[0], p.values_[1] + d*u.values_[1], p.values_[2] + d*u.values_[2]);
 }
 
 vector<int> SQMNode::getNormalIndexis(vector<int> indexis, int index) {

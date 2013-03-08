@@ -17,7 +17,7 @@ public:
 	void loadSkeletonFromFile(string fileName);
 	void saveSkeletonToFile(string fileName);
 
-	void selectNodeInRay(OpenMesh::Vec3f position, OpenMesh::Vec3f direction);
+	bool selectNodeInRay(OpenMesh::Vec3f position, OpenMesh::Vec3f direction);
 	bool closestNodeRayIntersection(SQMNode *node, OpenMesh::Vec3f rayPosition, OpenMesh::Vec3f direction, float& dist);
 
 	void straightenSkeleton();

@@ -32,6 +32,10 @@ namespace OpenGLForm
 #pragma region Inits
 		COpenGL(System::Windows::Forms::Panel ^ parentPanel, GLsizei iWidth, GLsizei iHeight)
 		{
+			sqmControler = new SQMControler();
+			glCamera = new GLCamera();
+			glEventHandler = new GLEventHandler(glCamera, sqmControler);
+
 			/*CreateParams^ cp = gcnew CreateParams;
 			// Set the position on the form
 			cp->X = 0;
@@ -60,14 +64,14 @@ namespace OpenGLForm
 
 			rtri = 0.0f;
 			rquad = 0.0f;
-
-			sqmControler = new SQMControler();
-			glCamera = new GLCamera();
-			glEventHandler = new GLEventHandler(glCamera, sqmControler);
 		}
 		
 		COpenGL(System::Windows::Forms::Form ^ parentForm, GLsizei iWidth, GLsizei iHeight)
 		{
+			sqmControler = new SQMControler();
+			glCamera = new GLCamera();
+			glEventHandler = new GLEventHandler(glCamera, sqmControler);
+
 			CreateParams^ cp = gcnew CreateParams;
 
 			// Set the position on the form
@@ -96,10 +100,6 @@ namespace OpenGLForm
 
 			rtri = 0.0f;
 			rquad = 0.0f;
-
-			sqmControler = new SQMControler();
-			glCamera = new GLCamera();
-			glEventHandler = new GLEventHandler(glCamera, sqmControler);
 		}
 #pragma endregion
 
@@ -225,6 +225,10 @@ namespace OpenGLForm
 			// Calculate The Aspect Ratio Of The Window
 			//gluPerspective(45.0f,(GLfloat)width/(GLfloat)height,0.1f,100.0f);
 			gluPerspective(45.0f,(GLfloat)width/(GLfloat)height, 1.0f, INFINITE);
+			glCamera->fovy = 45.0;
+			glCamera->aspect = (float)width/(float)height;
+			glCamera->width = width;
+			glCamera->height = height;
 
 			glMatrixMode(GL_MODELVIEW);							// Select The Modelview Matrix
 			glLoadIdentity();									// Reset The Modelview Matrix
