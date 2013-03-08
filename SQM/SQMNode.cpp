@@ -70,8 +70,20 @@ float SQMNode::getNodeRadius() {
 	return nodeRadius;
 }
 
+#pragma endregion
+
+#pragma region Setters
+
 void SQMNode::setNodeRadius(float newNodeRadius) {
 	nodeRadius = newNodeRadius;
+}
+
+void SQMNode::setPosition(OpenMesh::Vec3f newPosition) {
+	position = newPosition;
+}
+
+void SQMNode::addDescendant(SQMNode* node) {
+	nodes.push_back(node);
 }
 
 #pragma endregion
@@ -553,7 +565,7 @@ void SQMNode::addPolyhedronAndRememberVHandles(MyMesh* mesh, SQMNode* parentBNPN
 		}
 		oneRingsOfPolyhedron.push_back(vhandles);
 	}
-	//connect to the rest of the mesh
+	/*//connect to the rest of the mesh
 	if (parentBNPNode != NULL) {
 		//order newOneRingArray
 		vector<MyMesh::VHandle> oldOneRing = oneRingsOfPolyhedron.back();	
@@ -614,7 +626,7 @@ void SQMNode::addPolyhedronAndRememberVHandles(MyMesh* mesh, SQMNode* parentBNPN
 			}
 			mesh->add_face(oneRing[i], newOneRing[i], newOneRing[j], oneRing[j]);
 		}
-	}
+	}*/
 }
 
 void SQMNode::extendMesh(MyMesh* mesh, SQMNode* parentBNPNode, vector<MyMesh::VertexHandle>& oneRing, OpenMesh::Vec3f& directionVector) {

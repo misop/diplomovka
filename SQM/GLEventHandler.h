@@ -4,6 +4,7 @@
 
 #define LEFT_MOUSE_DOWN 1
 #define RIGHT_MOUSE_DOWN 2
+#define MIDDLE_MOUSE_DOWN 4
 
 typedef enum {
 	CameraMoveState = 0,
@@ -35,6 +36,15 @@ public:
 
 #pragma region Node Edit Event Handling
 	void mouseMovedForNodeEdit(int positionX, int positionY);
+#pragma endregion
+
+#pragma region Selected Node Editing
+	void moveHorizontal(float dist);
+	void moveVertical(float dist);
+#pragma endregion
+
+#pragma region Utility
+	bool mousePositionTo3D(int x_cursor, int y_cursor, GLdouble &x, GLdouble &y, GLdouble &z);
 #pragma endregion
 };
 

@@ -119,6 +119,7 @@ void GLCamera::lookFromCamera() {
 	glTranslatef(look[X], look[Y],look[Z]);
 	gluSphere(gluNewQuadric(), 2, 10, 10);
 	glPopMatrix();
+	glColor3f(1, 0, 1);
 }
 
 void GLCamera::reset() {
@@ -138,7 +139,7 @@ void GLCamera::reset() {
 	up[Y] = 1;
 	up[Z] = 0;
 
-	right[X] = 1;
+	right[X] = -1;
 	right[Y] = 0;
 	right[Z] = 0;
 

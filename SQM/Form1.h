@@ -276,7 +276,9 @@ namespace SQM {
 				 if (e->Button == ::MouseButtons::Right)
 					 mouseFlags |= RIGHT_MOUSE_DOWN;
 				 if (e->Button == ::MouseButtons::Left)
-					 mouseFlags |= LEFT_MOUSE_DOWN;
+					 mouseFlags |= LEFT_MOUSE_DOWN;				 
+				 if (e->Button == ::MouseButtons::Middle)
+					 mouseFlags |= MIDDLE_MOUSE_DOWN;
 				 OpenGL->glEventHandler->mouseDown(e->X, e->Y, mouseFlags);
 			 }
 			 void Panel1_MouseMove( Object^ /*sender*/, System::Windows::Forms::MouseEventArgs^ e )

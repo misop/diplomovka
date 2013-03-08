@@ -49,7 +49,12 @@ public:
 	vector<SQMNode*>* getDescendants();
 	vector<MyMesh::VertexHandle>* getIntersectionVHandles();
 	float getNodeRadius();
+#pragma endregion
+
+#pragma region Setters
 	void setNodeRadius(float newNodeRadius);
+	void setPosition(OpenMesh::Vec3f newPosition);
+	void addDescendant(SQMNode* node);
 #pragma endregion
 
 #pragma region Skeleton Straightening
