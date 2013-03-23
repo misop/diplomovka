@@ -7,9 +7,8 @@ GLEventHandler::GLEventHandler(GLCamera *newGlCamera, SQMControler *newSqmContro
 {
 	glCamera = newGlCamera;
 	sqmControler = newSqmControler;
-	state = CameraMoveState;
+	state = NodeEditState;
 }
-
 
 GLEventHandler::~GLEventHandler(void)
 {

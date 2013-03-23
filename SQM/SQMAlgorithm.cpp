@@ -55,6 +55,7 @@ void SQMAlgorithm::draw() {
 			root->draw2();
 			break;
 		case 3:
+			root->draw2();
 			draw2();
 			break;
 		default:

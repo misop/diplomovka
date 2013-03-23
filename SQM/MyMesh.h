@@ -17,3 +17,4 @@ void drawMeshHalfEdges(MyMesh* mesh);
 void drawMeshEdges(MyMesh* mesh);
 void drawMeshEdgesWithArrows(MyMesh* mesh);
 void drawMeshHalfEdgesWithArrows(MyMesh* mesh);
+void drawMeshHalfEdgesWithArrowsAndColor(MyMesh* mesh, float *c);

@@ -13,7 +13,7 @@ OpenMesh::Vec3f cross(OpenMesh::Vec3f u, OpenMesh::Vec3f v) {
 	values[0] = u.values_[1]*v.values_[2] - u.values_[2]*v.values_[1];
 	values[1] = u.values_[2]*v.values_[0] - u.values_[0]*v.values_[2];
 	values[2] = u.values_[0]*v.values_[1] - u.values_[1]*v.values_[0];
-	return OpenMesh::Vec3f(values).normalize(); 
+	return OpenMesh::Vec3f(values); 
 }
 
 float sqr_length(OpenMesh::Vec3f u) {

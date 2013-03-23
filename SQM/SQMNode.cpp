@@ -4,6 +4,8 @@
 #include "SphereDelaunay.h"
 #include "FloatArithmetic.h"
 
+#define BIAS 0.1
+
 #pragma region Init
 
 SQMNode::SQMNode(void) {
@@ -120,7 +122,34 @@ void SQMNode::draw(CVector3 lineColor, CVector3 nodeColor) {
 void SQMNode::draw2() {
 	if (polyhedron != NULL) {
 		//draw polyhedron
-		drawMeshHalfEdgesWithArrows(polyhedron);
+		float color[] = {0, 1, 0};
+		drawMeshHalfEdgesWithArrowsAndColor(polyhedron, color);
+		/*glColor3f(1, 1, 1); 
+		glBegin(GL_LINES);
+		for (int i = 0; i < triangles2.size(); i++) {
+			OpenMesh::Vec3i triangle = triangles2[i];
+			OpenMesh::Vec3f V0 = intersections[triangle[0]];
+			OpenMesh::Vec3f V1 = intersections[triangle[1]];
+			OpenMesh::Vec3f V2 = intersections[triangle[2]];
+			
+			glVertex3fv(V0.values_);
+			glVertex3fv(V1.values_);
+			
+			glVertex3fv(V1.values_);
+			glVertex3fv(V2.values_);
+			
+			glVertex3fv(V2.values_);
+			glVertex3fv(V0.values_);
+		}*/
+		/*for (int i = 0; i < centers2.size(); i++) {
+			OpenMesh::Vec3f P = centers2[i];
+			OpenMesh::Vec3f Q = P + (normals2[i] * 10.0);
+			
+			glVertex3fv(P.values_);
+			glVertex3fv(Q.values_);
+		}*/
+
+		glEnd();
 	}
 	for (int i = 0; i < nodes.size(); i++) {
 		nodes[i]->draw2();
@@ -190,10 +219,12 @@ void SQMNode::straightenSkeleton(OpenMesh::Vec3f lineVector) {
 void SQMNode::calculateConvexHull() {
 	vector<OpenMesh::Vec3i> triangles;
 	Delaunay_on_sphere(intersections, triangles);
+	triangles2 = triangles;
 	createPolyhedra(triangles);
 }
 
 void SQMNode::createPolyhedra(vector<OpenMesh::Vec3i> triangles) {
+	//TODO normal swaping
 	//calculate triangle normals
 	vector<OpenMesh::Vec3f> normals;
 	vector<OpenMesh::Vec3f> centers;
@@ -202,10 +233,19 @@ void SQMNode::createPolyhedra(vector<OpenMesh::Vec3i> triangles) {
 		OpenMesh::Vec3f A = intersections[triangle.values_[0]];
 		OpenMesh::Vec3f B = intersections[triangle.values_[1]];
 		OpenMesh::Vec3f C = intersections[triangle.values_[2]];
-		normals.push_back(cross(B - A, C - A));		
-		OpenMesh::Vec3f center((A.values_[0] + B.values_[0] + C.values_[0])/3, (A.values_[1] + B.values_[1] + C.values_[1])/3, (A.values_[2] + B.values_[2] + C.values_[2])/3);
+		OpenMesh::Vec3f normal = cross(B - A, C - A);
+		normal = normal.normalize();
+		OpenMesh::Vec3f center((A[0] + B[0] + C[0])/3.0, (A[1] + B[1] + C[1])/3.0, (A[2] + B[2] + C[2])/3.0);
+		if (checkPolyhedronOrientation(i, center, normal, triangles)) {
+			normal = -normal;
+			triangles[i] = flipVec3i(triangle);
+		}
+
+		normals.push_back(normal);		
 		centers.push_back(center);
 	}
+	normals2 = normals;
+	centers2 = centers;
 	//create map edge vector<faces>
 	map<OpenMesh::Vec2i, vector<int>, OpenMeshVec2iComp> edgeFaceIndexMap;
 	for (int i = 0; i < triangles.size(); i++) {
@@ -283,9 +323,29 @@ void SQMNode::createPolyhedra(vector<OpenMesh::Vec3i> triangles) {
 		faces.push_back(OpenMesh::Vec3i(u23Index, v3Index, centerIndex));
 		faces.push_back(OpenMesh::Vec3i(v3Index, u31Index, centerIndex));
 		faces.push_back(OpenMesh::Vec3i(u31Index, v1Index, centerIndex));
+		//faces.push_back(OpenMesh::Vec3i(v1Index, v2Index, v3Index));
 	}
 	//create OpenMesh mesh from indexed face
 	openMeshFromIdexedFace(vertices, faces);
+}
+
+bool SQMNode::checkPolyhedronOrientation(int index, OpenMesh::Vec3f center, OpenMesh::Vec3f normal, vector<OpenMesh::Vec3i>& triangles) {
+	//BNP generation can generate swapped faces which face inside the polyhedra thus we need to swap the normals of those faces
+	for (int i = 0; i < triangles.size(); i++) {
+		if (i == index)
+			continue;
+		OpenMesh::Vec3i triangle = triangles[i];
+		OpenMesh::Vec3f A = intersections[triangle.values_[0]];
+		OpenMesh::Vec3f B = intersections[triangle.values_[1]];
+		OpenMesh::Vec3f C = intersections[triangle.values_[2]];
+		float t = 0;
+		if (rayTriangleIntersection(center, normal, A, B, C, t)) {
+			//should change normal sign
+			return true;
+		}
+	}
+	//should not change sign of normal
+	return false;
 }
 
 OpenMesh::Vec3f SQMNode::translatedPointToSphereWithFaceNormals(OpenMesh::Vec3f p, OpenMesh::Vec3f n1, OpenMesh::Vec3f n2, OpenMesh::Vec3f center1, OpenMesh::Vec3f center2) {
@@ -297,25 +357,12 @@ OpenMesh::Vec3f SQMNode::translatedPointToSphereWithFaceNormals(OpenMesh::Vec3f 
 	} else {
 		u = u.normalize();
 	}
-	//calculate intersections -> always 2
-	OpenMesh::Vec3f CA = p - position;
-	//float a = 1.0;//dot(u, u); u is unit vector simplified
-	//float b = 2*dot(u, p - CA);//old
-	float b = 2.0*dot(u, p - position);
-	float c = dot(CA, CA) - nodeRadius*nodeRadius;
-	float delta = b*b - 4.0*c;//b*b - 4.0*a*c; simplified
-	if (delta < FLOAT_ZERO) {
-	return p;
+	float t;
+	if (raySphereIntersection(p, u, position, nodeRadius, t)) {
+		return p + (t*u);
+	} else {
+		return p;
 	}
-	//determinate correct intersection
-	float d1 = (-b - sqrt(delta))/2.0;//(-b - sqrt(delta)) / (2.0*a); simplified
-	float d2 = (-b + sqrt(delta))/2.0;//(-b + sqrt(delta)) / (2.0*a); simplified
-	//parameter has to be bigger than 0 thus moving in the direction of leading vector
-	//or just the smaller one?
-	//float d = fabs(d1) < fabs(d2) ? d1 : d2;
-	float d = d1 < 0 ? d2 : d1;
-	return p + (d*u);
-	//return OpenMesh::Vec3f(p.values_[0] + d*u.values_[0], p.values_[1] + d*u.values_[1], p.values_[2] + d*u.values_[2]);
 }
 
 vector<int> SQMNode::getNormalIndexis(vector<int> indexis, int index) {
@@ -358,6 +405,104 @@ void SQMNode::openMeshFromIdexedFace(vector<OpenMesh::Vec3f> vertices, vector<Op
 	for (int i = 0; i < faces.size(); i++) {
 		OpenMesh::Vec3i face = faces[i];
 		polyhedron->add_face(polyhedronPoints[face.values_[0]], polyhedronPoints[face.values_[1]], polyhedronPoints[face.values_[2]]);
+	}
+}
+
+//-----------------------TEST------------------------
+
+void SQMNode::createPolyhedraFromCenter(vector<OpenMesh::Vec3i> triangles) {
+	//get the mesh center
+	OpenMesh::Vec3f meshCenter = polyhedronBoundingBoxCenter();
+	//get the center of each triangle
+	vector<OpenMesh::Vec3f> centers;
+	for (int i = 0; i < triangles.size(); i++) {
+		OpenMesh::Vec3i triangle = triangles[i];
+		OpenMesh::Vec3f A = intersections[triangle.values_[0]];
+		OpenMesh::Vec3f B = intersections[triangle.values_[1]];
+		OpenMesh::Vec3f C = intersections[triangle.values_[2]];
+		OpenMesh::Vec3f center((A[0] + B[0] + C[0])/3.0, (A[1] + B[1] + C[1])/3.0, (A[2] + B[2] + C[2])/3.0);	
+		centers.push_back(center);
+	}
+	//for each triangle create 6 new triangles and translate new vertices and translate vertices with face normals add only unique
+	vector<OpenMesh::Vec3f> vertices;
+	vector<OpenMesh::Vec3i> faces;
+	for (int i = 0; i < triangles.size(); i++) {
+		//get triangle points and create new ones
+		OpenMesh::Vec3i triangle = triangles[i];
+		OpenMesh::Vec3f v1 = intersections[triangle.values_[0]];
+		OpenMesh::Vec3f v2 = intersections[triangle.values_[1]];
+		OpenMesh::Vec3f v3 = intersections[triangle.values_[2]];
+
+		OpenMesh::Vec3f u12 = 0.5*v1 + 0.5*v2;
+		OpenMesh::Vec3f u23 = 0.5*v2 + 0.5*v3;
+		OpenMesh::Vec3f u31 = 0.5*v3 + 0.5*v1;
+		OpenMesh::Vec3f center = centers[i];
+		//translate points
+		u12 = translatePointToSphereFromCenter(u12, meshCenter);
+
+		u23 = translatePointToSphereFromCenter(u23, meshCenter);
+
+		u31 = translatePointToSphereFromCenter(u31, meshCenter);
+
+		center = translatePointToSphereFromCenter(center, meshCenter);
+		//add only unique points to vertex list
+		int v1Index = getPointPositionInArrayOrAdd(v1, vertices);
+		int v2Index = getPointPositionInArrayOrAdd(v2, vertices);
+		int v3Index = getPointPositionInArrayOrAdd(v3, vertices);
+
+		int u12Index = getPointPositionInArrayOrAdd(u12, vertices);
+		int u23Index = getPointPositionInArrayOrAdd(u23, vertices);
+		int u31Index = getPointPositionInArrayOrAdd(u31, vertices);
+
+		int centerIndex = getPointPositionInArrayOrAdd(center, vertices);
+		//add new triangles to face list
+		faces.push_back(OpenMesh::Vec3i(v1Index, u12Index, centerIndex));
+		faces.push_back(OpenMesh::Vec3i(u12Index, v2Index, centerIndex));
+		faces.push_back(OpenMesh::Vec3i(v2Index, u23Index, centerIndex));
+		faces.push_back(OpenMesh::Vec3i(u23Index, v3Index, centerIndex));
+		faces.push_back(OpenMesh::Vec3i(v3Index, u31Index, centerIndex));
+		faces.push_back(OpenMesh::Vec3i(u31Index, v1Index, centerIndex));
+		//faces.push_back(OpenMesh::Vec3i(v1Index, v2Index, v3Index));
+	}
+	//create OpenMesh mesh from indexed face
+	openMeshFromIdexedFace(vertices, faces);
+}
+
+OpenMesh::Vec3f SQMNode::polyhedronBoundingBoxCenter() {
+	float minX = intersections[0][0], minY = intersections[0][1], minZ = intersections[0][2];
+	float maxX = minX, maxY = minY, maxZ = minZ;
+	for (int i = 0; i < intersections.size(); i++) {
+		OpenMesh::Vec3f intersection = intersections[i];
+
+		minX = min(minX, intersection[0]);
+		minY = min(minY, intersection[1]);
+		minZ = min(minZ, intersection[2]);
+		
+		maxX = max(maxX, intersection[0]);
+		maxY = max(maxY, intersection[1]);
+		maxZ = max(maxZ, intersection[2]);
+	}
+	return OpenMesh::Vec3f((minX + maxX) / 2.0, (minY + maxY) / 2.0, (minZ + maxZ) / 2.0);
+}
+
+OpenMesh::Vec3f SQMNode::polyhedronPointSumCenterCenter() {
+	OpenMesh::Vec3f result(0, 0, 0);
+
+	for (int i = 0; i < intersections.size(); i++) {
+		result += intersections[i];
+	}
+	result /= intersections.size();
+
+	return result;
+}
+
+OpenMesh::Vec3f SQMNode::translatePointToSphereFromCenter(OpenMesh::Vec3f point, OpenMesh::Vec3f center) {
+	OpenMesh::Vec3f direction = (point - center).normalize();
+	float t = 0;
+	if (raySphereIntersection(center, direction, position, nodeRadius, t)) {
+		return center + (direction * t);
+	} else {
+		return point;
 	}
 }
 
@@ -536,7 +681,7 @@ void SQMNode::addPolyhedronToMesh(MyMesh* mesh, SQMNode* parentBNPNode, vector<M
 		nodes[i]->joinBNPs(mesh, this, oneRingsOfPolyhedron[i], u);
 	}
 }
-
+//!!!!!ORDERING OF INSERTED EDGES IS IMPORTANT!!!!!!!
 void SQMNode::addPolyhedronAndRememberVHandles(MyMesh* mesh, SQMNode* parentBNPNode, vector<MyMesh::VertexHandle>& oneRing, vector<vector<MyMesh::VHandle> >& oneRingsOfPolyhedron, OpenMesh::Vec3f& directionVector) {
 	//get non intersecting vhandles and remember one rings
 	int vectorSize = intersectionVHandles.size();
@@ -565,10 +710,158 @@ void SQMNode::addPolyhedronAndRememberVHandles(MyMesh* mesh, SQMNode* parentBNPN
 		}
 		oneRingsOfPolyhedron.push_back(vhandles);
 	}
-	/*//connect to the rest of the mesh
+	//connect to the rest of the mesh
+	/*if (parentBNPNode != NULL) { //keeped for future testing purposes
+		vector<MyMesh::VHandle> oldOneRing = oneRingsOfPolyhedron.back();
+		OpenMesh::Vec3f u = - directionVector;
+		vector<MyMesh::VHandle> nor3;
+		for (int i = 0; i < oldOneRing.size(); i++) {
+			MyMesh::Point P = mesh->point(oldOneRing[i]);
+			P = P + (10*u);
+			nor3.push_back(mesh->add_vertex(P));
+		}
+		for (int i = 0; i < nor3.size(); i++) {
+			int j = 0;
+			if (i + 1 < nor3.size()) {
+				j = i + 1;
+			}
+			MyMesh::VHandle vh1 = oldOneRing[i];
+			MyMesh::VHandle vh2 = nor3[i];
+			MyMesh::VHandle vh3 = nor3[j];
+			MyMesh::VHandle vh4 = oldOneRing[j];
+
+			mesh->add_face(oldOneRing[i], nor3[i], nor3[j], oldOneRing[j]);
+
+			MyMesh::HalfedgeHandle he1 = mesh->find_halfedge(vh2, vh1);
+			MyMesh::HalfedgeHandle he2 = mesh->find_halfedge(vh3, vh2);
+			MyMesh::HalfedgeHandle he3 = mesh->find_halfedge(vh3, vh4);
+			MyMesh::HalfedgeHandle he4 = mesh->find_halfedge(vh4, vh1);
+			bool b1 = mesh->is_boundary(he1);
+			bool b2 = mesh->is_boundary(he2);
+			bool b3 = mesh->is_boundary(he3);
+			bool b4 = mesh->is_boundary(he4);
+		}
+		vector<MyMesh::VHandle> nor;
+		for (int i = 0; i < nor3.size(); i++) {
+			MyMesh::Point P = mesh->point(nor3[i]);
+			P = P + (10*u);
+			nor.push_back(mesh->add_vertex(P));
+		}
+		for (int i = 0; i < nor.size(); i++) {
+			int j = 0;
+			if (i + 1 < nor.size()) {
+				j = i + 1;
+			}
+			MyMesh::VHandle vh1 = nor3[i];
+			MyMesh::VHandle vh2 = nor[i];
+			MyMesh::VHandle vh3 = nor[j];
+			MyMesh::VHandle vh4 = nor3[j];
+			MyMesh::HalfedgeHandle he1 = mesh->find_halfedge(vh1, vh2);
+			MyMesh::HalfedgeHandle he2 = mesh->find_halfedge(vh2, vh3);
+			MyMesh::HalfedgeHandle he3 = mesh->find_halfedge(vh3, vh4);
+			MyMesh::HalfedgeHandle he4 = mesh->find_halfedge(vh4, vh1);
+			bool b4 = mesh->is_boundary(he4);
+
+			mesh->add_face(nor3[i], nor[i], nor[j], nor3[j]);
+			
+			he1 = mesh->find_halfedge(vh1, vh2);
+			he2 = mesh->find_halfedge(vh2, vh3);
+			he3 = mesh->find_halfedge(vh3, vh4);
+			he4 = mesh->find_halfedge(vh4, vh1);
+			bool b1 = mesh->is_boundary(he1);
+			bool b2 = mesh->is_boundary(he2);
+			bool b3 = mesh->is_boundary(he3);
+			b4 = mesh->is_boundary(he4);
+		}
+
+
+		vector<MyMesh::VHandle> nor2;
+		for (int i = 0; i < oneRing.size(); i++) {
+			MyMesh::Point P = mesh->point(oneRing[i]);
+			P = P + (10*directionVector);
+			nor2.push_back(mesh->add_vertex(P));
+		}
+		for (int i = 0; i < nor2.size(); i++) {
+			int j = 0;
+			if (i + 1 < nor2.size()) {
+				j = i + 1;
+			}
+			mesh->add_face(oneRing[i], nor2[i], nor2[j], oneRing[j]);
+		}
+
+		//order newOneRingArray
+		//flip one ring if it has different orientation
+		bool shouldFlip = false;
+		if (nor.size() > 1) {
+			MyMesh::Point P0 = mesh->point(nor[0]);
+			MyMesh::Point P1 = mesh->point(nor[1]);
+			MyMesh::Point Q0 = mesh->point(nor2[0]);
+			MyMesh::Point Q1 = mesh->point(nor2[1]);
+			CVector3 d(directionVector.values_);
+			CVector3 A0(P0.values_);
+			CVector3 A1(P1.values_);
+			CVector3 B0(Q0.values_);
+			CVector3 B1(Q1.values_);
+			//calculate base with cross product
+			CVector3 u = Cross(A0, A1);
+			CVector3 v = Cross(B0, B1);
+			//project base onto direction vector
+			float d1 = Dot(u, d);
+			float d2 = Dot(v, d);
+			//if both have same sign both have same direction 
+			shouldFlip = (d1 >= 0 && d2 < 0) || (d1 < 0 && d2 >= 0);
+		}
+		if (shouldFlip) {
+			vector<MyMesh::VHandle> flipped;
+			for (vector<MyMesh::VHandle>::reverse_iterator rit = nor.rbegin(); rit != nor.rend(); rit++) {
+				flipped.push_back(*rit);
+			}
+			nor = flipped;
+		}
+		//find closest point
+		vector<MyMesh::VertexHandle> newOneRing;
+		MyMesh::Point P = mesh->point(nor2[0]);
+		float minDist = 0;
+		int index = 0;
+		for (int i = 0; i < nor.size(); i++) {
+			MyMesh::Point Q = mesh->point(nor[i]);
+			float dist = (P - Q).norm();
+			if (i == 0 || dist < minDist) {
+				minDist = dist;
+				index = i;
+			}
+		}
+		//reorder array
+		for (int i = 0; i < nor.size(); i++) {
+			if (index == nor.size()) {
+				index = 0;
+			}
+			newOneRing.push_back(nor[index]);
+			index++;
+		}
+		//create new faces for the points
+		for (int i = 0; i < newOneRing.size(); i++) {
+			int j = 0;
+			if (i + 1 < newOneRing.size()) {
+				j = i + 1;
+			}
+			MyMesh::VHandle vh1 = nor2[i];
+			MyMesh::VHandle vh2 = newOneRing[i];
+			MyMesh::VHandle vh3 = newOneRing[j];
+			MyMesh::VHandle vh4 = nor2[j];
+			MyMesh::HalfedgeHandle he1 = mesh->find_halfedge(vh1, vh2);
+			MyMesh::HalfedgeHandle he2 = mesh->find_halfedge(vh2, vh3);
+			MyMesh::HalfedgeHandle he3 = mesh->find_halfedge(vh3, vh4);
+			MyMesh::HalfedgeHandle he4 = mesh->find_halfedge(vh4, vh1);
+			bool b2 = mesh->is_boundary(he2);
+			bool b4 = mesh->is_boundary(he4);
+
+			mesh->add_face(nor2[i], newOneRing[i], newOneRing[j], nor2[j]);
+		}
+	}*/
 	if (parentBNPNode != NULL) {
 		//order newOneRingArray
-		vector<MyMesh::VHandle> oldOneRing = oneRingsOfPolyhedron.back();	
+		vector<MyMesh::VHandle> oldOneRing = oneRingsOfPolyhedron.back();
 		//flip one ring if it has different orientation
 		bool shouldFlip = false;
 		if (oldOneRing.size() > 1) {
@@ -592,9 +885,7 @@ void SQMNode::addPolyhedronAndRememberVHandles(MyMesh* mesh, SQMNode* parentBNPN
 		}
 		if (shouldFlip) {
 			vector<MyMesh::VHandle> flipped;
-			for (vector<MyMesh::VHandle>::reverse_iterator rit = oldOneRing.rbegin(); rit != oldOneRing.rend(); rit++) {
-				flipped.push_back(*rit);
-			}
+			flipVector(oldOneRing, flipped);
 			oldOneRing = flipped;
 		}
 		//find closest point
@@ -626,7 +917,7 @@ void SQMNode::addPolyhedronAndRememberVHandles(MyMesh* mesh, SQMNode* parentBNPN
 			}
 			mesh->add_face(oneRing[i], newOneRing[i], newOneRing[j], oneRing[j]);
 		}
-	}*/
+	}
 }
 
 void SQMNode::extendMesh(MyMesh* mesh, SQMNode* parentBNPNode, vector<MyMesh::VertexHandle>& oneRing, OpenMesh::Vec3f& directionVector) {
@@ -674,7 +965,7 @@ void SQMNode::finishLeafeNode(MyMesh* mesh, vector<MyMesh::VertexHandle>& oneRin
 	//TODO finish as desired
 	MyMesh::Point P(position[0], position[1], position[2]);
 	MyMesh::VHandle vhandle = mesh->add_vertex(P);		
-	for (int i = 0; i < oneRing.size(); i++) {
+	for (int i = 0; i < oneRing.size(); i++) {	
 		int j = 0;
 		if (i + 1 < oneRing.size()) {
 			j = i + 1;
@@ -740,6 +1031,12 @@ template <> bool equals<MyMesh::VHandle>(MyMesh::VHandle& a, MyMesh::VHandle& b)
 	return a.idx() == b.idx();
 }
 
+template <typename T> void flipVector(vector<T>& toFlip, vector<T>& flipped) {
+	for (vector<T>::reverse_iterator rit = toFlip.rbegin(); rit != toFlip.rend(); rit++) {
+		flipped.push_back(*rit);
+	}
+}
+
 bool lesser(MyMesh::FaceHandle& a, MyMesh::FaceHandle& b) {
 	return a.idx() < b.idx();
 }
@@ -755,6 +1052,73 @@ bool validTriFace(vector<MyMesh::VHandle>& faceVHandles) {
 	}
 
 	return false;
+}
+
+bool rayTriangleIntersection(OpenMesh::Vec3f ray_origin, OpenMesh::Vec3f ray_direction, OpenMesh::Vec3f V0, OpenMesh::Vec3f V1, OpenMesh::Vec3f V2, float &t_param) {
+	//point on triagle T(u, v) = (1 - u - v)*V0 + u*V1 + v*V2;
+	//ray: O + d
+	//ray triangle intersection: O + d = (1 - u - v)*V0 + u*V1 + v*V2 -> 3 equations solved by Cramer rule
+	//triangle edges
+	OpenMesh::Vec3f edge1 = V1 - V0;
+	OpenMesh::Vec3f edge2 = V2 - V0;
+	//calculation of determinant used to calculate u parameter
+	OpenMesh::Vec3f pvec = cross(ray_direction, edge2);
+	//if determinant is near zero ray lines in plane of triangle
+	float det = dot(edge1, pvec);
+	if (det > -FLOAT_ZERO && det < FLOAT_ZERO)
+		return false;
+	float inv_det = 1.0 / det;
+	//distance from V0 to ray origin
+	OpenMesh::Vec3f tvec = ray_origin - V0;
+	//calculate u parameter and test bounds
+	float u = dot(tvec, pvec) * inv_det;
+	if (u < 0 || u > 1.0)
+		return false;
+	//prepare to test v parameter
+	OpenMesh::Vec3f qvec = cross(tvec, edge1);
+	//calculate v parameter and test bounds
+	float v = dot(ray_direction, qvec) * inv_det;
+	if (v < 0.0 || (u + v) > 1.0)
+		return false;
+	//calculate t ray intersects triangle
+	float t = dot(edge2, qvec) * inv_det;
+	//not in the direction of ray
+	if (t < BIAS)
+		return false;
+
+	t_param = t;
+	return true;
+}
+
+bool raySphereIntersection(OpenMesh::Vec3f ray_origin, OpenMesh::Vec3f ray_direction, OpenMesh::Vec3f sphere_center, float sphere_radius, float &t_param) {
+	OpenMesh::Vec3f oo = ray_origin - sphere_center;
+	// A = v^2
+	float A = dot(ray_direction, ray_direction);
+	// -B = v^T * (o_2 - o_1)
+	float B = -2.0 * dot(ray_direction, oo);
+	// C = (o_2 - o_1)^2 - r^2
+	float C = dot(oo, oo) - sphere_radius * sphere_radius;
+	// Discriminant
+	float D = B * B - 4.0f * A * C;
+	// No collision
+	if (D < 0) 
+		return false; 
+
+	float sD = sqrtf(D);
+	float t1 = 0.5 * (B + sD) / A;
+	//if (t1 < Ray.Bias) t1 = Double.MaxValue;
+	float t2 = 0.5 * (B - sD) / A;
+	//if (t2 < Ray.Bias) t2 = Double.MaxValue;
+	float t = (t1 > 0) ? t1 : t2;
+	if (t < 0)
+		return false;
+
+	t_param = t;
+	return true;
+}
+
+OpenMesh::Vec3i flipVec3i(OpenMesh::Vec3i& v) {
+	return OpenMesh::Vec3i(v[2], v[1], v[0]);
 }
 
 #pragma endregion

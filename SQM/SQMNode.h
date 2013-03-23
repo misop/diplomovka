@@ -33,6 +33,10 @@ class SQMNode {
 	vector<MyMesh::VertexHandle> polyhedronPoints;
 	vector<MyMesh::VertexHandle> intersectionVHandles;
 	vector<MyMesh::VertexHandle> meshIntersectionVHandles;
+	
+	vector<OpenMesh::Vec3f> normals2;
+	vector<OpenMesh::Vec3f> centers2;
+	vector<OpenMesh::Vec3i> triangles2;
 public:
 #pragma region Init
 	SQMNode(void);
@@ -65,9 +69,15 @@ public:
 #pragma region BNP Generation
 	void calculateConvexHull();
 	void createPolyhedra(vector<OpenMesh::Vec3i> triangles);
+	bool checkPolyhedronOrientation(int index, OpenMesh::Vec3f center, OpenMesh::Vec3f normal, vector<OpenMesh::Vec3i>& triangles);
 	OpenMesh::Vec3f translatedPointToSphereWithFaceNormals(OpenMesh::Vec3f p, OpenMesh::Vec3f n1, OpenMesh::Vec3f n2, OpenMesh::Vec3f center1, OpenMesh::Vec3f center2);
 	vector<int> getNormalIndexis(vector<int> indexis, int index);
 	void openMeshFromIdexedFace(vector<OpenMesh::Vec3f> vertices, vector<OpenMesh::Vec3i> faces);
+	
+	void createPolyhedraFromCenter(vector<OpenMesh::Vec3i> triangles);
+	OpenMesh::Vec3f polyhedronBoundingBoxCenter();
+	OpenMesh::Vec3f polyhedronPointSumCenterCenter();
+	OpenMesh::Vec3f translatePointToSphereFromCenter(OpenMesh::Vec3f point, OpenMesh::Vec3f center);
 #pragma endregion
 
 #pragma region BNP Subdivision
@@ -117,8 +127,12 @@ protected:
 
 template <typename T> int getPositionInArray(T& v, vector<T>& vectorArray);
 template <typename T> bool equals(T& a, T& b);
+template <typename T> void flipVector(vector<T>& toFlip, vector<T>& flipped);
 bool lesser(MyMesh::FaceHandle& a, MyMesh::FaceHandle& b);
 bool validTriFace(vector<MyMesh::VHandle>& faceVHandles);
+bool rayTriangleIntersection(OpenMesh::Vec3f ray_origin, OpenMesh::Vec3f ray_direction, OpenMesh::Vec3f V0, OpenMesh::Vec3f V1, OpenMesh::Vec3f V2, float &t_param);
+bool raySphereIntersection(OpenMesh::Vec3f ray_origin, OpenMesh::Vec3f ray_direction, OpenMesh::Vec3f sphere_center, float sphere_radius, float &t_param);
+OpenMesh::Vec3i flipVec3i(OpenMesh::Vec3i& v);
 
 #pragma endregion
 

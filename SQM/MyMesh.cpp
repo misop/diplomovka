@@ -12,14 +12,14 @@ void drawArrowBetweenPointsWithColor(MyMesh::Point Q, MyMesh::Point P, float *c)
 	OpenMesh::Vec3f u = P - Q;
 	u = u.normalize();
 
-	glPushMatrix();
+	/*glPushMatrix();
 	glTranslatef(P[0], P[1], P[2]);
 	for (int i = 1; i < 20; i++) {
 		float t = 0.005*i;
 		glTranslatef(-u[0]*t, -u[1]*t, -u[2]*t);
 		gluSphere(gluNewQuadric(), t, 10, 10);
 	}
-	glPopMatrix();
+	glPopMatrix();*/
 
 	glColor3f(c[0], c[1], c[2]);
 	glBegin(GL_LINES);
@@ -145,6 +145,11 @@ void drawMeshEdgesWithArrows(MyMesh* mesh) {
 }
 
 void drawMeshHalfEdgesWithArrows(MyMesh* mesh) {
+		float white[] = {1, 1, 1};
+	drawMeshHalfEdgesWithArrowsAndColor(mesh, white);
+}
+
+void drawMeshHalfEdgesWithArrowsAndColor(MyMesh* mesh, float *c) {
 	MyMesh::HalfedgeIter he_it = mesh->halfedges_begin();
 	MyMesh::HalfedgeIter fheh_it = mesh->halfedges_end();
 
@@ -169,8 +174,8 @@ void drawMeshHalfEdgesWithArrows(MyMesh* mesh) {
 			drawArrowBetweenPointsWithColor(C, Centroid, red);*/
 		}
 		//drawing
-		float white[] = {1, 1, 1};
+		//float white[] = {1, 1, 1};
 		glColor3f(0, 1, 0);
-		drawArrowBetweenPointsWithColor(Q, P, white);
+		drawArrowBetweenPointsWithColor(Q, P, c);
 	}
 }
