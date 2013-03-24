@@ -127,26 +127,26 @@ void SQMNode::draw2() {
 		/*glColor3f(1, 1, 1); 
 		glBegin(GL_LINES);
 		for (int i = 0; i < triangles2.size(); i++) {
-			OpenMesh::Vec3i triangle = triangles2[i];
-			OpenMesh::Vec3f V0 = intersections[triangle[0]];
-			OpenMesh::Vec3f V1 = intersections[triangle[1]];
-			OpenMesh::Vec3f V2 = intersections[triangle[2]];
-			
-			glVertex3fv(V0.values_);
-			glVertex3fv(V1.values_);
-			
-			glVertex3fv(V1.values_);
-			glVertex3fv(V2.values_);
-			
-			glVertex3fv(V2.values_);
-			glVertex3fv(V0.values_);
+		OpenMesh::Vec3i triangle = triangles2[i];
+		OpenMesh::Vec3f V0 = intersections[triangle[0]];
+		OpenMesh::Vec3f V1 = intersections[triangle[1]];
+		OpenMesh::Vec3f V2 = intersections[triangle[2]];
+
+		glVertex3fv(V0.values_);
+		glVertex3fv(V1.values_);
+
+		glVertex3fv(V1.values_);
+		glVertex3fv(V2.values_);
+
+		glVertex3fv(V2.values_);
+		glVertex3fv(V0.values_);
 		}*/
 		/*for (int i = 0; i < centers2.size(); i++) {
-			OpenMesh::Vec3f P = centers2[i];
-			OpenMesh::Vec3f Q = P + (normals2[i] * 10.0);
-			
-			glVertex3fv(P.values_);
-			glVertex3fv(Q.values_);
+		OpenMesh::Vec3f P = centers2[i];
+		OpenMesh::Vec3f Q = P + (normals2[i] * 10.0);
+
+		glVertex3fv(P.values_);
+		glVertex3fv(Q.values_);
 		}*/
 
 		glEnd();
@@ -477,7 +477,7 @@ OpenMesh::Vec3f SQMNode::polyhedronBoundingBoxCenter() {
 		minX = min(minX, intersection[0]);
 		minY = min(minY, intersection[1]);
 		minZ = min(minZ, intersection[2]);
-		
+
 		maxX = max(maxX, intersection[0]);
 		maxY = max(maxY, intersection[1]);
 		maxZ = max(maxZ, intersection[2]);
@@ -711,178 +711,11 @@ void SQMNode::addPolyhedronAndRememberVHandles(MyMesh* mesh, SQMNode* parentBNPN
 		oneRingsOfPolyhedron.push_back(vhandles);
 	}
 	//connect to the rest of the mesh
-	/*if (parentBNPNode != NULL) { //keeped for future testing purposes
-		vector<MyMesh::VHandle> oldOneRing = oneRingsOfPolyhedron.back();
-		OpenMesh::Vec3f u = - directionVector;
-		vector<MyMesh::VHandle> nor3;
-		for (int i = 0; i < oldOneRing.size(); i++) {
-			MyMesh::Point P = mesh->point(oldOneRing[i]);
-			P = P + (10*u);
-			nor3.push_back(mesh->add_vertex(P));
-		}
-		for (int i = 0; i < nor3.size(); i++) {
-			int j = 0;
-			if (i + 1 < nor3.size()) {
-				j = i + 1;
-			}
-			MyMesh::VHandle vh1 = oldOneRing[i];
-			MyMesh::VHandle vh2 = nor3[i];
-			MyMesh::VHandle vh3 = nor3[j];
-			MyMesh::VHandle vh4 = oldOneRing[j];
-
-			mesh->add_face(oldOneRing[i], nor3[i], nor3[j], oldOneRing[j]);
-
-			MyMesh::HalfedgeHandle he1 = mesh->find_halfedge(vh2, vh1);
-			MyMesh::HalfedgeHandle he2 = mesh->find_halfedge(vh3, vh2);
-			MyMesh::HalfedgeHandle he3 = mesh->find_halfedge(vh3, vh4);
-			MyMesh::HalfedgeHandle he4 = mesh->find_halfedge(vh4, vh1);
-			bool b1 = mesh->is_boundary(he1);
-			bool b2 = mesh->is_boundary(he2);
-			bool b3 = mesh->is_boundary(he3);
-			bool b4 = mesh->is_boundary(he4);
-		}
-		vector<MyMesh::VHandle> nor;
-		for (int i = 0; i < nor3.size(); i++) {
-			MyMesh::Point P = mesh->point(nor3[i]);
-			P = P + (10*u);
-			nor.push_back(mesh->add_vertex(P));
-		}
-		for (int i = 0; i < nor.size(); i++) {
-			int j = 0;
-			if (i + 1 < nor.size()) {
-				j = i + 1;
-			}
-			MyMesh::VHandle vh1 = nor3[i];
-			MyMesh::VHandle vh2 = nor[i];
-			MyMesh::VHandle vh3 = nor[j];
-			MyMesh::VHandle vh4 = nor3[j];
-			MyMesh::HalfedgeHandle he1 = mesh->find_halfedge(vh1, vh2);
-			MyMesh::HalfedgeHandle he2 = mesh->find_halfedge(vh2, vh3);
-			MyMesh::HalfedgeHandle he3 = mesh->find_halfedge(vh3, vh4);
-			MyMesh::HalfedgeHandle he4 = mesh->find_halfedge(vh4, vh1);
-			bool b4 = mesh->is_boundary(he4);
-
-			mesh->add_face(nor3[i], nor[i], nor[j], nor3[j]);
-			
-			he1 = mesh->find_halfedge(vh1, vh2);
-			he2 = mesh->find_halfedge(vh2, vh3);
-			he3 = mesh->find_halfedge(vh3, vh4);
-			he4 = mesh->find_halfedge(vh4, vh1);
-			bool b1 = mesh->is_boundary(he1);
-			bool b2 = mesh->is_boundary(he2);
-			bool b3 = mesh->is_boundary(he3);
-			b4 = mesh->is_boundary(he4);
-		}
-
-
-		vector<MyMesh::VHandle> nor2;
-		for (int i = 0; i < oneRing.size(); i++) {
-			MyMesh::Point P = mesh->point(oneRing[i]);
-			P = P + (10*directionVector);
-			nor2.push_back(mesh->add_vertex(P));
-		}
-		for (int i = 0; i < nor2.size(); i++) {
-			int j = 0;
-			if (i + 1 < nor2.size()) {
-				j = i + 1;
-			}
-			mesh->add_face(oneRing[i], nor2[i], nor2[j], oneRing[j]);
-		}
-
-		//order newOneRingArray
-		//flip one ring if it has different orientation
-		bool shouldFlip = false;
-		if (nor.size() > 1) {
-			MyMesh::Point P0 = mesh->point(nor[0]);
-			MyMesh::Point P1 = mesh->point(nor[1]);
-			MyMesh::Point Q0 = mesh->point(nor2[0]);
-			MyMesh::Point Q1 = mesh->point(nor2[1]);
-			CVector3 d(directionVector.values_);
-			CVector3 A0(P0.values_);
-			CVector3 A1(P1.values_);
-			CVector3 B0(Q0.values_);
-			CVector3 B1(Q1.values_);
-			//calculate base with cross product
-			CVector3 u = Cross(A0, A1);
-			CVector3 v = Cross(B0, B1);
-			//project base onto direction vector
-			float d1 = Dot(u, d);
-			float d2 = Dot(v, d);
-			//if both have same sign both have same direction 
-			shouldFlip = (d1 >= 0 && d2 < 0) || (d1 < 0 && d2 >= 0);
-		}
-		if (shouldFlip) {
-			vector<MyMesh::VHandle> flipped;
-			for (vector<MyMesh::VHandle>::reverse_iterator rit = nor.rbegin(); rit != nor.rend(); rit++) {
-				flipped.push_back(*rit);
-			}
-			nor = flipped;
-		}
-		//find closest point
-		vector<MyMesh::VertexHandle> newOneRing;
-		MyMesh::Point P = mesh->point(nor2[0]);
-		float minDist = 0;
-		int index = 0;
-		for (int i = 0; i < nor.size(); i++) {
-			MyMesh::Point Q = mesh->point(nor[i]);
-			float dist = (P - Q).norm();
-			if (i == 0 || dist < minDist) {
-				minDist = dist;
-				index = i;
-			}
-		}
-		//reorder array
-		for (int i = 0; i < nor.size(); i++) {
-			if (index == nor.size()) {
-				index = 0;
-			}
-			newOneRing.push_back(nor[index]);
-			index++;
-		}
-		//create new faces for the points
-		for (int i = 0; i < newOneRing.size(); i++) {
-			int j = 0;
-			if (i + 1 < newOneRing.size()) {
-				j = i + 1;
-			}
-			MyMesh::VHandle vh1 = nor2[i];
-			MyMesh::VHandle vh2 = newOneRing[i];
-			MyMesh::VHandle vh3 = newOneRing[j];
-			MyMesh::VHandle vh4 = nor2[j];
-			MyMesh::HalfedgeHandle he1 = mesh->find_halfedge(vh1, vh2);
-			MyMesh::HalfedgeHandle he2 = mesh->find_halfedge(vh2, vh3);
-			MyMesh::HalfedgeHandle he3 = mesh->find_halfedge(vh3, vh4);
-			MyMesh::HalfedgeHandle he4 = mesh->find_halfedge(vh4, vh1);
-			bool b2 = mesh->is_boundary(he2);
-			bool b4 = mesh->is_boundary(he4);
-
-			mesh->add_face(nor2[i], newOneRing[i], newOneRing[j], nor2[j]);
-		}
-	}*/
 	if (parentBNPNode != NULL) {
 		//order newOneRingArray
 		vector<MyMesh::VHandle> oldOneRing = oneRingsOfPolyhedron.back();
 		//flip one ring if it has different orientation
-		bool shouldFlip = false;
-		if (oldOneRing.size() > 1) {
-			MyMesh::Point P0 = mesh->point(oldOneRing[0]);
-			MyMesh::Point P1 = mesh->point(oldOneRing[1]);
-			MyMesh::Point Q0 = mesh->point(oneRing[0]);
-			MyMesh::Point Q1 = mesh->point(oneRing[1]);
-			CVector3 d(directionVector.values_);
-			CVector3 A0(P0.values_);
-			CVector3 A1(P1.values_);
-			CVector3 B0(Q0.values_);
-			CVector3 B1(Q1.values_);
-			//calculate base with cross product
-			CVector3 u = Cross(A0, A1);
-			CVector3 v = Cross(B0, B1);
-			//project base onto direction vector
-			float d1 = Dot(u, d);
-			float d2 = Dot(v, d);
-			//if both have same sign both have same direction 
-			shouldFlip = (d1 >= 0 && d2 < 0) || (d1 < 0 && d2 >= 0);
-		}
+		bool shouldFlip = sameOneRingOrientation(mesh, oldOneRing, oneRing, directionVector);
 		if (shouldFlip) {
 			vector<MyMesh::VHandle> flipped;
 			flipVector(oldOneRing, flipped);
@@ -1119,6 +952,29 @@ bool raySphereIntersection(OpenMesh::Vec3f ray_origin, OpenMesh::Vec3f ray_direc
 
 OpenMesh::Vec3i flipVec3i(OpenMesh::Vec3i& v) {
 	return OpenMesh::Vec3i(v[2], v[1], v[0]);
+}
+
+bool sameOneRingOrientation(MyMesh* mesh, vector<MyMesh::VHandle>& oneRing, vector<MyMesh::VHandle>& oneRing2, OpenMesh::Vec3f& direction) {
+	if (oneRing.size() > 1 && oneRing2.size() > 1) {
+		MyMesh::Point P0 = mesh->point(oneRing[0]);
+		MyMesh::Point P1 = mesh->point(oneRing[1]);
+		MyMesh::Point Q0 = mesh->point(oneRing2[0]);
+		MyMesh::Point Q1 = mesh->point(oneRing2[1]);
+		CVector3 d(direction.values_);
+		CVector3 A0(P0.values_);
+		CVector3 A1(P1.values_);
+		CVector3 B0(Q0.values_);
+		CVector3 B1(Q1.values_);
+		//calculate base with cross product
+		CVector3 u = Cross(A0, A1);
+		CVector3 v = Cross(B0, B1);
+		//project base onto direction vector
+		float d1 = Dot(u, d);
+		float d2 = Dot(v, d);
+		//if both have same sign both have same direction 
+		return (d1 >= 0 && d2 < 0) || (d1 < 0 && d2 >= 0);
+	}
+	return false;
 }
 
 #pragma endregion
