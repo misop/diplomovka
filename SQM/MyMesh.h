@@ -4,13 +4,14 @@
 
 struct MyTraits : public OpenMesh::DefaultTraits
 {
-  VertexAttributes(OpenMesh::Attributes::Status);
-  FaceAttributes(OpenMesh::Attributes::Status);
-  EdgeAttributes(OpenMesh::Attributes::Status);
+	VertexAttributes(OpenMesh::Attributes::Status);
+	FaceAttributes(OpenMesh::Attributes::Status);
+	EdgeAttributes(OpenMesh::Attributes::Status);
 };
 
 typedef OpenMesh::PolyMesh_ArrayKernelT<MyTraits> MyMesh;
 typedef OpenMesh::TriMesh_ArrayKernelT<MyTraits> MyTriMesh;
+
 
 bool OpenMeshEqualVHandles(MyMesh::VHandle& h1, MyMesh::VHandle& h2);
 
@@ -20,3 +21,4 @@ void drawMeshEdges(MyMesh* mesh);
 void drawMeshEdgesWithArrows(MyMesh* mesh);
 void drawMeshHalfEdgesWithArrows(MyMesh* mesh);
 void drawMeshHalfEdgesWithArrowsAndColor(MyMesh* mesh, float *c);
+void drawMeshHalfEdgesWithArrowsAndColor(MyTriMesh* mesh, float *c);

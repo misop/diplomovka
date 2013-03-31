@@ -11,11 +11,11 @@
 #pragma region Structs
 
 struct VHandleCount {
-	MyMesh::VHandle vhandle;
+	MyTriMesh::VHandle vhandle;
 	int missingPoints;
 	bool needs;
 
-	VHandleCount(MyMesh::VHandle handle, int points, bool need) : vhandle(handle), missingPoints(points), needs(need) { };
+	VHandleCount(MyTriMesh::VHandle handle, int points, bool need) : vhandle(handle), missingPoints(points), needs(need) { };
 };
 
 #pragma endregion
@@ -29,10 +29,10 @@ class SQMNode {
 	CVector4 axisAngle;
 	vector<SQMNode*> nodes;
 	vector<OpenMesh::Vec3f> intersections;
-	MyMesh *polyhedron;
-	vector<MyMesh::VertexHandle> polyhedronPoints;
-	vector<MyMesh::VertexHandle> intersectionVHandles;
-	vector<MyMesh::VertexHandle> meshIntersectionVHandles;
+	MyTriMesh *polyhedron;
+	vector<MyTriMesh::VertexHandle> polyhedronPoints;
+	vector<MyTriMesh::VertexHandle> intersectionVHandles;
+	vector<MyTriMesh::VertexHandle> meshIntersectionVHandles;
 	
 	vector<OpenMesh::Vec3f> normals2;
 	vector<OpenMesh::Vec3f> centers2;
@@ -49,9 +49,9 @@ public:
 	bool isLeafNode();
 	OpenMesh::Vec3f getPosition();
 	vector<SQMNode*>* getNodes();
-	MyMesh* getPolyhedron();
+	MyTriMesh* getPolyhedron();
 	vector<SQMNode*>* getDescendants();
-	vector<MyMesh::VertexHandle>* getIntersectionVHandles();
+	vector<MyTriMesh::VertexHandle>* getIntersectionVHandles();
 	float getNodeRadius();
 #pragma endregion
 
@@ -83,9 +83,9 @@ public:
 #pragma region BNP Subdivision
 	void subdividePolyhedra(SQMNode* parentBranchNode, int count);
 	void fillVerticeCountTable(vector<VHandleCount>& verticeCountTable, vector<SQMNode*>& branchingNodes);
-	void fillEdgeLengthList(deque<EdgeLength>& edgeLengthList, MyMesh::VHandle vertice);
-	MyMesh::EdgeHandle pickEdgeToSplit(deque<EdgeLength>& edgeLengthList, vector<VHandleCount>& verticeCountTable, MyMesh::VHandle vertice);
-	void splitEdgeInHalf(MyMesh::EdgeHandle eh);
+	void fillEdgeLengthList(deque<EdgeLength>& edgeLengthList, MyTriMesh::VHandle vertice);
+	MyTriMesh::EdgeHandle pickEdgeToSplit(deque<EdgeLength>& edgeLengthList, vector<VHandleCount>& verticeCountTable, MyTriMesh::VHandle vertice);
+	void splitEdgeInHalf(MyTriMesh::EdgeHandle eh);
 #pragma endregion
 
 #pragma region BNP Joining

@@ -2,10 +2,10 @@
 #include "MyMesh.h"
 
 struct EdgeLength {
-	MyMesh::HalfedgeHandle hehandle;
+	MyTriMesh::HalfedgeHandle hehandle;
 	float length;
 
-	EdgeLength(MyMesh::HalfedgeHandle halfedgeHandle, float edgeLength) : hehandle(halfedgeHandle), length(edgeLength) { };
+	EdgeLength(MyTriMesh::HalfedgeHandle halfedgeHandle, float edgeLength) : hehandle(halfedgeHandle), length(edgeLength) { };
 };
 
 struct EdgeLengthComp {

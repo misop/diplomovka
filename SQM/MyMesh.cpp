@@ -167,8 +167,8 @@ void drawMeshHalfEdgesWithArrowsAndColor(MyMesh* mesh, float *c) {
 			mesh->calc_face_centroid(fh, Centroid);
 			P = P + (Centroid - P).normalize()*0.3;
 			Q = Q + (Centroid - Q).normalize()*0.3;
-			MyMesh::Point C = P*0.5 + Q*0.5;
-			/*MyMesh::Point n = mesh->calc_face_normal(fh);
+			/*MyMesh::Point C = P*0.5 + Q*0.5;
+			MyMesh::Point n = mesh->calc_face_normal(fh);
 			glColor3f(1, 0, 0);
 			glBegin(GL_LINES);
 			glVertex3fv(Centroid.values_);
@@ -182,6 +182,30 @@ void drawMeshHalfEdgesWithArrowsAndColor(MyMesh* mesh, float *c) {
 		}
 		//drawing
 		//float white[] = {1, 1, 1};
+		glColor3f(0, 1, 0);
+		drawArrowBetweenPointsWithColor(Q, P, c);
+	}
+}
+
+void drawMeshHalfEdgesWithArrowsAndColor(MyTriMesh* mesh, float *c) {
+	MyTriMesh::HalfedgeIter he_it = mesh->halfedges_begin();
+	MyTriMesh::HalfedgeIter fheh_it = mesh->halfedges_end();
+
+	for (; he_it != fheh_it; ++he_it) {
+		MyTriMesh::HalfedgeHandle heh1 = he_it.handle();
+		MyTriMesh::HalfedgeHandle heh2 = mesh->opposite_halfedge_handle(heh1);
+		MyTriMesh::VertexHandle vh1 = mesh->to_vertex_handle(heh1);
+		MyTriMesh::VertexHandle vh2 = mesh->to_vertex_handle(heh2);
+		MyTriMesh::Point P = mesh->point(vh1);
+		MyTriMesh::Point Q = mesh->point(vh2);
+
+		if (!mesh->is_boundary(heh1)) {
+			MyTriMesh::FaceHandle fh = mesh->face_handle(heh1);
+			MyTriMesh::Point Centroid;
+			mesh->calc_face_centroid(fh, Centroid);
+			P = P + (Centroid - P).normalize()*0.3;
+			Q = Q + (Centroid - Q).normalize()*0.3;
+		}
 		glColor3f(0, 1, 0);
 		drawArrowBetweenPointsWithColor(Q, P, c);
 	}

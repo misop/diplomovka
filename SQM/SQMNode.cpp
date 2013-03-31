@@ -56,7 +56,7 @@ vector<SQMNode*>* SQMNode::getNodes() {
 	return &nodes;
 }
 
-MyMesh* SQMNode::getPolyhedron() {
+MyTriMesh* SQMNode::getPolyhedron() {
 	return polyhedron;
 }
 
@@ -64,7 +64,7 @@ vector<SQMNode*>* SQMNode::getDescendants() {
 	return &nodes;
 }
 
-vector<MyMesh::VertexHandle>* SQMNode::getIntersectionVHandles() {
+vector<MyTriMesh::VertexHandle>* SQMNode::getIntersectionVHandles() {
 	return &intersectionVHandles;
 }
 
@@ -122,32 +122,8 @@ void SQMNode::draw(CVector3 lineColor, CVector3 nodeColor) {
 void SQMNode::draw2() {
 	if (polyhedron != NULL) {
 		//draw polyhedron
-		float color[] = {0, 1, 0};
+		float color[] = {1, 1, 1};
 		drawMeshHalfEdgesWithArrowsAndColor(polyhedron, color);
-		/*glColor3f(1, 1, 1); 
-		glBegin(GL_LINES);
-		for (int i = 0; i < triangles2.size(); i++) {
-		OpenMesh::Vec3i triangle = triangles2[i];
-		OpenMesh::Vec3f V0 = intersections[triangle[0]];
-		OpenMesh::Vec3f V1 = intersections[triangle[1]];
-		OpenMesh::Vec3f V2 = intersections[triangle[2]];
-
-		glVertex3fv(V0.values_);
-		glVertex3fv(V1.values_);
-
-		glVertex3fv(V1.values_);
-		glVertex3fv(V2.values_);
-
-		glVertex3fv(V2.values_);
-		glVertex3fv(V0.values_);
-		}*/
-		/*for (int i = 0; i < centers2.size(); i++) {
-		OpenMesh::Vec3f P = centers2[i];
-		OpenMesh::Vec3f Q = P + (normals2[i] * 10.0);
-
-		glVertex3fv(P.values_);
-		glVertex3fv(Q.values_);
-		}*/
 
 		glEnd();
 	}
@@ -389,7 +365,7 @@ vector<int> SQMNode::getNormalIndexis(vector<int> indexis, int index) {
 
 void SQMNode::openMeshFromIdexedFace(vector<OpenMesh::Vec3f> vertices, vector<OpenMesh::Vec3i> faces) {
 	if (polyhedron != NULL) delete polyhedron;
-	polyhedron = new MyMesh();
+	polyhedron = new MyTriMesh();
 	polyhedronPoints.clear();
 	intersectionVHandles.clear();
 	intersectionVHandles.resize(intersections.size());
@@ -535,7 +511,7 @@ void SQMNode::subdividePolyhedra(SQMNode* parentBranchNode, int count) {
 				fillEdgeLengthList(edgeLengthList, vhandleCount.vhandle);
 				sort(edgeLengthList.begin(), edgeLengthList.end(), EdgeLengthCompare);
 				//pick one
-				MyMesh::EdgeHandle eh = pickEdgeToSplit(edgeLengthList, verticeCountTable, vhandleCount.vhandle);
+				MyTriMesh::EdgeHandle eh = pickEdgeToSplit(edgeLengthList, verticeCountTable, vhandleCount.vhandle);
 				//split one
 				splitEdgeInHalf(eh);
 				vhandleCount.missingPoints--;
@@ -558,20 +534,20 @@ void SQMNode::fillVerticeCountTable(vector<VHandleCount>& verticeCountTable, vec
 	for (int i = 0; i < nodes.size(); i++) {
 		SQMNode* descendant = nodes[i];
 		//get node intersection
-		MyMesh::VHandle vhandle = intersectionVHandles[i];
+		MyTriMesh::VHandle vhandle = intersectionVHandles[i];
 		//get descendant branching node
 		SQMNode* descendantBranchNode = branchingNodes[i];
 		if (descendantBranchNode != NULL) {			
 			//get intersection vhandle its the last one from parent
-			MyMesh::VHandle descendantVHandle = descendantBranchNode->getIntersectionVHandles()->back();
+			MyTriMesh::VHandle descendantVHandle = descendantBranchNode->getIntersectionVHandles()->back();
 			//get number of needed vertices
 			int vhandleCount = 0;
-			for (MyMesh::VVIter vvit = polyhedron->vv_begin(vhandle); vvit != polyhedron->vv_end(vhandle); ++vvit) {
+			for (MyTriMesh::VVIter vvit = polyhedron->vv_begin(vhandle); vvit != polyhedron->vv_end(vhandle); ++vvit) {
 				vhandleCount++;
 			}
 			int descendantVHandleCount = 0;
-			MyMesh *descendantPolyhedron = descendant->getPolyhedron();
-			for (MyMesh::VVIter vvit = descendantPolyhedron->vv_begin(descendantVHandle); vvit != descendantPolyhedron->vv_end(descendantVHandle); ++vvit) {
+			MyTriMesh *descendantPolyhedron = descendant->getPolyhedron();
+			for (MyTriMesh::VVIter vvit = descendantPolyhedron->vv_begin(descendantVHandle); vvit != descendantPolyhedron->vv_end(descendantVHandle); ++vvit) {
 				descendantVHandleCount++;
 			}
 			verticeCountTable.push_back(VHandleCount(vhandle, descendantVHandleCount - vhandleCount, true));
@@ -581,20 +557,20 @@ void SQMNode::fillVerticeCountTable(vector<VHandleCount>& verticeCountTable, vec
 	}
 }
 
-void SQMNode::fillEdgeLengthList(deque<EdgeLength>& edgeLengthList, MyMesh::VHandle vertice) {
-	for (MyMesh::VertexOHalfedgeIter vohit = polyhedron->voh_begin(vertice); vohit != polyhedron->voh_end(vertice); ++vohit) {
-		MyMesh::HalfedgeHandle heh = polyhedron->next_halfedge_handle(vohit.handle());
-		MyMesh::EdgeHandle eh = polyhedron->edge_handle(heh);
+void SQMNode::fillEdgeLengthList(deque<EdgeLength>& edgeLengthList, MyTriMesh::VHandle vertice) {
+	for (MyTriMesh::VertexOHalfedgeIter vohit = polyhedron->voh_begin(vertice); vohit != polyhedron->voh_end(vertice); ++vohit) {
+		MyTriMesh::HalfedgeHandle heh = polyhedron->next_halfedge_handle(vohit.handle());
+		MyTriMesh::EdgeHandle eh = polyhedron->edge_handle(heh);
 		float length = polyhedron->calc_edge_length(eh);
 		edgeLengthList.push_back(EdgeLength(heh, length));
 	}
 }
 
-MyMesh::EdgeHandle SQMNode::pickEdgeToSplit(deque<EdgeLength>& edgeLengthList, vector<VHandleCount>& verticeCountTable, MyMesh::VHandle vertice) {
+MyTriMesh::EdgeHandle SQMNode::pickEdgeToSplit(deque<EdgeLength>& edgeLengthList, vector<VHandleCount>& verticeCountTable, MyMesh::VHandle vertice) {
 	//mark vertices that should be split
 	vector<MyMesh::VHandle> shouldSplit;
 	vector<VHandleCount*> filteredVHandleCounts;
-	MyMesh::VHandle parentVHandle = intersectionVHandles.back();
+	MyTriMesh::VHandle parentVHandle = intersectionVHandles.back();
 	for (int i = 0; i < verticeCountTable.size(); i++) {
 		VHandleCount vhandleCount = verticeCountTable[i];
 		if (vhandleCount.needs && vhandleCount.missingPoints > 0 && vhandleCount.vhandle != vertice) {
@@ -607,8 +583,8 @@ MyMesh::EdgeHandle SQMNode::pickEdgeToSplit(deque<EdgeLength>& edgeLengthList, v
 		for (deque<EdgeLength>::iterator it = edgeLengthList.begin(); it != edgeLengthList.end(); it++) {
 			EdgeLength el = (*it);
 			//get the other vertex handle
-			MyMesh::VHandle vhandle = polyhedron->to_vertex_handle(el.hehandle);
-			vector<MyMesh::VHandle>::iterator found = find(shouldSplit.begin(), shouldSplit.end(), vhandle);
+			MyTriMesh::VHandle vhandle = polyhedron->to_vertex_handle(el.hehandle);
+			vector<MyTriMesh::VHandle>::iterator found = find(shouldSplit.begin(), shouldSplit.end(), vhandle);
 			if (found != shouldSplit.end()) {
 				int index = found - shouldSplit.begin();
 				filteredVHandleCounts[index]->missingPoints--;
@@ -621,7 +597,7 @@ MyMesh::EdgeHandle SQMNode::pickEdgeToSplit(deque<EdgeLength>& edgeLengthList, v
 	for (deque<EdgeLength>::iterator it = edgeLengthList.begin(); it != edgeLengthList.end(); it++) {
 		EdgeLength el = (*it);
 		//get the other vertex handle
-		MyMesh::VHandle vhandle = polyhedron->to_vertex_handle(el.hehandle);
+		MyTriMesh::VHandle vhandle = polyhedron->to_vertex_handle(el.hehandle);
 		if (vhandle != parentVHandle) {
 			for (int i = 0; i < verticeCountTable.size(); i++) {
 				if (vhandle == verticeCountTable[i].vhandle) {
@@ -637,21 +613,22 @@ MyMesh::EdgeHandle SQMNode::pickEdgeToSplit(deque<EdgeLength>& edgeLengthList, v
 	return polyhedron->edge_handle(el.hehandle);
 }
 
-void SQMNode::splitEdgeInHalf(MyMesh::EdgeHandle eh) {
-	MyMesh::HalfedgeHandle heh0 = polyhedron->halfedge_handle(eh, 0);
-	MyMesh::HalfedgeHandle heh1 = polyhedron->halfedge_handle(eh, 1);
-	MyMesh::FaceHandle fh0 = polyhedron->face_handle(heh0);
-	MyMesh::FaceHandle fh1 = polyhedron->face_handle(heh1);
-	MyMesh::Point p0 = polyhedron->point(polyhedron->to_vertex_handle(heh0));
-	MyMesh::Point p1 = polyhedron->point(polyhedron->to_vertex_handle(heh1));
+void SQMNode::splitEdgeInHalf(MyTriMesh::EdgeHandle eh) {
+	MyTriMesh::HalfedgeHandle heh0 = polyhedron->halfedge_handle(eh, 0);
+	MyTriMesh::HalfedgeHandle heh1 = polyhedron->halfedge_handle(eh, 1);
+	//MyMesh::FaceHandle fh0 = polyhedron->face_handle(heh0);
+	//MyMesh::FaceHandle fh1 = polyhedron->face_handle(heh1);
+	MyTriMesh::Point p0 = polyhedron->point(polyhedron->to_vertex_handle(heh0));
+	MyTriMesh::Point p1 = polyhedron->point(polyhedron->to_vertex_handle(heh1));
 
-	MyMesh::Point x = 0.5*p0 + 0.5*p1;
-	MyMesh::VertexHandle vh = polyhedron->add_vertex(x);
+	MyTriMesh::Point x = 0.5*p0 + 0.5*p1;
+	MyTriMesh::VertexHandle vh = polyhedron->add_vertex(x);
 
 	//creates invalid faces :(
-	polyhedron->split_edge(eh, vh);
-	polyhedron->split(fh0, vh);
-	polyhedron->split(fh1, vh);
+	//polyhedron->split_edge(eh, vh);
+	polyhedron->split(eh, vh);
+	//polyhedron->split(fh0, vh);
+	//polyhedron->split(fh1, vh);
 }
 
 #pragma endregion
@@ -687,16 +664,16 @@ void SQMNode::addPolyhedronAndRememberVHandles(MyMesh* mesh, SQMNode* parentBNPN
 	int vectorSize = intersectionVHandles.size();
 	vector<vector<int> > intersectionOneRingIndexes(vectorSize);
 	vector<MyMesh::VHandle> addedVHandles;
-	for (MyMesh::VIter v_it = polyhedron->vertices_begin(); v_it != polyhedron->vertices_end(); ++v_it) {
-		MyMesh::VHandle vhandle = v_it.handle();
-		int position = getPositionInArray<MyMesh::VHandle>(vhandle, intersectionVHandles);
+	for (MyTriMesh::VIter v_it = polyhedron->vertices_begin(); v_it != polyhedron->vertices_end(); ++v_it) {
+		MyTriMesh::VHandle vhandle = v_it.handle();
+		int position = getPositionInArray<MyTriMesh::VHandle>(vhandle, intersectionVHandles);
 		if (position == -1) {
-			MyMesh::Point P = polyhedron->point(vhandle);
+			MyTriMesh::Point P = polyhedron->point(vhandle);
 			addedVHandles.push_back(mesh->add_vertex(P));
 		} else {
 			addedVHandles.push_back(vhandle);
 			//collect one ring indexis
-			for (MyMesh::VVIter vv_it = polyhedron->vv_begin(vhandle); vv_it != polyhedron->vv_end(vhandle); ++vv_it) {
+			for (MyTriMesh::VVIter vv_it = polyhedron->vv_begin(vhandle); vv_it != polyhedron->vv_end(vhandle); ++vv_it) {
 				intersectionOneRingIndexes[position].push_back(vv_it.handle().idx());
 			}
 		}
