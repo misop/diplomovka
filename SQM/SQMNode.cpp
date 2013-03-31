@@ -749,6 +749,7 @@ void SQMNode::addPolyhedronAndRememberVHandles(MyMesh* mesh, SQMNode* parentBNPN
 				j = i + 1;
 			}
 			mesh->add_face(oneRing[i], newOneRing[i], newOneRing[j], oneRing[j]);
+			//mesh->add_face(oneRing[j], newOneRing[j], newOneRing[i], oneRing[i]);
 		}
 	}
 }
@@ -787,6 +788,7 @@ void SQMNode::extendMesh(MyMesh* mesh, SQMNode* parentBNPNode, vector<MyMesh::Ve
 			j = i + 1;
 		}
 		temp.push_back(mesh->add_face(oneRing[i], newOneRing[i], newOneRing[j], oneRing[j]));
+		//temp.push_back(mesh->add_face(oneRing[j], newOneRing[j], newOneRing[i], oneRing[i]));
 	}
 	//remember inseted points
 	meshIntersectionVHandles = newOneRing;
@@ -804,6 +806,7 @@ void SQMNode::finishLeafeNode(MyMesh* mesh, vector<MyMesh::VertexHandle>& oneRin
 			j = i + 1;
 		}
 		mesh->add_face(oneRing[i], vhandle, oneRing[j]);
+		//mesh->add_face(oneRing[j], vhandle, oneRing[i]);
 	}
 }
 

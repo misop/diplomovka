@@ -1,5 +1,6 @@
 #pragma once
 #include <OpenMesh\Core\Mesh\PolyMesh_ArrayKernelT.hh>
+#include <OpenMesh\Core\Mesh\TriMesh_ArrayKernelT.hh>
 
 struct MyTraits : public OpenMesh::DefaultTraits
 {
@@ -9,6 +10,7 @@ struct MyTraits : public OpenMesh::DefaultTraits
 };
 
 typedef OpenMesh::PolyMesh_ArrayKernelT<MyTraits> MyMesh;
+typedef OpenMesh::TriMesh_ArrayKernelT<MyTraits> MyTriMesh;
 
 bool OpenMeshEqualVHandles(MyMesh::VHandle& h1, MyMesh::VHandle& h2);
 
