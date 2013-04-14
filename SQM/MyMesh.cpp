@@ -210,3 +210,25 @@ void drawMeshHalfEdgesWithArrowsAndColor(MyTriMesh* mesh, float *c) {
 		drawArrowBetweenPointsWithColor(Q, P, c);
 	}
 }
+
+
+void writeTriMesh(MyTriMesh* mesh) {
+	static int number = 0;
+	number++;
+	std::stringstream ss;//create a stringstream
+    ss << number;
+	std::string file = ss.str() + ".obj";
+	writeTriMesh(mesh, file);
+}
+
+void writeTriMesh(MyTriMesh* mesh, std::string fileName) {
+	OpenMesh::IO::Options wopt;
+	if (!OpenMesh::IO::write_mesh(*mesh, fileName)) {
+	}
+}
+
+void writeMesh(MyTriMesh* mesh, std::string fileName) {
+	OpenMesh::IO::Options wopt;
+	if (!OpenMesh::IO::write_mesh(*mesh, fileName)) {
+	}
+}

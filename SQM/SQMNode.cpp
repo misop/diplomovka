@@ -382,6 +382,7 @@ void SQMNode::openMeshFromIdexedFace(vector<OpenMesh::Vec3f> vertices, vector<Op
 		OpenMesh::Vec3i face = faces[i];
 		polyhedron->add_face(polyhedronPoints[face.values_[0]], polyhedronPoints[face.values_[1]], polyhedronPoints[face.values_[2]]);
 	}
+	writeTriMesh(polyhedron);
 }
 
 //-----------------------TEST------------------------
@@ -487,6 +488,13 @@ OpenMesh::Vec3f SQMNode::translatePointToSphereFromCenter(OpenMesh::Vec3f point,
 #pragma region BNP Subdivision
 
 void SQMNode::subdividePolyhedra(SQMNode* parentBranchNode, int count) {
+	map<int, LIENeedEntry> lieMap;
+	fillLIEMap(count, lieMap);
+}
+
+#pragma region OLD
+
+void SQMNode::subdividePolyhedraOld(SQMNode* parentBranchNode, int count) {
 	//vector of next BNPs
 	vector<SQMNode*> branchingNodes;
 	for (int i = 0; i < nodes.size(); i++) {
@@ -630,6 +638,23 @@ void SQMNode::splitEdgeInHalf(MyTriMesh::EdgeHandle eh) {
 	//polyhedron->split(fh0, vh);
 	//polyhedron->split(fh1, vh);
 }
+
+#pragma endregion
+
+#pragma region NEW
+
+void SQMNode::fillLIEMap(int parentCount, std::map<int, LIENeedEntry>& lieMap) {
+	for (int i = 0; i < nodes.size(); i++) {
+		SQMNode* node = nodes[i];
+		//find surrounding nodes
+		//create LIEs
+		//count need
+	}
+}
+
+#pragma endregion
+
+
 
 #pragma endregion
 

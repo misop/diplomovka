@@ -63,6 +63,12 @@
     <ClCompile Include="GLEventHandler.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="LIE.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="LIENeedEntry.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Form1.h">
@@ -114,6 +120,12 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="GLEventHandler.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="LIE.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="LIENeedEntry.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

@@ -1,4 +1,5 @@
 #pragma once
+#include <OpenMesh\Core\IO\MeshIO.hh>
 #include <OpenMesh\Core\Mesh\PolyMesh_ArrayKernelT.hh>
 #include <OpenMesh\Core\Mesh\TriMesh_ArrayKernelT.hh>
 
@@ -22,3 +23,7 @@ void drawMeshEdgesWithArrows(MyMesh* mesh);
 void drawMeshHalfEdgesWithArrows(MyMesh* mesh);
 void drawMeshHalfEdgesWithArrowsAndColor(MyMesh* mesh, float *c);
 void drawMeshHalfEdgesWithArrowsAndColor(MyTriMesh* mesh, float *c);
+
+void writeTriMesh(MyTriMesh* mesh);
+void writeTriMesh(MyTriMesh* mesh, std::string fileName);
+void writeMesh(MyTriMesh* mesh, std::string fileName);

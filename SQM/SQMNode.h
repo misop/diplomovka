@@ -7,6 +7,7 @@
 #include "MyMesh.h"
 #include "EdgeLength.h"
 #include <GL/glu.h>
+#include "LIENeedEntry.h"
 
 #pragma region Structs
 
@@ -82,10 +83,20 @@ public:
 
 #pragma region BNP Subdivision
 	void subdividePolyhedra(SQMNode* parentBranchNode, int count);
+
+#pragma region OLD
+	void subdividePolyhedraOld(SQMNode* parentBranchNode, int count);
 	void fillVerticeCountTable(vector<VHandleCount>& verticeCountTable, vector<SQMNode*>& branchingNodes);
 	void fillEdgeLengthList(deque<EdgeLength>& edgeLengthList, MyTriMesh::VHandle vertice);
 	MyTriMesh::EdgeHandle pickEdgeToSplit(deque<EdgeLength>& edgeLengthList, vector<VHandleCount>& verticeCountTable, MyTriMesh::VHandle vertice);
 	void splitEdgeInHalf(MyTriMesh::EdgeHandle eh);
+#pragma endregion
+
+#pragma region NEW
+	void fillLIEMap(int parentCount, std::map<int, LIENeedEntry>& lieMap);
+#pragma endregion
+
+
 #pragma endregion
 
 #pragma region BNP Joining
