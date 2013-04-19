@@ -93,7 +93,11 @@ public:
 #pragma endregion
 
 #pragma region NEW
-	void fillLIEMap(int parentCount, std::map<int, LIENeedEntry>& lieMap);
+	void fillLIEMap(int parentNeed, std::map<int, LIENeedEntry>& lieMap, std::vector<SQMNode*>& branchingNodes);
+	void splitLIEs(std::map<int, LIENeedEntry>& lieMap);
+	void splitLIE(LIE lie, std::map<int, LIENeedEntry>& lieMap, int entryIndex, int lieIndex);
+	LIE splitLIEEdge(LIE lie);
+	MyTriMesh::EHandle splitEdgeInHalfAndReturnNewEdge(MyTriMesh::EdgeHandle eh);
 #pragma endregion
 
 
@@ -112,6 +116,9 @@ public:
 	int getPointPositionInArray(OpenMesh::Vec3f& v, vector<OpenMesh::Vec3f>& vectorArray);
 	SQMNode* getDescendantBranchNode(SQMNode* node);
 	MyMesh::VHandle getSecondVHandle(MyMesh::EdgeHandle edgeHandle, MyMesh::VHandle vhandle);
+	MyTriMesh::HalfedgeHandle nextLink(MyTriMesh::HalfedgeHandle heh);
+	MyTriMesh::HalfedgeHandle prevLink(MyTriMesh::HalfedgeHandle heh);
+	MyTriMesh::VHandle oppositeVHandle(MyTriMesh::HalfedgeHandle heh);
 #pragma endregion
 
 #pragma region Drawing
@@ -145,6 +152,8 @@ bool rayTriangleIntersection(OpenMesh::Vec3f ray_origin, OpenMesh::Vec3f ray_dir
 bool raySphereIntersection(OpenMesh::Vec3f ray_origin, OpenMesh::Vec3f ray_direction, OpenMesh::Vec3f sphere_center, float sphere_radius, float &t_param);
 OpenMesh::Vec3i flipVec3i(OpenMesh::Vec3i& v);
 bool sameOneRingOrientation(MyMesh* mesh, vector<MyMesh::VHandle>& oneRing, vector<MyMesh::VHandle>& oneRing2, OpenMesh::Vec3f& direction);
+int verticeDifferenceFatherSon(SQMNode* father, SQMNode* son, MyTriMesh::VHandle vhandle);
+int inLIEs(std::vector<LIE>& LIEs, MyTriMesh::VHandle vh1, MyTriMesh::VHandle vh2);
 
 #pragma endregion
 

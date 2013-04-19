@@ -487,9 +487,25 @@ OpenMesh::Vec3f SQMNode::translatePointToSphereFromCenter(OpenMesh::Vec3f point,
 
 #pragma region BNP Subdivision
 
-void SQMNode::subdividePolyhedra(SQMNode* parentBranchNode, int count) {
+void SQMNode::subdividePolyhedra(SQMNode* parentBranchNode, int count) {	
+	vector<SQMNode*> branchingNodes;
+	for (int i = 0; i < nodes.size(); i++) {
+		branchingNodes.push_back(getDescendantBranchNode(nodes[i]));
+	}
 	map<int, LIENeedEntry> lieMap;
-	fillLIEMap(count, lieMap);
+	fillLIEMap(count, lieMap, branchingNodes);
+	splitLIEs(lieMap);
+	//take care of the rest
+	for (int i = 0; i < branchingNodes.size(); i++)	{
+		SQMNode* branchingNode = branchingNodes[i];
+		if (branchingNode != NULL) {
+			MyTriMesh::VHandle vhandle = intersectionVHandles[i];
+			//if we needed some they have been added if we had more points than descendant he needs to add them
+			int missingPoints = verticeDifferenceFatherSon(this, branchingNode, vhandle);
+			missingPoints = (missingPoints < 0) ? -missingPoints : 0;
+			branchingNode->subdividePolyhedra(this, missingPoints);
+		}
+	}
 }
 
 #pragma region OLD
@@ -533,7 +549,7 @@ void SQMNode::subdividePolyhedraOld(SQMNode* parentBranchNode, int count) {
 		//if we needed some they have been added if we had more points than descendant he needs to add them
 		int missingPoints = (verticeCountTable[i].missingPoints >= 0) ? 0 : -verticeCountTable[i].missingPoints;
 		if (branchingNode != NULL) {
-			branchingNode->subdividePolyhedra(this, missingPoints);
+			branchingNode->subdividePolyhedraOld(this, missingPoints);
 		}
 	}
 }
@@ -554,7 +570,7 @@ void SQMNode::fillVerticeCountTable(vector<VHandleCount>& verticeCountTable, vec
 				vhandleCount++;
 			}
 			int descendantVHandleCount = 0;
-			MyTriMesh *descendantPolyhedron = descendant->getPolyhedron();
+			MyTriMesh *descendantPolyhedron = descendantBranchNode->getPolyhedron(); // descendant->getPolyhedron();
 			for (MyTriMesh::VVIter vvit = descendantPolyhedron->vv_begin(descendantVHandle); vvit != descendantPolyhedron->vv_end(descendantVHandle); ++vvit) {
 				descendantVHandleCount++;
 			}
@@ -643,17 +659,167 @@ void SQMNode::splitEdgeInHalf(MyTriMesh::EdgeHandle eh) {
 
 #pragma region NEW
 
-void SQMNode::fillLIEMap(int parentCount, std::map<int, LIENeedEntry>& lieMap) {
-	for (int i = 0; i < nodes.size(); i++) {
-		SQMNode* node = nodes[i];
-		//find surrounding nodes
-		//create LIEs
-		//count need
+void SQMNode::fillLIEMap(int parentNeed, std::map<int, LIENeedEntry>& lieMap, std::vector<SQMNode*>& branchingNodes) {
+	//vector<LIE> LIEs;
+	int stop = nodes.size();
+	if (parent != NULL)
+		stop++;
+	for (int i = 0; i < stop; i++) {
+		//count of need to split edges
+		MyTriMesh::VHandle vhandle = intersectionVHandles[i];
+		int need = 0;
+		if (i == nodes.size()) {//parent intersection
+			if (parentNeed > 0) {
+				need = parentNeed;
+			} else {
+				need = NO_SPLITTING;
+			}
+		} else {
+			SQMNode* branchingNode = branchingNodes[i];
+			need = verticeDifferenceFatherSon(this, branchingNode, vhandle);
+			//if father has more vertices than its son there is no need to split
+			need = max(0, need);
+			//if son is not branch node he can be splited as much as needed
+			if (branchingNode == NULL)
+				need = UNLIMITED_SPLITTING;
+		}
+
+		//we could check for uncreated LIEs only but the list could be long and thus take more time that creating new one
+		vector<LIE> verticeLIEs;
+		//get first halfedge
+		MyTriMesh::HHandle heh = polyhedron->voh_begin(vhandle).current_halfedge_handle();
+		heh = polyhedron->next_halfedge_handle(heh);
+		//get first opposing vhandle
+		MyTriMesh::VHandle ovhandle = oppositeVHandle(heh);
+		//check previous for first ocurence and remember first heh
+		MyTriMesh::HHandle prevHeh = prevLink(heh);
+		while (oppositeVHandle(prevHeh) == ovhandle) {
+			heh = prevHeh;
+			prevHeh = prevLink(heh);
+		}
+		//current half edge and opposite handle
+		MyTriMesh::HHandle cheh = nextLink(heh);
+		MyTriMesh::VHandle covh = ovhandle;
+		vector<MyTriMesh::EdgeHandle> edges;
+		edges.push_back(polyhedron->edge_handle(heh));
+		bool good = true;
+		while (good) {
+			good = (heh != cheh);
+			//collect all halfedges of LIE
+			ovhandle = oppositeVHandle(cheh);
+			if (ovhandle == covh) { //if new collect all edges incident with oposing vhandle else just pass them
+				edges.push_back(polyhedron->edge_handle(cheh));
+				cheh = nextLink(cheh);
+			} else {//add LIE to map and table of LIEs
+				LIE lie(vhandle, covh);
+				lie.edges = edges;
+				lie.vertice1 = i;
+				lie.vertice2 = getPositionInArray(covh, intersectionVHandles);
+				verticeLIEs.push_back(lie);
+
+				edges.clear();
+				//edges.push_back(polyhedron->edge_handle(cheh));
+				covh = ovhandle;
+			}
+		}
+
+		//crate map item
+		LIENeedEntry entry(vhandle, need);
+		entry.lies = verticeLIEs;
+		lieMap.insert(pair<int, LIENeedEntry>(i, entry));
 	}
 }
 
-#pragma endregion
+void SQMNode::splitLIEs(std::map<int, LIENeedEntry>& lieMap) {
+	bool parentFirst = (parent != NULL);
+	for (int i = 0; i < nodes.size(); i++) {
+		//parent should go first
+		if (parentFirst) {
+			i = nodes.size();
+		}
+		//get entry
+		LIENeedEntry entry = lieMap.at(i);
+		//if  need <= 0 skip
+		while (entry.need > 0) {
+			//else get LIE with greatest need
+			LIE bestLIE;
+			int bestNeed;
+			int lieIndex = -1;
+			for (int j = 0; j < entry.lies.size(); j++) {
+				LIE lie = entry.lies[j];
+				int otherIndex = lie.otherVerticeIndex(i);
+				int lieNeed = lieMap.at(otherIndex).need;
 
+				if (lieNeed == NO_SPLITTING) continue;
+
+				if ((lieIndex == -1) || (lieNeed != 0 && bestNeed < lieNeed) || (bestNeed == 0 && lieNeed == UNLIMITED_SPLITTING)) {
+					bestNeed = lieNeed;
+					bestLIE = lie;
+					lieIndex = j;
+				}
+			}
+			//split edge and adjust LIEs
+			splitLIE(bestLIE, lieMap, i, lieIndex);
+			entry = lieMap.at(i);
+		}
+		if (parentFirst) {
+			entry.need = -2;
+			lieMap.at(i) = entry;
+			i = 0;
+			parentFirst = false;
+		}
+	}
+}
+
+void SQMNode::splitLIE(LIE lie, std::map<int, LIENeedEntry>& lieMap, int entryIndex, int lieIndex) {
+	LIE newLie = splitLIEEdge(lie);
+	//decrease need for both vertices
+	LIENeedEntry entry1 = lieMap.at(entryIndex);
+	LIENeedEntry entry2 = lieMap.at(lie.otherVerticeIndex(entryIndex));
+	//we always split first 
+	entry1.lies[lieIndex] = newLie;
+	int otherIndex = getPositionInArray(newLie, entry2.lies);
+	entry2.lies[otherIndex] = newLie;
+	//only if they are bigger than one
+	if (entry1.need > 0)
+		entry1.need--;
+	if (entry2.need > 0)
+		entry2.need--;
+	lieMap.at(lie.vertice1) = entry1;
+	lieMap.at(lie.vertice2) = entry2;
+}
+
+LIE SQMNode::splitLIEEdge(LIE lie) {
+	MyTriMesh::EHandle eh = lie.edges[0];
+	MyTriMesh::EHandle newEh = splitEdgeInHalfAndReturnNewEdge(eh);
+	lie.edges.push_back(newEh);
+	return lie;
+}
+
+MyTriMesh::EHandle SQMNode::splitEdgeInHalfAndReturnNewEdge(MyTriMesh::EdgeHandle eh) {
+	MyTriMesh::HalfedgeHandle heh0 = polyhedron->halfedge_handle(eh, 0);
+	MyTriMesh::HalfedgeHandle heh1 = polyhedron->halfedge_handle(eh, 1);
+
+	MyTriMesh::Point p0 = polyhedron->point(polyhedron->to_vertex_handle(heh0));
+	MyTriMesh::Point p1 = polyhedron->point(polyhedron->to_vertex_handle(heh1));
+
+	MyTriMesh::Point x = 0.5*p0 + 0.5*p1;
+	MyTriMesh::VertexHandle vh = polyhedron->add_vertex(x);
+
+	polyhedron->split(eh, vh);
+
+	MyTriMesh::VHandle v2 = polyhedron->to_vertex_handle(heh1);
+	for (MyTriMesh::VOHIter voh_it = polyhedron->voh_begin(vh); voh_it != polyhedron->voh_end(vh); ++voh_it) {
+		MyTriMesh::HHandle heh = voh_it.current_halfedge_handle();
+		if (polyhedron->to_vertex_handle(heh) == v2) {
+			return polyhedron->edge_handle(heh);
+		}
+	}
+
+	return polyhedron->InvalidEdgeHandle;
+}
+
+#pragma endregion
 
 
 #pragma endregion
@@ -730,8 +896,10 @@ void SQMNode::addPolyhedronAndRememberVHandles(MyMesh* mesh, SQMNode* parentBNPN
 		int index = 0;
 		for (int i = 0; i < oldOneRing.size(); i++) {
 			MyMesh::Point Q = mesh->point(oldOneRing[i]);
-			float dist = (P - Q).norm();
-			if (i == 0 || dist < minDist) {
+			//float dist = (P - Q).norm();
+			OpenMesh::Vec3f vv = -directionVector.normalized();
+			float dist = dot((P - Q).normalized(), vv);
+			if (i == 0 || dist > minDist) {
 				minDist = dist;
 				index = i;
 			}
@@ -846,6 +1014,29 @@ SQMNode* SQMNode::getDescendantBranchNode(SQMNode* node) {
 
 	return getDescendantBranchNode((*node->getDescendants())[0]);
 }
+
+
+MyTriMesh::HalfedgeHandle SQMNode::nextLink(MyTriMesh::HalfedgeHandle heh) {
+	//get on the side of the next triangle
+	//switch to next triangle half edges
+	//return halfedge on the link
+	return polyhedron->next_halfedge_handle(polyhedron->opposite_halfedge_handle(polyhedron->next_halfedge_handle(heh)));
+}
+
+MyTriMesh::HalfedgeHandle SQMNode::prevLink(MyTriMesh::HalfedgeHandle heh) {
+	//two times next to get to the side of previous triangle
+	//switch to previous triangle half edges
+	//two times next halfedge to get the halfedge on the link
+	return polyhedron->next_halfedge_handle(polyhedron->next_halfedge_handle(polyhedron->opposite_halfedge_handle(polyhedron->next_halfedge_handle(polyhedron->next_halfedge_handle(heh)))));
+}
+
+MyTriMesh::VHandle SQMNode::oppositeVHandle(MyTriMesh::HalfedgeHandle heh) {
+	//switch to opposite triangle
+	//get the next halfedge
+	//get the vertex it points to
+	return polyhedron->to_vertex_handle(polyhedron->next_halfedge_handle(polyhedron->opposite_halfedge_handle(heh)));
+}
+
 
 #pragma endregion
 
@@ -980,6 +1171,37 @@ bool sameOneRingOrientation(MyMesh* mesh, vector<MyMesh::VHandle>& oneRing, vect
 		return (d1 >= 0 && d2 < 0) || (d1 < 0 && d2 >= 0);
 	}
 	return false;
+}
+
+int verticeDifferenceFatherSon(SQMNode* father, SQMNode* son, MyTriMesh::VHandle vhandle) {
+	if (son != NULL) {			
+		//get intersection vhandle its the last one from parent
+		MyTriMesh::VHandle descendantVHandle = son->getIntersectionVHandles()->back();
+		//get number of needed vertices
+		int vhandleCount = 0;
+		MyTriMesh* polyhedron = father->getPolyhedron();
+		for (MyTriMesh::VVIter vvit = polyhedron->vv_begin(vhandle); vvit != polyhedron->vv_end(vhandle); ++vvit) {
+			vhandleCount++;
+		}
+		int descendantVHandleCount = 0;
+		polyhedron = son->getPolyhedron();
+		for (MyTriMesh::VVIter vvit = polyhedron->vv_begin(descendantVHandle); vvit != polyhedron->vv_end(descendantVHandle); ++vvit) {
+			descendantVHandleCount++;
+		}
+		return descendantVHandleCount - vhandleCount;
+	}
+
+	return 0;
+}
+
+int inLIEs(std::vector<LIE>& LIEs, MyTriMesh::VHandle vh1, MyTriMesh::VHandle vh2) {
+	for (int i = 0; i < LIEs.size(); i++) {
+		LIE lie = LIEs[i];
+		if (lie.containsVertices(vh1, vh2))
+			return i;
+	}
+
+	return -1;
 }
 
 #pragma endregion
