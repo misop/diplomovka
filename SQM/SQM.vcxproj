@@ -122,6 +122,7 @@
     <ClInclude Include="GLEventHandler.h" />
     <ClInclude Include="LIE.h" />
     <ClInclude Include="LIENeedEntry.h" />
+    <ClInclude Include="MeshGraph.h" />
     <ClInclude Include="MyMesh.h" />
     <ClInclude Include="m_math.h" />
     <ClInclude Include="OpenGL.h" />

@@ -752,7 +752,7 @@ void SQMNode::splitLIEs(std::map<int, LIENeedEntry>& lieMap) {
 
 				if (lieNeed == NO_SPLITTING) continue;
 
-				if ((lieIndex == -1) || (lieNeed != 0 && bestNeed < lieNeed) || (bestNeed == 0 && lieNeed == UNLIMITED_SPLITTING)) {
+				if ((lieIndex == -1) || (lieNeed != 0 && bestNeed < lieNeed) || (bestNeed == 0 && lieNeed == UNLIMITED_SPLITTING) || (bestNeed == lieNeed && lie.refined < bestLIE.refined)) {
 					bestNeed = lieNeed;
 					bestLIE = lie;
 					lieIndex = j;
@@ -787,12 +787,14 @@ void SQMNode::splitLIE(LIE lie, std::map<int, LIENeedEntry>& lieMap, int entryIn
 		entry2.need--;
 	lieMap.at(lie.vertice1) = entry1;
 	lieMap.at(lie.vertice2) = entry2;
+	smoothMesh();
 }
 
 LIE SQMNode::splitLIEEdge(LIE lie) {
 	MyTriMesh::EHandle eh = lie.edges[0];
 	MyTriMesh::EHandle newEh = splitEdgeInHalfAndReturnNewEdge(eh);
 	lie.edges.push_back(newEh);
+	lie.refined = lie.refined + 1;
 	return lie;
 }
 
@@ -818,6 +820,53 @@ MyTriMesh::EHandle SQMNode::splitEdgeInHalfAndReturnNewEdge(MyTriMesh::EdgeHandl
 
 	return polyhedron->InvalidEdgeHandle;
 }
+
+#pragma region Smoothing
+
+void SQMNode::smoothMesh() {
+	//convert mesh
+	//mesh2graph();
+	//smooth mesh
+	//translate vertices
+	//replace vertices in mesh
+	recalculateSmoothedVertices();
+}
+
+void SQMNode::mesh2graph() {
+	int n_vertices = polyhedron->n_vertices();
+	int n_faces = polyhedron->n_faces();
+	CVector3 *vertices = new CVector3[n_vertices];
+	int idx = 0;
+	//get the vertices
+	for (MyTriMesh::VertexIter v_it = polyhedron->vertices_begin(); v_it != polyhedron->vertices_end(); ++v_it) 
+	{
+		MyTriMesh::VHandle vh = v_it.handle();
+		vertices[idx] = CVector3(polyhedron->point(vh).values_);
+		idx++;
+	}
+	for (MyTriMesh::EdgeIter e_it = polyhedron->edges_begin(); e_it != polyhedron->edges_end(); ++e_it) {
+		MyTriMesh::HalfedgeHandle heh0 = polyhedron->halfedge_handle(e_it.handle(), 0);
+		MyTriMesh::HalfedgeHandle heh1 = polyhedron->halfedge_handle(e_it.handle(), 1);
+		int i = polyhedron->to_vertex_handle(heh0).idx();
+		int j = polyhedron->to_vertex_handle(heh1).idx();
+		//register to map
+	}
+}
+
+void SQMNode::laplacianSMoothing() {
+}
+
+void SQMNode::recalculateSmoothedVertices() {
+	for (MyTriMesh::VertexIter v_it = polyhedron->vertices_begin(); v_it != polyhedron->vertices_end(); ++v_it) 
+	{
+		MyTriMesh::VHandle vh = v_it.handle();
+		//setup point
+		MyTriMesh::Point P = polyhedron->point(vh);
+		polyhedron->set_point(vh, P);
+	}
+}
+
+#pragma endregion
 
 #pragma endregion
 

@@ -3,6 +3,7 @@
 #include <vector>
 
 struct LIE {
+	int refined;
 	int vertice1;
 	int vertice2;
 	MyTriMesh::VHandle vhandle1;
@@ -10,9 +11,9 @@ struct LIE {
 
 	std::vector<MyTriMesh::EdgeHandle> edges;
 
-	LIE() { };
-	LIE(int v1, int v2) : vertice1(v1), vertice2(v2) { };
-	LIE(MyTriMesh::VHandle vh1, MyTriMesh::VHandle vh2) : vhandle1(vh1), vhandle2(vh2) { };
+	LIE() { refined = 0; };
+	LIE(int v1, int v2) : vertice1(v1), vertice2(v2) { refined = 0; };
+	LIE(MyTriMesh::VHandle vh1, MyTriMesh::VHandle vh2) : vhandle1(vh1), vhandle2(vh2) { refined = 0; };
 
 	bool operator==(const LIE &other) {
 		return containsVertices(other.vertice1, other.vertice2);

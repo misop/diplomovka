@@ -8,6 +8,7 @@
 #include "EdgeLength.h"
 #include <GL/glu.h>
 #include "LIENeedEntry.h"
+//#include "MeshGraph.h"
 
 #pragma region Structs
 
@@ -100,6 +101,12 @@ public:
 	MyTriMesh::EHandle splitEdgeInHalfAndReturnNewEdge(MyTriMesh::EdgeHandle eh);
 #pragma endregion
 
+#pragma region Smoothing
+	void smoothMesh();
+	void mesh2graph();
+	void laplacianSMoothing();
+	void recalculateSmoothedVertices();
+#pragma endregion
 
 #pragma endregion
 
