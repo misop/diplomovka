@@ -110,6 +110,10 @@ void GLCamera::calculateMatrices() {
 }
 
 void GLCamera::lookFromCamera() {
+	static GLUquadric* ball = NULL;
+	if (ball == NULL)
+		ball = gluNewQuadric();
+
 	glLoadIdentity();
 	gluLookAt(eye[X], eye[Y], eye[Z], look[X], look[Y], look[Z], up[X], up[Y], up[Z]);
 
@@ -117,7 +121,7 @@ void GLCamera::lookFromCamera() {
 	glColor3f(0.9, 0.45, 0);
 	glPushMatrix();
 	glTranslatef(look[X], look[Y],look[Z]);
-	gluSphere(gluNewQuadric(), 2, 10, 10);
+	gluSphere(ball, 2, 10, 10);
 	glPopMatrix();
 	glColor3f(1, 0, 1);
 }

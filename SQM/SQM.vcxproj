@@ -40,6 +40,7 @@
     <Import Project="BoostD.props" />
     <Import Project="OpenMesh.props" />
     <Import Project="tnt.props" />
+    <Import Project="jama.props" />
   </ImportGroup>
   <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
@@ -96,6 +97,7 @@
     <ClCompile Include="FloatArithmetic.cpp" />
     <ClCompile Include="GLCamera.cpp" />
     <ClCompile Include="GLEventHandler.cpp" />
+    <ClCompile Include="Laplacian.cpp" />
     <ClCompile Include="LIE.cpp" />
     <ClCompile Include="LIENeedEntry.cpp" />
     <ClCompile Include="MyMesh.cpp" />
@@ -120,6 +122,7 @@
     </ClInclude>
     <ClInclude Include="GLCamera.h" />
     <ClInclude Include="GLEventHandler.h" />
+    <ClInclude Include="Laplacian.h" />
     <ClInclude Include="LIE.h" />
     <ClInclude Include="LIENeedEntry.h" />
     <ClInclude Include="MeshGraph.h" />

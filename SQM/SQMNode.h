@@ -1,4 +1,5 @@
 #pragma once
+#include "MeshGraph.h"
 #include "SkeletonNode.h"
 #define _USE_MATH_DEFINES
 #include <OpenMesh\Core\Mesh\PolyMesh_ArrayKernelT.hh>
@@ -8,7 +9,6 @@
 #include "EdgeLength.h"
 #include <GL/glu.h>
 #include "LIENeedEntry.h"
-//#include "MeshGraph.h"
 
 #pragma region Structs
 
@@ -103,9 +103,9 @@ public:
 
 #pragma region Smoothing
 	void smoothMesh();
-	void mesh2graph();
+	void mesh2graph(MeshGraph& meshGraph);
 	void laplacianSMoothing();
-	void recalculateSmoothedVertices();
+	void recalculateSmoothedVertices(MeshGraph& meshGraph);
 #pragma endregion
 
 #pragma endregion

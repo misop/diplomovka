@@ -3,6 +3,7 @@
 #include <algorithm>
 #include "SphereDelaunay.h"
 #include "FloatArithmetic.h"
+#include "Laplacian.h"
 
 #define BIAS 0.1
 
@@ -487,7 +488,7 @@ OpenMesh::Vec3f SQMNode::translatePointToSphereFromCenter(OpenMesh::Vec3f point,
 
 #pragma region BNP Subdivision
 
-void SQMNode::subdividePolyhedra(SQMNode* parentBranchNode, int count) {	
+void SQMNode::subdividePolyhedra(SQMNode* parentBranchNode, int count) {
 	vector<SQMNode*> branchingNodes;
 	for (int i = 0; i < nodes.size(); i++) {
 		branchingNodes.push_back(getDescendantBranchNode(nodes[i]));
@@ -821,55 +822,72 @@ MyTriMesh::EHandle SQMNode::splitEdgeInHalfAndReturnNewEdge(MyTriMesh::EdgeHandl
 	return polyhedron->InvalidEdgeHandle;
 }
 
+#pragma endregion
+
 #pragma region Smoothing
 
 void SQMNode::smoothMesh() {
+	return;
 	//convert mesh
-	//mesh2graph();
+	MeshGraph meshGraph = MeshGraph();
+	mesh2graph(meshGraph);
 	//smooth mesh
+	computeLaplacian(&meshGraph);
 	//translate vertices
 	//replace vertices in mesh
-	recalculateSmoothedVertices();
+	recalculateSmoothedVertices(meshGraph);
 }
 
-void SQMNode::mesh2graph() {
+void SQMNode::mesh2graph(MeshGraph& meshGraph) {
 	int n_vertices = polyhedron->n_vertices();
 	int n_faces = polyhedron->n_faces();
+	int n_edges = polyhedron->n_edges();
+
+	meshGraph.numOfFaces = n_faces;
+	meshGraph.numOfVertices = n_vertices;
+
 	CVector3 *vertices = new CVector3[n_vertices];
 	int idx = 0;
 	//get the vertices
 	for (MyTriMesh::VertexIter v_it = polyhedron->vertices_begin(); v_it != polyhedron->vertices_end(); ++v_it) 
 	{
 		MyTriMesh::VHandle vh = v_it.handle();
+		MyTriMesh::Point P = polyhedron->point(vh);
 		vertices[idx] = CVector3(polyhedron->point(vh).values_);
 		idx++;
 	}
+
+	meshGraph.pVerts = vertices;
+	meshGraph.E = TNT::Array2D<bool>(n_vertices, n_vertices, false);
+
 	for (MyTriMesh::EdgeIter e_it = polyhedron->edges_begin(); e_it != polyhedron->edges_end(); ++e_it) {
 		MyTriMesh::HalfedgeHandle heh0 = polyhedron->halfedge_handle(e_it.handle(), 0);
 		MyTriMesh::HalfedgeHandle heh1 = polyhedron->halfedge_handle(e_it.handle(), 1);
 		int i = polyhedron->to_vertex_handle(heh0).idx();
 		int j = polyhedron->to_vertex_handle(heh1).idx();
 		//register to map
+		meshGraph.E[i][j] = true;
+		meshGraph.E[j][i] = true;
 	}
 }
 
 void SQMNode::laplacianSMoothing() {
 }
 
-void SQMNode::recalculateSmoothedVertices() {
+void SQMNode::recalculateSmoothedVertices(MeshGraph& meshGraph) {
+	int index = 0;
 	for (MyTriMesh::VertexIter v_it = polyhedron->vertices_begin(); v_it != polyhedron->vertices_end(); ++v_it) 
 	{
 		MyTriMesh::VHandle vh = v_it.handle();
 		//setup point
-		MyTriMesh::Point P = polyhedron->point(vh);
+		CVector3 vec = meshGraph.pVerts[index];
+		MyTriMesh::Point P = MyTriMesh::Point(vec.x, vec.y, vec.z);//polyhedron->point(vh);
 		polyhedron->set_point(vh, P);
+		index++;
 	}
 }
 
 #pragma endregion
-
-#pragma endregion
-
 
 #pragma endregion
 

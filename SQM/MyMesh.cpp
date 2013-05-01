@@ -9,6 +9,9 @@ bool OpenMeshEqualVHandles(MyMesh::VHandle& h1, MyMesh::VHandle& h2) {
 }
 
 void drawArrowBetweenPointsWithColor(MyMesh::Point Q, MyMesh::Point P, float *c) {
+	static GLUquadric* ball = NULL;
+	if (ball == NULL)
+		ball = gluNewQuadric();
 	OpenMesh::Vec3f u = P - Q;
 	u = u.normalize();
 
@@ -17,9 +20,10 @@ void drawArrowBetweenPointsWithColor(MyMesh::Point Q, MyMesh::Point P, float *c)
 	for (int i = 1; i < 20; i++) {
 		float t = 0.005*i;
 		glTranslatef(-u[0]*t, -u[1]*t, -u[2]*t);
-		gluSphere(gluNewQuadric(), t, 10, 10);
+		gluSphere(ball, t, 5, 5);
 	}
 	glPopMatrix();
+
 
 	glColor3f(c[0], c[1], c[2]);
 	glBegin(GL_LINES);
