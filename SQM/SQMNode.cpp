@@ -1079,23 +1079,27 @@ void SQMNode::finishLeafeNode(MyMesh* mesh, vector<MyMesh::VertexHandle>& oneRin
 #pragma region Final Vertex Placement
 
 void SQMNode::rotateBack(MyMesh *mesh) {
+	//start with sons
+	for (int i = 0; i < nodes.size(); i++) {
+		nodes[i]->rotateBack(mesh);
+	}
 	//rotate
 	if (parent != NULL) {
+		OpenMesh::Vec3f parentPosition = parent->getPosition();
+		CVector3 parentPos(parentPosition.values_);
 		for (int i = 0; i < meshVhandlesToRotate.size(); i++) {
 			MyMesh::VHandle vhandle = meshVhandlesToRotate[i];
 			MyMesh::Point P = mesh->point(vhandle);
 			CVector3 v(P.values_);
+			//translate rotate translate
+			v = v - parentPos;
 			v = QuaternionRotateVector(axisAngle, v);
-			//v = rotateCVec(v, axisAngle);
+			v = v + parentPos;
 			P[0] = v.x;
 			P[1] = v.y;
 			P[2] = v.z;
 			mesh->set_point(vhandle, P);
 		}
-	}
-	//continue with sons
-	for (int i = 0; i < nodes.size(); i++) {
-		nodes[i]->rotateBack(mesh);
 	}
 }
 
