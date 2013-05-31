@@ -138,10 +138,31 @@ void SQMNode::draw2() {
 #pragma region Skeleton Straightening
 
 void SQMNode::straightenSkeleton(OpenMesh::Vec3f *lineVector) {
-	if (lineVector != NULL) {//straighten self
-		OpenMesh::Vec3f newPosition = ((position - parent->getPosition()).length()*(*lineVector)) + parent->getPosition();
-		CVector4 quaternion = QuaternionBetweenVectors(CVector3(newPosition.values_), CVector3(position.values_));
-		axisAngle = QuaternionToAxisAngle(quaternion);
+	if (lineVector != NULL && !parent->isBranchNode()) {//straighten self
+		//OpenMesh::Vec3f newPosition = ((position - parent->getPosition()).length()*(*lineVector)) + parent->getPosition();
+		//OpenMesh::Vec3f newPosition = ((position - parent->getPosition()).length()*(*lineVector));
+		//CVector3 newPos(newPosition.values_);
+		//newPosition = newPosition + parent->getPosition();
+		//CVector4 quaternion = QuaternionBetweenVectors(CVector3(newPosition.values_), CVector3(position.values_));
+
+		//translate parent to 0,0,0
+		OpenMesh::Vec3f newPosition = position - parent->getPosition();
+		CVector3 oldPos(newPosition.values_);
+		//roatate
+		float len = newPosition.length();
+		newPosition = len*(*lineVector);
+		CVector3 newPos(newPosition.values_);
+		Quaternion quaternion = SQMQuaternionBetweenVectors(newPos, oldPos);
+		//translate back by parent
+		newPosition = newPosition + parent->getPosition();
+
+		//CVector3 newPos(newPosition.values_);
+		//CVector3 oldPos(position.values_);
+		//Quaternion quaternion = SQMQuaternionBetweenVectors(newPos, oldPos);
+		//axisAngle = QuaternionToAxisAngle(quaternion);
+
+		//setup
+		axisAngle = quaternion;
 		position = newPosition;
 	}
 	if (this->isBranchNode()) {//if this is branch node recalculate new vectors and intersections
@@ -167,7 +188,8 @@ void SQMNode::straightenSkeleton(OpenMesh::Vec3f lineVector) {
 	if (!OpenMeshVec3fZero(lineVector)) {//straighten self
 		OpenMesh::Vec3f newPosition = ((position - parent->getPosition()).length()*lineVector) + parent->getPosition();
 		CVector4 quaternion = QuaternionBetweenVectors(CVector3(newPosition.values_), CVector3(position.values_));
-		axisAngle = QuaternionToAxisAngle(quaternion);
+		//axisAngle = QuaternionToAxisAngle(quaternion);
+		axisAngle = quaternion;
 		position = newPosition;
 	}
 	if (this->isBranchNode()) {//if this is branch node recalculate new vectors and intersections
@@ -927,7 +949,9 @@ void SQMNode::addPolyhedronAndRememberVHandles(MyMesh* mesh, SQMNode* parentBNPN
 		int position = getPositionInArray<MyTriMesh::VHandle>(vhandle, intersectionVHandles);
 		if (position == -1) {
 			MyTriMesh::Point P = polyhedron->point(vhandle);
-			addedVHandles.push_back(mesh->add_vertex(P));
+			MyMesh::VHandle vhandle = mesh->add_vertex(P);
+			addedVHandles.push_back(vhandle);
+			meshVhandlesToRotate.push_back(vhandle);
 		} else {
 			addedVHandles.push_back(vhandle);
 			//collect one ring indexis
@@ -1015,7 +1039,9 @@ void SQMNode::extendMesh(MyMesh* mesh, SQMNode* parentBNPNode, vector<MyMesh::Ve
 	//insert new points into mesh
 	vector<MyMesh::VertexHandle> newOneRing;
 	for (int i = 0; i < points.size(); i++) {
-		newOneRing.push_back(mesh->add_vertex(points[i]));
+		MyMesh::VHandle vhandle = mesh->add_vertex(points[i]);
+		newOneRing.push_back(vhandle);
+		meshVhandlesToRotate.push_back(vhandle);
 	}
 	//create new faces for the points
 	vector<MyMesh::FaceHandle> temp;
@@ -1037,6 +1063,7 @@ void SQMNode::finishLeafeNode(MyMesh* mesh, vector<MyMesh::VertexHandle>& oneRin
 	//TODO finish as desired
 	MyMesh::Point P(position[0], position[1], position[2]);
 	MyMesh::VHandle vhandle = mesh->add_vertex(P);		
+	meshVhandlesToRotate.push_back(vhandle);
 	for (int i = 0; i < oneRing.size(); i++) {	
 		int j = 0;
 		if (i + 1 < oneRing.size()) {
@@ -1044,6 +1071,31 @@ void SQMNode::finishLeafeNode(MyMesh* mesh, vector<MyMesh::VertexHandle>& oneRin
 		}
 		mesh->add_face(oneRing[i], vhandle, oneRing[j]);
 		//mesh->add_face(oneRing[j], vhandle, oneRing[i]);
+	}
+}
+
+#pragma endregion
+
+#pragma region Final Vertex Placement
+
+void SQMNode::rotateBack(MyMesh *mesh) {
+	//rotate
+	if (parent != NULL) {
+		for (int i = 0; i < meshVhandlesToRotate.size(); i++) {
+			MyMesh::VHandle vhandle = meshVhandlesToRotate[i];
+			MyMesh::Point P = mesh->point(vhandle);
+			CVector3 v(P.values_);
+			v = QuaternionRotateVector(axisAngle, v);
+			//v = rotateCVec(v, axisAngle);
+			P[0] = v.x;
+			P[1] = v.y;
+			P[2] = v.z;
+			mesh->set_point(vhandle, P);
+		}
+	}
+	//continue with sons
+	for (int i = 0; i < nodes.size(); i++) {
+		nodes[i]->rotateBack(mesh);
 	}
 }
 

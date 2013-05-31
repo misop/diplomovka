@@ -77,7 +77,7 @@ struct CVector3
 public:
 
 	// A default constructor
-	CVector3() {}
+	CVector3() : x(0), y(0), z(0) {}
 
 	// This is our constructor that allows us to initialize our data upon creating an instance
 	CVector3(float X, float Y, float Z)
@@ -87,6 +87,20 @@ public:
 
 	CVector3(float *v) {
 		x = v[0]; y = v[1]; z = v[2];
+	}
+
+	// Here we overload the = operator so we can compare vectors
+	bool operator==(CVector3 vVector)
+	{
+		// Return the added vectors result.
+		return (x == vVector.x) && (y == vVector.y) && (z == vVector.z);
+	}
+
+	// Here we overload the != operator so we can compare vectors
+	bool operator!=(CVector3 vVector)
+	{
+		// Return the added vectors result.
+		return (x != vVector.x) || (y != vVector.y) || (z != vVector.z);
 	}
 
 	// Here we overload the + operator so we can add vectors together
@@ -140,7 +154,7 @@ struct CVector4
 public:
 
 	// A default constructor
-	CVector4() {}
+	CVector4() : s(1), i(0), j(0), k(0) {}
 
 	// This is our constructor that allows us to initialize our data upon creating an instance
 	CVector4(float S, float I, float J, float K)
@@ -193,6 +207,8 @@ private:
     }
 
 };
+
+typedef CVector4 Quaternion;
 
 //---------------------------------------------------------------------------
 
@@ -280,4 +296,19 @@ bool IntersectedPolygon(CVector3 vPoly[], CVector3 vLine[], int verticeCount);
 
 double cotan(double i);
 //---------------------------------------------------------------------------
+
+float QuaternionNorm(Quaternion q);
+
+Quaternion QuaternionNormalize(Quaternion q);
+
+float Length(CVector3 v);
+
+bool IsZeroLength(CVector3 v);
+
+Quaternion QuaternionFromAngleAxis(float angle, CVector3 axis);
+
+Quaternion SQMQuaternionBetweenVectors(CVector3 start, CVector3 dest, CVector3 fallbackAxis = CVector3());
+
+CVector3 QuaternionRotateVector(Quaternion q, CVector3 v);
+
 #endif

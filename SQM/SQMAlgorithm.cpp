@@ -134,7 +134,8 @@ void SQMAlgorithm::getBoundingSphere(float &x, float &y, float &z, float &d) {
 void SQMAlgorithm::straightenSkeleton() {
 	fb->open("log.txt", ios::out);
 	(*os) << "Skeleton straightening\n";
-	root->straightenSkeleton(OpenMesh::Vec3f(0, 0, 0));
+	//root->straightenSkeleton(OpenMesh::Vec3f(0, 0, 0));
+	root->straightenSkeleton(NULL);
 	sqmState = SQMStraighten;
 }
 
@@ -180,11 +181,16 @@ void SQMAlgorithm::joinBNPs() {
 	fb->close();
 }
 
+void SQMAlgorithm::finalVertexPlacement() {
+	root->rotateBack(mesh);
+}
+
 void SQMAlgorithm::executeSQMAlgorithm() {
 	straightenSkeleton();
 	computeConvexHull();
 	subdivideConvexHull();
 	joinBNPs();
+	finalVertexPlacement();
 }
 
 
@@ -201,6 +207,9 @@ void SQMAlgorithm::executeSQMAlgorithm(SQMState state) {
 		}
 		if (sqmState < SQMJoinBNPs && state >= SQMJoinBNPs) {
 			joinBNPs();
+		}
+		if (sqmState < SQMFinalPlacement && state >= SQMFinalPlacement) {
+			finalVertexPlacement();
 		}
 	}
 }

@@ -8,7 +8,8 @@ typedef enum {
 	SQMStraighten,
 	SQMComputeConvexHull,
 	SQMSubdivideConvexHull,
-	SQMJoinBNPs
+	SQMJoinBNPs,
+	SQMFinalPlacement
 } SQMState;
 
 class SQMAlgorithm {
@@ -34,6 +35,7 @@ public:
 	void computeConvexHull();
 	void subdivideConvexHull();
 	void joinBNPs();
+	void finalVertexPlacement();
 	void executeSQMAlgorithm();
 	void executeSQMAlgorithm(SQMState state);
 };

@@ -28,13 +28,14 @@ class SQMNode {
 	SQMNode* parent;
 	float nodeRadius;
 	OpenMesh::Vec3f position;
-	CVector4 axisAngle;
+	Quaternion axisAngle;
 	vector<SQMNode*> nodes;
 	vector<OpenMesh::Vec3f> intersections;
 	MyTriMesh *polyhedron;
 	vector<MyTriMesh::VertexHandle> polyhedronPoints;
 	vector<MyTriMesh::VertexHandle> intersectionVHandles;
 	vector<MyTriMesh::VertexHandle> meshIntersectionVHandles;
+	vector<MyMesh::VertexHandle> meshVhandlesToRotate;
 	
 	vector<OpenMesh::Vec3f> normals2;
 	vector<OpenMesh::Vec3f> centers2;
@@ -116,6 +117,10 @@ public:
 	void addPolyhedronAndRememberVHandles(MyMesh* mesh, SQMNode* parentBNPNode, vector<MyMesh::VertexHandle>& oneRing, vector<vector<MyMesh::VHandle> >& oneRingsOfPolyhedron, OpenMesh::Vec3f& directionVector);
 	void extendMesh(MyMesh* mesh, SQMNode* parentBNPNode, vector<MyMesh::VertexHandle>& oneRing, OpenMesh::Vec3f& directionVector);
 	void finishLeafeNode(MyMesh* mesh, vector<MyMesh::VertexHandle>& oneRing);
+#pragma endregion
+
+#pragma region Final Vertex Placement
+	void rotateBack(MyMesh *mesh);
 #pragma endregion
 
 #pragma region Utility

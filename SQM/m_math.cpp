@@ -204,29 +204,29 @@ CVector4 lerp(CVector4 v0, CVector4 v1, float t){
 }
 
 CVector4 slerp(CVector4 v0, CVector4 v1, double t) {
-    // v0 and v1 should be unit length or else
-    // something broken will happen.
+	// v0 and v1 should be unit length or else
+	// something broken will happen.
 
-    // Compute the cosine of the angle between the two vectors.
-    float dot = Dot(v0, v1);
+	// Compute the cosine of the angle between the two vectors.
+	float dot = Dot(v0, v1);
 
-    const double DOT_THRESHOLD = 0.9995;
-    if (dot > DOT_THRESHOLD) {
-        // If the inputs are too close for comfort, linearly interpolate
-        // and normalize the result.
+	const double DOT_THRESHOLD = 0.9995;
+	if (dot > DOT_THRESHOLD) {
+		// If the inputs are too close for comfort, linearly interpolate
+		// and normalize the result.
 
-        return Normalize(lerp(v0, v1, t));
-    }
+		return Normalize(lerp(v0, v1, t));
+	}
 
-    //Clamp(dot, -1, 1);           // Robustness: Stay within domain of acos()
-    float theta_0 = acos(dot);  // theta_0 = angle between input vectors
-    float theta = theta_0*t;    // theta = angle between v0 and result 
+	//Clamp(dot, -1, 1);           // Robustness: Stay within domain of acos()
+	float theta_0 = acos(dot);  // theta_0 = angle between input vectors
+	float theta = theta_0*t;    // theta = angle between v0 and result 
 
-    CVector4 v2;
+	CVector4 v2;
 	v2 = v1 - v0*dot;
-    v2 = Normalize(v2);              // { v0, v2 } is now an orthonormal basis
+	v2 = Normalize(v2);              // { v0, v2 } is now an orthonormal basis
 
-    return v0*cos(theta) + v2*sin(theta);
+	return v0*cos(theta) + v2*sin(theta);
 }
 
 CVector4 QuaternionProduct(CVector4 vVector1, CVector4 vVector2)
@@ -272,13 +272,13 @@ CVector4 Normalize(CVector4 q)
 {
 	float magnitude = Magnitude(q);				
 
-	
+
 	q.s /= magnitude;								
 	q.i /= magnitude;								
 	q.j /= magnitude;								
 	q.k /= magnitude;	
 
-	
+
 
 	return q;										
 }
@@ -358,8 +358,8 @@ float Distance(CVector3 vPoint1, CVector3 vPoint2)
 	//
 
 	double distance = sqrt( (vPoint2.x - vPoint1.x) * (vPoint2.x - vPoint1.x) +
-							(vPoint2.y - vPoint1.y) * (vPoint2.y - vPoint1.y) +
-							(vPoint2.z - vPoint1.z) * (vPoint2.z - vPoint1.z) );
+		(vPoint2.y - vPoint1.y) * (vPoint2.y - vPoint1.y) +
+		(vPoint2.z - vPoint1.z) * (vPoint2.z - vPoint1.z) );
 
 	// Return the distance between the 2 points
 	return (float)distance;
@@ -382,31 +382,31 @@ CVector3 ClosestPointOnLine(CVector3 vA, CVector3 vB, CVector3 vPoint)
 	CVector3 vVector1 = vPoint - vA;
 
 	// Create a normalized direction vector from end point vA to end point vB
-    CVector3 vVector2 = Normalize(vB - vA);
+	CVector3 vVector2 = Normalize(vB - vA);
 
 	// Use the distance formula to find the distance of the line segment (or magnitude)
-    float d = Distance(vA, vB);
+	float d = Distance(vA, vB);
 
 	// Using the dot product, we project the vVector1 onto the vector vVector2.
 	// This essentially gives us the distance from our projected vector from vA.
-    float t = Dot(vVector2, vVector1);
+	float t = Dot(vVector2, vVector1);
 
 	// If our projected distance from vA, "t", is less than or equal to 0, it must
 	// be closest to the end point vA.  We want to return this end point.
-    if (t <= 0)
+	if (t <= 0)
 		return vA;
 
 	// If our projected distance from vA, "t", is greater than or equal to the magnitude
 	// or distance of the line segment, it must be closest to the end point vB.  So, return vB.
-    if (t >= d)
+	if (t >= d)
 		return vB;
 
 	// Here we create a vector that is of length t and in the direction of vVector2
-    CVector3 vVector3 = vVector2 * t;
+	CVector3 vVector3 = vVector2 * t;
 
 	// To find the closest point on the line segment, we just add vVector3 to the original
 	// end point vA.
-    CVector3 vClosestPoint = vA + vVector3;
+	CVector3 vClosestPoint = vA + vVector3;
 
 	// Return the closest point on the line segment
 	return vClosestPoint;
@@ -425,7 +425,7 @@ float PlaneDistance(CVector3 Normal, CVector3 Point)
 
 	// Use the plane equation to find the distance (Ax + By + Cz + D = 0)  We want to find D.
 	// So, we come up with D = -(Ax + By + Cz)
-														// Basically, the negated dot product of the normal of the plane and the point. (More about the dot product in another tutorial)
+	// Basically, the negated dot product of the normal of the plane and the point. (More about the dot product in another tutorial)
 	distance = - ((Normal.x * Point.x) + (Normal.y * Point.y) + (Normal.z * Point.z));
 
 	return distance;									// Return the distance
@@ -451,21 +451,21 @@ bool IntersectedPlane(CVector3 vPoly[], CVector3 vLine[], CVector3 &vNormal, flo
 	// Get the distance from point1 from the plane using: Ax + By + Cz + D = (The distance from the plane)
 
 	distance1 = ((vNormal.x * vLine[0].x)  +					// Ax +
-		         (vNormal.y * vLine[0].y)  +					// Bx +
-				 (vNormal.z * vLine[0].z)) + originDistance;	// Cz + D
+		(vNormal.y * vLine[0].y)  +					// Bx +
+		(vNormal.z * vLine[0].z)) + originDistance;	// Cz + D
 
 	// Get the distance from point2 from the plane using Ax + By + Cz + D = (The distance from the plane)
 
 	distance2 = ((vNormal.x * vLine[1].x)  +					// Ax +
-		         (vNormal.y * vLine[1].y)  +					// Bx +
-				 (vNormal.z * vLine[1].z)) + originDistance;	// Cz + D
+		(vNormal.y * vLine[1].y)  +					// Bx +
+		(vNormal.z * vLine[1].z)) + originDistance;	// Cz + D
 
 	// Now that we have 2 distances from the plane, if we times them together we either
 	// get a positive or negative number.  If it's a negative number, that means we collided!
 	// This is because the 2 points must be on either side of the plane (IE. -1 * 1 = -1).
 
 	if(distance1 * distance2 >= 0)			// Check to see if both point's distances are both negative or both positive
-	   return false;						// Return false if each point has the same sign.  -1 and 1 would mean each point is on either side of the plane.  -1 -2 or 3 4 wouldn't...
+		return false;						// Return false if each point has the same sign.  -1 and 1 would mean each point is on either side of the plane.  -1 -2 or 3 4 wouldn't...
 
 	return true;							// The line intersected the plane, Return TRUE
 }
@@ -475,11 +475,11 @@ float DeterminantInPlane(CVector3 vVector1, CVector3 vVector2, CVector3 vVector3
 {
 
 	return vVector1.x * vVector2.y * vVector3.z +	
-	vVector1.z * vVector2.x * vVector3.y +
-	vVector1.y * vVector2.z * vVector3.x -
-	vVector1.z * vVector2.y * vVector3.x -
-	vVector1.x * vVector2.z * vVector3.y -
-	vVector1.y * vVector2.x * vVector3.z;
+		vVector1.z * vVector2.x * vVector3.y +
+		vVector1.y * vVector2.z * vVector3.x -
+		vVector1.z * vVector2.y * vVector3.x -
+		vVector1.x * vVector2.z * vVector3.y -
+		vVector1.y * vVector2.x * vVector3.z;
 
 }
 
@@ -495,7 +495,7 @@ float Dot(CVector3 vVector1, CVector3 vVector2)
 	// The dot product is this equation: V1.V2 = (V1.x * V2.x  +  V1.y * V2.y  +  V1.z * V2.z)
 	// In math terms, it looks like this:  V1.V2 = ||V1|| ||V2|| cos(theta)
 
-			 //    (V1.x * V2.x        +        V1.y * V2.y        +        V1.z * V2.z)
+	//    (V1.x * V2.x        +        V1.y * V2.y        +        V1.z * V2.z)
 	return ( (vVector1.x * vVector2.x) + (vVector1.y * vVector2.y) + (vVector1.z * vVector2.z) );
 }
 
@@ -551,8 +551,8 @@ CVector3 IntersectionPoint(CVector3 vNormal, CVector3 vLine[], double distance)
 	// 2) Use the plane equation (distance = Ax + By + Cz + D) to find the
 	// distance from one of our points to the plane.
 	Numerator = - (vNormal.x * vLine[0].x +		// Use the plane equation with the normal and the line
-				   vNormal.y * vLine[0].y +
-				   vNormal.z * vLine[0].z + distance);
+		vNormal.y * vLine[0].y +
+		vNormal.z * vLine[0].z + distance);
 
 	// 3) If we take the dot product between our line vector and the normal of the polygon,
 	Denominator = Dot(vNormal, vLineDir);		// Get the dot product of the line's vector and the normal of the plane
@@ -592,7 +592,7 @@ bool InsidePolygon(CVector3 vIntersection, CVector3 Poly[], long verticeCount)
 	for (int i = 0; i < verticeCount; i++)		// Go in a circle to each vertex and get the angle between
 	{
 		vA = Poly[i] - vIntersection;			// Subtract the intersection point from the current vertex
-												// Subtract the point from the next vertex
+		// Subtract the point from the next vertex
 		vB = Poly[(i + 1) % verticeCount] - vIntersection;
 
 		Angle += AngleBetweenVectors(vA, vB);	// Find the angle between the 2 vectors and add them all up as we go along
@@ -617,7 +617,7 @@ bool IntersectedPolygon(CVector3 vPoly[], CVector3 vLine[], int verticeCount)
 	float originDistance = 0;
 
 	// First, make sure our line intersects the plane
-									 // Reference   // Reference
+	// Reference   // Reference
 	if(!IntersectedPlane(vPoly, vLine,   vNormal,   originDistance))
 		return false;
 
@@ -638,6 +638,110 @@ double cotan(double i) {
 
 /////// * /////////// * /////////// * NEW * /////// * /////////// * /////////// *
 
+float QuaternionNorm(Quaternion q) {
+	return q.i*q.i + q.j*q.j + q.k*q.k + q.s*q.s;
+}
+
+Quaternion QuaternionNormalize(Quaternion q) {
+	float len = QuaternionNorm(q);
+	float factor = 1.0 / sqrtf(len);
+	return q*factor;
+}
+
+float Length(CVector3 v) {
+	return sqrtf(v.x*v.x + v.y*v.y + v.z*v.z);
+}
+
+bool IsZeroLength(CVector3 v) {
+	float sqlen = (v.x * v.x) + (v.y * v.y) + (v.z * v.z);
+	return (sqlen < (1e-06 * 1e-06));
+}
+
+Quaternion QuaternionFromAngleAxis(float angle, CVector3 axis) {
+	// assert:  axis[] is unit length
+	//
+	// The quaternion representing the rotation is
+	//   q = cos(A/2)+sin(A/2)*(x*i+y*j+z*k)
+	Quaternion q;
+
+	float halfAngle = 0.5*angle;
+	float fSin = sin(halfAngle);
+	q.s = cos(halfAngle);
+	q.i = fSin*axis.x;
+	q.j = fSin*axis.y;
+	q.k = fSin*axis.z;
+
+	return q;
+}
+
+Quaternion SQMQuaternionBetweenVectors(CVector3 start, CVector3 dest, CVector3 fallbackAxis) {
+	// Based on Stan Melax's article in Game Programming Gems
+	Quaternion q;
+	// Copy, since cannot modify local
+	CVector3 v0 = Normalize(start);
+	CVector3 v1 = Normalize(dest);
+
+	float d = Dot(v0, v1);
+	// If dot == 1, vectors are the same
+	if (d >= 1.0f) {
+		return q;
+	}
+	if (d < (1e-6f - 1.0f)) {
+		if (fallbackAxis != CVector3()) {
+			// rotate 180 degrees about the fallback axis
+			q = QuaternionFromAngleAxis(M_PI, fallbackAxis);
+		} else {
+			// Generate an axis
+			CVector3 axis = Cross(CVector3(1, 0, 0), v0);
+			if (IsZeroLength(axis)) { // pick another if colinear
+				axis = Cross(CVector3(0, 1, 0), v0);
+			}
+			axis = Normalize(axis);
+			q = QuaternionFromAngleAxis(M_PI, axis);
+		}
+	} else {
+		float s = sqrtf((1+d)*2);
+		float invs = 1 / s;
+
+		CVector3 c = Cross(v0, v1);
+
+		q.i = c.x * invs;
+		q.j = c.y * invs;
+		q.k = c.z * invs;
+		q.s = s * 0.5f;
+		QuaternionNormalize(q);
+	}
+
+	return q;
+}
+
+CVector3 QuaternionRotateVector(Quaternion q, CVector3 v) {
+	// nVidia SDK implementation
+	//CVector3 uv, uuv;
+	CVector3 qvec(q.i, q.j, q.k);
+	CVector3 vv = v;
+	CVector3 uv = Cross(qvec, v);
+	CVector3 uuv = Cross(qvec, uv);
+	uv = uv * (2.0f * q.s);
+	uuv = uuv * 2.0f;
+
+	return (v + uv + uuv);
+}
+
+/*
+CVector3 rotateCVec(CVector3 v, CVector4 q) {
+Array2D<float> m = QuaternionToMatrix3x3(q);
+CVector3 result = CVector3();
+//result.x = m[0][0]*v.x + m[0][1]*v.y + m[0][2]*v.z;
+//result.y = m[1][0]*v.x + m[1][1]*v.y + m[1][2]*v.z;
+//result.z = m[2][0]*v.x + m[2][1]*v.y + m[2][2]*v.z;
+result.x = m[0][0]*v.x + m[1][0]*v.y + m[2][0]*v.z;
+result.y = m[0][1]*v.x + m[1][1]*v.y + m[2][1]*v.z;
+result.z = m[0][2]*v.x + m[1][2]*v.y + m[2][2]*v.z;
+
+return result;
+}
+*/
 
 /////////////////////////////////////////////////////////////////////////////////
 //
