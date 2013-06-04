@@ -162,6 +162,8 @@ public:
 		s = S; i = I; j = J; k = K;
 	}
 
+	CVector4(float alfa, CVector3 axis) : s(alfa), i(axis.x), j(axis.y), k(axis.z) { }
+
 	// Here we overload the + operator so we can add vectors together
 	CVector4 operator+(CVector4 vVector)
 	{
@@ -306,6 +308,8 @@ float Length(CVector3 v);
 bool IsZeroLength(CVector3 v);
 
 Quaternion QuaternionFromAngleAxis(float angle, CVector3 axis);
+
+Quaternion SQMUnnormalizedQuaternionBetweenVectors(CVector3 start, CVector3 dest);
 
 Quaternion SQMQuaternionBetweenVectors(CVector3 start, CVector3 dest, CVector3 fallbackAxis = CVector3());
 

@@ -725,6 +725,13 @@ void SQMNode::fillLIEMap(int parentNeed, std::map<int, LIENeedEntry>& lieMap, st
 		MyTriMesh::VHandle covh = ovhandle;
 		vector<MyTriMesh::EdgeHandle> edges;
 		edges.push_back(polyhedron->edge_handle(heh));
+		//for quaternion
+		MyTriMesh::VHandle firstLieVertex = polyhedron->to_vertex_handle(polyhedron->opposite_halfedge_handle(heh));
+		MyTriMesh::VHandle lastLieVertex = polyhedron->to_vertex_handle(heh);;
+		MyTriMesh::HHandle firstLieHEdge = heh;
+		MyTriMesh::HHandle lastLieHEdge = heh;
+		CVector3 offset = CVector3(position.values_);
+
 		bool good = true;
 		while (good) {
 			good = (heh != cheh);
@@ -732,14 +739,28 @@ void SQMNode::fillLIEMap(int parentNeed, std::map<int, LIENeedEntry>& lieMap, st
 			ovhandle = oppositeVHandle(cheh);
 			if (ovhandle == covh) { //if new collect all edges incident with oposing vhandle else just pass them
 				edges.push_back(polyhedron->edge_handle(cheh));
+				if (firstLieVertex.idx() == -1) {
+					firstLieVertex = polyhedron->to_vertex_handle(polyhedron->opposite_halfedge_handle(cheh));
+					firstLieHEdge = cheh;
+				}
+				lastLieVertex = polyhedron->to_vertex_handle(cheh);
+				lastLieHEdge = cheh;
+
 				cheh = nextLink(cheh);
 			} else {//add LIE to map and table of LIEs
 				LIE lie(vhandle, covh);
 				lie.edges = edges;
 				lie.vertice1 = i;
 				lie.vertice2 = getPositionInArray(covh, intersectionVHandles);
+				lie.firstHHandle = firstLieHEdge;
+				lie.lastHHandle = lastLieHEdge;
+				CVector3 start = CVector3(polyhedron->point(firstLieVertex).values_) - offset;
+				CVector3 dest = CVector3(polyhedron->point(lastLieVertex).values_) - offset;
+				lie.quaternion = SQMQuaternionBetweenVectors(start, dest);
 				verticeLIEs.push_back(lie);
 
+				//clearing
+				firstLieVertex = MyTriMesh::VHandle(-1);
 				edges.clear();
 				//edges.push_back(polyhedron->edge_handle(cheh));
 				covh = ovhandle;
@@ -796,6 +817,7 @@ void SQMNode::splitLIEs(std::map<int, LIENeedEntry>& lieMap) {
 
 void SQMNode::splitLIE(LIE lie, std::map<int, LIENeedEntry>& lieMap, int entryIndex, int lieIndex) {
 	LIE newLie = splitLIEEdge(lie);
+	smoothLIE(newLie);
 	//decrease need for both vertices
 	LIENeedEntry entry1 = lieMap.at(entryIndex);
 	LIENeedEntry entry2 = lieMap.at(lie.otherVerticeIndex(entryIndex));
@@ -810,13 +832,14 @@ void SQMNode::splitLIE(LIE lie, std::map<int, LIENeedEntry>& lieMap, int entryIn
 		entry2.need--;
 	lieMap.at(lie.vertice1) = entry1;
 	lieMap.at(lie.vertice2) = entry2;
-	smoothMesh();
+	//smoothMesh();
 }
 
 LIE SQMNode::splitLIEEdge(LIE lie) {
 	MyTriMesh::EHandle eh = lie.edges[0];
 	MyTriMesh::EHandle newEh = splitEdgeInHalfAndReturnNewEdge(eh);
-	lie.edges.push_back(newEh);
+	lie.edges.insert(lie.edges.begin()+1, newEh);
+	//lie.edges.push_back(newEh);
 	lie.refined = lie.refined + 1;
 	return lie;
 }
@@ -847,6 +870,31 @@ MyTriMesh::EHandle SQMNode::splitEdgeInHalfAndReturnNewEdge(MyTriMesh::EdgeHandl
 #pragma endregion
 
 #pragma region Smoothing
+
+void SQMNode::smoothLIE(LIE lie) {
+	//angle and axis of rotation
+	float div = lie.edges.size();
+	float alfa = acos(lie.quaternion.s) * 2.0 / div;//lie.quaternion.s / div;
+	float partAlfa = alfa;
+	CVector3 axis = CVector3(lie.quaternion.i, lie.quaternion.j, lie.quaternion.k);
+	CVector3 offset = CVector3(position.values_);
+	//get first vertice
+	MyTriMesh::HHandle heh = lie.firstHHandle;
+	CVector3 v = CVector3(polyhedron->point(polyhedron->to_vertex_handle(polyhedron->opposite_halfedge_handle(heh))).values_) - offset;
+	while (heh != lie.lastHHandle) {
+		Quaternion q = QuaternionFromAngleAxis(alfa, axis);
+		MyTriMesh::VHandle vh = polyhedron->to_vertex_handle(heh);
+		//CVector3 v = CVector3(polyhedron->point(vh).values_) - offset;
+		CVector3 u = QuaternionRotateVector(q, v);
+		u = u + offset;
+		MyTriMesh::Point P(u.x, u.y, u.z);
+		polyhedron->set_point(vh, P);
+
+		alfa += partAlfa;
+		heh = nextLink(heh);
+		vh = polyhedron->to_vertex_handle(heh);
+	}
+}
 
 void SQMNode::smoothMesh() {
 	return;

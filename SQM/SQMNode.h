@@ -103,6 +103,7 @@ public:
 #pragma endregion
 
 #pragma region Smoothing
+	void smoothLIE(LIE lie);
 	void smoothMesh();
 	void mesh2graph(MeshGraph& meshGraph);
 	void laplacianSMoothing();
