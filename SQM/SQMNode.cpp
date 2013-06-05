@@ -727,7 +727,8 @@ void SQMNode::fillLIEMap(int parentNeed, std::map<int, LIENeedEntry>& lieMap, st
 		edges.push_back(polyhedron->edge_handle(heh));
 		//for quaternion
 		MyTriMesh::VHandle firstLieVertex = polyhedron->to_vertex_handle(polyhedron->opposite_halfedge_handle(heh));
-		MyTriMesh::VHandle lastLieVertex = polyhedron->to_vertex_handle(heh);;
+		MyTriMesh::VHandle secondLieVertex = polyhedron->to_vertex_handle(heh);
+		MyTriMesh::VHandle lastLieVertex = polyhedron->to_vertex_handle(heh);
 		MyTriMesh::HHandle firstLieHEdge = heh;
 		MyTriMesh::HHandle lastLieHEdge = heh;
 		CVector3 offset = CVector3(position.values_);
@@ -741,6 +742,7 @@ void SQMNode::fillLIEMap(int parentNeed, std::map<int, LIENeedEntry>& lieMap, st
 				edges.push_back(polyhedron->edge_handle(cheh));
 				if (firstLieVertex.idx() == -1) {
 					firstLieVertex = polyhedron->to_vertex_handle(polyhedron->opposite_halfedge_handle(cheh));
+					secondLieVertex = polyhedron->to_vertex_handle(cheh);
 					firstLieHEdge = cheh;
 				}
 				lastLieVertex = polyhedron->to_vertex_handle(cheh);
@@ -756,7 +758,10 @@ void SQMNode::fillLIEMap(int parentNeed, std::map<int, LIENeedEntry>& lieMap, st
 				lie.lastHHandle = lastLieHEdge;
 				CVector3 start = CVector3(polyhedron->point(firstLieVertex).values_) - offset;
 				CVector3 dest = CVector3(polyhedron->point(lastLieVertex).values_) - offset;
-				lie.quaternion = SQMQuaternionBetweenVectors(start, dest);
+				CVector3 P = CVector3(polyhedron->point(secondLieVertex).values_) - offset;
+				CVector3 axis = Normalize(Cross(P - start, dest - start));
+				//lie.quaternion = SQMQuaternionBetweenVectors(start, dest);
+				lie.quaternion = SQMQuaternionBetweenVectorsWithAxis(start, dest, axis);
 				verticeLIEs.push_back(lie);
 
 				//clearing

@@ -674,7 +674,7 @@ Quaternion QuaternionFromAngleAxis(float angle, CVector3 axis) {
 	return q;
 }
 
-Quaternion SQMUnnormalizedQuaternionBetweenVectors(CVector3 start, CVector3 dest) {
+Quaternion SQMQuaternionBetweenVectorsWithAxis(CVector3 start, CVector3 dest, CVector3 axis) {
 	// Copy, since cannot modify local
 	CVector3 v0 = Normalize(start);
 	CVector3 v1 = Normalize(dest);
@@ -682,23 +682,14 @@ Quaternion SQMUnnormalizedQuaternionBetweenVectors(CVector3 start, CVector3 dest
 	float d = Dot(v0, v1);
 	// If dot == 1, vectors are the same
 	if (d >= 1.0f) {
-		return Quaternion(0,0,0,0);
+		return Quaternion(1,0,0,0);
 	}
 	if (d < (1e-6f - 1.0f)) {
-		// Generate an axis
-		CVector3 axis = Cross(CVector3(1, 0, 0), v0);
-		if (IsZeroLength(axis)) { // pick another if colinear
-			axis = Cross(CVector3(0, 1, 0), v0);
-		}
-		axis = Normalize(axis);
-		return Quaternion(M_PI, axis);
+		return QuaternionFromAngleAxis(M_PI, axis);
 	}
 
-	float dot = Dot(v0, v1);
-	float alfa = acosf(dot);
-	CVector3 axis = Normalize(Cross(v0, v1));
-
-	return Quaternion(alfa, axis);
+	float alfa = acosf(d);
+	return QuaternionFromAngleAxis(alfa, axis);
 }
 
 Quaternion SQMQuaternionBetweenVectors(CVector3 start, CVector3 dest, CVector3 fallbackAxis) {

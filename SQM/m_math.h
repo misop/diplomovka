@@ -309,7 +309,7 @@ bool IsZeroLength(CVector3 v);
 
 Quaternion QuaternionFromAngleAxis(float angle, CVector3 axis);
 
-Quaternion SQMUnnormalizedQuaternionBetweenVectors(CVector3 start, CVector3 dest);
+Quaternion SQMQuaternionBetweenVectorsWithAxis(CVector3 start, CVector3 dest, CVector3 axis);
 
 Quaternion SQMQuaternionBetweenVectors(CVector3 start, CVector3 dest, CVector3 fallbackAxis = CVector3());
 
