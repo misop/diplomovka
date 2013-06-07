@@ -182,6 +182,7 @@ void SQMAlgorithm::joinBNPs() {
 }
 
 void SQMAlgorithm::finalVertexPlacement() {
+	(*os) << "Final vertex placement\n";
 	root->rotateBack(mesh);
 }
 

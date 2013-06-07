@@ -104,6 +104,7 @@ public:
 
 #pragma region Smoothing
 	void smoothLIE(LIE lie);
+	void smoothLIEs(map<int, LIENeedEntry> lieMap);
 	void smoothMesh();
 	void mesh2graph(MeshGraph& meshGraph);
 	void laplacianSMoothing();

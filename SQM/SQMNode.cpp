@@ -217,7 +217,13 @@ void SQMNode::straightenSkeleton(OpenMesh::Vec3f lineVector) {
 
 void SQMNode::calculateConvexHull() {
 	vector<OpenMesh::Vec3i> triangles;
-	Delaunay_on_sphere(intersections, triangles);
+	vector<OpenMesh::Vec3f> translatedIntersections(intersections.size());
+	//in triangularization the points are normalized
+	for (int i = 0; i < intersections.size(); i++) {
+		translatedIntersections[i] = intersections[i] - position;
+	}
+	Delaunay_on_sphere(translatedIntersections, triangles);
+	//Delaunay_on_sphere(intersections, triangles);
 	triangles2 = triangles;
 	createPolyhedra(triangles);
 }
@@ -517,6 +523,7 @@ void SQMNode::subdividePolyhedra(SQMNode* parentBranchNode, int count) {
 	}
 	map<int, LIENeedEntry> lieMap;
 	fillLIEMap(count, lieMap, branchingNodes);
+	smoothLIEs(lieMap);
 	splitLIEs(lieMap);
 	//take care of the rest
 	for (int i = 0; i < branchingNodes.size(); i++)	{
@@ -898,6 +905,15 @@ void SQMNode::smoothLIE(LIE lie) {
 		alfa += partAlfa;
 		heh = nextLink(heh);
 		vh = polyhedron->to_vertex_handle(heh);
+	}
+}
+
+void SQMNode::smoothLIEs(map<int, LIENeedEntry> lieMap) {
+	for (map<int, LIENeedEntry>::iterator it = lieMap.begin(); it != lieMap.end(); it++) {
+		LIENeedEntry lieNeed = it->second;
+		for (int i = 0; i < lieNeed.lies.size(); i++) {
+			smoothLIE(lieNeed.lies[i]);
+		}
 	}
 }
 
