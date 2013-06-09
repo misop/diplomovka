@@ -241,10 +241,11 @@ void SQMNode::createPolyhedra(vector<OpenMesh::Vec3i> triangles) {
 		OpenMesh::Vec3f normal = cross(B - A, C - A);
 		normal = normal.normalize();
 		OpenMesh::Vec3f center((A[0] + B[0] + C[0])/3.0, (A[1] + B[1] + C[1])/3.0, (A[2] + B[2] + C[2])/3.0);
-		if (checkPolyhedronOrientation(i, center, normal, triangles)) {
+		//unnecesary after fixing Delaunay Triangulation
+		/*if (checkPolyhedronOrientation(i, center, normal, triangles)) {
 			normal = -normal;
 			triangles[i] = flipVec3i(triangle);
-		}
+		}*/
 
 		normals.push_back(normal);		
 		centers.push_back(center);
@@ -829,7 +830,7 @@ void SQMNode::splitLIEs(std::map<int, LIENeedEntry>& lieMap) {
 
 void SQMNode::splitLIE(LIE lie, std::map<int, LIENeedEntry>& lieMap, int entryIndex, int lieIndex) {
 	LIE newLie = splitLIEEdge(lie);
-	smoothLIE(newLie);
+	//smoothLIE(newLie);
 	//decrease need for both vertices
 	LIENeedEntry entry1 = lieMap.at(entryIndex);
 	LIENeedEntry entry2 = lieMap.at(lie.otherVerticeIndex(entryIndex));
@@ -844,7 +845,7 @@ void SQMNode::splitLIE(LIE lie, std::map<int, LIENeedEntry>& lieMap, int entryIn
 		entry2.need--;
 	lieMap.at(lie.vertice1) = entry1;
 	lieMap.at(lie.vertice2) = entry2;
-	//smoothMesh();
+	smoothMesh();
 }
 
 LIE SQMNode::splitLIEEdge(LIE lie) {
@@ -918,7 +919,9 @@ void SQMNode::smoothLIEs(map<int, LIENeedEntry> lieMap) {
 }
 
 void SQMNode::smoothMesh() {
-	return;
+	static int once = 0;
+	if (once == 1) return;
+	once = 1;
 	//convert mesh
 	MeshGraph meshGraph = MeshGraph();
 	mesh2graph(meshGraph);
@@ -936,6 +939,7 @@ void SQMNode::mesh2graph(MeshGraph& meshGraph) {
 
 	meshGraph.numOfFaces = n_faces;
 	meshGraph.numOfVertices = n_vertices;
+	meshGraph.wH = new float[n_vertices];
 
 	CVector3 *vertices = new CVector3[n_vertices];
 	int idx = 0;
@@ -945,6 +949,7 @@ void SQMNode::mesh2graph(MeshGraph& meshGraph) {
 		MyTriMesh::VHandle vh = v_it.handle();
 		MyTriMesh::Point P = polyhedron->point(vh);
 		vertices[idx] = CVector3(polyhedron->point(vh).values_);
+		meshGraph.wH[idx] = 1;
 		idx++;
 	}
 

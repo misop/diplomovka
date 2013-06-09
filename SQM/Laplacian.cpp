@@ -90,12 +90,10 @@ void contractMeshGraphCPUCotangent(MeshGraph * pMesh) {
 			UPA = Array2D< double >(pMesh->numOfVertices, pMesh->numOfVertices, 0.0f);
 
 			for (int i = 0; i < pMesh->numOfVertices; i++) {
-				WL[i][i] = 25;//pMesh->wL;
-				WH[i][i] = 1;//pMesh->wH[i];
+				WL[i][i] = 1;//pMesh->wL;
+				WH[i][i] = 25;//pMesh->wH[i];
 			}
 
-			(*os) << "E" << endl;
-			logB(pMesh->E, os);
 			(*os) << "WL" << endl;
 			log(WL, os);
 			(*os) << "L" << endl;
@@ -113,6 +111,8 @@ void contractMeshGraphCPUCotangent(MeshGraph * pMesh) {
 						//log(LOG_LEVEL_WARNING, "UPA[m][n] bolo vacsie ako float v sume");
 						//log(LOG_LEVEL_WARNING, "UPA[m][n] : " ,UPA[m][n]);
 					}
+					(*os) << "UPA" << endl;
+					log(UPA, os);
 
 
 					// now solve the system using TNT and JAMA with QR decomposition
@@ -125,18 +125,26 @@ void contractMeshGraphCPUCotangent(MeshGraph * pMesh) {
 						for (int i = 0; i < pMesh->numOfVertices; i++)
 							A[i][j] = (double)UPA[i][j];
 					}
+					(*os) << "A" << endl;
+					log(A, os);
 
 					B = Array2D<double>(2 * pMesh->numOfVertices, 3, 0.0f);
 
 					// X
 					for (int i = 0; i < pMesh->numOfVertices; i++){
-						B[pMesh->numOfVertices + i][0] = (double)(pMesh->pVerts[i].x * pMesh->wH[i]);
-						B[pMesh->numOfVertices + i][1] = (double)(pMesh->pVerts[i].y * pMesh->wH[i]);
-						B[pMesh->numOfVertices + i][2] = (double)(pMesh->pVerts[i].z * pMesh->wH[i]);
+						CVector3 P = pMesh->pVerts[i];
+						float wh = WH[i][i];
+						B[pMesh->numOfVertices + i][0] = (double)(pMesh->pVerts[i].x * wh);//pMesh->wH[i]);
+						B[pMesh->numOfVertices + i][1] = (double)(pMesh->pVerts[i].y * wh);//pMesh->wH[i]);
+						B[pMesh->numOfVertices + i][2] = (double)(pMesh->pVerts[i].z * wh);//pMesh->wH[i]);
 					}
+					(*os) << "B" << endl;
+					log(B, os);
 
 					JAMA::QR<double> qr(A);
 					V = qr.solve(B);
+					(*os) << "V" << endl;
+					log(V, os);
 
 					//delete[] curOneRingArea;
 					//curOneRingArea = NULL;
@@ -183,7 +191,7 @@ void log(TNT::Array2D< double > matrix, ostream *os) {
 		std::string row;
 		for (int j = 0; j < matrix.dim2(); j++) {
 			System::String ^ s = System::Convert::ToString((float)matrix[i][j]);
-			int floatlength = 40;
+			int floatlength = 5;
 			int l = floatlength;
 			if (s->Length < floatlength)
 				l = s->Length;
@@ -192,7 +200,7 @@ void log(TNT::Array2D< double > matrix, ostream *os) {
 			for (int j = 0; j < floatlength+1-l ; j++)
 				row += " ";
 		}
-		(*os) << row;
+		(*os) << row << endl;
 	}
 	(*os) << endl;
 	(*os) << endl;
@@ -212,9 +220,9 @@ void logB(TNT::Array2D< bool > matrix, ostream *os) {
 			for (int j = 0; j < l; j++)
 				row += s[j];
 			for (int j = 0; j < floatlength+1-l ; j++)
-				row += "\n";
+				row += " ";
 		}
-		(*os) << row;
+		(*os) << row << endl;
 	}
 	(*os) << endl;
 	(*os) << endl;
