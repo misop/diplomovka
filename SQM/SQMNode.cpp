@@ -919,9 +919,6 @@ void SQMNode::smoothLIEs(map<int, LIENeedEntry> lieMap) {
 }
 
 void SQMNode::smoothMesh() {
-	static int once = 0;
-	if (once == 1) return;
-	once = 1;
 	//convert mesh
 	MeshGraph meshGraph = MeshGraph();
 	mesh2graph(meshGraph);
@@ -939,17 +936,40 @@ void SQMNode::mesh2graph(MeshGraph& meshGraph) {
 
 	meshGraph.numOfFaces = n_faces;
 	meshGraph.numOfVertices = n_vertices;
+	meshGraph.wL = 1;
 	meshGraph.wH = new float[n_vertices];
 
 	CVector3 *vertices = new CVector3[n_vertices];
 	int idx = 0;
+	//avarage face area
+	/*float area = 0;
+	for (MyTriMesh::FaceIter f_it = polyhedron->faces_begin(); f_it != polyhedron->faces_end(); ++f_it)	{
+		MyTriMesh::FVIter fv_it = polyhedron->fv_begin(f_it.handle());
+		MyTriMesh::Point A = polyhedron->point(fv_it.handle());
+		++fv_it;
+		MyTriMesh::Point B = polyhedron->point(fv_it.handle());
+		++fv_it;
+		MyTriMesh::Point C = polyhedron->point(fv_it.handle());
+
+		OpenMesh::Vec3f u = B - A;
+		OpenMesh::Vec3f v = C - A;
+		OpenMesh::Vec3f w = cross(u, v);
+		area += (w.norm() / 2.0);
+	}
+	area /= (float)n_faces;
+	meshGraph.wL = sqrtf(area)/1000.0;*/
 	//get the vertices
 	for (MyTriMesh::VertexIter v_it = polyhedron->vertices_begin(); v_it != polyhedron->vertices_end(); ++v_it) 
 	{
 		MyTriMesh::VHandle vh = v_it.handle();
 		MyTriMesh::Point P = polyhedron->point(vh);
 		vertices[idx] = CVector3(polyhedron->point(vh).values_);
-		meshGraph.wH[idx] = 1;
+		//valency weighted
+		int count = 0;
+		for (MyTriMesh::VVIter vv_it = polyhedron->vv_begin(v_it.handle()); vv_it != polyhedron->vv_end(v_it.handle()); ++vv_it) {
+			count++;
+		}
+		meshGraph.wH[idx] = count;
 		idx++;
 	}
 
@@ -971,6 +991,7 @@ void SQMNode::laplacianSMoothing() {
 }
 
 void SQMNode::recalculateSmoothedVertices(MeshGraph& meshGraph) {
+	//update vertices with new position
 	int index = 0;
 	for (MyTriMesh::VertexIter v_it = polyhedron->vertices_begin(); v_it != polyhedron->vertices_end(); ++v_it) 
 	{
@@ -980,6 +1001,18 @@ void SQMNode::recalculateSmoothedVertices(MeshGraph& meshGraph) {
 		MyTriMesh::Point P = MyTriMesh::Point(vec.x, vec.y, vec.z);//polyhedron->point(vh);
 		polyhedron->set_point(vh, P);
 		index++;
+	}
+	//translate vertices on the sphere
+	CVector3 offset(position.values_);
+	for (MyTriMesh::VertexIter v_it = polyhedron->vertices_begin(); v_it != polyhedron->vertices_end(); ++v_it) 
+	{
+		MyTriMesh::VHandle vh = v_it.handle();
+		CVector3 P(polyhedron->point(vh).values_);
+		P = Normalize(P - offset);
+		P = P * nodeRadius;
+		P = P + offset;
+		MyTriMesh::Point Q(P.x, P.y, P.z);
+		polyhedron->set_point(vh, Q);
 	}
 }
 

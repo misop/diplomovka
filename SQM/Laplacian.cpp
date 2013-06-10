@@ -90,12 +90,14 @@ void contractMeshGraphCPUCotangent(MeshGraph * pMesh) {
 			UPA = Array2D< double >(pMesh->numOfVertices, pMesh->numOfVertices, 0.0f);
 
 			for (int i = 0; i < pMesh->numOfVertices; i++) {
-				WL[i][i] = 1;//pMesh->wL;
-				WH[i][i] = 25;//pMesh->wH[i];
+				WL[i][i] = pMesh->wL;
+				WH[i][i] = pMesh->wH[i];
 			}
 
 			(*os) << "WL" << endl;
 			log(WL, os);
+			(*os) << "WH" << endl;
+			log(WH, os);
 			(*os) << "L" << endl;
 			log(L, os);
 			UPA = WL * L;
