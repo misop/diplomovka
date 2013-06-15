@@ -52,10 +52,12 @@ public:
 	bool isLeafNode();
 	OpenMesh::Vec3f getPosition();
 	vector<SQMNode*>* getNodes();
+	SQMNode* getParent();
 	MyTriMesh* getPolyhedron();
 	vector<SQMNode*>* getDescendants();
 	vector<MyTriMesh::VertexHandle>* getIntersectionVHandles();
 	float getNodeRadius();
+	Quaternion getAxisAngle();
 #pragma endregion
 
 #pragma region Setters
@@ -126,9 +128,11 @@ public:
 #pragma endregion
 
 #pragma region Utility
+	void rotatePosition(Quaternion q, CVector3 offset);
 	int getPointPositionInArrayOrAdd(OpenMesh::Vec3f& v, vector<OpenMesh::Vec3f>& vectorArray);
 	int getPointPositionInArray(OpenMesh::Vec3f& v, vector<OpenMesh::Vec3f>& vectorArray);
 	SQMNode* getDescendantBranchNode(SQMNode* node);
+	SQMNode* getAncestorBranchNode(SQMNode* node);
 	MyMesh::VHandle getSecondVHandle(MyMesh::EdgeHandle edgeHandle, MyMesh::VHandle vhandle);
 	MyTriMesh::HalfedgeHandle nextLink(MyTriMesh::HalfedgeHandle heh);
 	MyTriMesh::HalfedgeHandle prevLink(MyTriMesh::HalfedgeHandle heh);

@@ -303,6 +303,8 @@ float QuaternionNorm(Quaternion q);
 
 Quaternion QuaternionNormalize(Quaternion q);
 
+Quaternion QuaternionOpposite(Quaternion q);
+
 float Length(CVector3 v);
 
 bool IsZeroLength(CVector3 v);

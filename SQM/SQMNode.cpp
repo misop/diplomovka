@@ -73,6 +73,14 @@ float SQMNode::getNodeRadius() {
 	return nodeRadius;
 }
 
+Quaternion SQMNode::getAxisAngle() {
+	return axisAngle;
+}
+
+SQMNode* SQMNode::getParent() {
+	return parent;
+}
+
 #pragma endregion
 
 #pragma region Setters
@@ -138,6 +146,7 @@ void SQMNode::draw2() {
 #pragma region Skeleton Straightening
 
 void SQMNode::straightenSkeleton(OpenMesh::Vec3f *lineVector) {
+	axisAngle = Quaternion();
 	if (lineVector != NULL && !parent->isBranchNode()) {//straighten self
 		//OpenMesh::Vec3f newPosition = ((position - parent->getPosition()).length()*(*lineVector)) + parent->getPosition();
 		//OpenMesh::Vec3f newPosition = ((position - parent->getPosition()).length()*(*lineVector));
@@ -145,6 +154,10 @@ void SQMNode::straightenSkeleton(OpenMesh::Vec3f *lineVector) {
 		//newPosition = newPosition + parent->getPosition();
 		//CVector4 quaternion = QuaternionBetweenVectors(CVector3(newPosition.values_), CVector3(position.values_));
 
+		SQMNode *ancestor = getAncestorBranchNode(this);
+		if (ancestor != NULL) {
+			rotatePosition(QuaternionOpposite(ancestor->getAxisAngle()), CVector3(ancestor->position.values_));
+		}
 		//translate parent to 0,0,0
 		OpenMesh::Vec3f newPosition = position - parent->getPosition();
 		CVector3 oldPos(newPosition.values_);
@@ -167,6 +180,9 @@ void SQMNode::straightenSkeleton(OpenMesh::Vec3f *lineVector) {
 	}
 	if (this->isBranchNode()) {//if this is branch node recalculate new vectors and intersections
 		for (int i = 0; i < nodes.size(); i++) {//specifical order parent intersection needs to be last in vector
+			if (parent != NULL) {
+				nodes[i]->rotatePosition(QuaternionOpposite(axisAngle), CVector3(parent->position.values_));
+			}
 			OpenMesh::Vec3f u = nodes[i]->getPosition() - position;
 			u = u.normalize();
 			nodes[i]->straightenSkeleton(&u);
@@ -310,7 +326,7 @@ void SQMNode::createPolyhedra(vector<OpenMesh::Vec3i> triangles) {
 		i1 = u31NormalIndexis[0];
 		i2 = u31NormalIndexis[1];
 		u31 = translatedPointToSphereWithFaceNormals(u31, normals[i1], normals[i2], centers[i1], centers[i2]);
-
+		
 		center = translatedPointToSphereWithFaceNormals(center, normals[i], normals[i], center, center);
 		//add only unique points to vertex list
 		int v1Index = getPointPositionInArrayOrAdd(v1, vertices);
@@ -524,7 +540,7 @@ void SQMNode::subdividePolyhedra(SQMNode* parentBranchNode, int count) {
 	}
 	map<int, LIENeedEntry> lieMap;
 	fillLIEMap(count, lieMap, branchingNodes);
-	smoothLIEs(lieMap);
+	//smoothLIEs(lieMap);
 	splitLIEs(lieMap);
 	//take care of the rest
 	for (int i = 0; i < branchingNodes.size(); i++)	{
@@ -830,7 +846,7 @@ void SQMNode::splitLIEs(std::map<int, LIENeedEntry>& lieMap) {
 
 void SQMNode::splitLIE(LIE lie, std::map<int, LIENeedEntry>& lieMap, int entryIndex, int lieIndex) {
 	LIE newLie = splitLIEEdge(lie);
-	//smoothLIE(newLie);
+	smoothLIE(newLie);
 	//decrease need for both vertices
 	LIENeedEntry entry1 = lieMap.at(entryIndex);
 	LIENeedEntry entry2 = lieMap.at(lie.otherVerticeIndex(entryIndex));
@@ -1202,6 +1218,12 @@ void SQMNode::rotateBack(MyMesh *mesh) {
 			v = v - parentPos;
 			v = QuaternionRotateVector(axisAngle, v);
 			v = v + parentPos;
+			if (parent->isBranchNode() && parent->parent != NULL) {
+				CVector3 offset(parent->getParent()->getPosition().values_);
+				v = v - offset;
+				v = QuaternionRotateVector(parent->getAxisAngle(), v);
+				v = v + offset;
+			}
 			P[0] = v.x;
 			P[1] = v.y;
 			P[2] = v.z;
@@ -1213,6 +1235,14 @@ void SQMNode::rotateBack(MyMesh *mesh) {
 #pragma endregion
 
 #pragma region Utility
+
+void SQMNode::rotatePosition(Quaternion q, CVector3 offset) {
+	CVector3 pos(position.values_);
+	pos = pos - offset;
+	pos = QuaternionRotateVector(q, pos);
+	pos = pos + offset;
+	position = OpenMesh::Vec3f(pos.x, pos.y, pos.z);
+}
 
 int SQMNode::getPointPositionInArrayOrAdd(OpenMesh::Vec3f& v, vector<OpenMesh::Vec3f>& vectorArray) {
 	for (int i = 0; i < vectorArray.size(); i++) {
@@ -1243,6 +1273,17 @@ SQMNode* SQMNode::getDescendantBranchNode(SQMNode* node) {
 	}
 
 	return getDescendantBranchNode((*node->getDescendants())[0]);
+}
+
+SQMNode* SQMNode::getAncestorBranchNode(SQMNode* node) {
+	if (node->isBranchNode()) {
+		return node;
+	}
+	if (node->parent == NULL) {
+		return NULL;
+	}
+
+	return getDescendantBranchNode(node->parent);
 }
 
 

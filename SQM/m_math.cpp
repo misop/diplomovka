@@ -648,6 +648,10 @@ Quaternion QuaternionNormalize(Quaternion q) {
 	return q*factor;
 }
 
+Quaternion QuaternionOpposite(Quaternion q) {
+	return Quaternion(q.s, -q.i, -q.j, -q.k);
+}
+
 float Length(CVector3 v) {
 	return sqrtf(v.x*v.x + v.y*v.y + v.z*v.z);
 }
