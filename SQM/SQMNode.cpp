@@ -97,6 +97,14 @@ void SQMNode::addDescendant(SQMNode* node) {
 	nodes.push_back(node);
 }
 
+void SQMNode::rotatePosition(Quaternion q, CVector3 offset) {
+	CVector3 pos(position.values_);
+	pos = pos - offset;
+	pos = QuaternionRotateVector(q, pos);
+	pos = pos + offset;
+	position = OpenMesh::Vec3f(pos.x, pos.y, pos.z);
+}
+
 #pragma endregion
 
 #pragma region Drawing
@@ -156,7 +164,7 @@ void SQMNode::straightenSkeleton(OpenMesh::Vec3f *lineVector) {
 
 		SQMNode *ancestor = getAncestorBranchNode(this);
 		if (ancestor != NULL) {
-			rotatePosition(QuaternionOpposite(ancestor->getAxisAngle()), CVector3(ancestor->position.values_));
+			rotatePosition(QuaternionOpposite(ancestor->getAxisAngle()), CVector3(ancestor->getParent()->getPosition().values_));
 		}
 		//translate parent to 0,0,0
 		OpenMesh::Vec3f newPosition = position - parent->getPosition();
@@ -181,38 +189,12 @@ void SQMNode::straightenSkeleton(OpenMesh::Vec3f *lineVector) {
 	if (this->isBranchNode()) {//if this is branch node recalculate new vectors and intersections
 		for (int i = 0; i < nodes.size(); i++) {//specifical order parent intersection needs to be last in vector
 			if (parent != NULL) {
-				nodes[i]->rotatePosition(QuaternionOpposite(axisAngle), CVector3(parent->position.values_));
+				//nodes[i]->rotatePosition(QuaternionOpposite(axisAngle), CVector3(parent->getPosition().values_));
+				nodes[i]->rotateSelfAndDescendants(QuaternionOpposite(axisAngle), CVector3(parent->getPosition().values_));
 			}
 			OpenMesh::Vec3f u = nodes[i]->getPosition() - position;
 			u = u.normalize();
 			nodes[i]->straightenSkeleton(&u);
-			intersections.push_back(position + u * nodeRadius);
-		}
-		if (parent) {//also calculate intersection with parent
-			OpenMesh::Vec3f u = parent->getPosition() - position;
-			u = u.normalize();
-			intersections.push_back(position + u * nodeRadius);
-		}
-	} else {//else just straighten conected nodes
-		for (int i = 0; i < nodes.size(); i++) {
-			nodes[i]->straightenSkeleton(lineVector);
-		}
-	}
-}
-
-void SQMNode::straightenSkeleton(OpenMesh::Vec3f lineVector) {
-	if (!OpenMeshVec3fZero(lineVector)) {//straighten self
-		OpenMesh::Vec3f newPosition = ((position - parent->getPosition()).length()*lineVector) + parent->getPosition();
-		CVector4 quaternion = QuaternionBetweenVectors(CVector3(newPosition.values_), CVector3(position.values_));
-		//axisAngle = QuaternionToAxisAngle(quaternion);
-		axisAngle = quaternion;
-		position = newPosition;
-	}
-	if (this->isBranchNode()) {//if this is branch node recalculate new vectors and intersections
-		for (int i = 0; i < nodes.size(); i++) {
-			OpenMesh::Vec3f u = nodes[i]->getPosition() - position;
-			u = u.normalize();
-			nodes[i]->straightenSkeleton(u);
 			intersections.push_back(position + u * nodeRadius);
 		}
 		if (parent) {//also calculate intersection with parent
@@ -259,8 +241,8 @@ void SQMNode::createPolyhedra(vector<OpenMesh::Vec3i> triangles) {
 		OpenMesh::Vec3f center((A[0] + B[0] + C[0])/3.0, (A[1] + B[1] + C[1])/3.0, (A[2] + B[2] + C[2])/3.0);
 		//unnecesary after fixing Delaunay Triangulation
 		/*if (checkPolyhedronOrientation(i, center, normal, triangles)) {
-			normal = -normal;
-			triangles[i] = flipVec3i(triangle);
+		normal = -normal;
+		triangles[i] = flipVec3i(triangle);
 		}*/
 
 		normals.push_back(normal);		
@@ -326,7 +308,7 @@ void SQMNode::createPolyhedra(vector<OpenMesh::Vec3i> triangles) {
 		i1 = u31NormalIndexis[0];
 		i2 = u31NormalIndexis[1];
 		u31 = translatedPointToSphereWithFaceNormals(u31, normals[i1], normals[i2], centers[i1], centers[i2]);
-		
+
 		center = translatedPointToSphereWithFaceNormals(center, normals[i], normals[i], center, center);
 		//add only unique points to vertex list
 		int v1Index = getPointPositionInArrayOrAdd(v1, vertices);
@@ -960,17 +942,17 @@ void SQMNode::mesh2graph(MeshGraph& meshGraph) {
 	//avarage face area
 	/*float area = 0;
 	for (MyTriMesh::FaceIter f_it = polyhedron->faces_begin(); f_it != polyhedron->faces_end(); ++f_it)	{
-		MyTriMesh::FVIter fv_it = polyhedron->fv_begin(f_it.handle());
-		MyTriMesh::Point A = polyhedron->point(fv_it.handle());
-		++fv_it;
-		MyTriMesh::Point B = polyhedron->point(fv_it.handle());
-		++fv_it;
-		MyTriMesh::Point C = polyhedron->point(fv_it.handle());
+	MyTriMesh::FVIter fv_it = polyhedron->fv_begin(f_it.handle());
+	MyTriMesh::Point A = polyhedron->point(fv_it.handle());
+	++fv_it;
+	MyTriMesh::Point B = polyhedron->point(fv_it.handle());
+	++fv_it;
+	MyTriMesh::Point C = polyhedron->point(fv_it.handle());
 
-		OpenMesh::Vec3f u = B - A;
-		OpenMesh::Vec3f v = C - A;
-		OpenMesh::Vec3f w = cross(u, v);
-		area += (w.norm() / 2.0);
+	OpenMesh::Vec3f u = B - A;
+	OpenMesh::Vec3f v = C - A;
+	OpenMesh::Vec3f w = cross(u, v);
+	area += (w.norm() / 2.0);
 	}
 	area /= (float)n_faces;
 	meshGraph.wL = sqrtf(area)/1000.0;*/
@@ -1218,10 +1200,12 @@ void SQMNode::rotateBack(MyMesh *mesh) {
 			v = v - parentPos;
 			v = QuaternionRotateVector(axisAngle, v);
 			v = v + parentPos;
-			if (parent->isBranchNode() && parent->parent != NULL) {
-				CVector3 offset(parent->getParent()->getPosition().values_);
+			SQMNode* ancestor = lastBranchNodeInChain(this);
+			//if (parent->isBranchNode() && parent->parent != NULL) {
+			if (parent->isBranchNode() && ancestor != NULL && ancestor->getParent() != NULL) {
+				CVector3 offset(ancestor->getParent()->getPosition().values_);
 				v = v - offset;
-				v = QuaternionRotateVector(parent->getAxisAngle(), v);
+				v = QuaternionRotateVector(ancestor->getAxisAngle(), v);
 				v = v + offset;
 			}
 			P[0] = v.x;
@@ -1236,12 +1220,13 @@ void SQMNode::rotateBack(MyMesh *mesh) {
 
 #pragma region Utility
 
-void SQMNode::rotatePosition(Quaternion q, CVector3 offset) {
-	CVector3 pos(position.values_);
-	pos = pos - offset;
-	pos = QuaternionRotateVector(q, pos);
-	pos = pos + offset;
-	position = OpenMesh::Vec3f(pos.x, pos.y, pos.z);
+void SQMNode::rotateSelfAndDescendants(Quaternion q, CVector3 offset) {
+	if (this->isBranchNode()) {
+		for (int i = 0; i < nodes.size(); i++) {
+			nodes[i]->rotateSelfAndDescendants(q, offset);
+		}
+	}
+	this->rotatePosition(q, offset);
 }
 
 int SQMNode::getPointPositionInArrayOrAdd(OpenMesh::Vec3f& v, vector<OpenMesh::Vec3f>& vectorArray) {
@@ -1473,6 +1458,21 @@ int inLIEs(std::vector<LIE>& LIEs, MyTriMesh::VHandle vh1, MyTriMesh::VHandle vh
 	}
 
 	return -1;
+}
+
+SQMNode* lastBranchNodeInChain(SQMNode* node) {
+	//nowhere to go
+	if (node == NULL) return NULL;
+	//get last branch node in a chain of branching nodes
+	if (node->isBranchNode()) {
+		if (node->getParent() != NULL && node->getParent()->isBranchNode()) {//parent exists and is a branch node
+			return lastBranchNodeInChain(node->getParent());//continue search for last one
+		}
+		//else this is the last branching node in a chain
+		return node;
+	}
+	//continiu until you find branch node
+	return lastBranchNodeInChain(node->getParent());
 }
 
 #pragma endregion

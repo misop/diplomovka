@@ -64,11 +64,11 @@ public:
 	void setNodeRadius(float newNodeRadius);
 	void setPosition(OpenMesh::Vec3f newPosition);
 	void addDescendant(SQMNode* node);
+	void rotatePosition(Quaternion q, CVector3 offset);
 #pragma endregion
 
 #pragma region Skeleton Straightening
 	void straightenSkeleton(OpenMesh::Vec3f *lineVector);
-	void straightenSkeleton(OpenMesh::Vec3f lineVector);
 #pragma endregion
 
 #pragma region BNP Generation
@@ -128,7 +128,7 @@ public:
 #pragma endregion
 
 #pragma region Utility
-	void rotatePosition(Quaternion q, CVector3 offset);
+	void rotateSelfAndDescendants(Quaternion q, CVector3 offset);
 	int getPointPositionInArrayOrAdd(OpenMesh::Vec3f& v, vector<OpenMesh::Vec3f>& vectorArray);
 	int getPointPositionInArray(OpenMesh::Vec3f& v, vector<OpenMesh::Vec3f>& vectorArray);
 	SQMNode* getDescendantBranchNode(SQMNode* node);
@@ -172,6 +172,7 @@ OpenMesh::Vec3i flipVec3i(OpenMesh::Vec3i& v);
 bool sameOneRingOrientation(MyMesh* mesh, vector<MyMesh::VHandle>& oneRing, vector<MyMesh::VHandle>& oneRing2, OpenMesh::Vec3f& direction);
 int verticeDifferenceFatherSon(SQMNode* father, SQMNode* son, MyTriMesh::VHandle vhandle);
 int inLIEs(std::vector<LIE>& LIEs, MyTriMesh::VHandle vh1, MyTriMesh::VHandle vh2);
+SQMNode* lastBranchNodeInChain(SQMNode* node);
 
 #pragma endregion
 
