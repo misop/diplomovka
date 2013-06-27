@@ -843,7 +843,7 @@ void SQMNode::splitLIE(LIE lie, std::map<int, LIENeedEntry>& lieMap, int entryIn
 		entry2.need--;
 	lieMap.at(lie.vertice1) = entry1;
 	lieMap.at(lie.vertice2) = entry2;
-	smoothMesh();
+	//smoothMesh();
 }
 
 LIE SQMNode::splitLIEEdge(LIE lie) {
@@ -1414,9 +1414,13 @@ bool sameOneRingOrientation(MyMesh* mesh, vector<MyMesh::VHandle>& oneRing, vect
 		MyMesh::Point Q1 = mesh->point(oneRing2[1]);
 		CVector3 d(direction.values_);
 		CVector3 A0(P0.values_);
+		A0 = A0 - d*Dot(A0, d);
 		CVector3 A1(P1.values_);
+		A1 = A1 - d*Dot(A1, d);
 		CVector3 B0(Q0.values_);
+		B0 = B0 - d*Dot(B0, d);
 		CVector3 B1(Q1.values_);
+		B1 = B1 - d*Dot(B1, d);
 		//calculate base with cross product
 		CVector3 u = Cross(A0, A1);
 		CVector3 v = Cross(B0, B1);
