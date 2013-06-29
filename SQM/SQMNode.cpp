@@ -105,6 +105,13 @@ void SQMNode::rotatePosition(Quaternion q, CVector3 offset) {
 	position = OpenMesh::Vec3f(pos.x, pos.y, pos.z);
 }
 
+void SQMNode::addDescendant(float x, float y, float z) {
+	SkeletonNode *skeletonNode = new SkeletonNode(x, y, z);
+	SQMNode *node = new SQMNode(*skeletonNode, this);
+	addDescendant(node);
+	delete skeletonNode;
+}
+
 #pragma endregion
 
 #pragma region Drawing
@@ -828,7 +835,7 @@ void SQMNode::splitLIEs(std::map<int, LIENeedEntry>& lieMap) {
 
 void SQMNode::splitLIE(LIE lie, std::map<int, LIENeedEntry>& lieMap, int entryIndex, int lieIndex) {
 	LIE newLie = splitLIEEdge(lie);
-	smoothLIE(newLie);
+	//smoothLIE(newLie);
 	//decrease need for both vertices
 	LIENeedEntry entry1 = lieMap.at(entryIndex);
 	LIENeedEntry entry2 = lieMap.at(lie.otherVerticeIndex(entryIndex));
@@ -843,7 +850,7 @@ void SQMNode::splitLIE(LIE lie, std::map<int, LIENeedEntry>& lieMap, int entryIn
 		entry2.need--;
 	lieMap.at(lie.vertice1) = entry1;
 	lieMap.at(lie.vertice2) = entry2;
-	//smoothMesh();
+	smoothMesh();
 }
 
 LIE SQMNode::splitLIEEdge(LIE lie) {
@@ -1414,6 +1421,8 @@ bool sameOneRingOrientation(MyMesh* mesh, vector<MyMesh::VHandle>& oneRing, vect
 		MyMesh::Point Q1 = mesh->point(oneRing2[1]);
 		CVector3 d(direction.values_);
 		CVector3 A0(P0.values_);
+		//projecting vectors onto the plane given by directionVector
+		//it is enough to substract the projection of A0 onto d sience that is the distance between A0 and the plane
 		A0 = A0 - d*Dot(A0, d);
 		CVector3 A1(P1.values_);
 		A1 = A1 - d*Dot(A1, d);

@@ -317,4 +317,6 @@ Quaternion SQMQuaternionBetweenVectors(CVector3 start, CVector3 dest, CVector3 f
 
 CVector3 QuaternionRotateVector(Quaternion q, CVector3 v);
 
+CVector3 PlaneRayIntersection(CVector3 rayOrigin, CVector3 direction, CVector3 planeOrigin, CVector3 normal);
+
 #endif

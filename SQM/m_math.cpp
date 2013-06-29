@@ -752,6 +752,11 @@ CVector3 QuaternionRotateVector(Quaternion q, CVector3 v) {
 	return (v + uv + uuv);
 }
 
+CVector3 PlaneRayIntersection(CVector3 rayOrigin, CVector3 direction, CVector3 planeOrigin, CVector3 normal) {
+	float t = Dot(normal, planeOrigin - rayOrigin)/Dot(normal, direction);
+	return rayOrigin + (direction * t);
+}
+
 /*
 CVector3 rotateCVec(CVector3 v, CVector4 q) {
 Array2D<float> m = QuaternionToMatrix3x3(q);

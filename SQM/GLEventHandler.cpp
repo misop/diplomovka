@@ -31,10 +31,15 @@ void GLEventHandler::mouseDown(int positionX, int positionY, int mouseFlags) {
 	if (state == NodeEditState && mouse == MIDDLE_MOUSE_DOWN && sqmControler->selected != NULL) {
 		GLdouble x = 0, y = 0, z = 0;
 		bool sucess = mousePositionTo3D(positionX, positionY, x, y, z);
-		SkeletonNode *skeletonNode = new SkeletonNode(x, y, z);
-		SQMNode *node = new SQMNode(*skeletonNode, sqmControler->selected);
-		sqmControler->selected->addDescendant(node);
-		delete skeletonNode;
+		if (sucess) {
+			//find plane ray intersection
+			CVector3 rayOrigin(glCamera->getEye().values_);
+			CVector3 planeOrigin(glCamera->look);
+			CVector3 direction = Normalize(CVector3(x, y, z) - rayOrigin);
+			CVector3 normal = Normalize(rayOrigin - planeOrigin);
+			CVector3 P = PlaneRayIntersection(rayOrigin, direction, planeOrigin, normal);
+			sqmControler->selected->addDescendant(P.x, P.y, P.z);
+		}
 
 		mouse = 0;
 	}
@@ -129,7 +134,7 @@ bool GLEventHandler::mousePositionTo3D(int x_cursor, int y_cursor, GLdouble &x, 
 	winY = (float)glCamera->viewport[3] - (float)y_cursor;
 	glReadPixels(winX, winY, 1, 1, GL_DEPTH_COMPONENT, GL_FLOAT, &z_cursor);
 	//when clicking out of object
-	z_cursor = 0.998555;
+	z_cursor = 0;//0.998555;
 	// obtain the world coordinates
 	GLint sucess = gluUnProject(winX, winY, z_cursor, glCamera->modelview, glCamera->projection, glCamera->viewport, &x, &y, &z);
 

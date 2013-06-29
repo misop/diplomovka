@@ -65,6 +65,7 @@ public:
 	void setPosition(OpenMesh::Vec3f newPosition);
 	void addDescendant(SQMNode* node);
 	void rotatePosition(Quaternion q, CVector3 offset);
+	void addDescendant(float x, float y, float z);
 #pragma endregion
 
 #pragma region Skeleton Straightening
