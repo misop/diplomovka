@@ -107,53 +107,33 @@ bool SQMControler::selectNodeInRay(OpenMesh::Vec3f position, OpenMesh::Vec3f dir
 	return selected != NULL;
 }
 
-bool SQMControler::closestNodeRayIntersection(SQMNode *node, OpenMesh::Vec3f rayPosition, OpenMesh::Vec3f direction, float& dist) {
-	/*//initialize
-	OpenMesh::Vec3f u = direction;
-	float nodeRadius = node->getNodeRadius();
-	OpenMesh::Vec3f p = rayPosition;
-	OpenMesh::Vec3f position = node->getPosition();
-	//calculate intersections -> always 2
-	OpenMesh::Vec3f CA = p - position;
-	//float a = 1.0;//dot(u, u); u is unit vector simplified
-	//float b = 2*dot(u, p - CA);//old
-	float b = 2*dot(u, p - position);
-	float c = dot(CA, CA) - nodeRadius*nodeRadius;
-	float delta = b*b - c;//b*b - 4.0*a*c; simplified
-	if (delta < FLOAT_ZERO) {
-	return false;
-	}
-	//determinate correct intersection
-	float d1 = (-b - sqrt(delta))/2.0;//(-b - sqrt(delta)) / (2.0*a); simplified
-	float d2 = (-b + sqrt(delta))/2.0;//(-b + sqrt(delta)) / (2.0*a); simplified
-	//parameter has to be bigger than 0 thus moving in the direction of leading vector
-	if (d1 > 0 && d2 < 0) {
-	dist = d1;
-	} else if (d1 < 0 && d2 > 0) {
-	dist = d2;
-	} else if (d1 > 0 && d2 > 0) {
-	dist = d1 < d2 ? d1 : d2;
-	}
-
-	return true;*/
-
-	//initialize
+bool SQMControler::closestNodeRayIntersection(SQMNode *node, OpenMesh::Vec3f rayPosition, OpenMesh::Vec3f direction, float& dist) {	
 	float r = node->getNodeRadius();
-	float a = dot(direction, direction);
-	float b = dot(direction, ((rayPosition - node->getPosition())*2.0));
-	float c = dot(node->getPosition(), node->getPosition()) + dot(rayPosition, rayPosition) - (2.0 * dot(rayPosition, node->getPosition())) - (r * r);
-	float D = b * b + (-4.0) * a * c;
-	// If ray can not intersect then stop
-	if (D < 0)
-		return false;
-	// Ray can intersect the sphere, solve the closer hitpoint
-	float t = (-0.5) * (b + D) / a;
-	if (t > 0.0)
-	{
+	// (origin_2 - origin_1)
+	OpenMesh::Vec3f oo = rayPosition - node->getPosition();
+	// A = v^2
+	float A = dot(direction, direction);
+	// -B = v^T * (o_2 - o_1)
+	float B = -2.0 * dot(direction, oo);
+	// C = (o_2 - o_1)^2 - r^2
+	float C = dot(oo, oo) - r*r;
+	// Discriminant
+	float D = B * B - 4.0f * A * C;
+
+	// No collision
+	if (D < 0) return false; 
+
+	float sD = sqrtf(D);
+	float t1 = 0.5 * (B + sD) / A; //if (t1 < Ray.Bias) t1 = Double.MaxValue;
+	float t2 = 0.5 * (B - sD) / A; //if (t2 < Ray.Bias) t2 = Double.MaxValue;
+	float t = (t1 < t2) ? t1 : t2;
+
+	//if (t < Ray.Bias || t >= ray.HitParam) return; // collisions beyond current ray param are ignored
+
+	if (t > 0.0) {
 		dist = t;
 		return true;
 	}
-
 	return false;
 }
 

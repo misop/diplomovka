@@ -127,16 +127,15 @@ void GLEventHandler::moveVertical(float dist) {
 #pragma region Utility
 
 bool GLEventHandler::mousePositionTo3D(int x_cursor, int y_cursor, GLdouble &x, GLdouble &y, GLdouble &z) {
-	GLfloat winX, winY;
+	GLfloat winX, winY, winZ = 0;
 	// obtain the Z position (not world coordinates but in range 0 - 1)
-	GLfloat z_cursor = 0;
 	winX = (float)x_cursor;
 	winY = (float)glCamera->viewport[3] - (float)y_cursor;
-	glReadPixels(winX, winY, 1, 1, GL_DEPTH_COMPONENT, GL_FLOAT, &z_cursor);
+	glReadPixels(winX, winY, 1, 1, GL_DEPTH_COMPONENT, GL_FLOAT, &winZ);
 	//when clicking out of object
-	z_cursor = 0;//0.998555;
+	winZ = 0;//0.998555;
 	// obtain the world coordinates
-	GLint sucess = gluUnProject(winX, winY, z_cursor, glCamera->modelview, glCamera->projection, glCamera->viewport, &x, &y, &z);
+	GLint sucess = gluUnProject(winX, winY, winZ, glCamera->modelview, glCamera->projection, glCamera->viewport, &x, &y, &z);
 
 	return sucess == GLU_TRUE;
 }
