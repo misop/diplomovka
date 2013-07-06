@@ -16,6 +16,13 @@ SQMNode::SQMNode(void) {
 }
 
 SQMNode::SQMNode(SkeletonNode &node, SQMNode* newParent) : parent(newParent) {
+	if (parent == NULL) {
+		id = "0";
+	} else {
+		id = parent->getId();
+		string s = to_string(parent->getNumOfChilds());
+		id += s;
+	}
 	position = OpenMesh::Vec3f(node.point.x, node.point.y, node.point.z);
 	//nodeRadius = (float)(rand()%100)/100*10 + 5;
 	nodeRadius = 10;
@@ -37,6 +44,10 @@ SQMNode::~SQMNode(void) {
 #pragma endregion
 
 #pragma region Getters
+
+string SQMNode::getId() {
+	return id;
+}
 
 bool SQMNode::isBranchNode() {
 	int requiredConections = 3;//branch nodes has at least 3 connections
@@ -79,6 +90,10 @@ Quaternion SQMNode::getAxisAngle() {
 
 SQMNode* SQMNode::getParent() {
 	return parent;
+}
+
+int SQMNode::getNumOfChilds() {
+	return nodes.size();
 }
 
 #pragma endregion
@@ -1086,7 +1101,7 @@ void SQMNode::addPolyhedronAndRememberVHandles(MyMesh* mesh, SQMNode* parentBNPN
 		//order newOneRingArray
 		vector<MyMesh::VHandle> oldOneRing = oneRingsOfPolyhedron.back();
 		//flip one ring if it has different orientation
-		bool shouldFlip = sameOneRingOrientation(mesh, oldOneRing, oneRing, directionVector);
+		bool shouldFlip = sameOneRingOrientation(mesh, oldOneRing, oneRing, position, parentBNPNode->getPosition(), directionVector);
 		if (shouldFlip) {
 			vector<MyMesh::VHandle> flipped;
 			flipVector(oldOneRing, flipped);
@@ -1413,12 +1428,13 @@ OpenMesh::Vec3i flipVec3i(OpenMesh::Vec3i& v) {
 	return OpenMesh::Vec3i(v[2], v[1], v[0]);
 }
 
-bool sameOneRingOrientation(MyMesh* mesh, vector<MyMesh::VHandle>& oneRing, vector<MyMesh::VHandle>& oneRing2, OpenMesh::Vec3f& direction) {
+bool sameOneRingOrientation(MyMesh* mesh, vector<MyMesh::VHandle>& oneRing, vector<MyMesh::VHandle>& oneRing2, OpenMesh::Vec3f& center1, OpenMesh::Vec3f& center2, OpenMesh::Vec3f& direction) {
 	if (oneRing.size() > 1 && oneRing2.size() > 1) {
-		MyMesh::Point P0 = mesh->point(oneRing[0]);
-		MyMesh::Point P1 = mesh->point(oneRing[1]);
-		MyMesh::Point Q0 = mesh->point(oneRing2[0]);
-		MyMesh::Point Q1 = mesh->point(oneRing2[1]);
+		//offset the position so we got vectors from O(0,0,0)
+		MyMesh::Point P0 = mesh->point(oneRing[0]) - center1;
+		MyMesh::Point P1 = mesh->point(oneRing[1]) - center1;
+		MyMesh::Point Q0 = mesh->point(oneRing2[0]) - center2;
+		MyMesh::Point Q1 = mesh->point(oneRing2[1]) - center2;
 		CVector3 d(direction.values_);
 		CVector3 A0(P0.values_);
 		//projecting vectors onto the plane given by directionVector

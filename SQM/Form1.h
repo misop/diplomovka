@@ -390,10 +390,10 @@ namespace SQM {
 	private: System::Void toolStripButton2_Click(System::Object^  sender, System::EventArgs^  e) {
 				 OpenGL->glEventHandler->state = NodeEditState;
 			 }
-private: System::Void panel1_Resize(System::Object^  sender, System::EventArgs^  e) {
-			 Control^ control = dynamic_cast<Control^>(sender);
-			 OpenGL->resize((GLsizei)control->Size.Width, (GLsizei)control->Size.Height);
-		 }
-};
+	private: System::Void panel1_Resize(System::Object^  sender, System::EventArgs^  e) {
+				 Control^ control = dynamic_cast<Control^>(sender);
+				 OpenGL->resize((GLsizei)control->Size.Width, (GLsizei)control->Size.Height);
+			 }
+	};
 }
 

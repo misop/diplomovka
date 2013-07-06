@@ -25,6 +25,7 @@ struct VHandleCount {
 class SQMNode {
 	friend class boost::serialization::access;
 
+	string id;
 	SQMNode* parent;
 	float nodeRadius;
 	OpenMesh::Vec3f position;
@@ -48,6 +49,7 @@ public:
 #pragma endregion
 
 #pragma region Getters
+	string getId();
 	bool isBranchNode();
 	bool isLeafNode();
 	OpenMesh::Vec3f getPosition();
@@ -58,6 +60,7 @@ public:
 	vector<MyTriMesh::VertexHandle>* getIntersectionVHandles();
 	float getNodeRadius();
 	Quaternion getAxisAngle();
+	int getNumOfChilds();
 #pragma endregion
 
 #pragma region Setters
@@ -170,7 +173,7 @@ bool validTriFace(vector<MyMesh::VHandle>& faceVHandles);
 bool rayTriangleIntersection(OpenMesh::Vec3f ray_origin, OpenMesh::Vec3f ray_direction, OpenMesh::Vec3f V0, OpenMesh::Vec3f V1, OpenMesh::Vec3f V2, float &t_param);
 bool raySphereIntersection(OpenMesh::Vec3f ray_origin, OpenMesh::Vec3f ray_direction, OpenMesh::Vec3f sphere_center, float sphere_radius, float &t_param);
 OpenMesh::Vec3i flipVec3i(OpenMesh::Vec3i& v);
-bool sameOneRingOrientation(MyMesh* mesh, vector<MyMesh::VHandle>& oneRing, vector<MyMesh::VHandle>& oneRing2, OpenMesh::Vec3f& direction);
+bool sameOneRingOrientation(MyMesh* mesh, vector<MyMesh::VHandle>& oneRing, vector<MyMesh::VHandle>& oneRing2, OpenMesh::Vec3f& center1, OpenMesh::Vec3f& center2, OpenMesh::Vec3f& direction);
 int verticeDifferenceFatherSon(SQMNode* father, SQMNode* son, MyTriMesh::VHandle vhandle);
 int inLIEs(std::vector<LIE>& LIEs, MyTriMesh::VHandle vh1, MyTriMesh::VHandle vh2);
 SQMNode* lastBranchNodeInChain(SQMNode* node);
