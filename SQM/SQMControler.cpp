@@ -92,6 +92,7 @@ bool SQMControler::selectNodeInRay(OpenMesh::Vec3f position, OpenMesh::Vec3f dir
 	while (!stack.empty()) {
 		SQMNode *node = stack.back();
 		stack.pop_back();
+		if (node == NULL) continue;
 		float distance = 0;
 		bool ok = closestNodeRayIntersection(node, position, direction, distance);
 		if (ok && (distance < minDistance || tempClosest == NULL)) {
@@ -108,6 +109,7 @@ bool SQMControler::selectNodeInRay(OpenMesh::Vec3f position, OpenMesh::Vec3f dir
 }
 
 bool SQMControler::closestNodeRayIntersection(SQMNode *node, OpenMesh::Vec3f rayPosition, OpenMesh::Vec3f direction, float& dist) {	
+	if (node == NULL) return false;
 	float r = node->getNodeRadius();
 	// (origin_2 - origin_1)
 	OpenMesh::Vec3f oo = rayPosition - node->getPosition();

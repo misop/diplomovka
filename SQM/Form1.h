@@ -37,7 +37,7 @@ namespace SQM {
 			//
 			//TODO: Add the constructor code here
 			//
-			OpenGL = gcnew COpenGL(this->panel1, 720, 449);
+			OpenGL = gcnew COpenGL(this->panel1, 562, 464);
 		}
 
 	protected:
@@ -87,6 +87,8 @@ namespace SQM {
 	private: System::Windows::Forms::ToolStripButton^  toolStripButton1;
 	private: System::Windows::Forms::ToolStripButton^  toolStripButton2;
 	private: System::Windows::Forms::ToolStripMenuItem^  straightenMeshToolStripMenuItem;
+	private: System::Windows::Forms::Panel^  panel2;
+
 
 
 
@@ -118,6 +120,7 @@ namespace SQM {
 				 this->subdivideConvexHullToolStripMenuItem1 = (gcnew System::Windows::Forms::ToolStripMenuItem());
 				 this->joinBranchNodePolyhedronsToolStripMenuItem = (gcnew System::Windows::Forms::ToolStripMenuItem());
 				 this->straightenMeshToolStripMenuItem = (gcnew System::Windows::Forms::ToolStripMenuItem());
+				 this->panel2 = (gcnew System::Windows::Forms::Panel());
 				 this->toolStrip1->SuspendLayout();
 				 this->menuStrip1->SuspendLayout();
 				 this->SuspendLayout();
@@ -164,13 +167,17 @@ namespace SQM {
 				 // 
 				 // panel1
 				 // 
-				 this->panel1->Location = System::Drawing::Point(12, 52);
+				 this->panel1->Anchor = static_cast<System::Windows::Forms::AnchorStyles>((((System::Windows::Forms::AnchorStyles::Top | System::Windows::Forms::AnchorStyles::Bottom) 
+					 | System::Windows::Forms::AnchorStyles::Left) 
+					 | System::Windows::Forms::AnchorStyles::Right));
+				 this->panel1->Location = System::Drawing::Point(182, 49);
 				 this->panel1->Name = L"panel1";
-				 this->panel1->Size = System::Drawing::Size(720, 449);
+				 this->panel1->Size = System::Drawing::Size(562, 464);
 				 this->panel1->TabIndex = 1;
 				 this->panel1->MouseDown += gcnew System::Windows::Forms::MouseEventHandler(this, &Form1::Panel1_MouseDown);
 				 this->panel1->MouseMove += gcnew System::Windows::Forms::MouseEventHandler(this, &Form1::Panel1_MouseMove);
 				 this->panel1->MouseUp += gcnew System::Windows::Forms::MouseEventHandler(this, &Form1::Panel1_MouseUp);
+				 this->panel1->Resize += gcnew System::EventHandler(this, &Form1::panel1_Resize);
 				 // 
 				 // menuStrip1
 				 // 
@@ -248,11 +255,21 @@ namespace SQM {
 				 this->straightenMeshToolStripMenuItem->Text = L"Final Vertex Placement";
 				 this->straightenMeshToolStripMenuItem->Click += gcnew System::EventHandler(this, &Form1::straightenMeshToolStripMenuItem_Click);
 				 // 
+				 // panel2
+				 // 
+				 this->panel2->Anchor = static_cast<System::Windows::Forms::AnchorStyles>(((System::Windows::Forms::AnchorStyles::Top | System::Windows::Forms::AnchorStyles::Bottom) 
+					 | System::Windows::Forms::AnchorStyles::Left));
+				 this->panel2->Location = System::Drawing::Point(0, 49);
+				 this->panel2->Name = L"panel2";
+				 this->panel2->Size = System::Drawing::Size(176, 464);
+				 this->panel2->TabIndex = 3;
+				 // 
 				 // Form1
 				 // 
 				 this->AutoScaleDimensions = System::Drawing::SizeF(6, 13);
 				 this->AutoScaleMode = System::Windows::Forms::AutoScaleMode::Font;
 				 this->ClientSize = System::Drawing::Size(744, 513);
+				 this->Controls->Add(this->panel2);
 				 this->Controls->Add(this->panel1);
 				 this->Controls->Add(this->toolStrip1);
 				 this->Controls->Add(this->menuStrip1);
@@ -373,6 +390,10 @@ namespace SQM {
 	private: System::Void toolStripButton2_Click(System::Object^  sender, System::EventArgs^  e) {
 				 OpenGL->glEventHandler->state = NodeEditState;
 			 }
+private: System::Void panel1_Resize(System::Object^  sender, System::EventArgs^  e) {
+			 Control^ control = dynamic_cast<Control^>(sender);
+			 OpenGL->resize((GLsizei)control->Size.Width, (GLsizei)control->Size.Height);
+		 }
 };
 }
 

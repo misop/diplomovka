@@ -209,7 +209,7 @@ namespace OpenGLForm
 			glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST);	// Really nice perspective calculations
 			return TRUE;										// Initialisation went ok
 		}
-
+		public:
 		GLvoid resize(GLsizei width, GLsizei height)		// Resize and initialise the gl window
 		{
 			if (height==0)										// Prevent A Divide By Zero By
