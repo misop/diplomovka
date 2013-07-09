@@ -61,6 +61,9 @@ public:
 	float getNodeRadius();
 	Quaternion getAxisAngle();
 	int getNumOfChilds();
+	float getX();
+	float getY();
+	float getZ();
 #pragma endregion
 
 #pragma region Setters
@@ -69,6 +72,13 @@ public:
 	void addDescendant(SQMNode* node);
 	void rotatePosition(Quaternion q, CVector3 offset);
 	void addDescendant(float x, float y, float z);
+	void setX(float newX);
+	void setY(float newY);
+	void setZ(float newZ);
+#pragma endregion
+
+#pragma region Export
+	SkeletonNode* exportToSkeletonNode();
 #pragma endregion
 
 #pragma region Skeleton Straightening

@@ -33,8 +33,11 @@ Class OpenGLForm.COpenGL: AutoLayout, AnsiClass, Class, Public, BeforeFieldInit
     SwapOpenGLBuffers(): PrivateScope, Public, HideBySig
     resize(Int32, Int32): PrivateScope, Public, HideBySig
     setupView(): PrivateScope, Public, HideBySig
+    getSelected(): PrivateScope, Public, HideBySig
+    newFile(): PrivateScope, Public, HideBySig
     loadSkeletonFromFile(basic_string<char\,std::char_traits<char>\,std::allocator<char> >*): PrivateScope, Public, HideBySig
     saveSkeletonToFile(basic_string<char\,std::char_traits<char>\,std::allocator<char> >*): PrivateScope, Public, HideBySig
+    exportSkeletonToFile(basic_string<char\,std::char_traits<char>\,std::allocator<char> >*): PrivateScope, Public, HideBySig
     straightenSkeleton(): PrivateScope, Public, HideBySig
     computeConvexHull(): PrivateScope, Public, HideBySig
     subdivideConvexHull(): PrivateScope, Public, HideBySig

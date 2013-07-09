@@ -329,6 +329,15 @@ namespace OpenGLForm
 #pragma endregion
 
 	public:
+		//Getters
+		SQMNode* getSelected() {
+			return sqmControler->selected;
+		}
+		//functions
+		void newFile() {
+			sqmControler->newFile();
+			glCamera->reset();
+		}
 		void loadSkeletonFromFile(string fileName) {
 			sqmControler->loadSkeletonFromFile(fileName);
 			glCamera->reset();
@@ -336,6 +345,9 @@ namespace OpenGLForm
 		}
 		void saveSkeletonToFile(string fileName) {
 			sqmControler->saveSkeletonToFile(fileName);
+		}
+		void exportSkeletonToFile(string fileName) {
+			sqmControler->exportSkeletonToFile(fileName);
 		}
 		void straightenSkeleton() {
 			sqmControler->straightenSkeleton();

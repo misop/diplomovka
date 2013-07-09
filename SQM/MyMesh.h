@@ -26,4 +26,4 @@ void drawMeshHalfEdgesWithArrowsAndColor(MyTriMesh* mesh, float *c);
 
 void writeTriMesh(MyTriMesh* mesh);
 void writeTriMesh(MyTriMesh* mesh, std::string fileName);
-void writeMesh(MyTriMesh* mesh, std::string fileName);
+void writeMesh(MyMesh* mesh, std::string fileName);

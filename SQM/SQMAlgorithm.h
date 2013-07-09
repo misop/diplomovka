@@ -25,6 +25,8 @@ public:
 
 	void setRoot(SQMNode *newRoot);
 	SQMNode* getRoot();
+	SQMState getState();
+	MyMesh* getMesh();
 
 	void straightenSkeleton();
 

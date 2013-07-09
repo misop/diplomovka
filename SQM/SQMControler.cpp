@@ -26,6 +26,16 @@ SQMControler::~SQMControler(void)
 
 #pragma region Saving and Loading
 
+void SQMControler::newFile() {
+	selected = NULL;
+	if (sqmALgorithm != NULL) {
+		delete sqmALgorithm;
+	}
+	sqmALgorithm = new SQMAlgorithm();
+	SQMNode *root = new SQMNode();
+	sqmALgorithm->setRoot(root);
+}
+
 void SQMControler::loadSkeletonFromFile(string fileName) {
 	ofstream errorLog("log.txt");
 	ifstream inputFile(fileName);
@@ -40,6 +50,10 @@ void SQMControler::loadSkeletonFromFile(string fileName) {
 	}
 	selected = NULL;
 	SQMNode *sqmNode = new SQMNode(*node, NULL);
+	if (sqmALgorithm != NULL) {
+		delete sqmALgorithm;
+	}
+	sqmALgorithm = new SQMAlgorithm();
 	sqmALgorithm->setRoot(sqmNode);
 	delete node;
 }
@@ -49,7 +63,8 @@ void SQMControler::saveSkeletonToFile(string fileName) {
 	ofstream of(fileName);
 	assert(of.good());
 	boost::archive::xml_oarchive oa(of);
-	SkeletonNode *node = new SkeletonNode(0, 0, 0);
+	SkeletonNode *node = sqmALgorithm->getRoot()->exportToSkeletonNode();
+	/*SkeletonNode *node = new SkeletonNode(0, 0, 0);
 	SkeletonNode *node2 = new SkeletonNode(0, 150, 0);
 	SkeletonNode *node3 = new SkeletonNode(-50, -50, 0);
 	SkeletonNode *node4 = new SkeletonNode(50, -50, 0);
@@ -69,13 +84,21 @@ void SQMControler::saveSkeletonToFile(string fileName) {
 	node2->addChild(node8);
 	node2->addChild(node9);
 	node8->addChild(node10);
-	node9->addChild(node11);
+	node9->addChild(node11);*/
 	//TODO convert SQM tree to skeleton nodes
 	try {
 		oa << BOOST_SERIALIZATION_NVP(node);	
 	} catch (boost::archive::archive_exception e) {
 		errorLog << "Exception: " << e.what() << endl;
 		throw e;
+	}
+	delete node;
+}
+
+void SQMControler::exportSkeletonToFile(string fileName) {
+	SQMState state = sqmALgorithm->getState();
+	if (state == SQMJoinBNPs || state == SQMFinalPlacement) {
+		writeMesh(sqmALgorithm->getMesh(), fileName);
 	}
 }
 

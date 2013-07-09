@@ -14,8 +14,10 @@ public:
 	SQMControler(void);
 	~SQMControler(void);
 
+	void newFile();
 	void loadSkeletonFromFile(string fileName);
 	void saveSkeletonToFile(string fileName);
+	void exportSkeletonToFile(string fileName);
 
 	bool selectNodeInRay(OpenMesh::Vec3f position, OpenMesh::Vec3f direction);
 	bool closestNodeRayIntersection(SQMNode *node, OpenMesh::Vec3f rayPosition, OpenMesh::Vec3f direction, float& dist);

@@ -12,7 +12,6 @@ SQMAlgorithm::SQMAlgorithm(void) : root(NULL)
 	omerr().connect(*os);
 }
 
-
 SQMAlgorithm::~SQMAlgorithm(void)
 {
 	if (mesh != NULL) {
@@ -41,6 +40,14 @@ void SQMAlgorithm::setRoot(SQMNode *newRoot) {
 
 SQMNode* SQMAlgorithm::getRoot() {
 	return root;
+}
+
+SQMState SQMAlgorithm::getState() {
+	return sqmState;
+}
+
+MyMesh* SQMAlgorithm::getMesh() {
+	return mesh;
 }
 
 #pragma endregion

@@ -11,6 +11,8 @@
 
 SQMNode::SQMNode(void) {
 	position = OpenMesh::Vec3f(0, 0, 0);
+	nodeRadius = 10;
+	id = "0";
 	parent = NULL;
 	polyhedron = NULL;
 }
@@ -21,7 +23,7 @@ SQMNode::SQMNode(SkeletonNode &node, SQMNode* newParent) : parent(newParent) {
 	} else {
 		id = parent->getId();
 		string s = to_string(parent->getNumOfChilds());
-		id += s;
+		id += "-" + s;
 	}
 	position = OpenMesh::Vec3f(node.point.x, node.point.y, node.point.z);
 	//nodeRadius = (float)(rand()%100)/100*10 + 5;
@@ -96,6 +98,18 @@ int SQMNode::getNumOfChilds() {
 	return nodes.size();
 }
 
+float SQMNode::getX() {
+	return position[0];
+}
+
+float SQMNode::getY() {
+	return position[1];
+}
+
+float SQMNode::getZ() {
+	return position[2];
+}
+
 #pragma endregion
 
 #pragma region Setters
@@ -125,6 +139,30 @@ void SQMNode::addDescendant(float x, float y, float z) {
 	SQMNode *node = new SQMNode(*skeletonNode, this);
 	addDescendant(node);
 	delete skeletonNode;
+}
+
+void SQMNode::setX(float newX) {
+	position[0] = newX;
+}
+
+void SQMNode::setY(float newY) {
+	position[1] = newY;
+}
+
+void SQMNode::setZ(float newZ) {
+	position[2] = newZ;
+}
+
+#pragma endregion
+
+#pragma region Export
+
+SkeletonNode* SQMNode::exportToSkeletonNode() {
+	SkeletonNode* node = new SkeletonNode(position[0], position[1], position[2]);
+	for (int i = 0; i < nodes.size(); i++) {
+		node->addChild(nodes[i]->exportToSkeletonNode());
+	}
+	return node;
 }
 
 #pragma endregion
