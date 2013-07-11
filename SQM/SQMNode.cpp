@@ -582,7 +582,7 @@ void SQMNode::subdividePolyhedra(SQMNode* parentBranchNode, int count) {
 	}
 	map<int, LIENeedEntry> lieMap;
 	fillLIEMap(count, lieMap, branchingNodes);
-	//smoothLIEs(lieMap);
+	smoothLIEs(lieMap);
 	splitLIEs(lieMap);
 	//take care of the rest
 	for (int i = 0; i < branchingNodes.size(); i++)	{
@@ -825,7 +825,19 @@ void SQMNode::fillLIEMap(int parentNeed, std::map<int, LIENeedEntry>& lieMap, st
 				CVector3 start = CVector3(polyhedron->point(firstLieVertex).values_) - offset;
 				CVector3 dest = CVector3(polyhedron->point(lastLieVertex).values_) - offset;
 				CVector3 P = CVector3(polyhedron->point(secondLieVertex).values_) - offset;
-				CVector3 axis = Normalize(Cross(P - start, dest - start));
+				//CVector3 axis = Normalize(Cross(P - start, dest - start));
+				//default axis between start and P because they cannot be colinear and fit the one-ring
+				CVector3 axis = Normalize(Cross(start, P));
+				//check if start, P and dest are colinear
+				//we do it by finding the distance between start and P and the distance between dest and rotated start
+				Quaternion quat = SQMQuaternionBetweenVectorsWithAxis(start, dest, axis);
+				CVector3 test = QuaternionRotateVector(quat, start);
+				float dist = Length(test - dest);
+				//2.0 is a constant
+				if (dist * 2.0 > Length(P - start)) {
+					axis = Normalize(Cross(start, (start*0.5) + (dest * 0.5)));
+				}
+				//CVector3 axis = Normalize(Cross(start, (start*0.5) + (dest * 0.5)));
 				//lie.quaternion = SQMQuaternionBetweenVectors(start, dest);
 				lie.quaternion = SQMQuaternionBetweenVectorsWithAxis(start, dest, axis);
 				verticeLIEs.push_back(lie);
@@ -888,7 +900,7 @@ void SQMNode::splitLIEs(std::map<int, LIENeedEntry>& lieMap) {
 
 void SQMNode::splitLIE(LIE lie, std::map<int, LIENeedEntry>& lieMap, int entryIndex, int lieIndex) {
 	LIE newLie = splitLIEEdge(lie);
-	//smoothLIE(newLie);
+	smoothLIE(newLie);
 	//decrease need for both vertices
 	LIENeedEntry entry1 = lieMap.at(entryIndex);
 	LIENeedEntry entry2 = lieMap.at(lie.otherVerticeIndex(entryIndex));
@@ -903,7 +915,7 @@ void SQMNode::splitLIE(LIE lie, std::map<int, LIENeedEntry>& lieMap, int entryIn
 		entry2.need--;
 	lieMap.at(lie.vertice1) = entry1;
 	lieMap.at(lie.vertice2) = entry2;
-	smoothMesh();
+	//smoothMesh();
 }
 
 LIE SQMNode::splitLIEEdge(LIE lie) {
@@ -947,7 +959,7 @@ void SQMNode::smoothLIE(LIE lie) {
 	float div = lie.edges.size();
 	float alfa = acos(lie.quaternion.s) * 2.0 / div;//lie.quaternion.s / div;
 	float partAlfa = alfa;
-	CVector3 axis = CVector3(lie.quaternion.i, lie.quaternion.j, lie.quaternion.k);
+	CVector3 axis = Normalize(CVector3(lie.quaternion.i, lie.quaternion.j, lie.quaternion.k));
 	CVector3 offset = CVector3(position.values_);
 	//get first vertice
 	MyTriMesh::HHandle heh = lie.firstHHandle;

@@ -680,9 +680,9 @@ Quaternion QuaternionFromAngleAxis(float angle, CVector3 axis) {
 
 Quaternion SQMQuaternionBetweenVectorsWithAxis(CVector3 start, CVector3 dest, CVector3 axis) {
 	// Copy, since cannot modify local
-	CVector3 v0 = Normalize(start);
+	CVector3 v0 = start;
 	v0 = Normalize(v0 - axis*Dot(v0, axis));
-	CVector3 v1 = Normalize(dest);
+	CVector3 v1 = dest;
 	v1 = Normalize(v1 - axis*Dot(v1, axis));
 
 	float d = Dot(v0, v1);
