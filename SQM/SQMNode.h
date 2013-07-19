@@ -7,7 +7,8 @@
 #include <queue>
 #include "MyMesh.h"
 #include "EdgeLength.h"
-#include <GL/glu.h>
+//#include <GL/glu.h>
+#include <GL\glew.h>
 #include "LIENeedEntry.h"
 
 #pragma region Structs

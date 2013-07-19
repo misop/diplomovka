@@ -1,6 +1,7 @@
 #include "stdafx.h"
 #include "GLCamera.h"
 #include <math.h>
+#include <gtc\type_ptr.hpp>
 #include "m_math.h"
 
 #define X 0
@@ -27,6 +28,9 @@ GLCamera::GLCamera(void) {
 	right[X] = 1;
 	right[Y] = 0;
 	right[Z] = 0;*/
+	width = 1;
+	height = 1;
+	viewport = glm::vec4(0, 0, width, height);
 	reset();
 	dir = OpenMesh::Vec3f(0, 0, 0);
 	pos = OpenMesh::Vec3f(0, 0, 0);
@@ -54,6 +58,16 @@ void GLCamera::setDist(float newDist) {
 		dist = 0.1;
 
 	update();
+}
+
+void GLCamera::setWidth(float newWidth) {
+	width = newWidth;
+	viewport.z = width;
+}
+
+void GLCamera::setHeight(float newHeight) {
+	height = newHeight;
+	viewport.w = height;
 }
 
 void GLCamera::strafeHorizontal(float strafe) {
@@ -96,21 +110,30 @@ void GLCamera::update() {
 }
 
 void GLCamera::calculateMatrices() {
-	glPushMatrix();
+	glm::vec3 eyev(eye[X], eye[Y], eye[Z]);
+	glm::vec3 lookv(look[X], look[Y], look[Z]);
+	glm::vec3 upv(up[X], up[Y], up[Z]);
+	modelview = glm::lookAt(eyev, lookv, upv);
+	/*glPushMatrix();
 
 	glLoadIdentity();
 	gluLookAt(eye[X], eye[Y], eye[Z], look[X], look[Y], look[Z], up[X], up[Y], up[Z]);
-
+	GLint viewportt[4];
+	GLdouble modelviewv[16];
+	GLdouble projectionn[16];
 	//get matrices
-	glGetIntegerv(GL_VIEWPORT, viewport);
-	glGetDoublev(GL_MODELVIEW_MATRIX, modelview);
-	glGetDoublev(GL_PROJECTION_MATRIX, projection);
+	glGetIntegerv(GL_VIEWPORT, viewportt);
+	glGetDoublev(GL_MODELVIEW_MATRIX, modelviewv);
+	glGetDoublev(GL_PROJECTION_MATRIX, projectionn);
 
-	glPopMatrix();
+	glPopMatrix();*/
 }
 
-void GLCamera::lookFromCamera() {
-	static GLUquadric* ball = NULL;
+void GLCamera::lookFromCamera(GLint mvpLoc) {
+	glm::mat4 MVPmatrix = projection*modelview;
+	glUniformMatrix4fv(mvpLoc, 1, GL_FALSE, glm::value_ptr(MVPmatrix));
+
+	/*static GLUquadric* ball = NULL;
 	if (ball == NULL)
 		ball = gluNewQuadric();
 
@@ -123,7 +146,7 @@ void GLCamera::lookFromCamera() {
 	glTranslatef(look[X], look[Y],look[Z]);
 	gluSphere(ball, 2, 10, 10);
 	glPopMatrix();
-	glColor3f(1, 0, 1);
+	glColor3f(1, 0, 1);*/
 }
 
 void GLCamera::reset() {
@@ -170,4 +193,21 @@ OpenMesh::Vec3f GLCamera::getView() {
 
 OpenMesh::Vec3f GLCamera::getEye() {
 	return OpenMesh::Vec3f(eye);
+}
+
+void GLCamera::mousePositionTo3D(int x_cursor, int y_cursor, GLdouble &x, GLdouble &y, GLdouble &z) {
+	GLfloat winX, winY, winZ = 0;
+	// obtain the Z position (not world coordinates but in range 0 - 1)
+	winX = (float)x_cursor;
+	winY = (float)viewport[3] - (float)y_cursor;
+	glReadPixels(winX, winY, 1, 1, GL_DEPTH_COMPONENT, GL_FLOAT, &winZ);
+	//when clicking out of object
+	winZ = 0;//0.998555;
+	// obtain the world coordinates
+	//GLint sucess = gluUnProject(winX, winY, winZ, modelview, projection, viewport, &x, &y, &z);
+	glm::vec3 window(winX, winY, winZ);
+	glm::vec3 coor = glm::unProject(window, modelview, projection, viewport);
+	x = coor.x;
+	y = coor.y;
+	z = coor.z;
 }

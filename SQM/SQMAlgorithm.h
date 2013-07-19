@@ -19,19 +19,25 @@ class SQMAlgorithm {
 	MyMesh* mesh;
 	filebuf *fb;
 	ostream *os;
+	int numOfNodes;
 public:
 	SQMAlgorithm(void);
 	~SQMAlgorithm(void);
 
 	void setRoot(SQMNode *newRoot);
+	void setNumberOfNodes(int newNumberOfNodes);
+
 	SQMNode* getRoot();
 	SQMState getState();
 	MyMesh* getMesh();
+	int getNumberOfNodes();
 
 	void straightenSkeleton();
 
 	void draw();
 	void draw2();
+
+	int countNodes();
 
 	void getBoundingSphere(float &x, float &y, float &z, float &d);
 	void computeConvexHull();

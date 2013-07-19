@@ -41,6 +41,8 @@
     <Import Project="tnt.props" />
     <Import Project="jama.props" />
     <Import Project="OpenMeshd.props" />
+    <Import Project="GLEW.props" />
+    <Import Project="GLM.props" />
   </ImportGroup>
   <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
@@ -49,6 +51,8 @@
     <Import Project="tnt.props" />
     <Import Project="jama.props" />
     <Import Project="OpenMeshd.props" />
+    <Import Project="GLEW.props" />
+    <Import Project="GLM.props" />
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
@@ -98,14 +102,18 @@
     <ClCompile Include="AssemblyInfo.cpp" />
     <ClCompile Include="EdgeLength.cpp" />
     <ClCompile Include="FloatArithmetic.cpp" />
+    <ClCompile Include="GLArrayBuffer.cpp" />
     <ClCompile Include="GLCamera.cpp" />
     <ClCompile Include="GLEventHandler.cpp" />
+    <ClCompile Include="GLProgram.cpp" />
+    <ClCompile Include="GLShader.cpp" />
     <ClCompile Include="Laplacian.cpp" />
     <ClCompile Include="LIE.cpp" />
     <ClCompile Include="LIENeedEntry.cpp" />
     <ClCompile Include="MyMesh.cpp" />
     <ClCompile Include="m_math.cpp" />
     <ClCompile Include="OpenMeshVecOperations.cpp" />
+    <ClCompile Include="ShaderUtility.cpp" />
     <ClCompile Include="SkeletonNode.cpp" />
     <ClCompile Include="SphereDelaunay.cpp" />
     <ClCompile Include="SQM.cpp" />
@@ -116,6 +124,7 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="Utility.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="EdgeLength.h" />
@@ -123,8 +132,11 @@
     <ClInclude Include="Form1.h">
       <FileType>CppForm</FileType>
     </ClInclude>
+    <ClInclude Include="GLArrayBuffer.h" />
     <ClInclude Include="GLCamera.h" />
     <ClInclude Include="GLEventHandler.h" />
+    <ClInclude Include="GLProgram.h" />
+    <ClInclude Include="GLShader.h" />
     <ClInclude Include="Laplacian.h" />
     <ClInclude Include="LIE.h" />
     <ClInclude Include="LIENeedEntry.h" />
@@ -134,12 +146,14 @@
     <ClInclude Include="OpenGL.h" />
     <ClInclude Include="OpenMeshVecOperations.h" />
     <ClInclude Include="resource.h" />
+    <ClInclude Include="ShaderUtility.h" />
     <ClInclude Include="SkeletonNode.h" />
     <ClInclude Include="SphereDelaunay.h" />
     <ClInclude Include="SQMAlgorithm.h" />
     <ClInclude Include="SQMControler.h" />
     <ClInclude Include="SQMNode.h" />
     <ClInclude Include="stdafx.h" />
+    <ClInclude Include="Utility.h" />
     <ClInclude Include="Vector3.h" />
   </ItemGroup>
   <ItemGroup>
@@ -153,6 +167,10 @@
       <DependentUpon>Form1.h</DependentUpon>
       <SubType>Designer</SubType>
     </EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="FragmentShader.frag" />
+    <None Include="VertexShader.vert" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

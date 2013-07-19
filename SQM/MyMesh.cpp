@@ -1,8 +1,9 @@
 #include "stdafx.h"
 #include "MyMesh.h"
 #include "FloatArithmetic.h"
-#include <GL/gl.h>
-#include <GL/glu.h>
+//#include <GL/gl.h>
+//#include <GL/glu.h>
+#include <GL\glew.h>
 
 bool OpenMeshEqualVHandles(MyMesh::VHandle& h1, MyMesh::VHandle& h2) {
 	return h1.idx() == h2.idx();

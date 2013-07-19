@@ -10,6 +10,8 @@ SQMAlgorithm::SQMAlgorithm(void) : root(NULL)
 	fb = new filebuf();
 	os = new ostream(fb);
 	omerr().connect(*os);
+	root = new SQMNode();
+	numOfNodes = 1;
 }
 
 SQMAlgorithm::~SQMAlgorithm(void)
@@ -32,6 +34,11 @@ void SQMAlgorithm::setRoot(SQMNode *newRoot) {
 	root = newRoot;
 	drawingMode = 0;
 	sqmState = SQMStart;
+	numOfNodes = countNodes();
+}
+
+void SQMAlgorithm::setNumberOfNodes(int newNumberOfNodes) {
+	numOfNodes = newNumberOfNodes;
 }
 
 #pragma endregion
@@ -48,6 +55,25 @@ SQMState SQMAlgorithm::getState() {
 
 MyMesh* SQMAlgorithm::getMesh() {
 	return mesh;
+}
+
+int SQMAlgorithm::getNumberOfNodes() {
+	return numOfNodes;
+}
+
+int SQMAlgorithm::countNodes() {
+	deque<SQMNode*> queue;
+	queue.push_back(root);
+	int count = 0;
+	while (!queue.empty()) {
+		SQMNode* node = queue.front();
+		queue.pop_front();
+		vector<SQMNode*> *childs = node->getNodes();
+		for (int i = 0; i < childs->size(); i++) {
+			queue.push_back((*childs)[i]);
+		}
+	}
+	return count;
 }
 
 #pragma endregion
@@ -76,22 +102,22 @@ void SQMAlgorithm::draw2() {
 	//draw polyhedron
 	/*glColor3f(1, 1, 1);
 	if (mesh != NULL) {
-		OpenMesh::PolyConnectivity::FaceIter it = mesh->faces_begin();
-		OpenMesh::PolyConnectivity::FaceIter fit = mesh->faces_end();
-		for (; it != fit; ++it)	{
-			glBegin(GL_LINES);
-			MyMesh::ConstFaceVertexIter fvit = mesh->cfv_begin(it);
-			MyMesh::ConstFaceVertexIter ffvit = mesh->cfv_end(it);
-			glVertex3fv(&mesh->point(fvit)[0]);
-			fvit++;
-			for (; fvit != ffvit; ++fvit) {
-				glVertex3fv(&mesh->point(fvit)[0]);
-				glVertex3fv(&mesh->point(fvit)[0]);
-			}
-			fvit = mesh->cfv_begin(it);
-			glVertex3fv(&mesh->point(fvit)[0]);
-			glEnd();
-		}
+	OpenMesh::PolyConnectivity::FaceIter it = mesh->faces_begin();
+	OpenMesh::PolyConnectivity::FaceIter fit = mesh->faces_end();
+	for (; it != fit; ++it)	{
+	glBegin(GL_LINES);
+	MyMesh::ConstFaceVertexIter fvit = mesh->cfv_begin(it);
+	MyMesh::ConstFaceVertexIter ffvit = mesh->cfv_end(it);
+	glVertex3fv(&mesh->point(fvit)[0]);
+	fvit++;
+	for (; fvit != ffvit; ++fvit) {
+	glVertex3fv(&mesh->point(fvit)[0]);
+	glVertex3fv(&mesh->point(fvit)[0]);
+	}
+	fvit = mesh->cfv_begin(it);
+	glVertex3fv(&mesh->point(fvit)[0]);
+	glEnd();
+	}
 	}*/
 	drawMeshHalfEdgesWithArrows(mesh);
 }

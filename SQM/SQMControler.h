@@ -1,6 +1,7 @@
 #pragma once
-#include "SQMAlgorithm.h"
 #include <string>
+#include "SQMAlgorithm.h"
+#include "GLArrayBuffer.h"
 
 using namespace std;
 
@@ -8,6 +9,8 @@ class SQMControler
 {
 private:
 	SQMAlgorithm *sqmALgorithm;
+	GLArrayBuffer *buffer1;
+	GLArrayBuffer *buffer2;
 public:
 	SQMNode *selected;
 
@@ -29,7 +32,17 @@ public:
 	void executeSQMAlgorithm();
 	void executeSQMAlgorithm(SQMState state);
 
+	void insertNode(float x, float y, float z);
+	void setSelectedPosition(OpenMesh::Vec3f pos);
+	void setSelectedX(float x);
+	void setSelectedY(float y);
+	void setSelectedZ(float z);
+	void setSelectedRadius(float radius);
+
 	void draw();
+	void drawSkeletonNodes(std::vector<float> &points, std::vector<float> &colors);
+	void drawSkeletonLines(std::vector<float> &points, std::vector<float> &colors);
+	void drawRefresh();
 	void getBoundingSphere(float &x, float &y, float &z, float &d);
 };
 

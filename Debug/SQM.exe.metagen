@@ -28,9 +28,15 @@ Class OpenGLForm.COpenGL: AutoLayout, AnsiClass, Class, Public, BeforeFieldInit
     System.Drawing.Point lastPositionLeftMouse : Public
     GLCamera* glCamera : Public
     GLEventHandler* glEventHandler : Public
+    GLProgram* glProgram : Public
+    GLShader* vertexShader : Public
+    GLShader* fragmentShader : Public
+    GLArrayBuffer* arrayBuffer : Public
+    Int32 uniformMVPmatrixLoc : Public
   Methods:
     Render(): PrivateScope, Public, HideBySig
     SwapOpenGLBuffers(): PrivateScope, Public, HideBySig
+    getSQMController(): PrivateScope, Public, HideBySig
     resize(Int32, Int32): PrivateScope, Public, HideBySig
     setupView(): PrivateScope, Public, HideBySig
     getSelected(): PrivateScope, Public, HideBySig

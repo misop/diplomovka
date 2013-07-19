@@ -332,6 +332,7 @@ namespace SQM {
 				 // 
 				 // numericUpDown4
 				 // 
+				 this->numericUpDown4->DecimalPlaces = 2;
 				 this->numericUpDown4->Enabled = false;
 				 this->numericUpDown4->Location = System::Drawing::Point(57, 129);
 				 this->numericUpDown4->Maximum = System::Decimal(gcnew cli::array< System::Int32 >(4) {100000, 0, 0, 0});
@@ -354,6 +355,7 @@ namespace SQM {
 				 // 
 				 // numericUpDown3
 				 // 
+				 this->numericUpDown3->DecimalPlaces = 2;
 				 this->numericUpDown3->Enabled = false;
 				 this->numericUpDown3->Location = System::Drawing::Point(31, 103);
 				 this->numericUpDown3->Maximum = System::Decimal(gcnew cli::array< System::Int32 >(4) {100000, 0, 0, 0});
@@ -375,6 +377,7 @@ namespace SQM {
 				 // 
 				 // numericUpDown2
 				 // 
+				 this->numericUpDown2->DecimalPlaces = 2;
 				 this->numericUpDown2->Enabled = false;
 				 this->numericUpDown2->Location = System::Drawing::Point(31, 77);
 				 this->numericUpDown2->Maximum = System::Decimal(gcnew cli::array< System::Int32 >(4) {100000, 0, 0, 0});
@@ -405,6 +408,7 @@ namespace SQM {
 				 // 
 				 // numericUpDown1
 				 // 
+				 this->numericUpDown1->DecimalPlaces = 2;
 				 this->numericUpDown1->Enabled = false;
 				 this->numericUpDown1->Location = System::Drawing::Point(31, 51);
 				 this->numericUpDown1->Maximum = System::Decimal(gcnew cli::array< System::Int32 >(4) {100000, 0, 0, 0});
@@ -632,28 +636,28 @@ namespace SQM {
 				 SQMNode *node = OpenGL->getSelected();
 				 if (node != NULL) {
 					 float value = System::Decimal::ToSingle(this->numericUpDown1->Value);
-					 node->setX(value);
+					 OpenGL->getSQMController()->setSelectedX(value);
 				 }
 			 }
 	private: System::Void numericUpDown2_ValueChanged(System::Object^  sender, System::EventArgs^  e) {
 				 SQMNode *node = OpenGL->getSelected();
 				 if (node != NULL) {
 					 float value = System::Decimal::ToSingle(this->numericUpDown2->Value);
-					 node->setY(value);
+					 OpenGL->getSQMController()->setSelectedY(value);
 				 }
 			 }
 	private: System::Void numericUpDown3_ValueChanged(System::Object^  sender, System::EventArgs^  e) {
 				 SQMNode *node = OpenGL->getSelected();
 				 if (node != NULL) {
 					 float value = System::Decimal::ToSingle(this->numericUpDown3->Value);
-					 node->setZ(value);
+					 OpenGL->getSQMController()->setSelectedZ(value);
 				 }
 			 }
 	private: System::Void numericUpDown4_ValueChanged(System::Object^  sender, System::EventArgs^  e) {
 				 SQMNode *node = OpenGL->getSelected();
 				 if (node != NULL) {
 					 float value = System::Decimal::ToSingle(this->numericUpDown4->Value);
-					 node->setNodeRadius(value);
+					 OpenGL->getSQMController()->setSelectedRadius(value);
 				 }
 			 }
 	};

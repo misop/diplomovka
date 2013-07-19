@@ -1,17 +1,24 @@
 #pragma once
-#include <GL/gl.h>
-#include <GL/glu.h>
+//#include <GL/gl.h>
+//#include <GL/glu.h>
+#include <GL\glew.h>
 #include <OpenMesh\Core\Mesh\PolyMesh_ArrayKernelT.hh>
+#include <glm.hpp>
+#include <gtc\matrix_transform.hpp>
 
 class GLCamera
 {
 public:
 	OpenMesh::Vec3f pos;
 	OpenMesh::Vec3f dir;
+	
+	glm::mat4 projection;
+	glm::mat4 modelview;
+	glm::vec4 viewport;
 
-	GLint viewport[4];
+	/*GLint viewport[4];
 	GLdouble modelview[16];
-	GLdouble projection[16];
+	GLdouble projection[16];*/
 
 	float fovy;
 	float aspect;
@@ -30,6 +37,8 @@ public:
 	void setFi(float newFi);
 	void setTheta(float newTheta);
 	void setDist(float newDist);
+	void setWidth(float newWidth);
+	void setHeight(float newHeight);
 
 	void strafeHorizontal(float strafe);
 	void strafeVertical(float strafe);
@@ -37,8 +46,10 @@ public:
 	void update();
 	void calculateMatrices();
 
-	void lookFromCamera();
+	void lookFromCamera(GLint mvpLoc);
 	void reset();
+
+	void mousePositionTo3D(int x_cursor, int y_cursor, GLdouble &x, GLdouble &y, GLdouble &z);
 
 	OpenMesh::Vec3f getRight();
 	OpenMesh::Vec3f getUp();

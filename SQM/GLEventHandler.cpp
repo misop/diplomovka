@@ -22,7 +22,8 @@ void GLEventHandler::mouseDown(int positionX, int positionY, int mouseFlags) {
 	lastY = positionY;
 	if (state == NodeEditState && mouse == LEFT_MOUSE_DOWN) {
 		GLdouble x = 0, y = 0, z = 0;
-		bool sucess = mousePositionTo3D(positionX, positionY, x, y, z);
+		//bool sucess = mousePositionTo3D(positionX, positionY, x, y, z);
+		glCamera->mousePositionTo3D(positionX, positionY, x, y, z);
 		OpenMesh::Vec3f pos(x, y, z);
 		OpenMesh::Vec3f dir = (pos - glCamera->getEye()).normalize();
 
@@ -30,16 +31,17 @@ void GLEventHandler::mouseDown(int positionX, int positionY, int mouseFlags) {
 	}
 	if (state == NodeEditState && mouse == MIDDLE_MOUSE_DOWN && sqmControler->selected != NULL) {
 		GLdouble x = 0, y = 0, z = 0;
-		bool sucess = mousePositionTo3D(positionX, positionY, x, y, z);
-		if (sucess) {
-			//find plane ray intersection
-			CVector3 rayOrigin(glCamera->getEye().values_);
-			CVector3 planeOrigin(glCamera->look);
-			CVector3 direction = Normalize(CVector3(x, y, z) - rayOrigin);
-			CVector3 normal = Normalize(rayOrigin - planeOrigin);
-			CVector3 P = PlaneRayIntersection(rayOrigin, direction, planeOrigin, normal);
-			sqmControler->selected->addDescendant(P.x, P.y, P.z);
-		}
+		//bool sucess = mousePositionTo3D(positionX, positionY, x, y, z);
+		glCamera->mousePositionTo3D(positionX, positionY, x, y, z);
+		//if (sucess) {
+		//find plane ray intersection
+		CVector3 rayOrigin(glCamera->getEye().values_);
+		CVector3 planeOrigin(glCamera->look);
+		CVector3 direction = Normalize(CVector3(x, y, z) - rayOrigin);
+		CVector3 normal = Normalize(rayOrigin - planeOrigin);
+		CVector3 P = PlaneRayIntersection(rayOrigin, direction, planeOrigin, normal);
+		sqmControler->insertNode(P.x, P.y, P.z);
+		//}
 
 		mouse = 0;
 	}
@@ -112,14 +114,14 @@ void GLEventHandler::moveHorizontal(float dist) {
 	SQMNode *node= sqmControler->selected;
 	OpenMesh::Vec3f pos = node->getPosition();
 	pos = pos + glCamera->getRight()*dist;
-	node->setPosition(pos);
+	sqmControler->setSelectedPosition(pos);
 }
 
 void GLEventHandler::moveVertical(float dist) {
 	SQMNode *node= sqmControler->selected;
 	OpenMesh::Vec3f pos = node->getPosition();
 	pos = pos + glCamera->getUp()*dist;
-	node->setPosition(pos);
+	sqmControler->setSelectedPosition(pos);
 }
 
 #pragma endregion
@@ -135,9 +137,9 @@ bool GLEventHandler::mousePositionTo3D(int x_cursor, int y_cursor, GLdouble &x, 
 	//when clicking out of object
 	winZ = 0;//0.998555;
 	// obtain the world coordinates
-	GLint sucess = gluUnProject(winX, winY, winZ, glCamera->modelview, glCamera->projection, glCamera->viewport, &x, &y, &z);
+	//GLint sucess = gluUnProject(winX, winY, winZ, glCamera->modelview, glCamera->projection, glCamera->viewport, &x, &y, &z);
 
-	return sucess == GLU_TRUE;
+	return false;//sucess == GLU_TRUE;
 }
 
 #pragma endregion
