@@ -8,7 +8,10 @@
 #pragma pop
 #include <iostream>
 #include <fstream>
+#include <gtc\type_ptr.hpp>
 #include "FloatArithmetic.h"
+
+#define TESSELATION_LEVEL 15.0
 
 using namespace std;
 
@@ -18,12 +21,15 @@ SQMControler::SQMControler(void)
 	selected = NULL;
 	buffer1 = NULL;
 	buffer2 = NULL;
+	icosahedron = NULL;
+	selectedIndex = -1;
 }
 
 
 SQMControler::~SQMControler(void)
 {
 	delete sqmALgorithm;
+	if (icosahedron) delete icosahedron;
 	if (buffer1) delete buffer1;
 	if (buffer2) delete buffer2;
 }
@@ -212,13 +218,28 @@ void SQMControler::setSelectedRadius(float radius) {
 
 #pragma region drawing
 
-void SQMControler::draw() {
+void SQMControler::draw(ShaderUniforms *uniforms) {
 	/*sqmALgorithm->draw();
 	if (selected != NULL) {
 	selected->draw(CVector3(0, 1, 0), CVector3(1, 1, 0));
 	}*/
-	if (buffer2) buffer2->Draw(GL_LINES);
-	if (buffer1) buffer1->Draw(GL_POINTS);
+	glUniformMatrix4fv(uniforms->ModelMatrixLoc, 1, GL_FALSE, glm::value_ptr(glm::mat4()));
+	glUniform1i(uniforms->SelectedNodeLoc, 0);
+	glUniform1f(uniforms->TessLevelInner, 1.0);
+	glUniform1f(uniforms->TessLevelOuter, 1.0);
+    glPatchParameteri(GL_PATCH_VERTICES, 2);
+	if (buffer2) buffer1->DrawElement(0, GL_LINES);
+	
+	glUniform1f(uniforms->TessLevelInner, TESSELATION_LEVEL);
+	glUniform1f(uniforms->TessLevelOuter, TESSELATION_LEVEL);
+	
+    glPatchParameteri(GL_PATCH_VERTICES, 3);
+	for (int i = 0; i < modelMatrices.size(); i++) {
+		glUniformMatrix4fv(uniforms->ModelMatrixLoc, 1, GL_FALSE, glm::value_ptr(modelMatrices[i]));
+		glUniform1i(uniforms->SelectedNodeLoc, (selectedIndex == i) ? 1 : 0);
+		icosahedron->DrawElement(0, GL_PATCHES);
+	}
+	//if (buffer1) buffer1->Draw(GL_POINTS);
 }
 
 void SQMControler::drawRefresh() {
@@ -228,20 +249,68 @@ void SQMControler::drawRefresh() {
 	buffer1 = new GLArrayBuffer();
 	buffer2 = new GLArrayBuffer();
 
-	vector<float> nodesPoints;
-	vector<float> nodesColors;
-	vector<float> linePoints;
+	vector<float> nodePoints;
+	vector<int> lineIndices;
 	vector<float> lineColors;
-	drawSkeletonNodes(nodesPoints, nodesColors);
-	drawSkeletonLines(linePoints, lineColors);
+	drawSkeleton(nodePoints, lineIndices, modelMatrices);
+	//drawSkeletonNodes(nodePoints, nodeColors);
+	//drawSkeletonLines(lineIndices);
+
+	for (int i = 0; i < nodePoints.size(); i++) {
+		lineColors.push_back(0.0);
+		lineColors.push_back(1.0);
+		lineColors.push_back(0.0);
+	}
 
 	buffer1->Bind();
-	buffer1->BindBufferData(nodesPoints, 3, GL_STATIC_DRAW);
-	buffer1->BindBufferData(nodesColors, 3, GL_STATIC_DRAW);
+	buffer1->BindBufferData(nodePoints, 3, GL_STATIC_DRAW);
+	buffer1->BindBufferData(lineColors, 3, GL_STATIC_DRAW);
+	buffer1->BindElement(lineIndices, GL_STATIC_DRAW);
+}
 
-	buffer2->Bind();
-	buffer2->BindBufferData(linePoints, 3, GL_STATIC_DRAW);
-	buffer2->BindBufferData(lineColors, 3, GL_STATIC_DRAW);
+void SQMControler::drawSkeleton(vector<float> &points, vector<int> &indices, vector<glm::mat4> &modelMatrices) {
+	deque<SQMNode*> queue;
+	queue.push_back(sqmALgorithm->getRoot());
+	//*3 for number of elements
+	points.reserve(3*sqmALgorithm->getNumberOfNodes());
+	indices.reserve(3*sqmALgorithm->getNumberOfNodes()*2);
+	modelMatrices.reserve(3*sqmALgorithm->getNumberOfNodes());
+
+	points.clear();
+	indices.clear();
+	modelMatrices.clear();
+	selectedIndex = -1;
+
+	int index = 0;
+	while (!queue.empty()) {
+		SQMNode *node = queue.front();
+		queue.pop_front();
+
+		OpenMesh::Vec3f position = node->getPosition();
+		float radius = node->getNodeRadius();
+		//create and store model matrix
+		glm::mat4 modelMatrix;
+		modelMatrix = glm::translate(modelMatrix, glm::vec3(position[0], position[1], position[2]));
+		modelMatrix = glm::scale(modelMatrix, glm::vec3(radius));
+		modelMatrices.push_back(modelMatrix);
+		//store node position
+		points.push_back(position[0]);
+		points.push_back(position[1]);
+		points.push_back(position[2]);
+		//store node color
+		if (node == selected) selectedIndex = index;
+		//add childs to queue and form indices for lines
+		vector<SQMNode*> *childs = node->getNodes();
+		for (int i = 0; i < childs->size(); i++) {
+			SQMNode *child = (*childs)[i];
+			indices.push_back(index);
+			//index of current + all nodes before + self
+			indices.push_back(index + queue.size() + 1);
+			queue.push_back(child);
+		}
+
+		index++;
+	}
 }
 
 void SQMControler::drawSkeletonNodes(vector<float> &points, vector<float> &colors) {
@@ -278,44 +347,99 @@ void SQMControler::drawSkeletonNodes(vector<float> &points, vector<float> &color
 	}
 }
 
-void SQMControler::drawSkeletonLines(std::vector<float> &points, std::vector<float> &colors) {
+void SQMControler::drawSkeletonLines(std::vector<int> &indices) {
 	deque<SQMNode*> queue;
 	queue.push_back(sqmALgorithm->getRoot());
 	//*3 for number of elements; *2 because each nodes has one incoming and one outgoing line
-	points.reserve(3*sqmALgorithm->getNumberOfNodes()*2);
-	colors.reserve(3*sqmALgorithm->getNumberOfNodes()*2);
+	indices.reserve(3*sqmALgorithm->getNumberOfNodes()*2);
 
-	points.clear();
-	colors.clear();
+	indices.clear();
 
+	int index = 0;
 	while (!queue.empty()) {
 		SQMNode *node = queue.front();
 		queue.pop_front();
 
-		OpenMesh::Vec3f position = node->getPosition();
-
 		vector<SQMNode*> *childs = node->getNodes();
 		for (int i = 0; i < childs->size(); i++) {
 			SQMNode *child = (*childs)[i];
-			OpenMesh::Vec3f childPosition = child->getPosition();
+			indices.push_back(index);
+			//index of current + all nodes before + self
+			indices.push_back(index + queue.size() + 1);
 			queue.push_back(child);
-			//line from node
-			points.push_back(position[0]);
-			points.push_back(position[1]);
-			points.push_back(position[2]);
-			//to child
-			points.push_back(childPosition[0]);
-			points.push_back(childPosition[1]);
-			points.push_back(childPosition[2]);
-			//set color for each vertex
-			colors.push_back(0.0);
-			colors.push_back(1.0);
-			colors.push_back(0.0);
-			colors.push_back(0.0);
-			colors.push_back(1.0);
-			colors.push_back(0.0);
 		}
+		index++;
 	}
+}
+
+void SQMControler::createIcosahedron() {
+	const int faces[] = {
+		2, 1, 0,
+		3, 2, 0,
+		4, 3, 0,
+		5, 4, 0,
+		1, 5, 0,
+
+		11, 6,  7,
+		11, 7,  8,
+		11, 8,  9,
+		11, 9,  10,
+		11, 10, 6,
+
+		1, 2, 6,
+		2, 3, 7,
+		3, 4, 8,
+		4, 5, 9,
+		5, 1, 10,
+
+		2,  7, 6,
+		3,  8, 7,
+		4,  9, 8,
+		5, 10, 9,
+		1, 6, 10 };
+
+	const float vertices[] = {
+		0.000f,  0.000f,  1.000f,
+		0.894f,  0.000f,  0.447f,
+		0.276f,  0.851f,  0.447f,
+		-0.724f,  0.526f,  0.447f,
+		-0.724f, -0.526f,  0.447f,
+		0.276f, -0.851f,  0.447f,
+		0.724f,  0.526f, -0.447f,
+		-0.276f,  0.851f, -0.447f,
+		-0.894f,  0.000f, -0.447f,
+		-0.276f, -0.851f, -0.447f,
+		0.724f, -0.526f, -0.447f,
+		0.000f,  0.000f, -1.000f };
+
+	const float vetriceColors[] = {
+		1.0f,  0.0f,  0.0f,
+		1.0f,  0.0f,  0.0f,
+		1.0f,  0.0f,  0.0f,
+		1.0f,  0.0f,  0.0f,
+		1.0f,  0.0f,  0.0f,
+		1.0f,  0.0f,  0.0f,
+		1.0f,  0.0f,  0.0f,
+		1.0f,  0.0f,  0.0f,
+		1.0f,  0.0f,  0.0f,
+		1.0f,  0.0f,  0.0f,
+		1.0f,  0.0f,  0.0f,
+		1.0f,  0.0f,  0.0f };
+
+	vector<float> points;
+	points.assign(vertices, vertices + 36);
+	vector<float> colors;
+	colors.assign(vetriceColors, vetriceColors + 36);
+	vector<int> indices;
+	indices.assign(faces, faces + 60);
+
+	if (icosahedron) delete icosahedron;
+	icosahedron = new GLArrayBuffer();
+
+	icosahedron->Bind();
+	icosahedron->BindBufferData(points, 3, GL_STATIC_DRAW);
+	icosahedron->BindBufferData(colors, 3, GL_STATIC_DRAW);
+	icosahedron->BindElement(indices, GL_STATIC_DRAW);
 }
 
 void SQMControler::getBoundingSphere(float &x, float &y, float &z, float &d) {

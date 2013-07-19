@@ -10,6 +10,7 @@
 //#include <GL/glu.h>
 #include <GL\glew.h>
 #include "LIENeedEntry.h"
+#include "Utility.h"
 
 #pragma region Structs
 

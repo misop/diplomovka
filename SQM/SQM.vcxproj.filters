@@ -193,5 +193,11 @@
     <None Include="VertexShader.vert">
       <Filter>Shaders</Filter>
     </None>
+    <None Include="TessControlShader.glsl">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="TessEvalShader.glsl">
+      <Filter>Shaders</Filter>
+    </None>
   </ItemGroup>
 </Project>

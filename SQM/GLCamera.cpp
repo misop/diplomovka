@@ -54,8 +54,8 @@ void GLCamera::setTheta(float newTheta) {
 
 void GLCamera::setDist(float newDist) {
 	dist = newDist;
-	if (dist < 0)
-		dist = 0.1;
+	if (dist < 0.5)
+		dist = 0.5;
 
 	update();
 }

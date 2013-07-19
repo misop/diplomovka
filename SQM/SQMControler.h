@@ -1,5 +1,7 @@
 #pragma once
 #include <string>
+#include <glm.hpp>
+#include <gtc\matrix_transform.hpp>
 #include "SQMAlgorithm.h"
 #include "GLArrayBuffer.h"
 
@@ -11,6 +13,9 @@ private:
 	SQMAlgorithm *sqmALgorithm;
 	GLArrayBuffer *buffer1;
 	GLArrayBuffer *buffer2;
+	GLArrayBuffer *icosahedron;
+	vector<glm::mat4> modelMatrices;
+	int selectedIndex;
 public:
 	SQMNode *selected;
 
@@ -39,10 +44,12 @@ public:
 	void setSelectedZ(float z);
 	void setSelectedRadius(float radius);
 
-	void draw();
+	void draw(ShaderUniforms *uniforms);
+	void drawSkeleton(std::vector<float> &points, std::vector<int> &indices, std::vector<glm::mat4> &modelMatrices);
 	void drawSkeletonNodes(std::vector<float> &points, std::vector<float> &colors);
-	void drawSkeletonLines(std::vector<float> &points, std::vector<float> &colors);
+	void drawSkeletonLines(std::vector<int> &indices);
 	void drawRefresh();
 	void getBoundingSphere(float &x, float &y, float &z, float &d);
+	void createIcosahedron();
 };
 

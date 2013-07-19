@@ -30,9 +30,11 @@ Class OpenGLForm.COpenGL: AutoLayout, AnsiClass, Class, Public, BeforeFieldInit
     GLEventHandler* glEventHandler : Public
     GLProgram* glProgram : Public
     GLShader* vertexShader : Public
+    GLShader* tessControlShader : Public
+    GLShader* tessEvalShader : Public
     GLShader* fragmentShader : Public
     GLArrayBuffer* arrayBuffer : Public
-    Int32 uniformMVPmatrixLoc : Public
+    ShaderUniforms* uniforms : Public
   Methods:
     Render(): PrivateScope, Public, HideBySig
     SwapOpenGLBuffers(): PrivateScope, Public, HideBySig

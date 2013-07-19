@@ -1,9 +1,10 @@
 #version 410
  
-in  vec3 ex_Color;
-layout (location = 0) out vec4 out_Color;
+in  vec3 teColor;
+
+layout (location = 0) out vec4 fColor;
  
 void main(void)
 {
-	out_Color = vec4(ex_Color, 1.0);
+	fColor = vec4(teColor, 1.0);
 }

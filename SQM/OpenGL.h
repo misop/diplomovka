@@ -38,9 +38,11 @@ namespace OpenGLForm
 		GLEventHandler *glEventHandler;
 		GLProgram *glProgram;
 		GLShader *vertexShader;
+		GLShader *tessControlShader;
+		GLShader *tessEvalShader;
 		GLShader *fragmentShader;
 		GLArrayBuffer *arrayBuffer;
-		GLint uniformMVPmatrixLoc;
+		ShaderUniforms *uniforms;
 #pragma endregion
 
 #pragma region Inits
@@ -49,6 +51,7 @@ namespace OpenGLForm
 			sqmControler = new SQMControler();
 			glCamera = new GLCamera();
 			glEventHandler = new GLEventHandler(glCamera, sqmControler);
+			uniforms = new ShaderUniforms();
 
 			/*CreateParams^ cp = gcnew CreateParams;
 			// Set the position on the form
@@ -78,6 +81,7 @@ namespace OpenGLForm
 
 			rtri = 0.0f;
 			rquad = 0.0f;
+			sqmControler->createIcosahedron();
 			sqmControler->drawRefresh();
 		}
 
@@ -147,9 +151,9 @@ namespace OpenGLForm
 			//arrayBuffer->Draw(GL_TRIANGLES);
 			//arrayBuffer->Draw(GL_POINTS);
 
-			glCamera->lookFromCamera(uniformMVPmatrixLoc);
+			glCamera->lookFromCamera(uniforms->MVPmatrixLoc);
 
-			sqmControler->draw();
+			sqmControler->draw(uniforms);
 
 			glBindVertexArray(0);
 		}
@@ -169,10 +173,13 @@ namespace OpenGLForm
 		~COpenGL(System::Void)
 		{
 			this->DestroyHandle();
+			delete uniforms;
 			delete sqmControler;
 			delete glCamera;
 			delete glEventHandler;
 			delete vertexShader;
+			delete tessControlShader;
+			delete tessEvalShader;
 			delete fragmentShader;
 			delete glProgram;
 			delete arrayBuffer;
@@ -280,6 +287,16 @@ namespace OpenGLForm
 			vertexShader->Compile();
 			vertexShader->SaveShaderLog();
 
+			tessControlShader = new GLShader(GL_TESS_CONTROL_SHADER);
+			tessControlShader->Load("TessControlShader.glsl");
+			tessControlShader->Compile();
+			tessControlShader->SaveShaderLog();
+
+			tessEvalShader = new GLShader(GL_TESS_EVALUATION_SHADER);
+			tessEvalShader->Load("TessEvalShader.glsl");
+			tessEvalShader->Compile();
+			tessEvalShader->SaveShaderLog();
+
 			fragmentShader = new GLShader(GL_FRAGMENT_SHADER);
 			fragmentShader->Load("FragmentShader.frag");
 			fragmentShader->Compile();
@@ -287,13 +304,17 @@ namespace OpenGLForm
 
 			glProgram = new GLProgram();
 			glProgram->AttachShader(vertexShader);
+			glProgram->AttachShader(tessControlShader);
+			glProgram->AttachShader(tessEvalShader);
 			glProgram->AttachShader(fragmentShader);
-			//glProgram->BindAttribLocation(0, "in_Position");
-			//glProgram->BindAttribLocation(1, "in_Color");
 			glProgram->Link();
 			glProgram->SaveProgramLog();
 			glProgram->Use();
-			uniformMVPmatrixLoc = glProgram->getUniformLocation("MVPmatrix");
+			uniforms->MVPmatrixLoc = glProgram->getUniformLocation("MVPmatrix");
+			uniforms->ModelMatrixLoc = glProgram->getUniformLocation("ModelMatrix");
+			uniforms->SelectedNodeLoc = glProgram->getUniformLocation("SelectedNode");
+			uniforms->TessLevelInner = glProgram->getUniformLocation("TessLevelInner");
+			uniforms->TessLevelOuter = glProgram->getUniformLocation("TessLevelOuter");
 
 			return true;
 		}
