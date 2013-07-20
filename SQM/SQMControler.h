@@ -44,9 +44,14 @@ public:
 	void setSelectedY(float y);
 	void setSelectedZ(float z);
 	void setSelectedRadius(float radius);
-
+	
 	void draw(ShaderUniforms *uniforms, OpenGLPrograms *programs, GLCamera *camera);
+	void drawSkeleton(ShaderUniforms *uniforms, OpenGLPrograms *programs, GLCamera *camera);
 	void drawSkeleton(std::vector<float> &points, std::vector<int> &indices);
+	void drawBNPs(ShaderUniforms *uniforms, OpenGLPrograms *programs, GLCamera *camera);
+	void drawBNPs();
+	void drawMesh(ShaderUniforms *uniforms, OpenGLPrograms *programs, GLCamera *camera);
+	void drawMesh();
 	void drawRefresh();
 	void getBoundingSphere(float &x, float &y, float &z, float &d);
 	void createIcosahedron();

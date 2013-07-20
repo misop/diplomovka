@@ -216,12 +216,76 @@ void drawMeshHalfEdgesWithArrowsAndColor(MyTriMesh* mesh, float *c) {
 	}
 }
 
+#pragma region Mesh Converting
+
+void convertTriMeshToArray(MyTriMesh *mesh, std::vector<float> &points, std::vector<int> &indices) {
+	int length = (int)floor((float)points.size() / 3.0);
+	points.reserve(length + (mesh->n_vertices() * 3));
+	indices.reserve(indices.size() + (mesh->n_faces() * 3));
+
+	for (MyTriMesh::VertexIter v_it = mesh->vertices_begin(); v_it != mesh->vertices_end(); ++v_it) {
+		MyTriMesh::Point P = mesh->point(v_it.handle());
+		points.push_back(P[0]);
+		points.push_back(P[1]);
+		points.push_back(P[2]);
+	}
+
+	for (MyTriMesh::FaceIter f_it = mesh->faces_begin(); f_it != mesh->faces_end(); ++f_it) {
+		MyTriMesh::FaceVertexIter fv_it = mesh->fv_begin(f_it.handle());
+		for ( ; fv_it != mesh->fv_end(f_it.handle()); ++fv_it) {
+			indices.push_back(fv_it.handle().idx() + length);
+		}
+	}
+}
+
+void convertMeshToArray(MyMesh *mesh, std::vector<float> &points, std::vector<int> &indices) {
+	int length = (int)floor((float)points.size() / 3.0);
+	points.reserve(length + (mesh->n_vertices() * 3));
+	indices.reserve(indices.size() + (mesh->n_faces() * 4));
+
+	for (MyTriMesh::VertexIter v_it = mesh->vertices_begin(); v_it != mesh->vertices_end(); ++v_it) {
+		MyTriMesh::Point P = mesh->point(v_it.handle());
+		int idx = v_it.handle().idx();
+		points.push_back(P[0]);
+		points.push_back(P[1]);
+		points.push_back(P[2]);
+	}
+
+	for (MyTriMesh::FaceIter f_it = mesh->faces_begin(); f_it != mesh->faces_end(); ++f_it) {
+		MyTriMesh::FaceVertexIter fv_it = mesh->fv_begin(f_it.handle());
+		std::vector<int> vertices;
+		for ( ; fv_it != mesh->fv_end(f_it.handle()); ++fv_it) {
+			vertices.push_back(fv_it.handle().idx() + length);
+		}
+		addToConvertedMeshArray(vertices, indices);
+	}
+}
+
+void addToConvertedMeshArray(std::vector<int> &vertices, std::vector<int> &indices) {
+	if (vertices.size() >= 3) {
+		indices.push_back(vertices[0]);
+		indices.push_back(vertices[1]);
+		indices.push_back(vertices[2]);
+	}
+	if (vertices.size() == 4) {		
+		indices.push_back(vertices[2]);
+		indices.push_back(vertices[3]);
+		indices.push_back(vertices[0]);
+	}
+	if (vertices.size() > 4) {
+		int error = 1;
+	}
+}
+
+#pragma endregion
+
+#pragma region Mesh Writing
 
 void writeTriMesh(MyTriMesh* mesh) {
 	static int number = 0;
 	number++;
 	std::stringstream ss;//create a stringstream
-    ss << number;
+	ss << number;
 	std::string file = ss.str() + ".obj";
 	writeTriMesh(mesh, file);
 }
@@ -237,3 +301,5 @@ void writeMesh(MyMesh* mesh, std::string fileName) {
 	if (!OpenMesh::IO::write_mesh(*mesh, fileName)) {
 	}
 }
+
+#pragma endregion

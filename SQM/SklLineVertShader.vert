@@ -2,8 +2,6 @@
  
 layout (location = 0) in  vec3 Position;
 
-out vec3 vColor;
-
 uniform mat4 MVPmatrix;
  
 void main(void)

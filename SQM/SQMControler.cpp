@@ -219,10 +219,19 @@ void SQMControler::setSelectedRadius(float radius) {
 #pragma region drawing
 
 void SQMControler::draw(ShaderUniforms *uniforms, OpenGLPrograms *programs, GLCamera *camera) {
-	/*sqmALgorithm->draw();
-	if (selected != NULL) {
-	selected->draw(CVector3(0, 1, 0), CVector3(1, 1, 0));
-	}*/
+	SQMState state = sqmALgorithm->getState();
+	if (state == SQMStart || state == SQMStraighten) {
+		drawSkeleton(uniforms, programs, camera);
+	}
+	if (state == SQMComputeConvexHull || state == SQMSubdivideConvexHull) {
+		drawBNPs(uniforms, programs, camera);
+	}
+	if (state == SQMJoinBNPs || state == SQMFinalPlacement) {
+		drawMesh(uniforms, programs, camera);
+	}
+}
+
+void SQMControler::drawSkeleton(ShaderUniforms *uniforms, OpenGLPrograms *programs, GLCamera *camera) {
 	programs->SklLines->Use();
 	camera->lookFromCamera(uniforms->MVPmatrixSklLines);
 	if (buffer1) buffer1->DrawElement(0, GL_LINES);
@@ -242,10 +251,83 @@ void SQMControler::draw(ShaderUniforms *uniforms, OpenGLPrograms *programs, GLCa
 		glUniform1i(uniforms->SelectedNodeLoc, (selectedIndex == i) ? 1 : 0);
 		icosahedron->DrawElement(0, GL_PATCHES);
 	}
-	//if (buffer1) buffer1->Draw(GL_POINTS);
+}
+
+void SQMControler::drawBNPs(ShaderUniforms *uniforms, OpenGLPrograms *programs, GLCamera *camera) {
+	//show camera
+	programs->SklNodes->Use();
+	camera->lookFromCamera(uniforms->MVPmatrixSklNodes);
+	glUniformMatrix4fv(uniforms->ModelMatrix, 1, GL_FALSE, glm::value_ptr(camera->cameraModelMatrix()));
+	glUniform1f(uniforms->TessLevelInner, TESSELATION_LEVEL);
+	glUniform1f(uniforms->TessLevelOuter, TESSELATION_LEVEL);
+	glUniform1i(uniforms->CameraLoc, 1);
+	icosahedron->DrawElement(0, GL_PATCHES);
+	//draw BNPs
+	programs->BNPs->Use();
+	camera->lookFromCamera(uniforms->MVPmatrixBNPs);
+	buffer1->DrawElement(0, GL_TRIANGLES);
+}
+
+void SQMControler::drawBNPs() {
+	if (buffer1) delete buffer1;
+
+	deque<SQMNode *> queue;
+	queue.push_back(sqmALgorithm->getRoot());
+
+	vector<float> points;
+	vector<int> indices;
+
+	while (!queue.empty()) {
+		SQMNode *node = queue.front();
+		queue.pop_front();
+
+		if (node->isBranchNode()) {
+			convertTriMeshToArray(node->getPolyhedron(), points, indices);
+		}
+
+		vector<SQMNode *> *childs = node->getDescendants();
+		for (int i = 0; i < childs->size(); i++) {
+			queue.push_back((*childs)[i]);
+		}
+	}
+
+	buffer1 = new GLArrayBuffer();
+	buffer1->Bind();
+	buffer1->BindBufferData(points, 3, GL_STATIC_DRAW);
+	buffer1->BindElement(indices, GL_STATIC_DRAW);
+}
+
+void SQMControler::drawMesh(ShaderUniforms *uniforms, OpenGLPrograms *programs, GLCamera *camera) {
+	//show camera
+	programs->SklNodes->Use();
+	camera->lookFromCamera(uniforms->MVPmatrixSklNodes);
+	glUniformMatrix4fv(uniforms->ModelMatrix, 1, GL_FALSE, glm::value_ptr(camera->cameraModelMatrix()));
+	glUniform1f(uniforms->TessLevelInner, TESSELATION_LEVEL);
+	glUniform1f(uniforms->TessLevelOuter, TESSELATION_LEVEL);
+	glUniform1i(uniforms->CameraLoc, 1);
+	icosahedron->DrawElement(0, GL_PATCHES);
+	//draw BNPs
+	programs->BNPs->Use();
+	camera->lookFromCamera(uniforms->MVPmatrixBNPs);
+	buffer1->DrawElement(0, GL_TRIANGLES);
+}
+
+void SQMControler::drawMesh() {
+	if (buffer1) delete buffer1;
+	vector<float> points;
+	vector<int> indices;
+
+	convertMeshToArray(sqmALgorithm->getMesh(), points, indices);
+
+	buffer1 = new GLArrayBuffer();
+	buffer1->Bind();
+	buffer1->BindBufferData(points, 3, GL_STATIC_DRAW);
+	buffer1->BindElement(indices, GL_STATIC_DRAW);
 }
 
 void SQMControler::drawRefresh() {
+	//return if we are not drawing skeleton
+	if (!(sqmALgorithm->getState() == SQMStart || sqmALgorithm->getState() == SQMStraighten)) return;
 	if (buffer1) delete buffer1;
 	if (buffer2) delete buffer2;
 
@@ -398,6 +480,8 @@ void SQMControler::executeSQMAlgorithm() {
 void SQMControler::executeSQMAlgorithm(SQMState state) {
 	sqmALgorithm->executeSQMAlgorithm(state);
 	drawRefresh();
+	if (state == SQMComputeConvexHull || state == SQMSubdivideConvexHull) drawBNPs();
+	if (state == SQMJoinBNPs || state == SQMFinalPlacement) drawMesh();
 }
 
 #pragma endregion

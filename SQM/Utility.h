@@ -8,6 +8,7 @@
 struct ShaderUniforms {
 	GLint MVPmatrixSklLines;
 	GLint MVPmatrixSklNodes;
+	GLint MVPmatrixBNPs;
 	GLint ModelMatrix;
 	GLint SelectedNodeLoc;
 	GLint TessLevelInner;
@@ -18,11 +19,13 @@ struct ShaderUniforms {
 struct OpenGLPrograms {
 	GLProgram *SklLines;
 	GLProgram *SklNodes;
+	GLProgram *BNPs;
 
-	OpenGLPrograms() : SklLines(NULL), SklNodes(NULL) { }
+	OpenGLPrograms() : SklLines(NULL), SklNodes(NULL), BNPs(NULL) { }
 	~OpenGLPrograms() {
 		if (SklLines) delete SklLines;
 		if (SklNodes) delete SklNodes;
+		if (BNPs) delete BNPs;
 	}
 };
 

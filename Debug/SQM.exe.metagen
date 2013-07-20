@@ -31,6 +31,7 @@ Class OpenGLForm.COpenGL: AutoLayout, AnsiClass, Class, Public, BeforeFieldInit
     OpenGLPrograms* programs : Public
     OpenGLShaders* sklTessShaders : Public
     OpenGLShaders* sklLineShaders : Public
+    OpenGLShaders* bnpShaders : Public
     GLArrayBuffer* arrayBuffer : Public
     ShaderUniforms* uniforms : Public
   Methods:

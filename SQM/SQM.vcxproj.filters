@@ -16,6 +16,15 @@
     <Filter Include="Shaders">
       <UniqueIdentifier>{daa0772e-e9a3-4465-8843-763cc500532d}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Shaders\SklLine">
+      <UniqueIdentifier>{152a1f78-078d-4e7d-a233-a650c912d354}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Shaders\SklTess">
+      <UniqueIdentifier>{be0caf44-5135-4528-b463-e8436ec7f3f9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Shaders\TriMeshes">
+      <UniqueIdentifier>{3a716300-b2dc-4a5f-8612-d5c69d7f916a}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <Text Include="ReadMe.txt" />
@@ -187,23 +196,32 @@
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
-    <None Include="SklTessFragShader.frag">
-      <Filter>Shaders</Filter>
-    </None>
-    <None Include="SklTessCtrlShader.glsl">
-      <Filter>Shaders</Filter>
-    </None>
-    <None Include="SklTessEvalShader.glsl">
-      <Filter>Shaders</Filter>
-    </None>
-    <None Include="SklTessVertShader.vert">
-      <Filter>Shaders</Filter>
-    </None>
     <None Include="SklLineFragShader.frag">
-      <Filter>Shaders</Filter>
+      <Filter>Shaders\SklLine</Filter>
     </None>
     <None Include="SklLineVertShader.vert">
-      <Filter>Shaders</Filter>
+      <Filter>Shaders\SklLine</Filter>
+    </None>
+    <None Include="SklTessCtrlShader.glsl">
+      <Filter>Shaders\SklTess</Filter>
+    </None>
+    <None Include="SklTessEvalShader.glsl">
+      <Filter>Shaders\SklTess</Filter>
+    </None>
+    <None Include="SklTessFragShader.frag">
+      <Filter>Shaders\SklTess</Filter>
+    </None>
+    <None Include="SklTessVertShader.vert">
+      <Filter>Shaders\SklTess</Filter>
+    </None>
+    <None Include="BNPFragShader.frag">
+      <Filter>Shaders\TriMeshes</Filter>
+    </None>
+    <None Include="BNPGeomShader.geom">
+      <Filter>Shaders\TriMeshes</Filter>
+    </None>
+    <None Include="BNPVertShader.vert">
+      <Filter>Shaders\TriMeshes</Filter>
     </None>
   </ItemGroup>
 </Project>

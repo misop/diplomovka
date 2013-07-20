@@ -39,6 +39,7 @@ namespace OpenGLForm
 		OpenGLPrograms *programs;
 		OpenGLShaders *sklTessShaders;
 		OpenGLShaders *sklLineShaders;
+		OpenGLShaders *bnpShaders;
 		GLArrayBuffer *arrayBuffer;
 		ShaderUniforms *uniforms;
 #pragma endregion
@@ -53,6 +54,7 @@ namespace OpenGLForm
 			programs = new OpenGLPrograms();
 			sklTessShaders = new OpenGLShaders();
 			sklLineShaders = new OpenGLShaders();
+			bnpShaders = new OpenGLShaders();
 
 			/*CreateParams^ cp = gcnew CreateParams;
 			// Set the position on the form
@@ -178,6 +180,7 @@ namespace OpenGLForm
 			delete glEventHandler;
 			delete sklTessShaders;
 			delete sklLineShaders;
+			delete bnpShaders;
 			delete programs;
 			delete arrayBuffer;
 		}
@@ -283,22 +286,18 @@ namespace OpenGLForm
 			sklTessShaders->vert = new GLShader(GL_VERTEX_SHADER);
 			sklTessShaders->vert->Load("SklTessVertShader.vert");
 			sklTessShaders->vert->Compile();
-			sklTessShaders->vert->SaveShaderLog();
 
 			sklTessShaders->ctrl = new GLShader(GL_TESS_CONTROL_SHADER);
 			sklTessShaders->ctrl->Load("SklTessCtrlShader.glsl");
 			sklTessShaders->ctrl->Compile();
-			sklTessShaders->ctrl->SaveShaderLog();
 
 			sklTessShaders->eval = new GLShader(GL_TESS_EVALUATION_SHADER);
 			sklTessShaders->eval->Load("SklTessEvalShader.glsl");
 			sklTessShaders->eval->Compile();
-			sklTessShaders->eval->SaveShaderLog();
 
 			sklTessShaders->frag = new GLShader(GL_FRAGMENT_SHADER);
 			sklTessShaders->frag->Load("SklTessFragShader.frag");
 			sklTessShaders->frag->Compile();
-			sklTessShaders->frag->SaveShaderLog();
 
 			programs->SklNodes = new GLProgram();
 			programs->SklNodes->AttachShader(sklTessShaders->vert);
@@ -317,12 +316,10 @@ namespace OpenGLForm
 			sklLineShaders->vert = new GLShader(GL_VERTEX_SHADER);
 			sklLineShaders->vert->Load("SklLineVertShader.vert");
 			sklLineShaders->vert->Compile();
-			sklLineShaders->vert->SaveShaderLog();
 
 			sklLineShaders->frag = new GLShader(GL_FRAGMENT_SHADER);
 			sklLineShaders->frag->Load("SklLineFragShader.frag");
 			sklLineShaders->frag->Compile();
-			sklLineShaders->frag->SaveShaderLog();
 
 			programs->SklLines = new GLProgram();
 			programs->SklLines->AttachShader(sklLineShaders->vert);
@@ -330,6 +327,26 @@ namespace OpenGLForm
 			programs->SklLines->Link();
 			programs->SklLines->SaveProgramLog();
 			uniforms->MVPmatrixSklLines = programs->SklLines->getUniformLocation("MVPmatrix");
+			//BNP drawing
+			bnpShaders->vert = new GLShader(GL_VERTEX_SHADER);
+			bnpShaders->vert->Load("BNPVertShader.vert");
+			bnpShaders->vert->Compile();
+			
+			bnpShaders->geom = new GLShader(GL_GEOMETRY_SHADER);
+			bnpShaders->geom->Load("BNPGeomShader.geom");
+			bnpShaders->geom->Compile();
+			
+			bnpShaders->frag = new GLShader(GL_FRAGMENT_SHADER);
+			bnpShaders->frag->Load("BNPFragShader.frag");
+			bnpShaders->frag->Compile();
+
+			programs->BNPs = new GLProgram();
+			programs->BNPs->AttachShader(bnpShaders->vert);
+			programs->BNPs->AttachShader(bnpShaders->geom);
+			programs->BNPs->AttachShader(bnpShaders->frag);
+			programs->BNPs->Link();
+			programs->BNPs->SaveProgramLog();
+			uniforms->MVPmatrixBNPs = programs->BNPs->getUniformLocation("MVPmatrix");
 
 			return true;
 		}

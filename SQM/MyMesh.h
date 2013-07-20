@@ -24,6 +24,10 @@ void drawMeshHalfEdgesWithArrows(MyMesh* mesh);
 void drawMeshHalfEdgesWithArrowsAndColor(MyMesh* mesh, float *c);
 void drawMeshHalfEdgesWithArrowsAndColor(MyTriMesh* mesh, float *c);
 
+void convertTriMeshToArray(MyTriMesh *mesh, std::vector<float> &points, std::vector<int> &indices);
+void convertMeshToArray(MyMesh *mesh, std::vector<float> &points, std::vector<int> &indices);
+void addToConvertedMeshArray(std::vector<int> &vertices, std::vector<int> &indices);
+
 void writeTriMesh(MyTriMesh* mesh);
 void writeTriMesh(MyTriMesh* mesh, std::string fileName);
 void writeMesh(MyMesh* mesh, std::string fileName);

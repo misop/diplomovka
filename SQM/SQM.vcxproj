@@ -169,6 +169,9 @@
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
+    <None Include="BNPFragShader.frag" />
+    <None Include="BNPGeomShader.geom" />
+    <None Include="BNPVertShader.vert" />
     <None Include="SklLineFragShader.frag" />
     <None Include="SklLineVertShader.vert" />
     <None Include="SklTessFragShader.frag" />
