@@ -169,10 +169,12 @@
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
-    <None Include="FragmentShader.frag" />
-    <None Include="TessControlShader.glsl" />
-    <None Include="TessEvalShader.glsl" />
-    <None Include="VertexShader.vert" />
+    <None Include="SklLineFragShader.frag" />
+    <None Include="SklLineVertShader.vert" />
+    <None Include="SklTessFragShader.frag" />
+    <None Include="SklTessCtrlShader.glsl" />
+    <None Include="SklTessEvalShader.glsl" />
+    <None Include="SklTessVertShader.vert" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

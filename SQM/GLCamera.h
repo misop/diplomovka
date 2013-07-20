@@ -47,6 +47,7 @@ public:
 	void calculateMatrices();
 
 	void lookFromCamera(GLint mvpLoc);
+	glm::mat4 cameraModelMatrix();
 	void reset();
 
 	void mousePositionTo3D(int x_cursor, int y_cursor, GLdouble &x, GLdouble &y, GLdouble &z);

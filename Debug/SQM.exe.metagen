@@ -28,11 +28,9 @@ Class OpenGLForm.COpenGL: AutoLayout, AnsiClass, Class, Public, BeforeFieldInit
     System.Drawing.Point lastPositionLeftMouse : Public
     GLCamera* glCamera : Public
     GLEventHandler* glEventHandler : Public
-    GLProgram* glProgram : Public
-    GLShader* vertexShader : Public
-    GLShader* tessControlShader : Public
-    GLShader* tessEvalShader : Public
-    GLShader* fragmentShader : Public
+    OpenGLPrograms* programs : Public
+    OpenGLShaders* sklTessShaders : Public
+    OpenGLShaders* sklLineShaders : Public
     GLArrayBuffer* arrayBuffer : Public
     ShaderUniforms* uniforms : Public
   Methods:

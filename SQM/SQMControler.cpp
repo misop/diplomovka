@@ -218,24 +218,27 @@ void SQMControler::setSelectedRadius(float radius) {
 
 #pragma region drawing
 
-void SQMControler::draw(ShaderUniforms *uniforms) {
+void SQMControler::draw(ShaderUniforms *uniforms, OpenGLPrograms *programs, GLCamera *camera) {
 	/*sqmALgorithm->draw();
 	if (selected != NULL) {
 	selected->draw(CVector3(0, 1, 0), CVector3(1, 1, 0));
 	}*/
-	glUniformMatrix4fv(uniforms->ModelMatrixLoc, 1, GL_FALSE, glm::value_ptr(glm::mat4()));
-	glUniform1i(uniforms->SelectedNodeLoc, 0);
-	glUniform1f(uniforms->TessLevelInner, 1.0);
-	glUniform1f(uniforms->TessLevelOuter, 1.0);
-    glPatchParameteri(GL_PATCH_VERTICES, 2);
-	if (buffer2) buffer1->DrawElement(0, GL_LINES);
-	
+	programs->SklLines->Use();
+	camera->lookFromCamera(uniforms->MVPmatrixSklLines);
+	if (buffer1) buffer1->DrawElement(0, GL_LINES);
+
+	programs->SklNodes->Use();
+	camera->lookFromCamera(uniforms->MVPmatrixSklNodes);
+	glUniformMatrix4fv(uniforms->ModelMatrix, 1, GL_FALSE, glm::value_ptr(camera->cameraModelMatrix()));
 	glUniform1f(uniforms->TessLevelInner, TESSELATION_LEVEL);
 	glUniform1f(uniforms->TessLevelOuter, TESSELATION_LEVEL);
-	
-    glPatchParameteri(GL_PATCH_VERTICES, 3);
+	glUniform1i(uniforms->CameraLoc, 1);
+	icosahedron->DrawElement(0, GL_PATCHES);
+
+	glPatchParameteri(GL_PATCH_VERTICES, 3);
+	glUniform1i(uniforms->CameraLoc, 0);
 	for (int i = 0; i < modelMatrices.size(); i++) {
-		glUniformMatrix4fv(uniforms->ModelMatrixLoc, 1, GL_FALSE, glm::value_ptr(modelMatrices[i]));
+		glUniformMatrix4fv(uniforms->ModelMatrix, 1, GL_FALSE, glm::value_ptr(modelMatrices[i]));
 		glUniform1i(uniforms->SelectedNodeLoc, (selectedIndex == i) ? 1 : 0);
 		icosahedron->DrawElement(0, GL_PATCHES);
 	}
@@ -249,26 +252,16 @@ void SQMControler::drawRefresh() {
 	buffer1 = new GLArrayBuffer();
 	buffer2 = new GLArrayBuffer();
 
-	vector<float> nodePoints;
+	vector<float> linePoints;
 	vector<int> lineIndices;
-	vector<float> lineColors;
-	drawSkeleton(nodePoints, lineIndices, modelMatrices);
-	//drawSkeletonNodes(nodePoints, nodeColors);
-	//drawSkeletonLines(lineIndices);
-
-	for (int i = 0; i < nodePoints.size(); i++) {
-		lineColors.push_back(0.0);
-		lineColors.push_back(1.0);
-		lineColors.push_back(0.0);
-	}
+	drawSkeleton(linePoints, lineIndices);
 
 	buffer1->Bind();
-	buffer1->BindBufferData(nodePoints, 3, GL_STATIC_DRAW);
-	buffer1->BindBufferData(lineColors, 3, GL_STATIC_DRAW);
+	buffer1->BindBufferData(linePoints, 3, GL_STATIC_DRAW);
 	buffer1->BindElement(lineIndices, GL_STATIC_DRAW);
 }
 
-void SQMControler::drawSkeleton(vector<float> &points, vector<int> &indices, vector<glm::mat4> &modelMatrices) {
+void SQMControler::drawSkeleton(vector<float> &points, vector<int> &indices) {
 	deque<SQMNode*> queue;
 	queue.push_back(sqmALgorithm->getRoot());
 	//*3 for number of elements
@@ -287,6 +280,7 @@ void SQMControler::drawSkeleton(vector<float> &points, vector<int> &indices, vec
 		queue.pop_front();
 
 		OpenMesh::Vec3f position = node->getPosition();
+		glm::vec3 pos(position[0], position[1], position[2]);
 		float radius = node->getNodeRadius();
 		//create and store model matrix
 		glm::mat4 modelMatrix;
@@ -303,71 +297,14 @@ void SQMControler::drawSkeleton(vector<float> &points, vector<int> &indices, vec
 		vector<SQMNode*> *childs = node->getNodes();
 		for (int i = 0; i < childs->size(); i++) {
 			SQMNode *child = (*childs)[i];
+			OpenMesh::Vec3f childPosition = child->getPosition();
+			glm::vec3 childPos(childPosition[0], childPosition[1], childPosition[2]);
 			indices.push_back(index);
 			//index of current + all nodes before + self
 			indices.push_back(index + queue.size() + 1);
 			queue.push_back(child);
 		}
 
-		index++;
-	}
-}
-
-void SQMControler::drawSkeletonNodes(vector<float> &points, vector<float> &colors) {
-	deque<SQMNode*> queue;
-	queue.push_back(sqmALgorithm->getRoot());
-	//*3 for number of elements
-	points.reserve(3*sqmALgorithm->getNumberOfNodes());
-	colors.reserve(3*sqmALgorithm->getNumberOfNodes());
-
-	points.clear();
-	colors.clear();
-
-	while (!queue.empty()) {
-		SQMNode *node = queue.front();
-		queue.pop_front();
-
-		OpenMesh::Vec3f position = node->getPosition();
-		points.push_back(position[0]);
-		points.push_back(position[1]);
-		points.push_back(position[2]);
-
-		colors.push_back(1.0);
-		if (node == selected) {
-			colors.push_back(1.0);
-		} else {
-			colors.push_back(0.0);
-		}
-		colors.push_back(0.0);
-
-		vector<SQMNode*> *childs = node->getNodes();
-		for (int i = 0; i < childs->size(); i++) {
-			queue.push_back((*childs)[i]);
-		}
-	}
-}
-
-void SQMControler::drawSkeletonLines(std::vector<int> &indices) {
-	deque<SQMNode*> queue;
-	queue.push_back(sqmALgorithm->getRoot());
-	//*3 for number of elements; *2 because each nodes has one incoming and one outgoing line
-	indices.reserve(3*sqmALgorithm->getNumberOfNodes()*2);
-
-	indices.clear();
-
-	int index = 0;
-	while (!queue.empty()) {
-		SQMNode *node = queue.front();
-		queue.pop_front();
-
-		vector<SQMNode*> *childs = node->getNodes();
-		for (int i = 0; i < childs->size(); i++) {
-			SQMNode *child = (*childs)[i];
-			indices.push_back(index);
-			//index of current + all nodes before + self
-			indices.push_back(index + queue.size() + 1);
-			queue.push_back(child);
-		}
 		index++;
 	}
 }

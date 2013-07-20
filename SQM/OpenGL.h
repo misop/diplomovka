@@ -36,11 +36,9 @@ namespace OpenGLForm
 		System::Drawing::Point lastPositionLeftMouse;
 		GLCamera *glCamera;
 		GLEventHandler *glEventHandler;
-		GLProgram *glProgram;
-		GLShader *vertexShader;
-		GLShader *tessControlShader;
-		GLShader *tessEvalShader;
-		GLShader *fragmentShader;
+		OpenGLPrograms *programs;
+		OpenGLShaders *sklTessShaders;
+		OpenGLShaders *sklLineShaders;
 		GLArrayBuffer *arrayBuffer;
 		ShaderUniforms *uniforms;
 #pragma endregion
@@ -52,6 +50,9 @@ namespace OpenGLForm
 			glCamera = new GLCamera();
 			glEventHandler = new GLEventHandler(glCamera, sqmControler);
 			uniforms = new ShaderUniforms();
+			programs = new OpenGLPrograms();
+			sklTessShaders = new OpenGLShaders();
+			sklLineShaders = new OpenGLShaders();
 
 			/*CreateParams^ cp = gcnew CreateParams;
 			// Set the position on the form
@@ -151,9 +152,7 @@ namespace OpenGLForm
 			//arrayBuffer->Draw(GL_TRIANGLES);
 			//arrayBuffer->Draw(GL_POINTS);
 
-			glCamera->lookFromCamera(uniforms->MVPmatrixLoc);
-
-			sqmControler->draw(uniforms);
+			sqmControler->draw(uniforms, programs, glCamera);
 
 			glBindVertexArray(0);
 		}
@@ -177,11 +176,9 @@ namespace OpenGLForm
 			delete sqmControler;
 			delete glCamera;
 			delete glEventHandler;
-			delete vertexShader;
-			delete tessControlShader;
-			delete tessEvalShader;
-			delete fragmentShader;
-			delete glProgram;
+			delete sklTessShaders;
+			delete sklLineShaders;
+			delete programs;
 			delete arrayBuffer;
 		}
 
@@ -282,39 +279,57 @@ namespace OpenGLForm
 		}
 
 		bool InitShaders() {
-			vertexShader = new GLShader(GL_VERTEX_SHADER);
-			vertexShader->Load("VertexShader.vert");
-			vertexShader->Compile();
-			vertexShader->SaveShaderLog();
+			//skeleton node drawing
+			sklTessShaders->vert = new GLShader(GL_VERTEX_SHADER);
+			sklTessShaders->vert->Load("SklTessVertShader.vert");
+			sklTessShaders->vert->Compile();
+			sklTessShaders->vert->SaveShaderLog();
 
-			tessControlShader = new GLShader(GL_TESS_CONTROL_SHADER);
-			tessControlShader->Load("TessControlShader.glsl");
-			tessControlShader->Compile();
-			tessControlShader->SaveShaderLog();
+			sklTessShaders->ctrl = new GLShader(GL_TESS_CONTROL_SHADER);
+			sklTessShaders->ctrl->Load("SklTessCtrlShader.glsl");
+			sklTessShaders->ctrl->Compile();
+			sklTessShaders->ctrl->SaveShaderLog();
 
-			tessEvalShader = new GLShader(GL_TESS_EVALUATION_SHADER);
-			tessEvalShader->Load("TessEvalShader.glsl");
-			tessEvalShader->Compile();
-			tessEvalShader->SaveShaderLog();
+			sklTessShaders->eval = new GLShader(GL_TESS_EVALUATION_SHADER);
+			sklTessShaders->eval->Load("SklTessEvalShader.glsl");
+			sklTessShaders->eval->Compile();
+			sklTessShaders->eval->SaveShaderLog();
 
-			fragmentShader = new GLShader(GL_FRAGMENT_SHADER);
-			fragmentShader->Load("FragmentShader.frag");
-			fragmentShader->Compile();
-			fragmentShader->SaveShaderLog();
+			sklTessShaders->frag = new GLShader(GL_FRAGMENT_SHADER);
+			sklTessShaders->frag->Load("SklTessFragShader.frag");
+			sklTessShaders->frag->Compile();
+			sklTessShaders->frag->SaveShaderLog();
 
-			glProgram = new GLProgram();
-			glProgram->AttachShader(vertexShader);
-			glProgram->AttachShader(tessControlShader);
-			glProgram->AttachShader(tessEvalShader);
-			glProgram->AttachShader(fragmentShader);
-			glProgram->Link();
-			glProgram->SaveProgramLog();
-			glProgram->Use();
-			uniforms->MVPmatrixLoc = glProgram->getUniformLocation("MVPmatrix");
-			uniforms->ModelMatrixLoc = glProgram->getUniformLocation("ModelMatrix");
-			uniforms->SelectedNodeLoc = glProgram->getUniformLocation("SelectedNode");
-			uniforms->TessLevelInner = glProgram->getUniformLocation("TessLevelInner");
-			uniforms->TessLevelOuter = glProgram->getUniformLocation("TessLevelOuter");
+			programs->SklNodes = new GLProgram();
+			programs->SklNodes->AttachShader(sklTessShaders->vert);
+			programs->SklNodes->AttachShader(sklTessShaders->ctrl);
+			programs->SklNodes->AttachShader(sklTessShaders->eval);
+			programs->SklNodes->AttachShader(sklTessShaders->frag);
+			programs->SklNodes->Link();
+			programs->SklNodes->SaveProgramLog();
+			uniforms->MVPmatrixSklNodes = programs->SklNodes->getUniformLocation("MVPmatrix");
+			uniforms->ModelMatrix = programs->SklNodes->getUniformLocation("ModelMatrix");
+			uniforms->SelectedNodeLoc = programs->SklNodes->getUniformLocation("SelectedNode");
+			uniforms->TessLevelInner = programs->SklNodes->getUniformLocation("TessLevelInner");
+			uniforms->TessLevelOuter = programs->SklNodes->getUniformLocation("TessLevelOuter");
+			uniforms->CameraLoc = programs->SklNodes->getUniformLocation("CameraPos");
+			//skeleton line drawing
+			sklLineShaders->vert = new GLShader(GL_VERTEX_SHADER);
+			sklLineShaders->vert->Load("SklLineVertShader.vert");
+			sklLineShaders->vert->Compile();
+			sklLineShaders->vert->SaveShaderLog();
+
+			sklLineShaders->frag = new GLShader(GL_FRAGMENT_SHADER);
+			sklLineShaders->frag->Load("SklLineFragShader.frag");
+			sklLineShaders->frag->Compile();
+			sklLineShaders->frag->SaveShaderLog();
+
+			programs->SklLines = new GLProgram();
+			programs->SklLines->AttachShader(sklLineShaders->vert);
+			programs->SklLines->AttachShader(sklLineShaders->frag);
+			programs->SklLines->Link();
+			programs->SklLines->SaveProgramLog();
+			uniforms->MVPmatrixSklLines = programs->SklLines->getUniformLocation("MVPmatrix");
 
 			return true;
 		}
@@ -333,7 +348,6 @@ namespace OpenGLForm
 			col[6] = 0.0; col[7] = 0.0; col[8] = 1.0;*/
 			std::vector<float> vert;
 			std::vector<float> col;
-			sqmControler->drawSkeletonNodes(vert, col);
 
 			arrayBuffer->Bind();
 			arrayBuffer->BindBufferData(vert, 3, GL_STATIC_DRAW);

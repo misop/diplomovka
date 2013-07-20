@@ -4,6 +4,7 @@
 #include <gtc\matrix_transform.hpp>
 #include "SQMAlgorithm.h"
 #include "GLArrayBuffer.h"
+#include "GLCamera.h"
 
 using namespace std;
 
@@ -44,10 +45,8 @@ public:
 	void setSelectedZ(float z);
 	void setSelectedRadius(float radius);
 
-	void draw(ShaderUniforms *uniforms);
-	void drawSkeleton(std::vector<float> &points, std::vector<int> &indices, std::vector<glm::mat4> &modelMatrices);
-	void drawSkeletonNodes(std::vector<float> &points, std::vector<float> &colors);
-	void drawSkeletonLines(std::vector<int> &indices);
+	void draw(ShaderUniforms *uniforms, OpenGLPrograms *programs, GLCamera *camera);
+	void drawSkeleton(std::vector<float> &points, std::vector<int> &indices);
 	void drawRefresh();
 	void getBoundingSphere(float &x, float &y, float &z, float &d);
 	void createIcosahedron();

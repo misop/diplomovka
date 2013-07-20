@@ -187,16 +187,22 @@
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
-    <None Include="FragmentShader.frag">
+    <None Include="SklTessFragShader.frag">
       <Filter>Shaders</Filter>
     </None>
-    <None Include="VertexShader.vert">
+    <None Include="SklTessCtrlShader.glsl">
       <Filter>Shaders</Filter>
     </None>
-    <None Include="TessControlShader.glsl">
+    <None Include="SklTessEvalShader.glsl">
       <Filter>Shaders</Filter>
     </None>
-    <None Include="TessEvalShader.glsl">
+    <None Include="SklTessVertShader.vert">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="SklLineFragShader.frag">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="SklLineVertShader.vert">
       <Filter>Shaders</Filter>
     </None>
   </ItemGroup>

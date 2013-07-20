@@ -149,6 +149,14 @@ void GLCamera::lookFromCamera(GLint mvpLoc) {
 	glColor3f(1, 0, 1);*/
 }
 
+glm::mat4 GLCamera::cameraModelMatrix() {
+	glm::mat4 modelMatrix;
+	modelMatrix = glm::translate(modelMatrix, glm::vec3(look[X], look[Y], look[Z]));
+	modelMatrix = glm::scale(modelMatrix, glm::vec3(5.0));
+
+	return modelMatrix;
+}
+
 void GLCamera::reset() {
 	fi = 0;
 	theta = 90;
