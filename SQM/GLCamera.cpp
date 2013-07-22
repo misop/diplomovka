@@ -28,6 +28,7 @@ GLCamera::GLCamera(void) {
 	right[X] = 1;
 	right[Y] = 0;
 	right[Z] = 0;*/
+	color[0] = 0.9; color[1] = 0.45; color[2] = 0.0;
 	width = 1;
 	height = 1;
 	viewport = glm::vec4(0, 0, width, height);

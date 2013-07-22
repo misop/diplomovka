@@ -1,11 +1,23 @@
 #pragma once
 #include "GLShader.h"
 
+struct ProgramUniforms {
+	GLint MVPmatrix;
+	GLint ModelMatrix;
+	GLint AmbientColor;
+	GLint DiffuseColor;
+	GLint SpecularColor;
+	GLint TessLevelInner;
+	GLint TessLevelOuter;
+};
+
 class GLProgram
 {
 private:
 	GLuint program;
 public:
+	ProgramUniforms uniforms;
+
 	GLProgram(void);
 	~GLProgram(void);
 

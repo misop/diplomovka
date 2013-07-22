@@ -33,7 +33,6 @@ Class OpenGLForm.COpenGL: AutoLayout, AnsiClass, Class, Public, BeforeFieldInit
     OpenGLShaders* sklLineShaders : Public
     OpenGLShaders* bnpShaders : Public
     GLArrayBuffer* arrayBuffer : Public
-    ShaderUniforms* uniforms : Public
   Methods:
     Render(): PrivateScope, Public, HideBySig
     SwapOpenGLBuffers(): PrivateScope, Public, HideBySig

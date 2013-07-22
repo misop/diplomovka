@@ -1,9 +1,6 @@
 #version 410
 
 layout(triangles, equal_spacing, cw) in;
-in vec3 tcColor[];
-
-out vec3 teColor;
 
 uniform mat4 MVPmatrix;
 uniform mat4 ModelMatrix;
@@ -20,5 +17,4 @@ void main()
 	gl_Position = MVPmatrix * (ModelMatrix * vec4(position, 1));
     //gl_Position = MVPmatrix * ModelMatrix * vec4(tePosition, 1);
     //gl_Position = vec4(tePosition, 1);
-    teColor = gl_TessCoord.x * tcColor[0] + gl_TessCoord.y * tcColor[1] + gl_TessCoord.z * tcColor[2];
 }

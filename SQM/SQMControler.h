@@ -13,7 +13,6 @@ class SQMControler
 private:
 	SQMAlgorithm *sqmALgorithm;
 	GLArrayBuffer *buffer1;
-	GLArrayBuffer *buffer2;
 	GLArrayBuffer *icosahedron;
 	vector<glm::mat4> modelMatrices;
 	int selectedIndex;
@@ -46,16 +45,16 @@ public:
 	void setSelectedRadius(float radius);
 	SQMNode* getSelected();
 	
-	void draw(ShaderUniforms *uniforms, OpenGLPrograms *programs, GLCamera *camera);
-	void drawSkeleton(ShaderUniforms *uniforms, OpenGLPrograms *programs, GLCamera *camera);
+	void draw(OpenGLPrograms *programs, GLCamera *camera);
+	void drawSkeleton(OpenGLPrograms *programs, GLCamera *camera);
+	void drawSkeleton();
 	void drawSkeleton(std::vector<float> &points, std::vector<int> &indices);
-	void drawBNPs(ShaderUniforms *uniforms, OpenGLPrograms *programs, GLCamera *camera);
+	void drawBNPs(OpenGLPrograms *programs, GLCamera *camera);
 	void drawBNPs();
-	void drawMesh(ShaderUniforms *uniforms, OpenGLPrograms *programs, GLCamera *camera);
+	void drawMesh(OpenGLPrograms *programs, GLCamera *camera);
 	void drawMesh();
-	void drawMeshForTesselation(ShaderUniforms *uniforms, OpenGLPrograms *programs, GLCamera *camera);
+	void drawMeshForTesselation(OpenGLPrograms *programs, GLCamera *camera);
 	void drawMeshForTesselation();
-	void drawRefresh();
 	void getBoundingSphere(float &x, float &y, float &z, float &d);
 	void createIcosahedron();
 };

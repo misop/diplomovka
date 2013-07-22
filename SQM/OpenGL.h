@@ -41,7 +41,6 @@ namespace OpenGLForm
 		OpenGLShaders *sklLineShaders;
 		OpenGLShaders *bnpShaders;
 		GLArrayBuffer *arrayBuffer;
-		ShaderUniforms *uniforms;
 #pragma endregion
 
 #pragma region Inits
@@ -50,7 +49,6 @@ namespace OpenGLForm
 			sqmControler = new SQMControler();
 			glCamera = new GLCamera();
 			glEventHandler = new GLEventHandler(glCamera, sqmControler);
-			uniforms = new ShaderUniforms();
 			programs = new OpenGLPrograms();
 			sklTessShaders = new OpenGLShaders();
 			sklLineShaders = new OpenGLShaders();
@@ -85,7 +83,7 @@ namespace OpenGLForm
 			rtri = 0.0f;
 			rquad = 0.0f;
 			sqmControler->createIcosahedron();
-			sqmControler->drawRefresh();
+			sqmControler->drawSkeleton();
 		}
 
 		COpenGL(System::Windows::Forms::Form ^ parentForm, GLsizei iWidth, GLsizei iHeight)
@@ -154,7 +152,7 @@ namespace OpenGLForm
 			//arrayBuffer->Draw(GL_TRIANGLES);
 			//arrayBuffer->Draw(GL_POINTS);
 
-			sqmControler->draw(uniforms, programs, glCamera);
+			sqmControler->draw(programs, glCamera);
 
 			glBindVertexArray(0);
 		}
@@ -174,7 +172,6 @@ namespace OpenGLForm
 		~COpenGL(System::Void)
 		{
 			this->DestroyHandle();
-			delete uniforms;
 			delete sqmControler;
 			delete glCamera;
 			delete glEventHandler;
@@ -306,12 +303,11 @@ namespace OpenGLForm
 			programs->SklNodes->AttachShader(sklTessShaders->frag);
 			programs->SklNodes->Link();
 			programs->SklNodes->SaveProgramLog();
-			uniforms->MVPmatrixSklNodes = programs->SklNodes->getUniformLocation("MVPmatrix");
-			uniforms->ModelMatrix = programs->SklNodes->getUniformLocation("ModelMatrix");
-			uniforms->SelectedNodeLoc = programs->SklNodes->getUniformLocation("SelectedNode");
-			uniforms->TessLevelInner = programs->SklNodes->getUniformLocation("TessLevelInner");
-			uniforms->TessLevelOuter = programs->SklNodes->getUniformLocation("TessLevelOuter");
-			uniforms->CameraLoc = programs->SklNodes->getUniformLocation("CameraPos");
+			programs->SklNodes->uniforms.MVPmatrix = programs->SklNodes->getUniformLocation("MVPmatrix");
+			programs->SklNodes->uniforms.ModelMatrix = programs->SklNodes->getUniformLocation("ModelMatrix");
+			programs->SklNodes->uniforms.TessLevelInner = programs->SklNodes->getUniformLocation("TessLevelInner");
+			programs->SklNodes->uniforms.TessLevelOuter = programs->SklNodes->getUniformLocation("TessLevelOuter");
+			programs->SklNodes->uniforms.DiffuseColor = programs->SklNodes->getUniformLocation("DiffuseColor");
 			//skeleton line drawing
 			sklLineShaders->vert = new GLShader(GL_VERTEX_SHADER);
 			sklLineShaders->vert->Load("SklLineVertShader.vert");
@@ -326,7 +322,7 @@ namespace OpenGLForm
 			programs->SklLines->AttachShader(sklLineShaders->frag);
 			programs->SklLines->Link();
 			programs->SklLines->SaveProgramLog();
-			uniforms->MVPmatrixSklLines = programs->SklLines->getUniformLocation("MVPmatrix");
+			programs->SklLines->uniforms.MVPmatrix = programs->SklLines->getUniformLocation("MVPmatrix");
 			//BNP drawing
 			bnpShaders->vert = new GLShader(GL_VERTEX_SHADER);
 			bnpShaders->vert->Load("BNPVertShader.vert");
@@ -346,7 +342,7 @@ namespace OpenGLForm
 			programs->BNPs->AttachShader(bnpShaders->frag);
 			programs->BNPs->Link();
 			programs->BNPs->SaveProgramLog();
-			uniforms->MVPmatrixBNPs = programs->BNPs->getUniformLocation("MVPmatrix");
+			programs->BNPs->uniforms.MVPmatrix = programs->BNPs->getUniformLocation("MVPmatrix");
 
 			return true;
 		}

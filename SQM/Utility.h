@@ -5,17 +5,6 @@
 #include "GLProgram.h"
 #include "GLShader.h"
 
-struct ShaderUniforms {
-	GLint MVPmatrixSklLines;
-	GLint MVPmatrixSklNodes;
-	GLint MVPmatrixBNPs;
-	GLint ModelMatrix;
-	GLint SelectedNodeLoc;
-	GLint TessLevelInner;
-	GLint TessLevelOuter;
-	GLint CameraLoc;
-};
-
 struct OpenGLPrograms {
 	GLProgram *SklLines;
 	GLProgram *SklNodes;

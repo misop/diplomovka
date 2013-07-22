@@ -33,6 +33,7 @@ public:
 	float look[3];
 	float up[3];
 	float right[3];
+	float color[3];
 
 	void setFi(float newFi);
 	void setTheta(float newTheta);

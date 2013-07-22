@@ -20,7 +20,6 @@ SQMControler::SQMControler(void)
 	sqmALgorithm = new SQMAlgorithm();
 	selected = NULL;
 	buffer1 = NULL;
-	buffer2 = NULL;
 	icosahedron = NULL;
 	selectedIndex = -1;
 }
@@ -31,7 +30,6 @@ SQMControler::~SQMControler(void)
 	delete sqmALgorithm;
 	if (icosahedron) delete icosahedron;
 	if (buffer1) delete buffer1;
-	if (buffer2) delete buffer2;
 }
 
 #pragma region Saving and Loading
@@ -42,7 +40,7 @@ void SQMControler::newFile() {
 		delete sqmALgorithm;
 	}
 	sqmALgorithm = new SQMAlgorithm();
-	drawRefresh();
+	drawSkeleton();
 }
 
 void SQMControler::loadSkeletonFromFile(string fileName) {
@@ -65,7 +63,7 @@ void SQMControler::loadSkeletonFromFile(string fileName) {
 	sqmALgorithm = new SQMAlgorithm();
 	sqmALgorithm->setRoot(sqmNode);
 	delete node;
-	drawRefresh();
+	drawSkeleton();
 }
 
 void SQMControler::saveSkeletonToFile(string fileName) {
@@ -139,7 +137,7 @@ bool SQMControler::selectNodeInRay(OpenMesh::Vec3f position, OpenMesh::Vec3f dir
 
 	if (selected != tempClosest) {
 		selected = tempClosest;
-		drawRefresh();
+		drawSkeleton();
 	}
 
 	return selected != NULL;
@@ -196,82 +194,81 @@ void SQMControler::computeConvexHull() {
 void SQMControler::insertNode(float x, float y, float z) {
 	selected->addDescendant(x, y, z);
 	sqmALgorithm->setNumberOfNodes(sqmALgorithm->getNumberOfNodes() + 1);
-	drawRefresh();
+	drawSkeleton();
 }
 
 void SQMControler::setSelectedPosition(OpenMesh::Vec3f pos) {
 	selected->setPosition(pos);
-	drawRefresh();
+	drawSkeleton();
 }
 void SQMControler::setSelectedX(float x) {
 	selected->setX(x);
-	drawRefresh();
+	drawSkeleton();
 }
 
 void SQMControler::setSelectedY(float y) {
 	selected->setY(y);
-	drawRefresh();
+	drawSkeleton();
 }
 
 void SQMControler::setSelectedZ(float z) {
 	selected->setZ(z);
-	drawRefresh();
+	drawSkeleton();
 }
 
 void SQMControler::setSelectedRadius(float radius) {
 	selected->setNodeRadius(radius);
-	drawRefresh();
+	drawSkeleton();
 }
 
 #pragma region drawing
 
-void SQMControler::draw(ShaderUniforms *uniforms, OpenGLPrograms *programs, GLCamera *camera) {
+void SQMControler::draw(OpenGLPrograms *programs, GLCamera *camera) {
 	SQMState state = sqmALgorithm->getState();
 	if (state == SQMStart || state == SQMStraighten) {
-		drawSkeleton(uniforms, programs, camera);
+		drawSkeleton(programs, camera);
 	}
 	if (state == SQMComputeConvexHull || state == SQMSubdivideConvexHull) {
-		drawBNPs(uniforms, programs, camera);
+		drawBNPs(programs, camera);
 	}
 	if (state == SQMJoinBNPs || state == SQMFinalPlacement) {
-		drawMesh(uniforms, programs, camera);
+		drawMesh(programs, camera);
 	}
 }
 
-void SQMControler::drawSkeleton(ShaderUniforms *uniforms, OpenGLPrograms *programs, GLCamera *camera) {
+void SQMControler::drawSkeleton(OpenGLPrograms *programs, GLCamera *camera) {
 	programs->SklLines->Use();
-	camera->lookFromCamera(uniforms->MVPmatrixSklLines);
+	camera->lookFromCamera(programs->SklLines->uniforms.MVPmatrix);
 	if (buffer1) buffer1->DrawElement(0, GL_LINES);
 
 	programs->SklNodes->Use();
-	camera->lookFromCamera(uniforms->MVPmatrixSklNodes);
-	glUniformMatrix4fv(uniforms->ModelMatrix, 1, GL_FALSE, glm::value_ptr(camera->cameraModelMatrix()));
-	glUniform1f(uniforms->TessLevelInner, TESSELATION_LEVEL);
-	glUniform1f(uniforms->TessLevelOuter, TESSELATION_LEVEL);
-	glUniform1i(uniforms->CameraLoc, 1);
+	camera->lookFromCamera(programs->SklNodes->uniforms.MVPmatrix);
+	glUniformMatrix4fv(programs->SklNodes->uniforms.ModelMatrix, 1, GL_FALSE, glm::value_ptr(camera->cameraModelMatrix()));
+	glUniform1f(programs->SklNodes->uniforms.TessLevelInner, TESSELATION_LEVEL);
+	glUniform1f(programs->SklNodes->uniforms.TessLevelOuter, TESSELATION_LEVEL);
+	glUniform3fv(programs->SklNodes->uniforms.DiffuseColor, 1, camera->color);
 	icosahedron->DrawElement(0, GL_PATCHES);
 
 	glPatchParameteri(GL_PATCH_VERTICES, 3);
-	glUniform1i(uniforms->CameraLoc, 0);
 	for (int i = 0; i < modelMatrices.size(); i++) {
-		glUniformMatrix4fv(uniforms->ModelMatrix, 1, GL_FALSE, glm::value_ptr(modelMatrices[i]));
-		glUniform1i(uniforms->SelectedNodeLoc, (selectedIndex == i) ? 1 : 0);
+		glUniformMatrix4fv(programs->SklNodes->uniforms.ModelMatrix, 1, GL_FALSE, glm::value_ptr(modelMatrices[i]));
+		glUniform3f(programs->SklNodes->uniforms.DiffuseColor, 1.0, (selectedIndex == i) ? 1.0 : 0.0, 0.0);
 		icosahedron->DrawElement(0, GL_PATCHES);
 	}
 }
 
-void SQMControler::drawBNPs(ShaderUniforms *uniforms, OpenGLPrograms *programs, GLCamera *camera) {
+void SQMControler::drawBNPs(OpenGLPrograms *programs, GLCamera *camera) {
 	//show camera
 	programs->SklNodes->Use();
-	camera->lookFromCamera(uniforms->MVPmatrixSklNodes);
-	glUniformMatrix4fv(uniforms->ModelMatrix, 1, GL_FALSE, glm::value_ptr(camera->cameraModelMatrix()));
-	glUniform1f(uniforms->TessLevelInner, TESSELATION_LEVEL);
-	glUniform1f(uniforms->TessLevelOuter, TESSELATION_LEVEL);
-	glUniform1i(uniforms->CameraLoc, 1);
+	camera->lookFromCamera(programs->SklNodes->uniforms.MVPmatrix);
+	glUniformMatrix4fv(programs->SklNodes->uniforms.ModelMatrix, 1, GL_FALSE, glm::value_ptr(camera->cameraModelMatrix()));
+	glUniform1f(programs->SklNodes->uniforms.TessLevelInner, TESSELATION_LEVEL);
+	glUniform1f(programs->SklNodes->uniforms.TessLevelOuter, TESSELATION_LEVEL);
+	glUniform3fv(programs->SklNodes->uniforms.DiffuseColor, 1, camera->color);
 	icosahedron->DrawElement(0, GL_PATCHES);
 	//draw BNPs
 	programs->BNPs->Use();
-	camera->lookFromCamera(uniforms->MVPmatrixBNPs);
+	camera->lookFromCamera(programs->BNPs->uniforms.MVPmatrix);
 	buffer1->DrawElement(0, GL_TRIANGLES);
 }
 
@@ -304,36 +301,36 @@ void SQMControler::drawBNPs() {
 	buffer1->BindElement(indices, GL_STATIC_DRAW);
 }
 
-void SQMControler::drawMesh(ShaderUniforms *uniforms, OpenGLPrograms *programs, GLCamera *camera) {
+void SQMControler::drawMesh(OpenGLPrograms *programs, GLCamera *camera) {
 	//show camera
 	programs->SklNodes->Use();
-	camera->lookFromCamera(uniforms->MVPmatrixSklNodes);
-	glUniformMatrix4fv(uniforms->ModelMatrix, 1, GL_FALSE, glm::value_ptr(camera->cameraModelMatrix()));
-	glUniform1f(uniforms->TessLevelInner, TESSELATION_LEVEL);
-	glUniform1f(uniforms->TessLevelOuter, TESSELATION_LEVEL);
-	glUniform1i(uniforms->CameraLoc, 1);
+	camera->lookFromCamera(programs->SklNodes->uniforms.MVPmatrix);
+	glUniformMatrix4fv(programs->SklNodes->uniforms.ModelMatrix, 1, GL_FALSE, glm::value_ptr(camera->cameraModelMatrix()));
+	glUniform1f(programs->SklNodes->uniforms.TessLevelInner, TESSELATION_LEVEL);
+	glUniform1f(programs->SklNodes->uniforms.TessLevelOuter, TESSELATION_LEVEL);
+	glUniform3fv(programs->SklNodes->uniforms.DiffuseColor, 1, camera->color);
 	icosahedron->DrawElement(0, GL_PATCHES);
 	//draw BNPs
 	programs->BNPs->Use();
-	camera->lookFromCamera(uniforms->MVPmatrixBNPs);
+	camera->lookFromCamera(programs->BNPs->uniforms.MVPmatrix);
 	buffer1->DrawElement(0, GL_TRIANGLES);
 }
 
-void SQMControler::drawMeshForTesselation(ShaderUniforms *uniforms, OpenGLPrograms *programs, GLCamera *camera) {
+void SQMControler::drawMeshForTesselation(OpenGLPrograms *programs, GLCamera *camera) {
 	//show camera
 	programs->SklNodes->Use();
-	camera->lookFromCamera(uniforms->MVPmatrixSklNodes);
-	glUniformMatrix4fv(uniforms->ModelMatrix, 1, GL_FALSE, glm::value_ptr(camera->cameraModelMatrix()));
-	glUniform1f(uniforms->TessLevelInner, TESSELATION_LEVEL);
-	glUniform1f(uniforms->TessLevelOuter, TESSELATION_LEVEL);
-	glUniform1i(uniforms->CameraLoc, 1);
+	camera->lookFromCamera(programs->SklNodes->uniforms.MVPmatrix);
+	glUniformMatrix4fv(programs->SklNodes->uniforms.ModelMatrix, 1, GL_FALSE, glm::value_ptr(camera->cameraModelMatrix()));
+	glUniform1f(programs->SklNodes->uniforms.TessLevelInner, TESSELATION_LEVEL);
+	glUniform1f(programs->SklNodes->uniforms.TessLevelOuter, TESSELATION_LEVEL);
+	glUniform3fv(programs->SklNodes->uniforms.DiffuseColor, 1, camera->color);
 	icosahedron->DrawElement(0, GL_PATCHES);
 	//draw BNPs
 	//TODO:: tesselation shader for triangle mesh parts
-	camera->lookFromCamera(uniforms->MVPmatrixBNPs);
+	camera->lookFromCamera(programs->BNPs->uniforms.MVPmatrix);
 	buffer1->DrawElement(0, GL_PATCHES);
 	//TODO:: teselation shaders for quad mesh parts
-	camera->lookFromCamera(uniforms->MVPmatrixBNPs);
+	camera->lookFromCamera(programs->BNPs->uniforms.MVPmatrix);
 	buffer1->DrawElement(1, GL_PATCHES);
 }
 
@@ -350,14 +347,12 @@ void SQMControler::drawMesh() {
 	buffer1->BindElement(indices, GL_STATIC_DRAW);
 }
 
-void SQMControler::drawRefresh() {
+void SQMControler::drawSkeleton() {
 	//return if we are not drawing skeleton
 	if (!(sqmALgorithm->getState() == SQMStart || sqmALgorithm->getState() == SQMStraighten)) return;
 	if (buffer1) delete buffer1;
-	if (buffer2) delete buffer2;
 
 	buffer1 = new GLArrayBuffer();
-	buffer2 = new GLArrayBuffer();
 
 	vector<float> linePoints;
 	vector<int> lineIndices;
@@ -487,8 +482,6 @@ void SQMControler::createIcosahedron() {
 
 	vector<float> points;
 	points.assign(vertices, vertices + 36);
-	vector<float> colors;
-	colors.assign(vetriceColors, vetriceColors + 36);
 	vector<int> indices;
 	indices.assign(faces, faces + 60);
 
@@ -497,7 +490,6 @@ void SQMControler::createIcosahedron() {
 
 	icosahedron->Bind();
 	icosahedron->BindBufferData(points, 3, GL_STATIC_DRAW);
-	icosahedron->BindBufferData(colors, 3, GL_STATIC_DRAW);
 	icosahedron->BindElement(indices, GL_STATIC_DRAW);
 }
 
@@ -519,7 +511,7 @@ void SQMControler::executeSQMAlgorithm() {
 
 void SQMControler::executeSQMAlgorithm(SQMState state) {
 	sqmALgorithm->executeSQMAlgorithm(state);
-	drawRefresh();
+	drawSkeleton();
 	if (state == SQMComputeConvexHull || state == SQMSubdivideConvexHull) drawBNPs();
 	if (state == SQMJoinBNPs || state == SQMFinalPlacement) drawMesh();
 }
