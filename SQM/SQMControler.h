@@ -44,6 +44,7 @@ public:
 	void setSelectedY(float y);
 	void setSelectedZ(float z);
 	void setSelectedRadius(float radius);
+	SQMNode* getSelected();
 	
 	void draw(ShaderUniforms *uniforms, OpenGLPrograms *programs, GLCamera *camera);
 	void drawSkeleton(ShaderUniforms *uniforms, OpenGLPrograms *programs, GLCamera *camera);
@@ -52,6 +53,8 @@ public:
 	void drawBNPs();
 	void drawMesh(ShaderUniforms *uniforms, OpenGLPrograms *programs, GLCamera *camera);
 	void drawMesh();
+	void drawMeshForTesselation(ShaderUniforms *uniforms, OpenGLPrograms *programs, GLCamera *camera);
+	void drawMeshForTesselation();
 	void drawRefresh();
 	void getBoundingSphere(float &x, float &y, float &z, float &d);
 	void createIcosahedron();

@@ -555,7 +555,7 @@ namespace OpenGLForm
 	public:
 		//Getters
 		SQMNode* getSelected() {
-			return sqmControler->selected;
+			return sqmControler->getSelected();
 		}
 		//functions
 		void newFile() {

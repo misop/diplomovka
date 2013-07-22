@@ -29,7 +29,7 @@ void GLEventHandler::mouseDown(int positionX, int positionY, int mouseFlags) {
 
 		sqmControler->selectNodeInRay(glCamera->getEye(), dir);
 	}
-	if (state == NodeEditState && mouse == MIDDLE_MOUSE_DOWN && sqmControler->selected != NULL) {
+	if (state == NodeEditState && mouse == MIDDLE_MOUSE_DOWN && sqmControler->getSelected() != NULL) {
 		GLdouble x = 0, y = 0, z = 0;
 		//bool sucess = mousePositionTo3D(positionX, positionY, x, y, z);
 		glCamera->mousePositionTo3D(positionX, positionY, x, y, z);
@@ -94,11 +94,11 @@ void GLEventHandler::mouseMovedForCamera(int positionX, int positionY) {
 void GLEventHandler::mouseMovedForNodeEdit(int positionX, int positionY) {
 	int dx = positionX - lastX;
 	int dy = positionY - lastY;
-	if (sqmControler->selected == NULL || mouse == RIGHT_MOUSE_DOWN) {
+	if (sqmControler->getSelected() == NULL || mouse == RIGHT_MOUSE_DOWN) {
 		mouseMovedForCamera(positionX, positionY);
 		return;
 	}
-	if (sqmControler->selected != NULL) {
+	if (sqmControler->getSelected() != NULL) {
 		moveHorizontal(-dx*0.7);
 		moveVertical(-dy*0.7);
 	}
@@ -111,14 +111,14 @@ void GLEventHandler::mouseMovedForNodeEdit(int positionX, int positionY) {
 #pragma region Selected Node Editing
 
 void GLEventHandler::moveHorizontal(float dist) {
-	SQMNode *node= sqmControler->selected;
+	SQMNode *node= sqmControler->getSelected();
 	OpenMesh::Vec3f pos = node->getPosition();
 	pos = pos + glCamera->getRight()*dist;
 	sqmControler->setSelectedPosition(pos);
 }
 
 void GLEventHandler::moveVertical(float dist) {
-	SQMNode *node= sqmControler->selected;
+	SQMNode *node= sqmControler->getSelected();
 	OpenMesh::Vec3f pos = node->getPosition();
 	pos = pos + glCamera->getUp()*dist;
 	sqmControler->setSelectedPosition(pos);

@@ -176,6 +176,13 @@ bool SQMControler::closestNodeRayIntersection(SQMNode *node, OpenMesh::Vec3f ray
 	return false;
 }
 
+SQMNode* SQMControler::getSelected() {
+	if (sqmALgorithm->getState() == SQMStart) {
+		return selected;
+	}
+	return NULL;
+}
+
 #pragma endregion
 
 void SQMControler::straightenSkeleton() {
@@ -312,6 +319,24 @@ void SQMControler::drawMesh(ShaderUniforms *uniforms, OpenGLPrograms *programs, 
 	buffer1->DrawElement(0, GL_TRIANGLES);
 }
 
+void SQMControler::drawMeshForTesselation(ShaderUniforms *uniforms, OpenGLPrograms *programs, GLCamera *camera) {
+	//show camera
+	programs->SklNodes->Use();
+	camera->lookFromCamera(uniforms->MVPmatrixSklNodes);
+	glUniformMatrix4fv(uniforms->ModelMatrix, 1, GL_FALSE, glm::value_ptr(camera->cameraModelMatrix()));
+	glUniform1f(uniforms->TessLevelInner, TESSELATION_LEVEL);
+	glUniform1f(uniforms->TessLevelOuter, TESSELATION_LEVEL);
+	glUniform1i(uniforms->CameraLoc, 1);
+	icosahedron->DrawElement(0, GL_PATCHES);
+	//draw BNPs
+	//TODO:: tesselation shader for triangle mesh parts
+	camera->lookFromCamera(uniforms->MVPmatrixBNPs);
+	buffer1->DrawElement(0, GL_PATCHES);
+	//TODO:: teselation shaders for quad mesh parts
+	camera->lookFromCamera(uniforms->MVPmatrixBNPs);
+	buffer1->DrawElement(1, GL_PATCHES);
+}
+
 void SQMControler::drawMesh() {
 	if (buffer1) delete buffer1;
 	vector<float> points;
@@ -341,6 +366,21 @@ void SQMControler::drawRefresh() {
 	buffer1->Bind();
 	buffer1->BindBufferData(linePoints, 3, GL_STATIC_DRAW);
 	buffer1->BindElement(lineIndices, GL_STATIC_DRAW);
+}
+
+void SQMControler::drawMeshForTesselation() {
+	if (buffer1) delete buffer1;
+	vector<float> points;
+	vector<int> triIndices;
+	vector<int> quadIndices;
+
+	convertMeshToArray(sqmALgorithm->getMesh(), points, triIndices, quadIndices);
+
+	buffer1 = new GLArrayBuffer();
+	buffer1->Bind();
+	buffer1->BindBufferData(points, 3, GL_STATIC_DRAW);
+	buffer1->BindElement(triIndices, GL_STATIC_DRAW);
+	buffer1->BindElement(quadIndices, GL_STATIC_DRAW);
 }
 
 void SQMControler::drawSkeleton(vector<float> &points, vector<int> &indices) {

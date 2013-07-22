@@ -17,7 +17,7 @@ void main()
     //tePosition = normalize(p0 + p1 + p2);
 	vec3 position = normalize(p0 + p1 + p2);
 
-	gl_Position = MVPmatrix * ModelMatrix * vec4(position, 1);
+	gl_Position = MVPmatrix * (ModelMatrix * vec4(position, 1));
     //gl_Position = MVPmatrix * ModelMatrix * vec4(tePosition, 1);
     //gl_Position = vec4(tePosition, 1);
     teColor = gl_TessCoord.x * tcColor[0] + gl_TessCoord.y * tcColor[1] + gl_TessCoord.z * tcColor[2];

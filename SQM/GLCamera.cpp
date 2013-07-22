@@ -152,7 +152,7 @@ void GLCamera::lookFromCamera(GLint mvpLoc) {
 glm::mat4 GLCamera::cameraModelMatrix() {
 	glm::mat4 modelMatrix;
 	modelMatrix = glm::translate(modelMatrix, glm::vec3(look[X], look[Y], look[Z]));
-	modelMatrix = glm::scale(modelMatrix, glm::vec3(5.0));
+	modelMatrix = glm::scale(modelMatrix, glm::vec3(3.0));
 
 	return modelMatrix;
 }
