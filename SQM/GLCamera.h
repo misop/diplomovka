@@ -15,6 +15,7 @@ public:
 	glm::mat4 projection;
 	glm::mat4 modelview;
 	glm::vec4 viewport;
+	glm::mat3 normalMatrix;
 
 	/*GLint viewport[4];
 	GLdouble modelview[16];
@@ -48,15 +49,17 @@ public:
 	void calculateMatrices();
 
 	void lookFromCamera(GLint mvpLoc);
+	void setupModelViewMatrix(GLint mvLoc);
+	void setupNormalMatrix(GLint nmLoc);
 	glm::mat4 cameraModelMatrix();
 	void reset();
 
 	void mousePositionTo3D(int x_cursor, int y_cursor, GLdouble &x, GLdouble &y, GLdouble &z);
 
-	OpenMesh::Vec3f getRight();
-	OpenMesh::Vec3f getUp();
-	OpenMesh::Vec3f getView();
-	OpenMesh::Vec3f getEye();
+	glm::vec3 getRight();
+	glm::vec3 getUp();
+	glm::vec3 getView();
+	glm::vec3 getEye();
 
 	GLCamera(void);
 	~GLCamera(void);

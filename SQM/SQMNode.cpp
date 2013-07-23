@@ -66,6 +66,10 @@ OpenMesh::Vec3f SQMNode::getPosition() {
 	return position;
 }
 
+glm::vec3 SQMNode::getPosition_glm() {
+	return glm::vec3(position[0], position[1], position[2]);
+}
+
 vector<SQMNode*>* SQMNode::getNodes() {
 	return &nodes;
 }
@@ -122,6 +126,10 @@ void SQMNode::setPosition(OpenMesh::Vec3f newPosition) {
 	position = newPosition;
 }
 
+void SQMNode::setPosition(float x, float y, float z) {
+	position = OpenMesh::Vec3f(x, y, z);
+}
+
 void SQMNode::addDescendant(SQMNode* node) {
 	nodes.push_back(node);
 }
@@ -167,61 +175,11 @@ SkeletonNode* SQMNode::exportToSkeletonNode() {
 
 #pragma endregion
 
-#pragma region Drawing
-
-void SQMNode::draw() {
-	draw(CVector3(0, 1, 0), CVector3(1, 0, 0));
-}
-
-void SQMNode::draw(CVector3 lineColor, CVector3 nodeColor) {
-	//draw connections
-	glColor3f(lineColor.x, lineColor.y, lineColor.z);
-	glBegin(GL_LINES);
-	for (int i = 0; i < nodes.size(); i++) {
-		OpenMesh::Vec3f nodePosition = nodes[i]->getPosition();
-		glVertex3f(position[0], position[1], position[2]);
-		glVertex3f(nodePosition[0], nodePosition[1], nodePosition[2]);
-	}
-	glEnd();
-	//draw ball
-	glColor3f(nodeColor.x, nodeColor.y, nodeColor.z);
-	glPushMatrix();
-	glTranslatef(position[0], position[1], position[2]);
-	gluSphere(gluNewQuadric(), nodeRadius, 10, 10);
-	glPopMatrix();
-	glColor3f(0, 0, 1);
-	for (int i = 0; i < nodes.size(); i++) {
-		nodes[i]->draw();
-	}
-}
-
-
-void SQMNode::draw2() {
-	if (polyhedron != NULL) {
-		//draw polyhedron
-		float color[] = {1, 1, 1};
-		drawMeshHalfEdgesWithArrowsAndColor(polyhedron, color);
-
-		glEnd();
-	}
-	for (int i = 0; i < nodes.size(); i++) {
-		nodes[i]->draw2();
-	}
-}
-
-#pragma endregion
-
 #pragma region Skeleton Straightening
 
 void SQMNode::straightenSkeleton(OpenMesh::Vec3f *lineVector) {
 	axisAngle = Quaternion();
 	if (lineVector != NULL && !parent->isBranchNode()) {//straighten self
-		//OpenMesh::Vec3f newPosition = ((position - parent->getPosition()).length()*(*lineVector)) + parent->getPosition();
-		//OpenMesh::Vec3f newPosition = ((position - parent->getPosition()).length()*(*lineVector));
-		//CVector3 newPos(newPosition.values_);
-		//newPosition = newPosition + parent->getPosition();
-		//CVector4 quaternion = QuaternionBetweenVectors(CVector3(newPosition.values_), CVector3(position.values_));
-
 		SQMNode *ancestor = getAncestorBranchNode(this);
 		if (ancestor != NULL) {
 			rotatePosition(QuaternionOpposite(ancestor->getAxisAngle()), CVector3(ancestor->getParent()->getPosition().values_));
@@ -236,12 +194,6 @@ void SQMNode::straightenSkeleton(OpenMesh::Vec3f *lineVector) {
 		Quaternion quaternion = SQMQuaternionBetweenVectors(newPos, oldPos);
 		//translate back by parent
 		newPosition = newPosition + parent->getPosition();
-
-		//CVector3 newPos(newPosition.values_);
-		//CVector3 oldPos(position.values_);
-		//Quaternion quaternion = SQMQuaternionBetweenVectors(newPos, oldPos);
-		//axisAngle = QuaternionToAxisAngle(quaternion);
-
 		//setup
 		axisAngle = quaternion;
 		position = newPosition;
@@ -249,7 +201,6 @@ void SQMNode::straightenSkeleton(OpenMesh::Vec3f *lineVector) {
 	if (this->isBranchNode()) {//if this is branch node recalculate new vectors and intersections
 		for (int i = 0; i < nodes.size(); i++) {//specifical order parent intersection needs to be last in vector
 			if (parent != NULL) {
-				//nodes[i]->rotatePosition(QuaternionOpposite(axisAngle), CVector3(parent->getPosition().values_));
 				nodes[i]->rotateSelfAndDescendants(QuaternionOpposite(axisAngle), CVector3(parent->getPosition().values_));
 			}
 			OpenMesh::Vec3f u = nodes[i]->getPosition() - position;
@@ -287,7 +238,6 @@ void SQMNode::calculateConvexHull() {
 }
 
 void SQMNode::createPolyhedra(vector<OpenMesh::Vec3i> triangles) {
-	//TODO normal swaping
 	//calculate triangle normals
 	vector<OpenMesh::Vec3f> normals;
 	vector<OpenMesh::Vec3f> centers;
@@ -299,18 +249,12 @@ void SQMNode::createPolyhedra(vector<OpenMesh::Vec3i> triangles) {
 		OpenMesh::Vec3f normal = cross(B - A, C - A);
 		normal = normal.normalize();
 		OpenMesh::Vec3f center((A[0] + B[0] + C[0])/3.0, (A[1] + B[1] + C[1])/3.0, (A[2] + B[2] + C[2])/3.0);
-		//unnecesary after fixing Delaunay Triangulation
-		/*if (checkPolyhedronOrientation(i, center, normal, triangles)) {
-		normal = -normal;
-		triangles[i] = flipVec3i(triangle);
-		}*/
 
 		normals.push_back(normal);		
 		centers.push_back(center);
 	}
 	normals2 = normals;
 	centers2 = centers;
-	//create map edge vector<faces>
 	map<OpenMesh::Vec2i, vector<int>, OpenMeshVec2iComp> edgeFaceIndexMap;
 	for (int i = 0; i < triangles.size(); i++) {
 		OpenMesh::Vec3i triangle = triangles[i];
@@ -387,29 +331,9 @@ void SQMNode::createPolyhedra(vector<OpenMesh::Vec3i> triangles) {
 		faces.push_back(OpenMesh::Vec3i(u23Index, v3Index, centerIndex));
 		faces.push_back(OpenMesh::Vec3i(v3Index, u31Index, centerIndex));
 		faces.push_back(OpenMesh::Vec3i(u31Index, v1Index, centerIndex));
-		//faces.push_back(OpenMesh::Vec3i(v1Index, v2Index, v3Index));
 	}
 	//create OpenMesh mesh from indexed face
 	openMeshFromIdexedFace(vertices, faces);
-}
-
-bool SQMNode::checkPolyhedronOrientation(int index, OpenMesh::Vec3f center, OpenMesh::Vec3f normal, vector<OpenMesh::Vec3i>& triangles) {
-	//BNP generation can generate swapped faces which face inside the polyhedra thus we need to swap the normals of those faces
-	for (int i = 0; i < triangles.size(); i++) {
-		if (i == index)
-			continue;
-		OpenMesh::Vec3i triangle = triangles[i];
-		OpenMesh::Vec3f A = intersections[triangle.values_[0]];
-		OpenMesh::Vec3f B = intersections[triangle.values_[1]];
-		OpenMesh::Vec3f C = intersections[triangle.values_[2]];
-		float t = 0;
-		if (rayTriangleIntersection(center, normal, A, B, C, t)) {
-			//should change normal sign
-			return true;
-		}
-	}
-	//should not change sign of normal
-	return false;
 }
 
 OpenMesh::Vec3f SQMNode::translatedPointToSphereWithFaceNormals(OpenMesh::Vec3f p, OpenMesh::Vec3f n1, OpenMesh::Vec3f n2, OpenMesh::Vec3f center1, OpenMesh::Vec3f center2) {
@@ -597,159 +521,7 @@ void SQMNode::subdividePolyhedra(SQMNode* parentBranchNode, int count) {
 	}
 }
 
-#pragma region OLD
-
-void SQMNode::subdividePolyhedraOld(SQMNode* parentBranchNode, int count) {
-	//vector of next BNPs
-	vector<SQMNode*> branchingNodes;
-	for (int i = 0; i < nodes.size(); i++) {
-		branchingNodes.push_back(getDescendantBranchNode(nodes[i]));
-	}
-	//prepare subdivide table of how many needed
-	vector<VHandleCount> verticeCountTable;
-	fillVerticeCountTable(verticeCountTable, branchingNodes);
-	//take care of parent intersection aka addd to the end
-	if (parentBranchNode) {
-		verticeCountTable.push_back(VHandleCount(intersectionVHandles.back(), count, true));
-	}
-	//take first from table if needed subdivide
-	//if one vertice needs more connection and other are fine subdivide them anyway but dont subdivide parent vertice
-	//sort by edge length and test if needs more pick the longest that needs or longest that is not adjacent to parent
-	for (int i = 0; i < verticeCountTable.size(); i++) {
-		VHandleCount vhandleCount = verticeCountTable[i];
-		if (vhandleCount.needs && vhandleCount.missingPoints > 0) {
-			while (vhandleCount.missingPoints > 0) {
-				//create sorted list of edges
-				deque<EdgeLength> edgeLengthList;
-				fillEdgeLengthList(edgeLengthList, vhandleCount.vhandle);
-				sort(edgeLengthList.begin(), edgeLengthList.end(), EdgeLengthCompare);
-				//pick one
-				MyTriMesh::EdgeHandle eh = pickEdgeToSplit(edgeLengthList, verticeCountTable, vhandleCount.vhandle);
-				//split one
-				splitEdgeInHalf(eh);
-				vhandleCount.missingPoints--;
-				//TODO change the other one also
-			}
-		}
-	}
-	//take care of the rest
-	for (int i = 0; i < branchingNodes.size(); i++)	{
-		SQMNode* branchingNode = branchingNodes[i];
-		//if we needed some they have been added if we had more points than descendant he needs to add them
-		int missingPoints = (verticeCountTable[i].missingPoints >= 0) ? 0 : -verticeCountTable[i].missingPoints;
-		if (branchingNode != NULL) {
-			branchingNode->subdividePolyhedraOld(this, missingPoints);
-		}
-	}
-}
-
-void SQMNode::fillVerticeCountTable(vector<VHandleCount>& verticeCountTable, vector<SQMNode*>& branchingNodes) {
-	for (int i = 0; i < nodes.size(); i++) {
-		SQMNode* descendant = nodes[i];
-		//get node intersection
-		MyTriMesh::VHandle vhandle = intersectionVHandles[i];
-		//get descendant branching node
-		SQMNode* descendantBranchNode = branchingNodes[i];
-		if (descendantBranchNode != NULL) {			
-			//get intersection vhandle its the last one from parent
-			MyTriMesh::VHandle descendantVHandle = descendantBranchNode->getIntersectionVHandles()->back();
-			//get number of needed vertices
-			int vhandleCount = 0;
-			for (MyTriMesh::VVIter vvit = polyhedron->vv_begin(vhandle); vvit != polyhedron->vv_end(vhandle); ++vvit) {
-				vhandleCount++;
-			}
-			int descendantVHandleCount = 0;
-			MyTriMesh *descendantPolyhedron = descendantBranchNode->getPolyhedron(); // descendant->getPolyhedron();
-			for (MyTriMesh::VVIter vvit = descendantPolyhedron->vv_begin(descendantVHandle); vvit != descendantPolyhedron->vv_end(descendantVHandle); ++vvit) {
-				descendantVHandleCount++;
-			}
-			verticeCountTable.push_back(VHandleCount(vhandle, descendantVHandleCount - vhandleCount, true));
-		} else {
-			verticeCountTable.push_back(VHandleCount(vhandle, 0, false));
-		}
-	}
-}
-
-void SQMNode::fillEdgeLengthList(deque<EdgeLength>& edgeLengthList, MyTriMesh::VHandle vertice) {
-	for (MyTriMesh::VertexOHalfedgeIter vohit = polyhedron->voh_begin(vertice); vohit != polyhedron->voh_end(vertice); ++vohit) {
-		MyTriMesh::HalfedgeHandle heh = polyhedron->next_halfedge_handle(vohit.handle());
-		MyTriMesh::EdgeHandle eh = polyhedron->edge_handle(heh);
-		float length = polyhedron->calc_edge_length(eh);
-		edgeLengthList.push_back(EdgeLength(heh, length));
-	}
-}
-
-MyTriMesh::EdgeHandle SQMNode::pickEdgeToSplit(deque<EdgeLength>& edgeLengthList, vector<VHandleCount>& verticeCountTable, MyMesh::VHandle vertice) {
-	//mark vertices that should be split
-	vector<MyMesh::VHandle> shouldSplit;
-	vector<VHandleCount*> filteredVHandleCounts;
-	MyTriMesh::VHandle parentVHandle = intersectionVHandles.back();
-	for (int i = 0; i < verticeCountTable.size(); i++) {
-		VHandleCount vhandleCount = verticeCountTable[i];
-		if (vhandleCount.needs && vhandleCount.missingPoints > 0 && vhandleCount.vhandle != vertice) {
-			shouldSplit.push_back(vhandleCount.vhandle);
-			filteredVHandleCounts.push_back(&verticeCountTable[i]);
-		}
-	}
-	//try to split one of them
-	if (shouldSplit.size() > 0) {
-		for (deque<EdgeLength>::iterator it = edgeLengthList.begin(); it != edgeLengthList.end(); it++) {
-			EdgeLength el = (*it);
-			//get the other vertex handle
-			MyTriMesh::VHandle vhandle = polyhedron->to_vertex_handle(el.hehandle);
-			vector<MyTriMesh::VHandle>::iterator found = find(shouldSplit.begin(), shouldSplit.end(), vhandle);
-			if (found != shouldSplit.end()) {
-				int index = found - shouldSplit.begin();
-				filteredVHandleCounts[index]->missingPoints--;
-				return polyhedron->edge_handle(el.hehandle);
-			}
-		}
-	}
-	//if there is none split one vertice except parent 
-	//if parent should be split it would alread been
-	for (deque<EdgeLength>::iterator it = edgeLengthList.begin(); it != edgeLengthList.end(); it++) {
-		EdgeLength el = (*it);
-		//get the other vertex handle
-		MyTriMesh::VHandle vhandle = polyhedron->to_vertex_handle(el.hehandle);
-		if (vhandle != parentVHandle) {
-			for (int i = 0; i < verticeCountTable.size(); i++) {
-				if (vhandle == verticeCountTable[i].vhandle) {
-					verticeCountTable[i].missingPoints--;
-					break;
-				}
-			}
-			return polyhedron->edge_handle(el.hehandle);
-		}
-	}
-	//should never reach here
-	EdgeLength el = edgeLengthList[0];
-	return polyhedron->edge_handle(el.hehandle);
-}
-
-void SQMNode::splitEdgeInHalf(MyTriMesh::EdgeHandle eh) {
-	MyTriMesh::HalfedgeHandle heh0 = polyhedron->halfedge_handle(eh, 0);
-	MyTriMesh::HalfedgeHandle heh1 = polyhedron->halfedge_handle(eh, 1);
-	//MyMesh::FaceHandle fh0 = polyhedron->face_handle(heh0);
-	//MyMesh::FaceHandle fh1 = polyhedron->face_handle(heh1);
-	MyTriMesh::Point p0 = polyhedron->point(polyhedron->to_vertex_handle(heh0));
-	MyTriMesh::Point p1 = polyhedron->point(polyhedron->to_vertex_handle(heh1));
-
-	MyTriMesh::Point x = 0.5*p0 + 0.5*p1;
-	MyTriMesh::VertexHandle vh = polyhedron->add_vertex(x);
-
-	//creates invalid faces :(
-	//polyhedron->split_edge(eh, vh);
-	polyhedron->split(eh, vh);
-	//polyhedron->split(fh0, vh);
-	//polyhedron->split(fh1, vh);
-}
-
-#pragma endregion
-
-#pragma region NEW
-
 void SQMNode::fillLIEMap(int parentNeed, std::map<int, LIENeedEntry>& lieMap, std::vector<SQMNode*>& branchingNodes) {
-	//vector<LIE> LIEs;
 	int stop = nodes.size();
 	if (parent != NULL)
 		stop++;
@@ -837,15 +609,12 @@ void SQMNode::fillLIEMap(int parentNeed, std::map<int, LIENeedEntry>& lieMap, st
 				if (dist * 2.0 > Length(P - start)) {
 					axis = Normalize(Cross(start, (start*0.5) + (dest * 0.5)));
 				}
-				//CVector3 axis = Normalize(Cross(start, (start*0.5) + (dest * 0.5)));
-				//lie.quaternion = SQMQuaternionBetweenVectors(start, dest);
 				lie.quaternion = SQMQuaternionBetweenVectorsWithAxis(start, dest, axis);
 				verticeLIEs.push_back(lie);
 
 				//clearing
 				firstLieVertex = MyTriMesh::VHandle(-1);
 				edges.clear();
-				//edges.push_back(polyhedron->edge_handle(cheh));
 				covh = ovhandle;
 			}
 		}
@@ -922,7 +691,6 @@ LIE SQMNode::splitLIEEdge(LIE lie) {
 	MyTriMesh::EHandle eh = lie.edges[0];
 	MyTriMesh::EHandle newEh = splitEdgeInHalfAndReturnNewEdge(eh);
 	lie.edges.insert(lie.edges.begin()+1, newEh);
-	//lie.edges.push_back(newEh);
 	lie.refined = lie.refined + 1;
 	return lie;
 }
@@ -950,8 +718,6 @@ MyTriMesh::EHandle SQMNode::splitEdgeInHalfAndReturnNewEdge(MyTriMesh::EdgeHandl
 	return polyhedron->InvalidEdgeHandle;
 }
 
-#pragma endregion
-
 #pragma region Smoothing
 
 void SQMNode::smoothLIE(LIE lie) {
@@ -967,7 +733,6 @@ void SQMNode::smoothLIE(LIE lie) {
 	while (heh != lie.lastHHandle) {
 		Quaternion q = QuaternionFromAngleAxis(alfa, axis);
 		MyTriMesh::VHandle vh = polyhedron->to_vertex_handle(heh);
-		//CVector3 v = CVector3(polyhedron->point(vh).values_) - offset;
 		CVector3 u = QuaternionRotateVector(q, v);
 		u = u + offset;
 		MyTriMesh::Point P(u.x, u.y, u.z);
@@ -1187,7 +952,6 @@ void SQMNode::addPolyhedronAndRememberVHandles(MyMesh* mesh, SQMNode* parentBNPN
 				j = i + 1;
 			}
 			mesh->add_face(oneRing[i], newOneRing[i], newOneRing[j], oneRing[j]);
-			//mesh->add_face(oneRing[j], newOneRing[j], newOneRing[i], oneRing[i]);
 		}
 	}
 }
@@ -1228,7 +992,6 @@ void SQMNode::extendMesh(MyMesh* mesh, SQMNode* parentBNPNode, vector<MyMesh::Ve
 			j = i + 1;
 		}
 		temp.push_back(mesh->add_face(oneRing[i], newOneRing[i], newOneRing[j], oneRing[j]));
-		//temp.push_back(mesh->add_face(oneRing[j], newOneRing[j], newOneRing[i], oneRing[i]));
 	}
 	//remember inseted points
 	meshIntersectionVHandles = newOneRing;
@@ -1247,7 +1010,6 @@ void SQMNode::finishLeafeNode(MyMesh* mesh, vector<MyMesh::VertexHandle>& oneRin
 			j = i + 1;
 		}
 		mesh->add_face(oneRing[i], vhandle, oneRing[j]);
-		//mesh->add_face(oneRing[j], vhandle, oneRing[i]);
 	}
 }
 
@@ -1273,7 +1035,6 @@ void SQMNode::rotateBack(MyMesh *mesh) {
 			v = QuaternionRotateVector(axisAngle, v);
 			v = v + parentPos;
 			SQMNode* ancestor = lastBranchNodeInChain(this);
-			//if (parent->isBranchNode() && parent->parent != NULL) {
 			if (parent->isBranchNode() && ancestor != NULL && ancestor->getParent() != NULL) {
 				CVector3 offset(ancestor->getParent()->getPosition().values_);
 				v = v - offset;
@@ -1370,6 +1131,8 @@ MyTriMesh::VHandle SQMNode::oppositeVHandle(MyTriMesh::HalfedgeHandle heh) {
 
 #pragma region Utility Functions
 
+#pragma region Template Functions
+
 template <typename T> int getPositionInArray(T& v, vector<T>& vectorArray) {
 	for (int i = 0; i < vectorArray.size(); i++) {
 		T u = vectorArray[i];
@@ -1394,6 +1157,10 @@ template <typename T> void flipVector(vector<T>& toFlip, vector<T>& flipped) {
 	}
 }
 
+#pragma endregion
+
+#pragma region Mesh Functions
+
 bool lesser(MyMesh::FaceHandle& a, MyMesh::FaceHandle& b) {
 	return a.idx() < b.idx();
 }
@@ -1409,69 +1176,6 @@ bool validTriFace(vector<MyMesh::VHandle>& faceVHandles) {
 	}
 
 	return false;
-}
-
-bool rayTriangleIntersection(OpenMesh::Vec3f ray_origin, OpenMesh::Vec3f ray_direction, OpenMesh::Vec3f V0, OpenMesh::Vec3f V1, OpenMesh::Vec3f V2, float &t_param) {
-	//point on triagle T(u, v) = (1 - u - v)*V0 + u*V1 + v*V2;
-	//ray: O + d
-	//ray triangle intersection: O + d = (1 - u - v)*V0 + u*V1 + v*V2 -> 3 equations solved by Cramer rule
-	//triangle edges
-	OpenMesh::Vec3f edge1 = V1 - V0;
-	OpenMesh::Vec3f edge2 = V2 - V0;
-	//calculation of determinant used to calculate u parameter
-	OpenMesh::Vec3f pvec = cross(ray_direction, edge2);
-	//if determinant is near zero ray lines in plane of triangle
-	float det = dot(edge1, pvec);
-	if (det > -FLOAT_ZERO && det < FLOAT_ZERO)
-		return false;
-	float inv_det = 1.0 / det;
-	//distance from V0 to ray origin
-	OpenMesh::Vec3f tvec = ray_origin - V0;
-	//calculate u parameter and test bounds
-	float u = dot(tvec, pvec) * inv_det;
-	if (u < 0 || u > 1.0)
-		return false;
-	//prepare to test v parameter
-	OpenMesh::Vec3f qvec = cross(tvec, edge1);
-	//calculate v parameter and test bounds
-	float v = dot(ray_direction, qvec) * inv_det;
-	if (v < 0.0 || (u + v) > 1.0)
-		return false;
-	//calculate t ray intersects triangle
-	float t = dot(edge2, qvec) * inv_det;
-	//not in the direction of ray
-	if (t < BIAS)
-		return false;
-
-	t_param = t;
-	return true;
-}
-
-bool raySphereIntersection(OpenMesh::Vec3f ray_origin, OpenMesh::Vec3f ray_direction, OpenMesh::Vec3f sphere_center, float sphere_radius, float &t_param) {
-	OpenMesh::Vec3f oo = ray_origin - sphere_center;
-	// A = v^2
-	float A = dot(ray_direction, ray_direction);
-	// -B = v^T * (o_2 - o_1)
-	float B = -2.0 * dot(ray_direction, oo);
-	// C = (o_2 - o_1)^2 - r^2
-	float C = dot(oo, oo) - sphere_radius * sphere_radius;
-	// Discriminant
-	float D = B * B - 4.0f * A * C;
-	// No collision
-	if (D < 0) 
-		return false; 
-
-	float sD = sqrtf(D);
-	float t1 = 0.5 * (B + sD) / A;
-	//if (t1 < Ray.Bias) t1 = Double.MaxValue;
-	float t2 = 0.5 * (B - sD) / A;
-	//if (t2 < Ray.Bias) t2 = Double.MaxValue;
-	float t = (t1 > 0) ? t1 : t2;
-	if (t < 0)
-		return false;
-
-	t_param = t;
-	return true;
 }
 
 OpenMesh::Vec3i flipVec3i(OpenMesh::Vec3i& v) {
@@ -1508,6 +1212,20 @@ bool sameOneRingOrientation(MyMesh* mesh, vector<MyMesh::VHandle>& oneRing, vect
 	return false;
 }
 
+int inLIEs(std::vector<LIE>& LIEs, MyTriMesh::VHandle vh1, MyTriMesh::VHandle vh2) {
+	for (int i = 0; i < LIEs.size(); i++) {
+		LIE lie = LIEs[i];
+		if (lie.containsVertices(vh1, vh2))
+			return i;
+	}
+
+	return -1;
+}
+
+#pragma endregion
+
+#pragma region SQMNode Functions
+
 int verticeDifferenceFatherSon(SQMNode* father, SQMNode* son, MyTriMesh::VHandle vhandle) {
 	if (son != NULL) {			
 		//get intersection vhandle its the last one from parent
@@ -1529,16 +1247,6 @@ int verticeDifferenceFatherSon(SQMNode* father, SQMNode* son, MyTriMesh::VHandle
 	return 0;
 }
 
-int inLIEs(std::vector<LIE>& LIEs, MyTriMesh::VHandle vh1, MyTriMesh::VHandle vh2) {
-	for (int i = 0; i < LIEs.size(); i++) {
-		LIE lie = LIEs[i];
-		if (lie.containsVertices(vh1, vh2))
-			return i;
-	}
-
-	return -1;
-}
-
 SQMNode* lastBranchNodeInChain(SQMNode* node) {
 	//nowhere to go
 	if (node == NULL) return NULL;
@@ -1553,5 +1261,7 @@ SQMNode* lastBranchNodeInChain(SQMNode* node) {
 	//continiu until you find branch node
 	return lastBranchNodeInChain(node->getParent());
 }
+
+#pragma endregion
 
 #pragma endregion

@@ -55,6 +55,7 @@ public:
 	bool isBranchNode();
 	bool isLeafNode();
 	OpenMesh::Vec3f getPosition();
+	glm::vec3 getPosition_glm();
 	vector<SQMNode*>* getNodes();
 	SQMNode* getParent();
 	MyTriMesh* getPolyhedron();
@@ -71,6 +72,7 @@ public:
 #pragma region Setters
 	void setNodeRadius(float newNodeRadius);
 	void setPosition(OpenMesh::Vec3f newPosition);
+	void setPosition(float x, float y, float z);
 	void addDescendant(SQMNode* node);
 	void rotatePosition(Quaternion q, CVector3 offset);
 	void addDescendant(float x, float y, float z);
@@ -90,7 +92,6 @@ public:
 #pragma region BNP Generation
 	void calculateConvexHull();
 	void createPolyhedra(vector<OpenMesh::Vec3i> triangles);
-	bool checkPolyhedronOrientation(int index, OpenMesh::Vec3f center, OpenMesh::Vec3f normal, vector<OpenMesh::Vec3i>& triangles);
 	OpenMesh::Vec3f translatedPointToSphereWithFaceNormals(OpenMesh::Vec3f p, OpenMesh::Vec3f n1, OpenMesh::Vec3f n2, OpenMesh::Vec3f center1, OpenMesh::Vec3f center2);
 	vector<int> getNormalIndexis(vector<int> indexis, int index);
 	void openMeshFromIdexedFace(vector<OpenMesh::Vec3f> vertices, vector<OpenMesh::Vec3i> faces);
@@ -103,22 +104,11 @@ public:
 
 #pragma region BNP Subdivision
 	void subdividePolyhedra(SQMNode* parentBranchNode, int count);
-
-#pragma region OLD
-	void subdividePolyhedraOld(SQMNode* parentBranchNode, int count);
-	void fillVerticeCountTable(vector<VHandleCount>& verticeCountTable, vector<SQMNode*>& branchingNodes);
-	void fillEdgeLengthList(deque<EdgeLength>& edgeLengthList, MyTriMesh::VHandle vertice);
-	MyTriMesh::EdgeHandle pickEdgeToSplit(deque<EdgeLength>& edgeLengthList, vector<VHandleCount>& verticeCountTable, MyTriMesh::VHandle vertice);
-	void splitEdgeInHalf(MyTriMesh::EdgeHandle eh);
-#pragma endregion
-
-#pragma region NEW
 	void fillLIEMap(int parentNeed, std::map<int, LIENeedEntry>& lieMap, std::vector<SQMNode*>& branchingNodes);
 	void splitLIEs(std::map<int, LIENeedEntry>& lieMap);
 	void splitLIE(LIE lie, std::map<int, LIENeedEntry>& lieMap, int entryIndex, int lieIndex);
 	LIE splitLIEEdge(LIE lie);
 	MyTriMesh::EHandle splitEdgeInHalfAndReturnNewEdge(MyTriMesh::EdgeHandle eh);
-#pragma endregion
 
 #pragma region Smoothing
 	void smoothLIE(LIE lie);
@@ -155,12 +145,6 @@ public:
 	MyTriMesh::VHandle oppositeVHandle(MyTriMesh::HalfedgeHandle heh);
 #pragma endregion
 
-#pragma region Drawing
-	void draw();
-	void draw(CVector3 lineColor, CVector3 nodeColor);
-	void draw2();
-#pragma endregion
-
 protected:
 #pragma region Serialization
 	// When the class Archive corresponds to an output archive, the
@@ -177,18 +161,24 @@ protected:
 
 #pragma region Utility Functions
 
-template <typename T> int getPositionInArray(T& v, vector<T>& vectorArray);
+#pragma region Template Functions
+template <typename T> int getPositionInArray(T& v, std::vector<T>& vectorArray);
 template <typename T> bool equals(T& a, T& b);
-template <typename T> void flipVector(vector<T>& toFlip, vector<T>& flipped);
+template <typename T> void flipVector(std::vector<T>& toFlip, std::vector<T>& flipped);
+#pragma endregion
+
+#pragma region Mesh Functions
 bool lesser(MyMesh::FaceHandle& a, MyMesh::FaceHandle& b);
 bool validTriFace(vector<MyMesh::VHandle>& faceVHandles);
-bool rayTriangleIntersection(OpenMesh::Vec3f ray_origin, OpenMesh::Vec3f ray_direction, OpenMesh::Vec3f V0, OpenMesh::Vec3f V1, OpenMesh::Vec3f V2, float &t_param);
-bool raySphereIntersection(OpenMesh::Vec3f ray_origin, OpenMesh::Vec3f ray_direction, OpenMesh::Vec3f sphere_center, float sphere_radius, float &t_param);
 OpenMesh::Vec3i flipVec3i(OpenMesh::Vec3i& v);
 bool sameOneRingOrientation(MyMesh* mesh, vector<MyMesh::VHandle>& oneRing, vector<MyMesh::VHandle>& oneRing2, OpenMesh::Vec3f& center1, OpenMesh::Vec3f& center2, OpenMesh::Vec3f& direction);
-int verticeDifferenceFatherSon(SQMNode* father, SQMNode* son, MyTriMesh::VHandle vhandle);
 int inLIEs(std::vector<LIE>& LIEs, MyTriMesh::VHandle vh1, MyTriMesh::VHandle vh2);
+#pragma endregion
+
+#pragma region SQMNode Functions
+int verticeDifferenceFatherSon(SQMNode* father, SQMNode* son, MyTriMesh::VHandle vhandle);
 SQMNode* lastBranchNodeInChain(SQMNode* node);
+#pragma endregion
 
 #pragma endregion
 

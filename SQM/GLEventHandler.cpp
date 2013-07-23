@@ -1,6 +1,7 @@
 #include "stdafx.h"
 #include "GLEventHandler.h"
 #include <math.h>
+#include <gtc\type_ptr.hpp>
 
 
 GLEventHandler::GLEventHandler(GLCamera *newGlCamera, SQMControler *newSqmControler)
@@ -24,8 +25,8 @@ void GLEventHandler::mouseDown(int positionX, int positionY, int mouseFlags) {
 		GLdouble x = 0, y = 0, z = 0;
 		//bool sucess = mousePositionTo3D(positionX, positionY, x, y, z);
 		glCamera->mousePositionTo3D(positionX, positionY, x, y, z);
-		OpenMesh::Vec3f pos(x, y, z);
-		OpenMesh::Vec3f dir = (pos - glCamera->getEye()).normalize();
+		glm::vec3 pos(x, y, z);
+		glm::vec3 dir = glm::normalize(pos - glCamera->getEye());
 
 		sqmControler->selectNodeInRay(glCamera->getEye(), dir);
 	}
@@ -35,7 +36,8 @@ void GLEventHandler::mouseDown(int positionX, int positionY, int mouseFlags) {
 		glCamera->mousePositionTo3D(positionX, positionY, x, y, z);
 		//if (sucess) {
 		//find plane ray intersection
-		CVector3 rayOrigin(glCamera->getEye().values_);
+		glm::vec3 eye = glCamera->getEye();
+		CVector3 rayOrigin(eye.x, eye.y, eye.z);
 		CVector3 planeOrigin(glCamera->look);
 		CVector3 direction = Normalize(CVector3(x, y, z) - rayOrigin);
 		CVector3 normal = Normalize(rayOrigin - planeOrigin);
@@ -112,34 +114,16 @@ void GLEventHandler::mouseMovedForNodeEdit(int positionX, int positionY) {
 
 void GLEventHandler::moveHorizontal(float dist) {
 	SQMNode *node= sqmControler->getSelected();
-	OpenMesh::Vec3f pos = node->getPosition();
+	glm::vec3 pos = node->getPosition_glm();
 	pos = pos + glCamera->getRight()*dist;
 	sqmControler->setSelectedPosition(pos);
 }
 
 void GLEventHandler::moveVertical(float dist) {
 	SQMNode *node= sqmControler->getSelected();
-	OpenMesh::Vec3f pos = node->getPosition();
+	glm::vec3 pos = node->getPosition_glm();
 	pos = pos + glCamera->getUp()*dist;
 	sqmControler->setSelectedPosition(pos);
-}
-
-#pragma endregion
-
-#pragma region Utility
-
-bool GLEventHandler::mousePositionTo3D(int x_cursor, int y_cursor, GLdouble &x, GLdouble &y, GLdouble &z) {
-	GLfloat winX, winY, winZ = 0;
-	// obtain the Z position (not world coordinates but in range 0 - 1)
-	winX = (float)x_cursor;
-	winY = (float)glCamera->viewport[3] - (float)y_cursor;
-	glReadPixels(winX, winY, 1, 1, GL_DEPTH_COMPONENT, GL_FLOAT, &winZ);
-	//when clicking out of object
-	winZ = 0;//0.998555;
-	// obtain the world coordinates
-	//GLint sucess = gluUnProject(winX, winY, winZ, glCamera->modelview, glCamera->projection, glCamera->viewport, &x, &y, &z);
-
-	return false;//sucess == GLU_TRUE;
 }
 
 #pragma endregion

@@ -114,7 +114,7 @@ void SQMControler::exportSkeletonToFile(string fileName) {
 
 #pragma region Node Selection
 
-bool SQMControler::selectNodeInRay(OpenMesh::Vec3f position, OpenMesh::Vec3f direction) {
+bool SQMControler::selectNodeInRay(glm::vec3 position, glm::vec3 direction) {
 	vector<SQMNode*> stack;
 	stack.push_back(sqmALgorithm->getRoot());
 	float minDistance = 0;
@@ -125,7 +125,7 @@ bool SQMControler::selectNodeInRay(OpenMesh::Vec3f position, OpenMesh::Vec3f dir
 		stack.pop_back();
 		if (node == NULL) continue;
 		float distance = 0;
-		bool ok = closestNodeRayIntersection(node, position, direction, distance);
+		bool ok = raySphereIntersection(position, direction, node->getPosition_glm(), node->getNodeRadius(), distance);
 		if (ok && (distance < minDistance || tempClosest == NULL)) {
 			minDistance = distance;
 			tempClosest = node;
@@ -141,37 +141,6 @@ bool SQMControler::selectNodeInRay(OpenMesh::Vec3f position, OpenMesh::Vec3f dir
 	}
 
 	return selected != NULL;
-}
-
-bool SQMControler::closestNodeRayIntersection(SQMNode *node, OpenMesh::Vec3f rayPosition, OpenMesh::Vec3f direction, float& dist) {	
-	if (node == NULL) return false;
-	float r = node->getNodeRadius();
-	// (origin_2 - origin_1)
-	OpenMesh::Vec3f oo = rayPosition - node->getPosition();
-	// A = v^2
-	float A = dot(direction, direction);
-	// -B = v^T * (o_2 - o_1)
-	float B = -2.0 * dot(direction, oo);
-	// C = (o_2 - o_1)^2 - r^2
-	float C = dot(oo, oo) - r*r;
-	// Discriminant
-	float D = B * B - 4.0f * A * C;
-
-	// No collision
-	if (D < 0) return false; 
-
-	float sD = sqrtf(D);
-	float t1 = 0.5 * (B + sD) / A; //if (t1 < Ray.Bias) t1 = Double.MaxValue;
-	float t2 = 0.5 * (B - sD) / A; //if (t2 < Ray.Bias) t2 = Double.MaxValue;
-	float t = (t1 < t2) ? t1 : t2;
-
-	//if (t < Ray.Bias || t >= ray.HitParam) return; // collisions beyond current ray param are ignored
-
-	if (t > 0.0) {
-		dist = t;
-		return true;
-	}
-	return false;
 }
 
 SQMNode* SQMControler::getSelected() {
@@ -201,6 +170,11 @@ void SQMControler::setSelectedPosition(OpenMesh::Vec3f pos) {
 	selected->setPosition(pos);
 	drawSkeleton();
 }
+
+void SQMControler::setSelectedPosition(glm::vec3 pos) {
+	setSelectedPosition(OpenMesh::Vec3f(pos.x, pos.y, pos.z));
+}
+
 void SQMControler::setSelectedX(float x) {
 	selected->setX(x);
 	drawSkeleton();
@@ -269,6 +243,7 @@ void SQMControler::drawBNPs(OpenGLPrograms *programs, GLCamera *camera) {
 	//draw BNPs
 	programs->BNPs->Use();
 	camera->lookFromCamera(programs->BNPs->uniforms.MVPmatrix);
+	glUniform3f(programs->BNPs->uniforms.DiffuseColor, 0.0, 0.75, 0.75);
 	buffer1->DrawElement(0, GL_TRIANGLES);
 }
 
@@ -313,6 +288,7 @@ void SQMControler::drawMesh(OpenGLPrograms *programs, GLCamera *camera) {
 	//draw BNPs
 	programs->BNPs->Use();
 	camera->lookFromCamera(programs->BNPs->uniforms.MVPmatrix);
+	glUniform3f(programs->BNPs->uniforms.DiffuseColor, 0.0, 0.75, 0.75);
 	buffer1->DrawElement(0, GL_TRIANGLES);
 }
 

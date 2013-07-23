@@ -343,6 +343,7 @@ namespace OpenGLForm
 			programs->BNPs->Link();
 			programs->BNPs->SaveProgramLog();
 			programs->BNPs->uniforms.MVPmatrix = programs->BNPs->getUniformLocation("MVPmatrix");
+			programs->BNPs->uniforms.DiffuseColor = programs->BNPs->getUniformLocation("DiffuseColor");
 
 			return true;
 		}

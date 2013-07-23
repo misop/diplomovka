@@ -4,6 +4,9 @@
 #include <GL\wglew.h>
 #include "GLProgram.h"
 #include "GLShader.h"
+#include <glm.hpp>
+#include "MyMesh.h"
+#include "FloatArithmetic.h"
 
 struct OpenGLPrograms {
 	GLProgram *SklLines;
@@ -35,4 +38,12 @@ struct OpenGLShaders {
 	}
 };
 
+#pragma region Template Functions
 template <typename T> std::string ToString(T& a);
+#pragma endregion
+
+#pragma region Ray Intersections
+bool raySphereIntersection(OpenMesh::Vec3f ray_origin, OpenMesh::Vec3f ray_direction, OpenMesh::Vec3f sphere_center, float sphere_radius, float &t_param);
+bool raySphereIntersection(glm::vec3 ray_origin, glm::vec3 ray_direction, glm::vec3 sphere_center, float sphere_radius, float &t_param);
+bool rayTriangleIntersection(OpenMesh::Vec3f ray_origin, OpenMesh::Vec3f ray_direction, OpenMesh::Vec3f V0, OpenMesh::Vec3f V1, OpenMesh::Vec3f V2, float &t_param);
+#pragma endregion

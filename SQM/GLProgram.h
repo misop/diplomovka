@@ -4,11 +4,16 @@
 struct ProgramUniforms {
 	GLint MVPmatrix;
 	GLint ModelMatrix;
-	GLint AmbientColor;
-	GLint DiffuseColor;
+	GLint ModelViewMatrix;
+	GLint NormalMatrix;
+
 	GLint SpecularColor;
 	GLint TessLevelInner;
 	GLint TessLevelOuter;
+
+	GLint AmbientColor;
+	GLint DiffuseColor;
+	GLint LightPosition;
 };
 
 class GLProgram

@@ -27,8 +27,7 @@ public:
 	void saveSkeletonToFile(string fileName);
 	void exportSkeletonToFile(string fileName);
 
-	bool selectNodeInRay(OpenMesh::Vec3f position, OpenMesh::Vec3f direction);
-	bool closestNodeRayIntersection(SQMNode *node, OpenMesh::Vec3f rayPosition, OpenMesh::Vec3f direction, float& dist);
+	bool selectNodeInRay(glm::vec3 position, glm::vec3 direction);
 
 	void straightenSkeleton();
 	void computeConvexHull();
@@ -39,6 +38,7 @@ public:
 
 	void insertNode(float x, float y, float z);
 	void setSelectedPosition(OpenMesh::Vec3f pos);
+	void setSelectedPosition(glm::vec3 pos);
 	void setSelectedX(float x);
 	void setSelectedY(float y);
 	void setSelectedZ(float z);

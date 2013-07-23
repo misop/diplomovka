@@ -42,9 +42,5 @@ public:
 	void moveHorizontal(float dist);
 	void moveVertical(float dist);
 #pragma endregion
-
-#pragma region Utility
-	bool mousePositionTo3D(int x_cursor, int y_cursor, GLdouble &x, GLdouble &y, GLdouble &z);
-#pragma endregion
 };
 

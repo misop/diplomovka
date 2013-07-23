@@ -9,25 +9,6 @@
 #define Z 2
 
 GLCamera::GLCamera(void) {
-	/*fi = 0;
-	theta = 90;
-	dist = 700;
-
-	eye[X] = 0;
-	eye[Y] = 0;
-	eye[Z] = 700;
-
-	look[X] = 0;
-	look[Y] = 0;
-	look[Z] = 0;
-
-	up[X] = 0;
-	up[Y] = 1;
-	up[Z] = 0;
-
-	right[X] = 1;
-	right[Y] = 0;
-	right[Z] = 0;*/
 	color[0] = 0.9; color[1] = 0.45; color[2] = 0.0;
 	width = 1;
 	height = 1;
@@ -98,13 +79,9 @@ void GLCamera::update() {
 	CVector3 lookVector(look);
 	CVector3 normal = Normalize(lookVector - eyeVector);
 	CVector3 upVector(up);
-	//upVector = upVector - normal*(Dot(upVector, normal));
-	//upVector = Normalize(upVector);
 	CVector3 rightVector = Normalize(Cross(upVector, normal));
-	//upVector = Normalize(Cross(rightVector, normal));
 	upVector = Normalize(Cross(normal, rightVector));
 
-	//up[X] = upVector.x; up[Y] = upVector.y; up[Z] = upVector.z;
 	right[X] = rightVector.x; right[Y] = rightVector.y; right[Z] = rightVector.z;
 
 	calculateMatrices();
@@ -115,39 +92,21 @@ void GLCamera::calculateMatrices() {
 	glm::vec3 lookv(look[X], look[Y], look[Z]);
 	glm::vec3 upv(up[X], up[Y], up[Z]);
 	modelview = glm::lookAt(eyev, lookv, upv);
-	/*glPushMatrix();
-
-	glLoadIdentity();
-	gluLookAt(eye[X], eye[Y], eye[Z], look[X], look[Y], look[Z], up[X], up[Y], up[Z]);
-	GLint viewportt[4];
-	GLdouble modelviewv[16];
-	GLdouble projectionn[16];
-	//get matrices
-	glGetIntegerv(GL_VIEWPORT, viewportt);
-	glGetDoublev(GL_MODELVIEW_MATRIX, modelviewv);
-	glGetDoublev(GL_PROJECTION_MATRIX, projectionn);
-
-	glPopMatrix();*/
+	normalMatrix = glm::transpose(glm::inverse(glm::mat3(modelview)));
 }
 
 void GLCamera::lookFromCamera(GLint mvpLoc) {
 	glm::mat4 MVPmatrix = projection*modelview;
 	glUniformMatrix4fv(mvpLoc, 1, GL_FALSE, glm::value_ptr(MVPmatrix));
+}
 
-	/*static GLUquadric* ball = NULL;
-	if (ball == NULL)
-		ball = gluNewQuadric();
 
-	glLoadIdentity();
-	gluLookAt(eye[X], eye[Y], eye[Z], look[X], look[Y], look[Z], up[X], up[Y], up[Z]);
+void GLCamera::setupModelViewMatrix(GLint mvLoc) {
+	glUniformMatrix4fv(mvLoc, 1, GL_FALSE, glm::value_ptr(modelview));
+}
 
-	//show camera position
-	glColor3f(0.9, 0.45, 0);
-	glPushMatrix();
-	glTranslatef(look[X], look[Y],look[Z]);
-	gluSphere(ball, 2, 10, 10);
-	glPopMatrix();
-	glColor3f(1, 0, 1);*/
+void GLCamera::setupNormalMatrix(GLint nmLoc) {
+	glUniformMatrix3fv(nmLoc, 1, GL_FALSE, glm::value_ptr(normalMatrix));
 }
 
 glm::mat4 GLCamera::cameraModelMatrix() {
@@ -186,22 +145,22 @@ GLCamera::~GLCamera(void)
 {
 }
 
-OpenMesh::Vec3f GLCamera::getRight() {
-	return OpenMesh::Vec3f(right);
+glm::vec3 GLCamera::getRight() {
+	return glm::vec3(right[X], right[Y], right[Z]);
 }
 
-OpenMesh::Vec3f GLCamera::getUp() {
-	return OpenMesh::Vec3f(up);
+glm::vec3 GLCamera::getUp() {
+	return glm::vec3(up[X], up[Y], up[Z]);
 }
 
-OpenMesh::Vec3f GLCamera::getView() {
-	OpenMesh::Vec3f lookV(look);
-	OpenMesh::Vec3f eyeV(eye);
-	return (eyeV - lookV).normalize();
+glm::vec3 GLCamera::getView() {
+	glm::vec3 lookV(look[X], look[Y], look[Z]);
+	glm::vec3 eyeV(eye[X], eye[Y], eye[Z]);
+	return glm::normalize(eyeV - lookV);
 }
 
-OpenMesh::Vec3f GLCamera::getEye() {
-	return OpenMesh::Vec3f(eye);
+glm::vec3 GLCamera::getEye() {
+	return glm::vec3(eye[X], eye[Y], eye[Z]);
 }
 
 void GLCamera::mousePositionTo3D(int x_cursor, int y_cursor, GLdouble &x, GLdouble &y, GLdouble &z) {
