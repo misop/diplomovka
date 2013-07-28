@@ -15,6 +15,7 @@ SQMNode::SQMNode(void) {
 	id = "0";
 	parent = NULL;
 	polyhedron = NULL;
+	tessLevel = 1;
 }
 
 SQMNode::SQMNode(SkeletonNode &node, SQMNode* newParent) : parent(newParent) {
@@ -28,6 +29,7 @@ SQMNode::SQMNode(SkeletonNode &node, SQMNode* newParent) : parent(newParent) {
 	position = OpenMesh::Vec3f(node.point.x, node.point.y, node.point.z);
 	//nodeRadius = (float)(rand()%100)/100*10 + 5;
 	nodeRadius = 10;
+	tessLevel = 3;
 	for (int i = 0; i < node.nodes.size(); i++) {
 		SQMNode *newNode = new SQMNode(*node.nodes[i], this);
 		nodes.push_back(newNode);
@@ -90,6 +92,10 @@ float SQMNode::getNodeRadius() {
 	return nodeRadius;
 }
 
+float SQMNode::getTessLevel() {
+	return tessLevel;
+}
+
 Quaternion SQMNode::getAxisAngle() {
 	return axisAngle;
 }
@@ -120,6 +126,10 @@ float SQMNode::getZ() {
 
 void SQMNode::setNodeRadius(float newNodeRadius) {
 	nodeRadius = newNodeRadius;
+}
+
+void SQMNode::setTessLevel(float newTessLevel) {
+	tessLevel = newTessLevel;
 }
 
 void SQMNode::setPosition(OpenMesh::Vec3f newPosition) {
@@ -1012,6 +1022,20 @@ void SQMNode::finishLeafeNode(MyMesh* mesh, vector<MyMesh::VertexHandle>& oneRin
 		mesh->add_face(oneRing[i], vhandle, oneRing[j]);
 	}
 }
+
+#pragma region BNP Tess Level
+
+void SQMNode::getMeshTessLevel(std::vector<float> &tessLevels) {
+	//each node stores vertices for rotation that belong to him we just need to push tess level for every vertex
+	for (int i = 0; i < meshVhandlesToRotate.size(); i++) {
+		tessLevels.push_back(tessLevel);
+	}
+	for (int i = 0; i < nodes.size(); i++) {
+		nodes[i]->getMeshTessLevel(tessLevels);
+	}
+}
+
+#pragma endregion
 
 #pragma endregion
 

@@ -40,6 +40,8 @@ namespace OpenGLForm
 		OpenGLShaders *sklTessShaders;
 		OpenGLShaders *sklLineShaders;
 		OpenGLShaders *bnpShaders;
+		OpenGLShaders *triTessShaders;
+		OpenGLShaders *quadTessShaders;
 		GLArrayBuffer *arrayBuffer;
 #pragma endregion
 
@@ -53,6 +55,8 @@ namespace OpenGLForm
 			sklTessShaders = new OpenGLShaders();
 			sklLineShaders = new OpenGLShaders();
 			bnpShaders = new OpenGLShaders();
+			triTessShaders = new OpenGLShaders();
+			quadTessShaders = new OpenGLShaders();
 
 			/*CreateParams^ cp = gcnew CreateParams;
 			// Set the position on the form
@@ -178,6 +182,8 @@ namespace OpenGLForm
 			delete sklTessShaders;
 			delete sklLineShaders;
 			delete bnpShaders;
+			delete triTessShaders;
+			delete quadTessShaders;
 			delete programs;
 			delete arrayBuffer;
 		}
@@ -344,6 +350,56 @@ namespace OpenGLForm
 			programs->BNPs->SaveProgramLog();
 			programs->BNPs->uniforms.MVPmatrix = programs->BNPs->getUniformLocation("MVPmatrix");
 			programs->BNPs->uniforms.DiffuseColor = programs->BNPs->getUniformLocation("DiffuseColor");
+			//common tess shaders
+			triTessShaders->vert = new GLShader(GL_VERTEX_SHADER);
+			triTessShaders->vert->Load("TessVertShader.vert");
+			triTessShaders->vert->Compile();
+
+			triTessShaders->geom = new GLShader(GL_GEOMETRY_SHADER);
+			triTessShaders->geom->Load("TessGeomShader.geom");
+			triTessShaders->geom->Compile();
+			
+			triTessShaders->frag = new GLShader(GL_FRAGMENT_SHADER);
+			triTessShaders->frag->Load("TessFragShader.frag");
+			triTessShaders->frag->Compile();
+			//tri mesh tesselation
+			triTessShaders->ctrl = new GLShader(GL_TESS_CONTROL_SHADER);
+			triTessShaders->ctrl->Load("TessTriCtrlShader.glsl");
+			triTessShaders->ctrl->Compile();
+			
+			triTessShaders->eval = new GLShader(GL_TESS_EVALUATION_SHADER);
+			triTessShaders->eval->Load("TessTriEvalShader.glsl");
+			triTessShaders->eval->Compile();
+
+			programs->TriMeshTess = new GLProgram();
+			programs->TriMeshTess->AttachShader(triTessShaders->vert);
+			programs->TriMeshTess->AttachShader(triTessShaders->ctrl);
+			programs->TriMeshTess->AttachShader(triTessShaders->eval);
+			programs->TriMeshTess->AttachShader(triTessShaders->geom);
+			programs->TriMeshTess->AttachShader(triTessShaders->frag);
+			programs->TriMeshTess->Link();
+			programs->TriMeshTess->SaveProgramLog();
+			programs->TriMeshTess->uniforms.MVPmatrix = programs->BNPs->getUniformLocation("MVPmatrix");
+			programs->TriMeshTess->uniforms.DiffuseColor = programs->BNPs->getUniformLocation("DiffuseColor");
+			//quad mesh tesselation
+			quadTessShaders->ctrl = new GLShader(GL_TESS_CONTROL_SHADER);
+			quadTessShaders->ctrl->Load("TessQuadCtrlShader.glsl");
+			quadTessShaders->ctrl->Compile();
+			
+			quadTessShaders->eval = new GLShader(GL_TESS_EVALUATION_SHADER);
+			quadTessShaders->eval->Load("TessQuadEvalShader.glsl");
+			quadTessShaders->eval->Compile();
+
+			programs->QuadMeshTess = new GLProgram();
+			programs->QuadMeshTess->AttachShader(triTessShaders->vert);
+			programs->QuadMeshTess->AttachShader(quadTessShaders->ctrl);
+			programs->QuadMeshTess->AttachShader(quadTessShaders->eval);
+			programs->QuadMeshTess->AttachShader(triTessShaders->geom);
+			programs->QuadMeshTess->AttachShader(triTessShaders->frag);
+			programs->QuadMeshTess->Link();
+			programs->QuadMeshTess->SaveProgramLog();
+			programs->QuadMeshTess->uniforms.MVPmatrix = programs->BNPs->getUniformLocation("MVPmatrix");
+			programs->QuadMeshTess->uniforms.DiffuseColor = programs->BNPs->getUniformLocation("DiffuseColor");
 
 			return true;
 		}
@@ -432,6 +488,9 @@ namespace OpenGLForm
 
 		GLvoid resize(GLsizei width, GLsizei height)		// Resize and initialise the gl window
 		{
+			if (width == 0) {
+				width = 1;
+			}
 			if (height==0)										// Prevent A Divide By Zero By
 			{
 				height=1;										// Making Height Equal One

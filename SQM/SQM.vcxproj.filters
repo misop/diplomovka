@@ -25,6 +25,15 @@
     <Filter Include="Shaders\TriMeshes">
       <UniqueIdentifier>{3a716300-b2dc-4a5f-8612-d5c69d7f916a}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Shaders\TessMesh">
+      <UniqueIdentifier>{fdfb9ee1-9436-4149-9ccb-2f8afee0395f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Shaders\TessMesh\QuadMesh">
+      <UniqueIdentifier>{fd9c163d-eb80-4cfa-9a8f-9adfa84bfc71}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Shaders\TessMesh\TriMesh">
+      <UniqueIdentifier>{16db22aa-7578-425e-9350-edb431f59098}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <Text Include="ReadMe.txt" />
@@ -222,6 +231,27 @@
     </None>
     <None Include="BNPVertShader.vert">
       <Filter>Shaders\TriMeshes</Filter>
+    </None>
+    <None Include="TessFragShader.frag">
+      <Filter>Shaders\TessMesh</Filter>
+    </None>
+    <None Include="TessVertShader.vert">
+      <Filter>Shaders\TessMesh</Filter>
+    </None>
+    <None Include="TessQuadCtrlShader.glsl">
+      <Filter>Shaders\TessMesh\QuadMesh</Filter>
+    </None>
+    <None Include="TessQuadEvalShader.glsl">
+      <Filter>Shaders\TessMesh\QuadMesh</Filter>
+    </None>
+    <None Include="TessTriCtrlShader.glsl">
+      <Filter>Shaders\TessMesh\TriMesh</Filter>
+    </None>
+    <None Include="TessTriEvalShader.glsl">
+      <Filter>Shaders\TessMesh\TriMesh</Filter>
+    </None>
+    <None Include="TessGeomShader.geom">
+      <Filter>Shaders\TessMesh</Filter>
     </None>
   </ItemGroup>
 </Project>

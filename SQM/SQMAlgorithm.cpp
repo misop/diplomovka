@@ -78,50 +78,6 @@ int SQMAlgorithm::countNodes() {
 
 #pragma endregion
 
-#pragma region Drawing
-
-void SQMAlgorithm::draw() {
-	if (root) {
-		switch (drawingMode)
-		{
-		case 2:
-			root->draw2();
-			break;
-		case 3:
-			//root->draw2();
-			draw2();
-			break;
-		default:
-			root->draw();
-			break;
-		}
-	}
-}
-
-void SQMAlgorithm::draw2() {
-	//draw polyhedron
-	/*glColor3f(1, 1, 1);
-	if (mesh != NULL) {
-	OpenMesh::PolyConnectivity::FaceIter it = mesh->faces_begin();
-	OpenMesh::PolyConnectivity::FaceIter fit = mesh->faces_end();
-	for (; it != fit; ++it)	{
-	glBegin(GL_LINES);
-	MyMesh::ConstFaceVertexIter fvit = mesh->cfv_begin(it);
-	MyMesh::ConstFaceVertexIter ffvit = mesh->cfv_end(it);
-	glVertex3fv(&mesh->point(fvit)[0]);
-	fvit++;
-	for (; fvit != ffvit; ++fvit) {
-	glVertex3fv(&mesh->point(fvit)[0]);
-	glVertex3fv(&mesh->point(fvit)[0]);
-	}
-	fvit = mesh->cfv_begin(it);
-	glVertex3fv(&mesh->point(fvit)[0]);
-	glEnd();
-	}
-	}*/
-	drawMeshHalfEdgesWithArrows(mesh);
-}
-
 void SQMAlgorithm::getBoundingSphere(float &x, float &y, float &z, float &d) {
 	if (!root) {//if there is no root there is no bounding sphere
 		x = y = z = d = 0;
@@ -159,8 +115,6 @@ void SQMAlgorithm::getBoundingSphere(float &x, float &y, float &z, float &d) {
 	y = (maxY - minY)/2 + minY;
 	z = (maxZ - minZ)/2 + minZ;
 }
-
-#pragma endregion
 
 #pragma region SQM Algorithm
 

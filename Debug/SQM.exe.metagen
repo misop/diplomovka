@@ -32,6 +32,8 @@ Class OpenGLForm.COpenGL: AutoLayout, AnsiClass, Class, Public, BeforeFieldInit
     OpenGLShaders* sklTessShaders : Public
     OpenGLShaders* sklLineShaders : Public
     OpenGLShaders* bnpShaders : Public
+    OpenGLShaders* triTessShaders : Public
+    OpenGLShaders* quadTessShaders : Public
     GLArrayBuffer* arrayBuffer : Public
   Methods:
     Render(): PrivateScope, Public, HideBySig

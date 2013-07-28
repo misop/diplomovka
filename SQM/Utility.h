@@ -12,12 +12,16 @@ struct OpenGLPrograms {
 	GLProgram *SklLines;
 	GLProgram *SklNodes;
 	GLProgram *BNPs;
+	GLProgram *TriMeshTess;
+	GLProgram *QuadMeshTess;
 
-	OpenGLPrograms() : SklLines(NULL), SklNodes(NULL), BNPs(NULL) { }
+	OpenGLPrograms() : SklLines(NULL), SklNodes(NULL), BNPs(NULL), TriMeshTess(NULL), QuadMeshTess(NULL) { }
 	~OpenGLPrograms() {
 		if (SklLines) delete SklLines;
 		if (SklNodes) delete SklNodes;
 		if (BNPs) delete BNPs;
+		if (TriMeshTess) delete TriMeshTess;
+		if (QuadMeshTess) delete QuadMeshTess;
 	}
 };
 

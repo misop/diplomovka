@@ -178,6 +178,13 @@
     <None Include="SklTessCtrlShader.glsl" />
     <None Include="SklTessEvalShader.glsl" />
     <None Include="SklTessVertShader.vert" />
+    <None Include="TessFragShader.frag" />
+    <None Include="TessGeomShader.geom" />
+    <None Include="TessQuadCtrlShader.glsl" />
+    <None Include="TessQuadEvalShader.glsl" />
+    <None Include="TessTriCtrlShader.glsl" />
+    <None Include="TessTriEvalShader.glsl" />
+    <None Include="TessVertShader.vert" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -102,6 +102,8 @@ namespace SQM {
 	private: System::Windows::Forms::Label^  label2;
 	private: System::Windows::Forms::NumericUpDown^  numericUpDown1;
 	private: System::Windows::Forms::TextBox^  textBox1;
+	private: System::Windows::Forms::NumericUpDown^  numericUpDown5;
+	private: System::Windows::Forms::Label^  label7;
 
 
 
@@ -148,6 +150,8 @@ namespace SQM {
 				 this->numericUpDown1 = (gcnew System::Windows::Forms::NumericUpDown());
 				 this->textBox1 = (gcnew System::Windows::Forms::TextBox());
 				 this->label1 = (gcnew System::Windows::Forms::Label());
+				 this->label7 = (gcnew System::Windows::Forms::Label());
+				 this->numericUpDown5 = (gcnew System::Windows::Forms::NumericUpDown());
 				 this->toolStrip1->SuspendLayout();
 				 this->menuStrip1->SuspendLayout();
 				 this->panel2->SuspendLayout();
@@ -155,6 +159,7 @@ namespace SQM {
 				 (cli::safe_cast<System::ComponentModel::ISupportInitialize^  >(this->numericUpDown3))->BeginInit();
 				 (cli::safe_cast<System::ComponentModel::ISupportInitialize^  >(this->numericUpDown2))->BeginInit();
 				 (cli::safe_cast<System::ComponentModel::ISupportInitialize^  >(this->numericUpDown1))->BeginInit();
+				 (cli::safe_cast<System::ComponentModel::ISupportInitialize^  >(this->numericUpDown5))->BeginInit();
 				 this->SuspendLayout();
 				 // 
 				 // timer1
@@ -305,6 +310,8 @@ namespace SQM {
 				 // 
 				 this->panel2->Anchor = static_cast<System::Windows::Forms::AnchorStyles>(((System::Windows::Forms::AnchorStyles::Top | System::Windows::Forms::AnchorStyles::Bottom) 
 					 | System::Windows::Forms::AnchorStyles::Left));
+				 this->panel2->Controls->Add(this->numericUpDown5);
+				 this->panel2->Controls->Add(this->label7);
 				 this->panel2->Controls->Add(this->label6);
 				 this->panel2->Controls->Add(this->numericUpDown4);
 				 this->panel2->Controls->Add(this->label5);
@@ -438,6 +445,28 @@ namespace SQM {
 				 this->label1->TabIndex = 0;
 				 this->label1->Text = L"Node";
 				 // 
+				 // label7
+				 // 
+				 this->label7->AutoSize = true;
+				 this->label7->Location = System::Drawing::Point(8, 158);
+				 this->label7->Name = L"label7";
+				 this->label7->Size = System::Drawing::Size(58, 13);
+				 this->label7->TabIndex = 11;
+				 this->label7->Text = L"Tess level:";
+				 // 
+				 // numericUpDown5
+				 // 
+				 this->numericUpDown5->Enabled = false;
+				 this->numericUpDown5->Location = System::Drawing::Point(72, 155);
+				 this->numericUpDown5->Maximum = System::Decimal(gcnew cli::array< System::Int32 >(4) {10, 0, 0, 0});
+				 this->numericUpDown5->Minimum = System::Decimal(gcnew cli::array< System::Int32 >(4) {1, 0, 0, 0});
+				 this->numericUpDown5->Name = L"numericUpDown5";
+				 this->numericUpDown5->ReadOnly = true;
+				 this->numericUpDown5->Size = System::Drawing::Size(91, 20);
+				 this->numericUpDown5->TabIndex = 12;
+				 this->numericUpDown5->Value = System::Decimal(gcnew cli::array< System::Int32 >(4) {1, 0, 0, 0});
+				 this->numericUpDown5->ValueChanged += gcnew System::EventHandler(this, &Form1::numericUpDown5_ValueChanged);
+				 // 
 				 // Form1
 				 // 
 				 this->AutoScaleDimensions = System::Drawing::SizeF(6, 13);
@@ -461,6 +490,7 @@ namespace SQM {
 				 (cli::safe_cast<System::ComponentModel::ISupportInitialize^  >(this->numericUpDown3))->EndInit();
 				 (cli::safe_cast<System::ComponentModel::ISupportInitialize^  >(this->numericUpDown2))->EndInit();
 				 (cli::safe_cast<System::ComponentModel::ISupportInitialize^  >(this->numericUpDown1))->EndInit();
+				 (cli::safe_cast<System::ComponentModel::ISupportInitialize^  >(this->numericUpDown5))->EndInit();
 				 this->ResumeLayout(false);
 				 this->PerformLayout();
 
@@ -480,11 +510,13 @@ namespace SQM {
 				 this->numericUpDown2->ReadOnly = true;
 				 this->numericUpDown3->ReadOnly = true;
 				 this->numericUpDown4->ReadOnly = true;
+				 this->numericUpDown5->ReadOnly = true;
 
 				 this->numericUpDown1->Enabled = false;
 				 this->numericUpDown2->Enabled = false;
 				 this->numericUpDown3->Enabled = false;
 				 this->numericUpDown4->Enabled = false;
+				 this->numericUpDown5->Enabled = false;
 
 				 this->panel1->Focus();
 			 }
@@ -497,6 +529,7 @@ namespace SQM {
 					 this->numericUpDown2->Value = System::Decimal(node->getY());;
 					 this->numericUpDown3->Value = System::Decimal(node->getZ());;
 					 this->numericUpDown4->Value = System::Decimal(node->getNodeRadius());
+					 this->numericUpDown5->Value = System::Decimal(node->getTessLevel());
 				 }
 			 }
 			 void ReEnableNodeGUI() {
@@ -506,17 +539,20 @@ namespace SQM {
 					 this->numericUpDown2->ReadOnly = false;
 					 this->numericUpDown3->ReadOnly = false;
 					 this->numericUpDown4->ReadOnly = false;
+					 this->numericUpDown5->ReadOnly = false;
 
 					 this->numericUpDown1->Enabled = true;
 					 this->numericUpDown2->Enabled = true;
 					 this->numericUpDown3->Enabled = true;
 					 this->numericUpDown4->Enabled = true;
+					 this->numericUpDown5->Enabled = true;
 				 } else {
 					 this->textBox1->Text = L"no node selected";
 					 this->numericUpDown1->Value = System::Decimal(0);
 					 this->numericUpDown2->Value = System::Decimal(0);;
 					 this->numericUpDown3->Value = System::Decimal(0);;
 					 this->numericUpDown4->Value = System::Decimal(1);
+					 this->numericUpDown5->Value = System::Decimal(1);
 				 }
 			 }
 
@@ -658,6 +694,13 @@ namespace SQM {
 				 if (node != NULL) {
 					 float value = System::Decimal::ToSingle(this->numericUpDown4->Value);
 					 OpenGL->getSQMController()->setSelectedRadius(value);
+				 }
+			 }
+	private: System::Void numericUpDown5_ValueChanged(System::Object^  sender, System::EventArgs^  e) {
+				 SQMNode *node = OpenGL->getSelected();
+				 if (node != NULL) {
+					 float value = System::Decimal::ToSingle(this->numericUpDown5->Value);
+					 OpenGL->getSQMController()->setSelectedTessLevel(value);
 				 }
 			 }
 	};

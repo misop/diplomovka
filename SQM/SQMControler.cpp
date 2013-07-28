@@ -195,6 +195,10 @@ void SQMControler::setSelectedRadius(float radius) {
 	drawSkeleton();
 }
 
+void SQMControler::setSelectedTessLevel(float tessLevel) {
+	selected->setTessLevel(tessLevel);
+}
+
 #pragma region drawing
 
 void SQMControler::draw(OpenGLPrograms *programs, GLCamera *camera) {
@@ -206,7 +210,8 @@ void SQMControler::draw(OpenGLPrograms *programs, GLCamera *camera) {
 		drawBNPs(programs, camera);
 	}
 	if (state == SQMJoinBNPs || state == SQMFinalPlacement) {
-		drawMesh(programs, camera);
+		//drawMesh(programs, camera);
+		drawMeshForTesselation(programs, camera);
 	}
 }
 
@@ -295,18 +300,24 @@ void SQMControler::drawMesh(OpenGLPrograms *programs, GLCamera *camera) {
 void SQMControler::drawMeshForTesselation(OpenGLPrograms *programs, GLCamera *camera) {
 	//show camera
 	programs->SklNodes->Use();
+	glPatchParameteri(GL_PATCH_VERTICES, 3);
 	camera->lookFromCamera(programs->SklNodes->uniforms.MVPmatrix);
 	glUniformMatrix4fv(programs->SklNodes->uniforms.ModelMatrix, 1, GL_FALSE, glm::value_ptr(camera->cameraModelMatrix()));
 	glUniform1f(programs->SklNodes->uniforms.TessLevelInner, TESSELATION_LEVEL);
 	glUniform1f(programs->SklNodes->uniforms.TessLevelOuter, TESSELATION_LEVEL);
 	glUniform3fv(programs->SklNodes->uniforms.DiffuseColor, 1, camera->color);
 	icosahedron->DrawElement(0, GL_PATCHES);
-	//draw BNPs
-	//TODO:: tesselation shader for triangle mesh parts
-	camera->lookFromCamera(programs->BNPs->uniforms.MVPmatrix);
+	//draw tri patches
+	programs->TriMeshTess->Use();
+	glPatchParameteri(GL_PATCH_VERTICES, 3);
+	camera->lookFromCamera(programs->TriMeshTess->uniforms.MVPmatrix);
+	glUniform3f(programs->TriMeshTess->uniforms.DiffuseColor, 0.0, 0.75, 0.75);
 	buffer1->DrawElement(0, GL_PATCHES);
-	//TODO:: teselation shaders for quad mesh parts
-	camera->lookFromCamera(programs->BNPs->uniforms.MVPmatrix);
+	//draw quad patches
+	programs->QuadMeshTess->Use();
+	glPatchParameteri(GL_PATCH_VERTICES, 4);
+	camera->lookFromCamera(programs->QuadMeshTess->uniforms.MVPmatrix);
+	glUniform3f(programs->QuadMeshTess->uniforms.DiffuseColor, 0.0, 0.75, 0.75);
 	buffer1->DrawElement(1, GL_PATCHES);
 }
 
@@ -344,12 +355,15 @@ void SQMControler::drawMeshForTesselation() {
 	vector<float> points;
 	vector<int> triIndices;
 	vector<int> quadIndices;
+	vector<float> tessLevels;
 
 	convertMeshToArray(sqmALgorithm->getMesh(), points, triIndices, quadIndices);
+	sqmALgorithm->getRoot()->getMeshTessLevel(tessLevels);
 
 	buffer1 = new GLArrayBuffer();
 	buffer1->Bind();
 	buffer1->BindBufferData(points, 3, GL_STATIC_DRAW);
+	buffer1->BindBufferData(tessLevels, 1, GL_STATIC_DRAW);
 	buffer1->BindElement(triIndices, GL_STATIC_DRAW);
 	buffer1->BindElement(quadIndices, GL_STATIC_DRAW);
 }
@@ -489,7 +503,7 @@ void SQMControler::executeSQMAlgorithm(SQMState state) {
 	sqmALgorithm->executeSQMAlgorithm(state);
 	drawSkeleton();
 	if (state == SQMComputeConvexHull || state == SQMSubdivideConvexHull) drawBNPs();
-	if (state == SQMJoinBNPs || state == SQMFinalPlacement) drawMesh();
+	if (state == SQMJoinBNPs || state == SQMFinalPlacement) drawMeshForTesselation();//drawMesh();
 }
 
 #pragma endregion

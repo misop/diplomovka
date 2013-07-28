@@ -30,6 +30,7 @@ class SQMNode {
 	string id;
 	SQMNode* parent;
 	float nodeRadius;
+	float tessLevel;
 	OpenMesh::Vec3f position;
 	Quaternion axisAngle;
 	vector<SQMNode*> nodes;
@@ -62,6 +63,7 @@ public:
 	vector<SQMNode*>* getDescendants();
 	vector<MyTriMesh::VertexHandle>* getIntersectionVHandles();
 	float getNodeRadius();
+	float getTessLevel();
 	Quaternion getAxisAngle();
 	int getNumOfChilds();
 	float getX();
@@ -71,6 +73,7 @@ public:
 
 #pragma region Setters
 	void setNodeRadius(float newNodeRadius);
+	void setTessLevel(float newTessLevel);
 	void setPosition(OpenMesh::Vec3f newPosition);
 	void setPosition(float x, float y, float z);
 	void addDescendant(SQMNode* node);
@@ -127,6 +130,11 @@ public:
 	void addPolyhedronAndRememberVHandles(MyMesh* mesh, SQMNode* parentBNPNode, vector<MyMesh::VertexHandle>& oneRing, vector<vector<MyMesh::VHandle> >& oneRingsOfPolyhedron, OpenMesh::Vec3f& directionVector);
 	void extendMesh(MyMesh* mesh, SQMNode* parentBNPNode, vector<MyMesh::VertexHandle>& oneRing, OpenMesh::Vec3f& directionVector);
 	void finishLeafeNode(MyMesh* mesh, vector<MyMesh::VertexHandle>& oneRing);
+
+#pragma region BNP Tess Level
+	void getMeshTessLevel(std::vector<float> &tessLevels);
+#pragma endregion
+
 #pragma endregion
 
 #pragma region Final Vertex Placement

@@ -43,6 +43,7 @@ public:
 	void setSelectedY(float y);
 	void setSelectedZ(float z);
 	void setSelectedRadius(float radius);
+	void setSelectedTessLevel(float tessLevel);
 	SQMNode* getSelected();
 	
 	void draw(OpenGLPrograms *programs, GLCamera *camera);

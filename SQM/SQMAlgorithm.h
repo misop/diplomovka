@@ -34,9 +34,6 @@ public:
 
 	void straightenSkeleton();
 
-	void draw();
-	void draw2();
-
 	int countNodes();
 
 	void getBoundingSphere(float &x, float &y, float &z, float &d);
