@@ -3,12 +3,10 @@
   <ImportGroup Label="PropertySheets" />
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup>
-    <_PropertySheetDisplayName>OpenMesh</_PropertySheetDisplayName>
-    <LibraryPath>C:\Program Files %28x86%29\OpenMesh 2.2\lib;$(LibraryPath)</LibraryPath>
     <IncludePath>C:\Program Files %28x86%29\OpenMesh 2.2\include;$(IncludePath)</IncludePath>
+    <LibraryPath>C:\Program Files %28x86%29\OpenMesh 2.2\lib;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup>
-    <Link />
     <Link>
       <AdditionalDependencies>OpenMeshCore.lib;OpenMeshTools.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>

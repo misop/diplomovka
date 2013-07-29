@@ -42,9 +42,9 @@ struct OpenGLShaders {
 	}
 };
 
-#pragma region Template Functions
+/*#pragma region Template Functions
 template <typename T> std::string ToString(T& a);
-#pragma endregion
+#pragma endregion*/
 
 #pragma region Ray Intersections
 bool raySphereIntersection(OpenMesh::Vec3f ray_origin, OpenMesh::Vec3f ray_direction, OpenMesh::Vec3f sphere_center, float sphere_radius, float &t_param);

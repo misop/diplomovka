@@ -8,6 +8,13 @@ using namespace std;
 GLProgram::GLProgram(void)
 {
 	program = glCreateProgram();
+	name = "";
+}
+
+GLProgram::GLProgram(std::string programName)
+{
+	program = glCreateProgram();
+	name = programName;
 }
 
 
@@ -58,7 +65,7 @@ string GLProgram::GetProgramLog() {
 }
 
 void GLProgram::SaveProgramLog() {
-	string fileName = "log_program_" + ToString(program) + ".txt";
+	string fileName = "log_program_" + name + ".txt";
 	ofstream output(fileName);
 	output << GetProgramLog();
 	output.close();

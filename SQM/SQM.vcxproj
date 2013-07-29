@@ -50,9 +50,9 @@
     <Import Project="Boost.props" />
     <Import Project="tnt.props" />
     <Import Project="jama.props" />
-    <Import Project="OpenMeshd.props" />
     <Import Project="GLEW.props" />
     <Import Project="GLM.props" />
+    <Import Project="OpenMesh.props" />
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">

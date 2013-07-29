@@ -10,6 +10,9 @@ private:
 
 	std::string readShaderFile(std::string fileName);
 public:
+	std::string name;
+	
+	GLShader(GLenum shaderType, std::string shaderName);
 	GLShader(GLenum shaderType);
 	~GLShader(void);
 

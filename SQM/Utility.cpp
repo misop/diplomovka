@@ -8,7 +8,7 @@
 
 using namespace std;
 
-#pragma region Template Functions
+/*#pragma region Template Functions
 
 template <typename T> string ToString(T& a) {
 	stringstream ss;
@@ -16,7 +16,7 @@ template <typename T> string ToString(T& a) {
 	return ss.str();
 }
 
-#pragma endregion
+#pragma endregion*/
 
 #pragma region Ray Intersections
 

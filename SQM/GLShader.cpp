@@ -3,13 +3,21 @@
 #include <fstream>
 #include <iostream>
 #include <sstream>
-#include "Utility.cpp"
+#include "Utility.h"
+//#include "Utility.cpp"
 
 using namespace std;
 
 GLShader::GLShader(GLenum shaderType)
 {
 	shader = glCreateShader(shaderType);
+	name = "";
+}
+
+GLShader::GLShader(GLenum shaderType, std::string shaderName)
+{
+	shader = glCreateShader(shaderType);
+	name = shaderName;
 }
 
 GLShader::~GLShader(void)
@@ -62,7 +70,7 @@ std::string GLShader::GetShaderLog() {
 }
 
 void GLShader::SaveShaderLog() {
-	string fileName = "log_shader_" + ToString(shader) + ".txt";
+	string fileName = "log_shader_" + name + ".txt";
 	ofstream output(fileName);
 	output << GetShaderLog();
 	output.close();

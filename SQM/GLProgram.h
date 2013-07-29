@@ -22,8 +22,10 @@ private:
 	GLuint program;
 public:
 	ProgramUniforms uniforms;
-
+	std::string name;
+	
 	GLProgram(void);
+	GLProgram(std::string programName);
 	~GLProgram(void);
 
 	GLuint GetProgram();

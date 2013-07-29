@@ -302,7 +302,7 @@ namespace OpenGLForm
 			sklTessShaders->frag->Load("SklTessFragShader.frag");
 			sklTessShaders->frag->Compile();
 
-			programs->SklNodes = new GLProgram();
+			programs->SklNodes = new GLProgram("SklNodes");
 			programs->SklNodes->AttachShader(sklTessShaders->vert);
 			programs->SklNodes->AttachShader(sklTessShaders->ctrl);
 			programs->SklNodes->AttachShader(sklTessShaders->eval);
@@ -323,7 +323,7 @@ namespace OpenGLForm
 			sklLineShaders->frag->Load("SklLineFragShader.frag");
 			sklLineShaders->frag->Compile();
 
-			programs->SklLines = new GLProgram();
+			programs->SklLines = new GLProgram("SklLines");
 			programs->SklLines->AttachShader(sklLineShaders->vert);
 			programs->SklLines->AttachShader(sklLineShaders->frag);
 			programs->SklLines->Link();
@@ -342,7 +342,7 @@ namespace OpenGLForm
 			bnpShaders->frag->Load("BNPFragShader.frag");
 			bnpShaders->frag->Compile();
 
-			programs->BNPs = new GLProgram();
+			programs->BNPs = new GLProgram("BNPs");
 			programs->BNPs->AttachShader(bnpShaders->vert);
 			programs->BNPs->AttachShader(bnpShaders->geom);
 			programs->BNPs->AttachShader(bnpShaders->frag);
@@ -371,7 +371,7 @@ namespace OpenGLForm
 			triTessShaders->eval->Load("TessTriEvalShader.glsl");
 			triTessShaders->eval->Compile();
 
-			programs->TriMeshTess = new GLProgram();
+			programs->TriMeshTess = new GLProgram("TriMeshTess");
 			programs->TriMeshTess->AttachShader(triTessShaders->vert);
 			programs->TriMeshTess->AttachShader(triTessShaders->ctrl);
 			programs->TriMeshTess->AttachShader(triTessShaders->eval);
@@ -390,7 +390,7 @@ namespace OpenGLForm
 			quadTessShaders->eval->Load("TessQuadEvalShader.glsl");
 			quadTessShaders->eval->Compile();
 
-			programs->QuadMeshTess = new GLProgram();
+			programs->QuadMeshTess = new GLProgram("QuadMeshTess");
 			programs->QuadMeshTess->AttachShader(triTessShaders->vert);
 			programs->QuadMeshTess->AttachShader(quadTessShaders->ctrl);
 			programs->QuadMeshTess->AttachShader(quadTessShaders->eval);
