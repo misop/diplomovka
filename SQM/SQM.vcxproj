@@ -169,22 +169,22 @@
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
-    <None Include="BNPFragShader.frag" />
-    <None Include="BNPGeomShader.geom" />
-    <None Include="BNPVertShader.vert" />
-    <None Include="SklLineFragShader.frag" />
-    <None Include="SklLineVertShader.vert" />
-    <None Include="SklTessFragShader.frag" />
-    <None Include="SklTessCtrlShader.glsl" />
-    <None Include="SklTessEvalShader.glsl" />
-    <None Include="SklTessVertShader.vert" />
-    <None Include="TessFragShader.frag" />
-    <None Include="TessGeomShader.geom" />
-    <None Include="TessQuadCtrlShader.glsl" />
-    <None Include="TessQuadEvalShader.glsl" />
-    <None Include="TessTriCtrlShader.glsl" />
-    <None Include="TessTriEvalShader.glsl" />
-    <None Include="TessVertShader.vert" />
+    <None Include="Shaders\BNPFragShader.frag" />
+    <None Include="Shaders\BNPGeomShader.geom" />
+    <None Include="Shaders\BNPVertShader.vert" />
+    <None Include="Shaders\SklLineFragShader.frag" />
+    <None Include="Shaders\SklLineVertShader.vert" />
+    <None Include="Shaders\SklTessCtrlShader.glsl" />
+    <None Include="Shaders\SklTessEvalShader.glsl" />
+    <None Include="Shaders\SklTessFragShader.frag" />
+    <None Include="Shaders\SklTessVertShader.vert" />
+    <None Include="Shaders\TessFragShader.frag" />
+    <None Include="Shaders\TessGeomShader.geom" />
+    <None Include="Shaders\TessQuadCtrlShader.glsl" />
+    <None Include="Shaders\TessQuadEvalShader.glsl" />
+    <None Include="Shaders\TessTriCtrlShader.glsl" />
+    <None Include="Shaders\TessTriEvalShader.glsl" />
+    <None Include="Shaders\TessVertShader.vert" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

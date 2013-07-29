@@ -205,53 +205,53 @@
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
-    <None Include="SklLineFragShader.frag">
+    <None Include="Shaders\SklLineFragShader.frag">
       <Filter>Shaders\SklLine</Filter>
     </None>
-    <None Include="SklLineVertShader.vert">
+    <None Include="Shaders\SklLineVertShader.vert">
       <Filter>Shaders\SklLine</Filter>
     </None>
-    <None Include="SklTessCtrlShader.glsl">
+    <None Include="Shaders\SklTessCtrlShader.glsl">
       <Filter>Shaders\SklTess</Filter>
     </None>
-    <None Include="SklTessEvalShader.glsl">
+    <None Include="Shaders\SklTessEvalShader.glsl">
       <Filter>Shaders\SklTess</Filter>
     </None>
-    <None Include="SklTessFragShader.frag">
+    <None Include="Shaders\SklTessFragShader.frag">
       <Filter>Shaders\SklTess</Filter>
     </None>
-    <None Include="SklTessVertShader.vert">
+    <None Include="Shaders\SklTessVertShader.vert">
       <Filter>Shaders\SklTess</Filter>
     </None>
-    <None Include="BNPFragShader.frag">
+    <None Include="Shaders\BNPFragShader.frag">
       <Filter>Shaders\TriMeshes</Filter>
     </None>
-    <None Include="BNPGeomShader.geom">
+    <None Include="Shaders\BNPGeomShader.geom">
       <Filter>Shaders\TriMeshes</Filter>
     </None>
-    <None Include="BNPVertShader.vert">
+    <None Include="Shaders\BNPVertShader.vert">
       <Filter>Shaders\TriMeshes</Filter>
     </None>
-    <None Include="TessFragShader.frag">
+    <None Include="Shaders\TessFragShader.frag">
       <Filter>Shaders\TessMesh</Filter>
     </None>
-    <None Include="TessVertShader.vert">
+    <None Include="Shaders\TessGeomShader.geom">
       <Filter>Shaders\TessMesh</Filter>
     </None>
-    <None Include="TessQuadCtrlShader.glsl">
-      <Filter>Shaders\TessMesh\QuadMesh</Filter>
+    <None Include="Shaders\TessVertShader.vert">
+      <Filter>Shaders\TessMesh</Filter>
     </None>
-    <None Include="TessQuadEvalShader.glsl">
-      <Filter>Shaders\TessMesh\QuadMesh</Filter>
-    </None>
-    <None Include="TessTriCtrlShader.glsl">
+    <None Include="Shaders\TessTriCtrlShader.glsl">
       <Filter>Shaders\TessMesh\TriMesh</Filter>
     </None>
-    <None Include="TessTriEvalShader.glsl">
+    <None Include="Shaders\TessTriEvalShader.glsl">
       <Filter>Shaders\TessMesh\TriMesh</Filter>
     </None>
-    <None Include="TessGeomShader.geom">
-      <Filter>Shaders\TessMesh</Filter>
+    <None Include="Shaders\TessQuadCtrlShader.glsl">
+      <Filter>Shaders\TessMesh\QuadMesh</Filter>
+    </None>
+    <None Include="Shaders\TessQuadEvalShader.glsl">
+      <Filter>Shaders\TessMesh\QuadMesh</Filter>
     </None>
   </ItemGroup>
 </Project>
