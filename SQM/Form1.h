@@ -31,7 +31,7 @@ namespace SQM {
 	public ref class Form1 : public System::Windows::Forms::Form
 	{
 	public:
-		Form1(void)
+		Form1(void) : OpenGL(nullptr)
 		{
 			InitializeComponent();
 			//
@@ -684,7 +684,8 @@ namespace SQM {
 			 }
 	private: System::Void panel1_Resize(System::Object^  sender, System::EventArgs^  e) {
 				 Control^ control = dynamic_cast<Control^>(sender);
-				 OpenGL->resize((GLsizei)control->Size.Width, (GLsizei)control->Size.Height);
+				 if (OpenGL != nullptr)
+					OpenGL->resize((GLsizei)control->Size.Width, (GLsizei)control->Size.Height);
 			 }
 	private: System::Void numericUpDown1_ValueChanged(System::Object^  sender, System::EventArgs^  e) {
 				 SQMNode *node = OpenGL->getSelected();
