@@ -646,6 +646,9 @@ namespace OpenGLForm
 		void executeSQMAlgorithm() {
 			sqmControler->executeSQMAlgorithm();
 		}
+		void restartSQMAlgorithm() {
+			sqmControler->restart();
+		}
 		void executeSQMAlgorithm(SQMState state) {
 			sqmControler->executeSQMAlgorithm(state);
 		}

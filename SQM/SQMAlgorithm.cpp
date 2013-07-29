@@ -11,6 +11,7 @@ SQMAlgorithm::SQMAlgorithm(void) : root(NULL)
 	os = new ostream(fb);
 	omerr().connect(*os);
 	root = new SQMNode();
+	resetRoot = NULL;
 	numOfNodes = 1;
 }
 
@@ -21,6 +22,8 @@ SQMAlgorithm::~SQMAlgorithm(void)
 	}
 	if (fb->is_open())
 		fb->close();
+	if (root) delete root;
+	if (resetRoot) delete resetRoot;
 	delete fb;
 	delete os;
 }
@@ -28,10 +31,10 @@ SQMAlgorithm::~SQMAlgorithm(void)
 #pragma region Setters
 
 void SQMAlgorithm::setRoot(SQMNode *newRoot) {
-	if (root)
-		delete root;
+	if (root) delete root;
 
 	root = newRoot;
+
 	drawingMode = 0;
 	sqmState = SQMStart;
 	numOfNodes = countNodes();
@@ -118,7 +121,20 @@ void SQMAlgorithm::getBoundingSphere(float &x, float &y, float &z, float &d) {
 
 #pragma region SQM Algorithm
 
+void SQMAlgorithm::updateResetRoot() {
+	if (resetRoot) delete resetRoot;
+	resetRoot = new SQMNode(*root);
+}
+
+void SQMAlgorithm::restart() {
+	if (root) delete root;
+	root = new SQMNode(*resetRoot);
+	sqmState = SQMStart;
+}
+
 void SQMAlgorithm::straightenSkeleton() {
+	updateResetRoot();
+
 	fb->open("log.txt", ios::out);
 	(*os) << "Skeleton straightening\n";
 	//root->straightenSkeleton(OpenMesh::Vec3f(0, 0, 0));

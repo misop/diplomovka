@@ -38,6 +38,23 @@ SQMNode::SQMNode(SkeletonNode &node, SQMNode* newParent) : parent(newParent) {
 }
 
 
+SQMNode::SQMNode(SQMNode &node) {
+	parent = NULL;
+	polyhedron = NULL;
+	id = node.id;
+	nodeRadius = node.getNodeRadius();
+	tessLevel = node.getTessLevel();
+	position = node.getPosition();
+	axisAngle = node.getAxisAngle();
+	vector<SQMNode *> *childs = node.getNodes();
+	for (int i = 0; i < childs->size(); i++) {
+		SQMNode *childRef = (*childs)[i];
+		SQMNode *child = new SQMNode(*childRef);
+		child->setParent(this);
+		nodes.push_back(child);
+	}
+}
+
 SQMNode::~SQMNode(void) {
 	for (int i = 0; i < nodes.size(); i++) {
 		delete nodes[i];
@@ -123,6 +140,10 @@ float SQMNode::getZ() {
 #pragma endregion
 
 #pragma region Setters
+
+void SQMNode::setParent(SQMNode *node) {
+	parent = node;
+}
 
 void SQMNode::setNodeRadius(float newNodeRadius) {
 	nodeRadius = newNodeRadius;

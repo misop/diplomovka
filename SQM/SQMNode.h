@@ -48,6 +48,7 @@ public:
 #pragma region Init
 	SQMNode(void);
 	SQMNode(SkeletonNode &node, SQMNode* newParent);
+	SQMNode(SQMNode &node);
 	~SQMNode(void);	
 #pragma endregion
 
@@ -72,6 +73,7 @@ public:
 #pragma endregion
 
 #pragma region Setters
+	void setParent(SQMNode *node);
 	void setNodeRadius(float newNodeRadius);
 	void setTessLevel(float newTessLevel);
 	void setPosition(OpenMesh::Vec3f newPosition);

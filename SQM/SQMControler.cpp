@@ -487,6 +487,12 @@ void SQMControler::getBoundingSphere(float &x, float &y, float &z, float &d) {
 	sqmALgorithm->getBoundingSphere(x, y, z, d);
 }
 
+void SQMControler::restart() {
+	if (sqmALgorithm->getState() == SQMStart) return;
+	sqmALgorithm->restart();
+	drawSkeleton();
+}
+
 void SQMControler::subdivideConvexHull() {
 	sqmALgorithm->subdivideConvexHull();
 }
@@ -501,7 +507,7 @@ void SQMControler::executeSQMAlgorithm() {
 
 void SQMControler::executeSQMAlgorithm(SQMState state) {
 	sqmALgorithm->executeSQMAlgorithm(state);
-	drawSkeleton();
+	if (state == SQMStart || state == SQMStraighten) drawSkeleton();
 	if (state == SQMComputeConvexHull || state == SQMSubdivideConvexHull) drawBNPs();
 	if (state == SQMJoinBNPs || state == SQMFinalPlacement) drawMeshForTesselation();//drawMesh();
 }

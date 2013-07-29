@@ -14,6 +14,7 @@ typedef enum {
 
 class SQMAlgorithm {
 	SQMNode *root;
+	SQMNode *resetRoot;
 	int drawingMode;
 	SQMState sqmState;
 	MyMesh* mesh;
@@ -37,6 +38,8 @@ public:
 	int countNodes();
 
 	void getBoundingSphere(float &x, float &y, float &z, float &d);
+	void updateResetRoot();
+	void restart();
 	void computeConvexHull();
 	void subdivideConvexHull();
 	void joinBNPs();

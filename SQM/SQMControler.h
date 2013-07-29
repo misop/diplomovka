@@ -29,6 +29,7 @@ public:
 
 	bool selectNodeInRay(glm::vec3 position, glm::vec3 direction);
 
+	void restart();
 	void straightenSkeleton();
 	void computeConvexHull();
 	void subdivideConvexHull();

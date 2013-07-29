@@ -104,6 +104,8 @@ namespace SQM {
 	private: System::Windows::Forms::TextBox^  textBox1;
 	private: System::Windows::Forms::NumericUpDown^  numericUpDown5;
 	private: System::Windows::Forms::Label^  label7;
+	private: System::Windows::Forms::ToolStripMenuItem^  editToolStripMenuItem;
+	private: System::Windows::Forms::ToolStripMenuItem^  restartToolStripMenuItem;
 
 
 
@@ -138,7 +140,11 @@ namespace SQM {
 				 this->subdivideConvexHullToolStripMenuItem1 = (gcnew System::Windows::Forms::ToolStripMenuItem());
 				 this->joinBranchNodePolyhedronsToolStripMenuItem = (gcnew System::Windows::Forms::ToolStripMenuItem());
 				 this->straightenMeshToolStripMenuItem = (gcnew System::Windows::Forms::ToolStripMenuItem());
+				 this->editToolStripMenuItem = (gcnew System::Windows::Forms::ToolStripMenuItem());
+				 this->restartToolStripMenuItem = (gcnew System::Windows::Forms::ToolStripMenuItem());
 				 this->panel2 = (gcnew System::Windows::Forms::Panel());
+				 this->numericUpDown5 = (gcnew System::Windows::Forms::NumericUpDown());
+				 this->label7 = (gcnew System::Windows::Forms::Label());
 				 this->label6 = (gcnew System::Windows::Forms::Label());
 				 this->numericUpDown4 = (gcnew System::Windows::Forms::NumericUpDown());
 				 this->label5 = (gcnew System::Windows::Forms::Label());
@@ -150,16 +156,14 @@ namespace SQM {
 				 this->numericUpDown1 = (gcnew System::Windows::Forms::NumericUpDown());
 				 this->textBox1 = (gcnew System::Windows::Forms::TextBox());
 				 this->label1 = (gcnew System::Windows::Forms::Label());
-				 this->label7 = (gcnew System::Windows::Forms::Label());
-				 this->numericUpDown5 = (gcnew System::Windows::Forms::NumericUpDown());
 				 this->toolStrip1->SuspendLayout();
 				 this->menuStrip1->SuspendLayout();
 				 this->panel2->SuspendLayout();
+				 (cli::safe_cast<System::ComponentModel::ISupportInitialize^  >(this->numericUpDown5))->BeginInit();
 				 (cli::safe_cast<System::ComponentModel::ISupportInitialize^  >(this->numericUpDown4))->BeginInit();
 				 (cli::safe_cast<System::ComponentModel::ISupportInitialize^  >(this->numericUpDown3))->BeginInit();
 				 (cli::safe_cast<System::ComponentModel::ISupportInitialize^  >(this->numericUpDown2))->BeginInit();
 				 (cli::safe_cast<System::ComponentModel::ISupportInitialize^  >(this->numericUpDown1))->BeginInit();
-				 (cli::safe_cast<System::ComponentModel::ISupportInitialize^  >(this->numericUpDown5))->BeginInit();
 				 this->SuspendLayout();
 				 // 
 				 // timer1
@@ -218,8 +222,8 @@ namespace SQM {
 				 // 
 				 // menuStrip1
 				 // 
-				 this->menuStrip1->Items->AddRange(gcnew cli::array< System::Windows::Forms::ToolStripItem^  >(2) {this->fileToolStripMenuItem, 
-					 this->sQMToolStripMenuItem});
+				 this->menuStrip1->Items->AddRange(gcnew cli::array< System::Windows::Forms::ToolStripItem^  >(3) {this->fileToolStripMenuItem, 
+					 this->sQMToolStripMenuItem, this->editToolStripMenuItem});
 				 this->menuStrip1->Location = System::Drawing::Point(0, 0);
 				 this->menuStrip1->Name = L"menuStrip1";
 				 this->menuStrip1->Size = System::Drawing::Size(744, 24);
@@ -306,6 +310,20 @@ namespace SQM {
 				 this->straightenMeshToolStripMenuItem->Text = L"Final Vertex Placement";
 				 this->straightenMeshToolStripMenuItem->Click += gcnew System::EventHandler(this, &Form1::straightenMeshToolStripMenuItem_Click);
 				 // 
+				 // editToolStripMenuItem
+				 // 
+				 this->editToolStripMenuItem->DropDownItems->AddRange(gcnew cli::array< System::Windows::Forms::ToolStripItem^  >(1) {this->restartToolStripMenuItem});
+				 this->editToolStripMenuItem->Name = L"editToolStripMenuItem";
+				 this->editToolStripMenuItem->Size = System::Drawing::Size(39, 20);
+				 this->editToolStripMenuItem->Text = L"Edit";
+				 // 
+				 // restartToolStripMenuItem
+				 // 
+				 this->restartToolStripMenuItem->Name = L"restartToolStripMenuItem";
+				 this->restartToolStripMenuItem->Size = System::Drawing::Size(152, 22);
+				 this->restartToolStripMenuItem->Text = L"Edit Skeleton";
+				 this->restartToolStripMenuItem->Click += gcnew System::EventHandler(this, &Form1::restartToolStripMenuItem_Click);
+				 // 
 				 // panel2
 				 // 
 				 this->panel2->Anchor = static_cast<System::Windows::Forms::AnchorStyles>(((System::Windows::Forms::AnchorStyles::Top | System::Windows::Forms::AnchorStyles::Bottom) 
@@ -327,6 +345,28 @@ namespace SQM {
 				 this->panel2->Name = L"panel2";
 				 this->panel2->Size = System::Drawing::Size(176, 464);
 				 this->panel2->TabIndex = 3;
+				 // 
+				 // numericUpDown5
+				 // 
+				 this->numericUpDown5->Enabled = false;
+				 this->numericUpDown5->Location = System::Drawing::Point(72, 155);
+				 this->numericUpDown5->Maximum = System::Decimal(gcnew cli::array< System::Int32 >(4) {10, 0, 0, 0});
+				 this->numericUpDown5->Minimum = System::Decimal(gcnew cli::array< System::Int32 >(4) {1, 0, 0, 0});
+				 this->numericUpDown5->Name = L"numericUpDown5";
+				 this->numericUpDown5->ReadOnly = true;
+				 this->numericUpDown5->Size = System::Drawing::Size(91, 20);
+				 this->numericUpDown5->TabIndex = 12;
+				 this->numericUpDown5->Value = System::Decimal(gcnew cli::array< System::Int32 >(4) {1, 0, 0, 0});
+				 this->numericUpDown5->ValueChanged += gcnew System::EventHandler(this, &Form1::numericUpDown5_ValueChanged);
+				 // 
+				 // label7
+				 // 
+				 this->label7->AutoSize = true;
+				 this->label7->Location = System::Drawing::Point(8, 158);
+				 this->label7->Name = L"label7";
+				 this->label7->Size = System::Drawing::Size(58, 13);
+				 this->label7->TabIndex = 11;
+				 this->label7->Text = L"Tess level:";
 				 // 
 				 // label6
 				 // 
@@ -445,28 +485,6 @@ namespace SQM {
 				 this->label1->TabIndex = 0;
 				 this->label1->Text = L"Node";
 				 // 
-				 // label7
-				 // 
-				 this->label7->AutoSize = true;
-				 this->label7->Location = System::Drawing::Point(8, 158);
-				 this->label7->Name = L"label7";
-				 this->label7->Size = System::Drawing::Size(58, 13);
-				 this->label7->TabIndex = 11;
-				 this->label7->Text = L"Tess level:";
-				 // 
-				 // numericUpDown5
-				 // 
-				 this->numericUpDown5->Enabled = false;
-				 this->numericUpDown5->Location = System::Drawing::Point(72, 155);
-				 this->numericUpDown5->Maximum = System::Decimal(gcnew cli::array< System::Int32 >(4) {10, 0, 0, 0});
-				 this->numericUpDown5->Minimum = System::Decimal(gcnew cli::array< System::Int32 >(4) {1, 0, 0, 0});
-				 this->numericUpDown5->Name = L"numericUpDown5";
-				 this->numericUpDown5->ReadOnly = true;
-				 this->numericUpDown5->Size = System::Drawing::Size(91, 20);
-				 this->numericUpDown5->TabIndex = 12;
-				 this->numericUpDown5->Value = System::Decimal(gcnew cli::array< System::Int32 >(4) {1, 0, 0, 0});
-				 this->numericUpDown5->ValueChanged += gcnew System::EventHandler(this, &Form1::numericUpDown5_ValueChanged);
-				 // 
 				 // Form1
 				 // 
 				 this->AutoScaleDimensions = System::Drawing::SizeF(6, 13);
@@ -486,11 +504,11 @@ namespace SQM {
 				 this->menuStrip1->PerformLayout();
 				 this->panel2->ResumeLayout(false);
 				 this->panel2->PerformLayout();
+				 (cli::safe_cast<System::ComponentModel::ISupportInitialize^  >(this->numericUpDown5))->EndInit();
 				 (cli::safe_cast<System::ComponentModel::ISupportInitialize^  >(this->numericUpDown4))->EndInit();
 				 (cli::safe_cast<System::ComponentModel::ISupportInitialize^  >(this->numericUpDown3))->EndInit();
 				 (cli::safe_cast<System::ComponentModel::ISupportInitialize^  >(this->numericUpDown2))->EndInit();
 				 (cli::safe_cast<System::ComponentModel::ISupportInitialize^  >(this->numericUpDown1))->EndInit();
-				 (cli::safe_cast<System::ComponentModel::ISupportInitialize^  >(this->numericUpDown5))->EndInit();
 				 this->ResumeLayout(false);
 				 this->PerformLayout();
 
@@ -703,6 +721,9 @@ namespace SQM {
 					 OpenGL->getSQMController()->setSelectedTessLevel(value);
 				 }
 			 }
-	};
+	private: System::Void restartToolStripMenuItem_Click(System::Object^  sender, System::EventArgs^  e) {
+				 OpenGL->restartSQMAlgorithm();
+			 }
+};
 }
 

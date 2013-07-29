@@ -11,7 +11,8 @@ uniform vec3 DiffuseColor;
 
 const vec3 WireframeColor = vec3(1, 1, 1);
 const float add = 0.02;
-const float lengthThreshold4 = 70;
+
+const float lengthThreshold4 = 50;
 const float threshold4 = 0.0025;
 
 const float lengthThreshold3 = 30;

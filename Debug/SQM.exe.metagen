@@ -52,6 +52,7 @@ Class OpenGLForm.COpenGL: AutoLayout, AnsiClass, Class, Public, BeforeFieldInit
     joinBNPs(): PrivateScope, Public, HideBySig
     executeSQMAlgorithm(SQMState): PrivateScope, Public, HideBySig
     executeSQMAlgorithm(): PrivateScope, Public, HideBySig
+    restartSQMAlgorithm(): PrivateScope, Public, HideBySig
     Dispose(): PrivateScope, Public, Final, Virtual, HideBySig
 Class SQM.Form1: AutoLayout, AnsiClass, Class, Public, BeforeFieldInit
   :System.Windows.Forms.Form
