@@ -8,6 +8,7 @@ in vec4 gPatchDistance;
 in vec4 gPatchDistanceCtrl;
 
 uniform vec3 DiffuseColor;
+uniform int Wireframe;
 
 const vec3 WireframeColor = vec3(1, 1, 1);
 const float add = 0.02;
@@ -53,17 +54,18 @@ vec4 adjust(vec4 vals, vec4 sizes) {
 void main()
 {
     vec3 color = DiffuseColor;
-	
-	vec3 adjusted0 = adjust(gTriDistance, gTriDistanceCtrl);
-    float d1 = min(min(adjusted0.x, adjusted0.y), adjusted0.z);
-    //float d1 = min(min(gTriDistance.x, gTriDistance.y), gTriDistance.z);
+	if (Wireframe == 1) {
+		vec3 adjusted0 = adjust(gTriDistance, gTriDistanceCtrl);
+		float d1 = min(min(adjusted0.x, adjusted0.y), adjusted0.z);
+		//float d1 = min(min(gTriDistance.x, gTriDistance.y), gTriDistance.z);
 
-	vec4 adjusted1 = adjust(gPatchDistance, gPatchDistanceCtrl);
-	float d2 = min(min(min(adjusted1.x, adjusted1.y), adjusted1.z), adjusted1.w);
-	//float d2 = min(min(min(gPatchDistance.x, gPatchDistance.y), gPatchDistance.z), gPatchDistance.w);
-    d1 = 1 - amplify(d1, 50, -0.5);
-    d2 = amplify(d2, 50, -0.5);
-    color = d2 * color + d1 * d2 * WireframeColor;
+		vec4 adjusted1 = adjust(gPatchDistance, gPatchDistanceCtrl);
+		float d2 = min(min(min(adjusted1.x, adjusted1.y), adjusted1.z), adjusted1.w);
+		//float d2 = min(min(min(gPatchDistance.x, gPatchDistance.y), gPatchDistance.z), gPatchDistance.w);
+		d1 = 1 - amplify(d1, 50, -0.5);
+		d2 = amplify(d2, 50, -0.5);
+		color = d2 * color + d1 * d2 * WireframeColor;
+	}
 
     fColor = vec4(color, 1.0);
 }

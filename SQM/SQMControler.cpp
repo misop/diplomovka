@@ -22,6 +22,7 @@ SQMControler::SQMControler(void)
 	buffer1 = NULL;
 	icosahedron = NULL;
 	selectedIndex = -1;
+	wireframe = true;
 }
 
 
@@ -164,6 +165,14 @@ void SQMControler::insertNode(float x, float y, float z) {
 	selected->addDescendant(x, y, z);
 	sqmALgorithm->setNumberOfNodes(sqmALgorithm->getNumberOfNodes() + 1);
 	drawSkeleton();
+}
+
+void SQMControler::setWireframe(bool newWireframe) {
+	wireframe = newWireframe;
+}
+
+bool SQMControler::getWireframe() {
+	return wireframe;
 }
 
 void SQMControler::setSelectedPosition(OpenMesh::Vec3f pos) {
@@ -312,12 +321,14 @@ void SQMControler::drawMeshForTesselation(OpenGLPrograms *programs, GLCamera *ca
 	glPatchParameteri(GL_PATCH_VERTICES, 3);
 	camera->lookFromCamera(programs->TriMeshTess->uniforms.MVPmatrix);
 	glUniform3f(programs->TriMeshTess->uniforms.DiffuseColor, 0.0, 0.75, 0.75);
+	glUniform1i(programs->TriMeshTess->uniforms.Wireframe, wireframe ? 1 : 0);
 	buffer1->DrawElement(0, GL_PATCHES);
 	//draw quad patches
 	programs->QuadMeshTess->Use();
 	glPatchParameteri(GL_PATCH_VERTICES, 4);
 	camera->lookFromCamera(programs->QuadMeshTess->uniforms.MVPmatrix);
 	glUniform3f(programs->QuadMeshTess->uniforms.DiffuseColor, 0.0, 0.75, 0.75);
+	glUniform1i(programs->QuadMeshTess->uniforms.Wireframe, wireframe ? 1 : 0);
 	buffer1->DrawElement(1, GL_PATCHES);
 }
 
@@ -356,14 +367,17 @@ void SQMControler::drawMeshForTesselation() {
 	vector<int> triIndices;
 	vector<int> quadIndices;
 	vector<float> tessLevels;
+	vector<float> nodePositions;
 
 	convertMeshToArray(sqmALgorithm->getMesh(), points, triIndices, quadIndices);
-	sqmALgorithm->getRoot()->getMeshTessLevel(tessLevels);
+	//sqmALgorithm->getRoot()->getMeshTessLevel(tessLevels);
+	sqmALgorithm->getRoot()->getMeshTessData(tessLevels, nodePositions);
 
 	buffer1 = new GLArrayBuffer();
 	buffer1->Bind();
 	buffer1->BindBufferData(points, 3, GL_STATIC_DRAW);
 	buffer1->BindBufferData(tessLevels, 1, GL_STATIC_DRAW);
+	buffer1->BindBufferData(nodePositions, 4, GL_STATIC_DRAW);
 	buffer1->BindElement(triIndices, GL_STATIC_DRAW);
 	buffer1->BindElement(quadIndices, GL_STATIC_DRAW);
 }

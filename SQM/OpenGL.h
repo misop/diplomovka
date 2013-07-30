@@ -379,8 +379,9 @@ namespace OpenGLForm
 			programs->TriMeshTess->AttachShader(triTessShaders->frag);
 			programs->TriMeshTess->Link();
 			programs->TriMeshTess->SaveProgramLog();
-			programs->TriMeshTess->uniforms.MVPmatrix = programs->BNPs->getUniformLocation("MVPmatrix");
-			programs->TriMeshTess->uniforms.DiffuseColor = programs->BNPs->getUniformLocation("DiffuseColor");
+			programs->TriMeshTess->uniforms.MVPmatrix = programs->TriMeshTess->getUniformLocation("MVPmatrix");
+			programs->TriMeshTess->uniforms.DiffuseColor = programs->TriMeshTess->getUniformLocation("DiffuseColor");
+			programs->TriMeshTess->uniforms.Wireframe = programs->TriMeshTess->getUniformLocation("Wireframe");
 			//quad mesh tesselation
 			quadTessShaders->ctrl = new GLShader(GL_TESS_CONTROL_SHADER);
 			quadTessShaders->ctrl->Load("Shaders/TessQuadCtrlShader.glsl");
@@ -398,8 +399,9 @@ namespace OpenGLForm
 			programs->QuadMeshTess->AttachShader(triTessShaders->frag);
 			programs->QuadMeshTess->Link();
 			programs->QuadMeshTess->SaveProgramLog();
-			programs->QuadMeshTess->uniforms.MVPmatrix = programs->BNPs->getUniformLocation("MVPmatrix");
-			programs->QuadMeshTess->uniforms.DiffuseColor = programs->BNPs->getUniformLocation("DiffuseColor");
+			programs->QuadMeshTess->uniforms.MVPmatrix = programs->QuadMeshTess->getUniformLocation("MVPmatrix");
+			programs->QuadMeshTess->uniforms.DiffuseColor = programs->QuadMeshTess->getUniformLocation("DiffuseColor");
+			programs->QuadMeshTess->uniforms.Wireframe = programs->QuadMeshTess->getUniformLocation("Wireframe");
 
 			return true;
 		}
@@ -614,6 +616,9 @@ namespace OpenGLForm
 			return sqmControler->getSelected();
 		}
 		//functions
+		void alterWireframe() {
+			sqmControler->setWireframe(!sqmControler->getWireframe());
+		}
 		void newFile() {
 			sqmControler->newFile();
 			glCamera->reset();

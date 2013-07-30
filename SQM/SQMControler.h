@@ -16,6 +16,7 @@ private:
 	GLArrayBuffer *icosahedron;
 	vector<glm::mat4> modelMatrices;
 	int selectedIndex;
+	bool wireframe;
 public:
 	SQMNode *selected;
 
@@ -36,6 +37,9 @@ public:
 	void joinBNPs();
 	void executeSQMAlgorithm();
 	void executeSQMAlgorithm(SQMState state);
+
+	void setWireframe(bool newWireframe);
+	bool getWireframe();
 
 	void insertNode(float x, float y, float z);
 	void setSelectedPosition(OpenMesh::Vec3f pos);

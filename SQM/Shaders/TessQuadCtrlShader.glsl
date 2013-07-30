@@ -3,6 +3,11 @@
 layout(vertices = 4) out;
 
 in float vTessLevel[];
+in vec3 vNodePosition[];
+in float vNodeRadius[];
+
+out vec3 tcNodePosition[];
+out float tcNodeRadius[];
 
 void main()
 {
@@ -15,6 +20,9 @@ void main()
     gl_TessLevelOuter[1] = tessLevel;
     gl_TessLevelOuter[2] = tessLevel;
     gl_TessLevelOuter[3] = tessLevel;
+	
+	tcNodePosition[gl_InvocationID] = vNodePosition[gl_InvocationID];
+	tcNodeRadius[gl_InvocationID] = vNodeRadius[gl_InvocationID];
 
 	gl_out[gl_InvocationID].gl_Position = gl_in[gl_InvocationID].gl_Position;
 }

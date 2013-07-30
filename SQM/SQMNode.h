@@ -32,6 +32,7 @@ class SQMNode {
 	float nodeRadius;
 	float tessLevel;
 	OpenMesh::Vec3f position;
+	OpenMesh::Vec3f oldPosition;
 	Quaternion axisAngle;
 	vector<SQMNode*> nodes;
 	vector<OpenMesh::Vec3f> intersections;
@@ -40,7 +41,7 @@ class SQMNode {
 	vector<MyTriMesh::VertexHandle> intersectionVHandles;
 	vector<MyTriMesh::VertexHandle> meshIntersectionVHandles;
 	vector<MyMesh::VertexHandle> meshVhandlesToRotate;
-	
+
 	vector<OpenMesh::Vec3f> normals2;
 	vector<OpenMesh::Vec3f> centers2;
 	vector<OpenMesh::Vec3i> triangles2;
@@ -100,7 +101,7 @@ public:
 	OpenMesh::Vec3f translatedPointToSphereWithFaceNormals(OpenMesh::Vec3f p, OpenMesh::Vec3f n1, OpenMesh::Vec3f n2, OpenMesh::Vec3f center1, OpenMesh::Vec3f center2);
 	vector<int> getNormalIndexis(vector<int> indexis, int index);
 	void openMeshFromIdexedFace(vector<OpenMesh::Vec3f> vertices, vector<OpenMesh::Vec3i> faces);
-	
+
 	void createPolyhedraFromCenter(vector<OpenMesh::Vec3i> triangles);
 	OpenMesh::Vec3f polyhedronBoundingBoxCenter();
 	OpenMesh::Vec3f polyhedronPointSumCenterCenter();
@@ -132,15 +133,15 @@ public:
 	void addPolyhedronAndRememberVHandles(MyMesh* mesh, SQMNode* parentBNPNode, vector<MyMesh::VertexHandle>& oneRing, vector<vector<MyMesh::VHandle> >& oneRingsOfPolyhedron, OpenMesh::Vec3f& directionVector);
 	void extendMesh(MyMesh* mesh, SQMNode* parentBNPNode, vector<MyMesh::VertexHandle>& oneRing, OpenMesh::Vec3f& directionVector);
 	void finishLeafeNode(MyMesh* mesh, vector<MyMesh::VertexHandle>& oneRing);
-
-#pragma region BNP Tess Level
-	void getMeshTessLevel(std::vector<float> &tessLevels);
-#pragma endregion
-
 #pragma endregion
 
 #pragma region Final Vertex Placement
 	void rotateBack(MyMesh *mesh);
+#pragma endregion
+
+#pragma region BNP Tesselation
+	void getMeshTessLevel(std::vector<float> &tessLevels);
+	void getMeshTessData(std::vector<float> &tessLevels, std::vector<float> &nodePositions);
 #pragma endregion
 
 #pragma region Utility

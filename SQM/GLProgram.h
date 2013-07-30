@@ -14,6 +14,7 @@ struct ProgramUniforms {
 	GLint AmbientColor;
 	GLint DiffuseColor;
 	GLint LightPosition;
+	GLint Wireframe;
 };
 
 class GLProgram

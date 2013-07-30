@@ -106,6 +106,11 @@ namespace SQM {
 	private: System::Windows::Forms::Label^  label7;
 	private: System::Windows::Forms::ToolStripMenuItem^  editToolStripMenuItem;
 	private: System::Windows::Forms::ToolStripMenuItem^  restartToolStripMenuItem;
+	private: System::Windows::Forms::ToolStripMenuItem^  showToolStripMenuItem;
+	private: System::Windows::Forms::ToolStripMenuItem^  wireframeToolStripMenuItem;
+	private: System::Windows::Forms::ToolStripSeparator^  toolStripSeparator1;
+	private: System::Windows::Forms::ToolStripMenuItem^  exitToolStripMenuItem;
+
 
 
 
@@ -142,6 +147,8 @@ namespace SQM {
 				 this->straightenMeshToolStripMenuItem = (gcnew System::Windows::Forms::ToolStripMenuItem());
 				 this->editToolStripMenuItem = (gcnew System::Windows::Forms::ToolStripMenuItem());
 				 this->restartToolStripMenuItem = (gcnew System::Windows::Forms::ToolStripMenuItem());
+				 this->showToolStripMenuItem = (gcnew System::Windows::Forms::ToolStripMenuItem());
+				 this->wireframeToolStripMenuItem = (gcnew System::Windows::Forms::ToolStripMenuItem());
 				 this->panel2 = (gcnew System::Windows::Forms::Panel());
 				 this->numericUpDown5 = (gcnew System::Windows::Forms::NumericUpDown());
 				 this->label7 = (gcnew System::Windows::Forms::Label());
@@ -156,6 +163,8 @@ namespace SQM {
 				 this->numericUpDown1 = (gcnew System::Windows::Forms::NumericUpDown());
 				 this->textBox1 = (gcnew System::Windows::Forms::TextBox());
 				 this->label1 = (gcnew System::Windows::Forms::Label());
+				 this->toolStripSeparator1 = (gcnew System::Windows::Forms::ToolStripSeparator());
+				 this->exitToolStripMenuItem = (gcnew System::Windows::Forms::ToolStripMenuItem());
 				 this->toolStrip1->SuspendLayout();
 				 this->menuStrip1->SuspendLayout();
 				 this->panel2->SuspendLayout();
@@ -222,8 +231,8 @@ namespace SQM {
 				 // 
 				 // menuStrip1
 				 // 
-				 this->menuStrip1->Items->AddRange(gcnew cli::array< System::Windows::Forms::ToolStripItem^  >(3) {this->fileToolStripMenuItem, 
-					 this->sQMToolStripMenuItem, this->editToolStripMenuItem});
+				 this->menuStrip1->Items->AddRange(gcnew cli::array< System::Windows::Forms::ToolStripItem^  >(4) {this->fileToolStripMenuItem, 
+					 this->sQMToolStripMenuItem, this->editToolStripMenuItem, this->showToolStripMenuItem});
 				 this->menuStrip1->Location = System::Drawing::Point(0, 0);
 				 this->menuStrip1->Name = L"menuStrip1";
 				 this->menuStrip1->Size = System::Drawing::Size(744, 24);
@@ -232,38 +241,43 @@ namespace SQM {
 				 // 
 				 // fileToolStripMenuItem
 				 // 
-				 this->fileToolStripMenuItem->DropDownItems->AddRange(gcnew cli::array< System::Windows::Forms::ToolStripItem^  >(4) {this->newToolStripMenuItem, 
-					 this->loadToolStripMenuItem, this->saveToolStripMenuItem1, this->exportMeshToolStripMenuItem});
+				 this->fileToolStripMenuItem->DropDownItems->AddRange(gcnew cli::array< System::Windows::Forms::ToolStripItem^  >(6) {this->newToolStripMenuItem, 
+					 this->loadToolStripMenuItem, this->saveToolStripMenuItem1, this->exportMeshToolStripMenuItem, this->toolStripSeparator1, this->exitToolStripMenuItem});
 				 this->fileToolStripMenuItem->Name = L"fileToolStripMenuItem";
 				 this->fileToolStripMenuItem->Size = System::Drawing::Size(37, 20);
-				 this->fileToolStripMenuItem->Text = L"File";
+				 this->fileToolStripMenuItem->Text = L"&File";
 				 // 
 				 // newToolStripMenuItem
 				 // 
 				 this->newToolStripMenuItem->Name = L"newToolStripMenuItem";
-				 this->newToolStripMenuItem->Size = System::Drawing::Size(139, 22);
-				 this->newToolStripMenuItem->Text = L"New";
+				 this->newToolStripMenuItem->ShortcutKeys = static_cast<System::Windows::Forms::Keys>((System::Windows::Forms::Keys::Control | System::Windows::Forms::Keys::N));
+				 this->newToolStripMenuItem->Size = System::Drawing::Size(179, 22);
+				 this->newToolStripMenuItem->Text = L"&New";
 				 this->newToolStripMenuItem->Click += gcnew System::EventHandler(this, &Form1::newToolStripMenuItem_Click);
 				 // 
 				 // loadToolStripMenuItem
 				 // 
 				 this->loadToolStripMenuItem->Name = L"loadToolStripMenuItem";
-				 this->loadToolStripMenuItem->Size = System::Drawing::Size(139, 22);
-				 this->loadToolStripMenuItem->Text = L"Open";
+				 this->loadToolStripMenuItem->ShortcutKeyDisplayString = L"";
+				 this->loadToolStripMenuItem->ShortcutKeys = static_cast<System::Windows::Forms::Keys>((System::Windows::Forms::Keys::Control | System::Windows::Forms::Keys::O));
+				 this->loadToolStripMenuItem->Size = System::Drawing::Size(179, 22);
+				 this->loadToolStripMenuItem->Text = L"&Open";
 				 this->loadToolStripMenuItem->Click += gcnew System::EventHandler(this, &Form1::loadToolStripMenuItem_Click);
 				 // 
 				 // saveToolStripMenuItem1
 				 // 
 				 this->saveToolStripMenuItem1->Name = L"saveToolStripMenuItem1";
-				 this->saveToolStripMenuItem1->Size = System::Drawing::Size(139, 22);
-				 this->saveToolStripMenuItem1->Text = L"Save";
+				 this->saveToolStripMenuItem1->ShortcutKeys = static_cast<System::Windows::Forms::Keys>((System::Windows::Forms::Keys::Control | System::Windows::Forms::Keys::S));
+				 this->saveToolStripMenuItem1->Size = System::Drawing::Size(179, 22);
+				 this->saveToolStripMenuItem1->Text = L"&Save";
 				 this->saveToolStripMenuItem1->Click += gcnew System::EventHandler(this, &Form1::saveToolStripMenuItem1_Click);
 				 // 
 				 // exportMeshToolStripMenuItem
 				 // 
 				 this->exportMeshToolStripMenuItem->Name = L"exportMeshToolStripMenuItem";
-				 this->exportMeshToolStripMenuItem->Size = System::Drawing::Size(139, 22);
-				 this->exportMeshToolStripMenuItem->Text = L"Export mesh";
+				 this->exportMeshToolStripMenuItem->ShortcutKeys = static_cast<System::Windows::Forms::Keys>((System::Windows::Forms::Keys::Control | System::Windows::Forms::Keys::E));
+				 this->exportMeshToolStripMenuItem->Size = System::Drawing::Size(179, 22);
+				 this->exportMeshToolStripMenuItem->Text = L"&Export mesh";
 				 this->exportMeshToolStripMenuItem->Click += gcnew System::EventHandler(this, &Form1::exportMeshToolStripMenuItem_Click);
 				 // 
 				 // sQMToolStripMenuItem
@@ -273,7 +287,7 @@ namespace SQM {
 					 this->straightenMeshToolStripMenuItem});
 				 this->sQMToolStripMenuItem->Name = L"sQMToolStripMenuItem";
 				 this->sQMToolStripMenuItem->Size = System::Drawing::Size(45, 20);
-				 this->sQMToolStripMenuItem->Text = L"SQM";
+				 this->sQMToolStripMenuItem->Text = L"&SQM";
 				 // 
 				 // straightenToolStripMenuItem1
 				 // 
@@ -315,14 +329,31 @@ namespace SQM {
 				 this->editToolStripMenuItem->DropDownItems->AddRange(gcnew cli::array< System::Windows::Forms::ToolStripItem^  >(1) {this->restartToolStripMenuItem});
 				 this->editToolStripMenuItem->Name = L"editToolStripMenuItem";
 				 this->editToolStripMenuItem->Size = System::Drawing::Size(39, 20);
-				 this->editToolStripMenuItem->Text = L"Edit";
+				 this->editToolStripMenuItem->Text = L"&Edit";
 				 // 
 				 // restartToolStripMenuItem
 				 // 
 				 this->restartToolStripMenuItem->Name = L"restartToolStripMenuItem";
-				 this->restartToolStripMenuItem->Size = System::Drawing::Size(152, 22);
+				 this->restartToolStripMenuItem->Size = System::Drawing::Size(142, 22);
 				 this->restartToolStripMenuItem->Text = L"Edit Skeleton";
 				 this->restartToolStripMenuItem->Click += gcnew System::EventHandler(this, &Form1::restartToolStripMenuItem_Click);
+				 // 
+				 // showToolStripMenuItem
+				 // 
+				 this->showToolStripMenuItem->DropDownItems->AddRange(gcnew cli::array< System::Windows::Forms::ToolStripItem^  >(1) {this->wireframeToolStripMenuItem});
+				 this->showToolStripMenuItem->Name = L"showToolStripMenuItem";
+				 this->showToolStripMenuItem->Size = System::Drawing::Size(48, 20);
+				 this->showToolStripMenuItem->Text = L"Show";
+				 // 
+				 // wireframeToolStripMenuItem
+				 // 
+				 this->wireframeToolStripMenuItem->Checked = true;
+				 this->wireframeToolStripMenuItem->CheckOnClick = true;
+				 this->wireframeToolStripMenuItem->CheckState = System::Windows::Forms::CheckState::Checked;
+				 this->wireframeToolStripMenuItem->Name = L"wireframeToolStripMenuItem";
+				 this->wireframeToolStripMenuItem->Size = System::Drawing::Size(129, 22);
+				 this->wireframeToolStripMenuItem->Text = L"Wireframe";
+				 this->wireframeToolStripMenuItem->Click += gcnew System::EventHandler(this, &Form1::wireframeToolStripMenuItem_Click);
 				 // 
 				 // panel2
 				 // 
@@ -484,6 +515,19 @@ namespace SQM {
 				 this->label1->Size = System::Drawing::Size(33, 13);
 				 this->label1->TabIndex = 0;
 				 this->label1->Text = L"Node";
+				 // 
+				 // toolStripSeparator1
+				 // 
+				 this->toolStripSeparator1->Name = L"toolStripSeparator1";
+				 this->toolStripSeparator1->Size = System::Drawing::Size(176, 6);
+				 // 
+				 // exitToolStripMenuItem
+				 // 
+				 this->exitToolStripMenuItem->Name = L"exitToolStripMenuItem";
+				 this->exitToolStripMenuItem->ShortcutKeyDisplayString = L"Alt + F4";
+				 this->exitToolStripMenuItem->Size = System::Drawing::Size(179, 22);
+				 this->exitToolStripMenuItem->Text = L"E&xit";
+				 this->exitToolStripMenuItem->Click += gcnew System::EventHandler(this, &Form1::exitToolStripMenuItem_Click);
 				 // 
 				 // Form1
 				 // 
@@ -685,7 +729,7 @@ namespace SQM {
 	private: System::Void panel1_Resize(System::Object^  sender, System::EventArgs^  e) {
 				 Control^ control = dynamic_cast<Control^>(sender);
 				 if (OpenGL != nullptr)
-					OpenGL->resize((GLsizei)control->Size.Width, (GLsizei)control->Size.Height);
+					 OpenGL->resize((GLsizei)control->Size.Width, (GLsizei)control->Size.Height);
 			 }
 	private: System::Void numericUpDown1_ValueChanged(System::Object^  sender, System::EventArgs^  e) {
 				 SQMNode *node = OpenGL->getSelected();
@@ -725,6 +769,12 @@ namespace SQM {
 	private: System::Void restartToolStripMenuItem_Click(System::Object^  sender, System::EventArgs^  e) {
 				 OpenGL->restartSQMAlgorithm();
 			 }
-};
+	private: System::Void wireframeToolStripMenuItem_Click(System::Object^  sender, System::EventArgs^  e) {
+				 OpenGL->alterWireframe();
+			 }
+	private: System::Void exitToolStripMenuItem_Click(System::Object^  sender, System::EventArgs^  e) {
+				 Application::Exit();
+			 }
+	};
 }
 

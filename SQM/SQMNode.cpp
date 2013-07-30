@@ -210,6 +210,7 @@ SkeletonNode* SQMNode::exportToSkeletonNode() {
 
 void SQMNode::straightenSkeleton(OpenMesh::Vec3f *lineVector) {
 	axisAngle = Quaternion();
+	oldPosition = position;
 	if (lineVector != NULL && !parent->isBranchNode()) {//straighten self
 		SQMNode *ancestor = getAncestorBranchNode(this);
 		if (ancestor != NULL) {
@@ -1044,20 +1045,6 @@ void SQMNode::finishLeafeNode(MyMesh* mesh, vector<MyMesh::VertexHandle>& oneRin
 	}
 }
 
-#pragma region BNP Tess Level
-
-void SQMNode::getMeshTessLevel(std::vector<float> &tessLevels) {
-	//each node stores vertices for rotation that belong to him we just need to push tess level for every vertex
-	for (int i = 0; i < meshVhandlesToRotate.size(); i++) {
-		tessLevels.push_back(tessLevel);
-	}
-	for (int i = 0; i < nodes.size(); i++) {
-		nodes[i]->getMeshTessLevel(tessLevels);
-	}
-}
-
-#pragma endregion
-
 #pragma endregion
 
 #pragma region Final Vertex Placement
@@ -1091,6 +1078,34 @@ void SQMNode::rotateBack(MyMesh *mesh) {
 			P[2] = v.z;
 			mesh->set_point(vhandle, P);
 		}
+	}
+	position = oldPosition;
+}
+
+#pragma endregion
+
+#pragma region BNP Tesselation
+
+void SQMNode::getMeshTessLevel(std::vector<float> &tessLevels) {
+	//each node stores vertices for rotation that belong to him we just need to push tess level for every vertex
+	for (int i = 0; i < meshVhandlesToRotate.size(); i++) {
+		tessLevels.push_back(tessLevel);
+	}
+	for (int i = 0; i < nodes.size(); i++) {
+		nodes[i]->getMeshTessLevel(tessLevels);
+	}
+}
+
+void SQMNode::getMeshTessData(std::vector<float> &tessLevels, std::vector<float> &nodePositions) {
+	for (int i = 0; i < meshVhandlesToRotate.size(); i++) {
+		tessLevels.push_back(tessLevel);
+		nodePositions.push_back(position[0]);
+		nodePositions.push_back(position[1]);
+		nodePositions.push_back(position[2]);
+		nodePositions.push_back(nodeRadius);
+	}
+	for (int i = 0; i < nodes.size(); i++) {
+		nodes[i]->getMeshTessData(tessLevels, nodePositions);
 	}
 }
 
