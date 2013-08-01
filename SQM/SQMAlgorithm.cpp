@@ -13,6 +13,7 @@ SQMAlgorithm::SQMAlgorithm(void) : root(NULL)
 	root = new SQMNode();
 	resetRoot = NULL;
 	numOfNodes = 1;
+	smoothingAlgorithm = SQMQuaternionSmoothing;
 }
 
 SQMAlgorithm::~SQMAlgorithm(void)
@@ -42,6 +43,10 @@ void SQMAlgorithm::setRoot(SQMNode *newRoot) {
 
 void SQMAlgorithm::setNumberOfNodes(int newNumberOfNodes) {
 	numOfNodes = newNumberOfNodes;
+}
+
+void SQMAlgorithm::setSmoothingAlgorithm(SQMSmoothingAlgorithm sqmSmoothingAlgorithm) {
+	smoothingAlgorithm = sqmSmoothingAlgorithm;
 }
 
 #pragma endregion
@@ -159,7 +164,7 @@ void SQMAlgorithm::computeConvexHull() {
 
 void SQMAlgorithm::subdivideConvexHull() {
 	(*os) << "Convex hull subdivision\n";
-	root->subdividePolyhedra(NULL, 0);
+	root->subdividePolyhedra(NULL, 0, smoothingAlgorithm);
 	sqmState = SQMSubdivideConvexHull;
 }
 

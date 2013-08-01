@@ -12,7 +12,7 @@
 #include "LIENeedEntry.h"
 #include "Utility.h"
 
-#pragma region Structs
+#pragma region Structs & Enums
 
 struct VHandleCount {
 	MyTriMesh::VHandle vhandle;
@@ -21,6 +21,12 @@ struct VHandleCount {
 
 	VHandleCount(MyTriMesh::VHandle handle, int points, bool need) : vhandle(handle), missingPoints(points), needs(need) { };
 };
+
+typedef enum {
+	SQMQuaternionSmoothing = 0,
+	SQMValencyLaplacianSmoothing,
+	SQMOneRingLaplacianSmoothing
+} SQMSmoothingAlgorithm;
 
 #pragma endregion
 
@@ -109,19 +115,20 @@ public:
 #pragma endregion
 
 #pragma region BNP Subdivision
-	void subdividePolyhedra(SQMNode* parentBranchNode, int count);
+	void subdividePolyhedra(SQMNode* parentBranchNode, int count, SQMSmoothingAlgorithm algorithm);
 	void fillLIEMap(int parentNeed, std::map<int, LIENeedEntry>& lieMap, std::vector<SQMNode*>& branchingNodes);
-	void splitLIEs(std::map<int, LIENeedEntry>& lieMap);
-	void splitLIE(LIE lie, std::map<int, LIENeedEntry>& lieMap, int entryIndex, int lieIndex);
+	void splitLIEs(std::map<int, LIENeedEntry>& lieMap, SQMSmoothingAlgorithm algorithm);
+	void splitLIE(LIE lie, std::map<int, LIENeedEntry>& lieMap, int entryIndex, int lieIndex, SQMSmoothingAlgorithm algorithm);
 	LIE splitLIEEdge(LIE lie);
 	MyTriMesh::EHandle splitEdgeInHalfAndReturnNewEdge(MyTriMesh::EdgeHandle eh);
 
 #pragma region Smoothing
 	void smoothLIE(LIE lie);
 	void smoothLIEs(map<int, LIENeedEntry> lieMap);
-	void smoothMesh();
-	void mesh2graph(MeshGraph& meshGraph);
-	void laplacianSMoothing();
+	void laplacianSMoothing(SQMSmoothingAlgorithm algorithm);
+	void mesh2graph(MeshGraph& meshGraph, SQMSmoothingAlgorithm algorithm);
+	void mesh2graphValencyWeighted(MeshGraph& meshGraph);
+	void mesh2graphOneRingWeighted(MeshGraph& meshGraph);
 	void recalculateSmoothedVertices(MeshGraph& meshGraph);
 #pragma endregion
 

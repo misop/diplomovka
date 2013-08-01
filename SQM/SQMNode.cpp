@@ -531,15 +531,17 @@ OpenMesh::Vec3f SQMNode::translatePointToSphereFromCenter(OpenMesh::Vec3f point,
 
 #pragma region BNP Subdivision
 
-void SQMNode::subdividePolyhedra(SQMNode* parentBranchNode, int count) {
+void SQMNode::subdividePolyhedra(SQMNode* parentBranchNode, int count, SQMSmoothingAlgorithm algorithm) {
 	vector<SQMNode*> branchingNodes;
 	for (int i = 0; i < nodes.size(); i++) {
 		branchingNodes.push_back(getDescendantBranchNode(nodes[i]));
 	}
 	map<int, LIENeedEntry> lieMap;
 	fillLIEMap(count, lieMap, branchingNodes);
-	smoothLIEs(lieMap);
-	splitLIEs(lieMap);
+	if (algorithm == SQMQuaternionSmoothing) {
+		smoothLIEs(lieMap);
+	}
+	splitLIEs(lieMap, algorithm);
 	//take care of the rest
 	for (int i = 0; i < branchingNodes.size(); i++)	{
 		SQMNode* branchingNode = branchingNodes[i];
@@ -548,7 +550,7 @@ void SQMNode::subdividePolyhedra(SQMNode* parentBranchNode, int count) {
 			//if we needed some they have been added if we had more points than descendant he needs to add them
 			int missingPoints = verticeDifferenceFatherSon(this, branchingNode, vhandle);
 			missingPoints = (missingPoints < 0) ? -missingPoints : 0;
-			branchingNode->subdividePolyhedra(this, missingPoints);
+			branchingNode->subdividePolyhedra(this, missingPoints, algorithm);
 		}
 	}
 }
@@ -658,7 +660,7 @@ void SQMNode::fillLIEMap(int parentNeed, std::map<int, LIENeedEntry>& lieMap, st
 	}
 }
 
-void SQMNode::splitLIEs(std::map<int, LIENeedEntry>& lieMap) {
+void SQMNode::splitLIEs(std::map<int, LIENeedEntry>& lieMap, SQMSmoothingAlgorithm algorithm) {
 	bool parentFirst = (parent != NULL);
 	for (int i = 0; i < nodes.size(); i++) {
 		//parent should go first
@@ -687,7 +689,7 @@ void SQMNode::splitLIEs(std::map<int, LIENeedEntry>& lieMap) {
 				}
 			}
 			//split edge and adjust LIEs
-			splitLIE(bestLIE, lieMap, i, lieIndex);
+			splitLIE(bestLIE, lieMap, i, lieIndex, algorithm);
 			entry = lieMap.at(i);
 		}
 		if (parentFirst) {
@@ -699,9 +701,11 @@ void SQMNode::splitLIEs(std::map<int, LIENeedEntry>& lieMap) {
 	}
 }
 
-void SQMNode::splitLIE(LIE lie, std::map<int, LIENeedEntry>& lieMap, int entryIndex, int lieIndex) {
+void SQMNode::splitLIE(LIE lie, std::map<int, LIENeedEntry>& lieMap, int entryIndex, int lieIndex, SQMSmoothingAlgorithm algorithm) {
 	LIE newLie = splitLIEEdge(lie);
-	smoothLIE(newLie);
+	if (algorithm == SQMQuaternionSmoothing) {
+		smoothLIE(newLie);
+	}
 	//decrease need for both vertices
 	LIENeedEntry entry1 = lieMap.at(entryIndex);
 	LIENeedEntry entry2 = lieMap.at(lie.otherVerticeIndex(entryIndex));
@@ -716,7 +720,9 @@ void SQMNode::splitLIE(LIE lie, std::map<int, LIENeedEntry>& lieMap, int entryIn
 		entry2.need--;
 	lieMap.at(lie.vertice1) = entry1;
 	lieMap.at(lie.vertice2) = entry2;
-	//smoothMesh();
+	if (algorithm == SQMOneRingLaplacianSmoothing || algorithm == SQMValencyLaplacianSmoothing) {
+		laplacianSMoothing(algorithm);
+	}
 }
 
 LIE SQMNode::splitLIEEdge(LIE lie) {
@@ -785,10 +791,10 @@ void SQMNode::smoothLIEs(map<int, LIENeedEntry> lieMap) {
 	}
 }
 
-void SQMNode::smoothMesh() {
+void SQMNode::laplacianSMoothing(SQMSmoothingAlgorithm algorithm) {
 	//convert mesh
 	MeshGraph meshGraph = MeshGraph();
-	mesh2graph(meshGraph);
+	mesh2graph(meshGraph, algorithm);
 	//smooth mesh
 	computeLaplacian(&meshGraph);
 	//translate vertices
@@ -796,7 +802,16 @@ void SQMNode::smoothMesh() {
 	recalculateSmoothedVertices(meshGraph);
 }
 
-void SQMNode::mesh2graph(MeshGraph& meshGraph) {
+void SQMNode::mesh2graph(MeshGraph& meshGraph, SQMSmoothingAlgorithm algorithm) {
+	if (algorithm == SQMOneRingLaplacianSmoothing) {
+		mesh2graphOneRingWeighted(meshGraph);
+	} else if (algorithm == SQMValencyLaplacianSmoothing) {
+		mesh2graphValencyWeighted(meshGraph);
+	}
+}
+
+
+void SQMNode::mesh2graphValencyWeighted(MeshGraph& meshGraph) {
 	int n_vertices = polyhedron->n_vertices();
 	int n_faces = polyhedron->n_faces();
 	int n_edges = polyhedron->n_edges();
@@ -808,23 +823,6 @@ void SQMNode::mesh2graph(MeshGraph& meshGraph) {
 
 	CVector3 *vertices = new CVector3[n_vertices];
 	int idx = 0;
-	//avarage face area
-	/*float area = 0;
-	for (MyTriMesh::FaceIter f_it = polyhedron->faces_begin(); f_it != polyhedron->faces_end(); ++f_it)	{
-	MyTriMesh::FVIter fv_it = polyhedron->fv_begin(f_it.handle());
-	MyTriMesh::Point A = polyhedron->point(fv_it.handle());
-	++fv_it;
-	MyTriMesh::Point B = polyhedron->point(fv_it.handle());
-	++fv_it;
-	MyTriMesh::Point C = polyhedron->point(fv_it.handle());
-
-	OpenMesh::Vec3f u = B - A;
-	OpenMesh::Vec3f v = C - A;
-	OpenMesh::Vec3f w = cross(u, v);
-	area += (w.norm() / 2.0);
-	}
-	area /= (float)n_faces;
-	meshGraph.wL = sqrtf(area)/1000.0;*/
 	//get the vertices
 	for (MyTriMesh::VertexIter v_it = polyhedron->vertices_begin(); v_it != polyhedron->vertices_end(); ++v_it) 
 	{
@@ -854,7 +852,59 @@ void SQMNode::mesh2graph(MeshGraph& meshGraph) {
 	}
 }
 
-void SQMNode::laplacianSMoothing() {
+void SQMNode::mesh2graphOneRingWeighted(MeshGraph& meshGraph) {
+	int n_vertices = polyhedron->n_vertices();
+	int n_faces = polyhedron->n_faces();
+	int n_edges = polyhedron->n_edges();
+
+	meshGraph.numOfFaces = n_faces;
+	meshGraph.numOfVertices = n_vertices;
+	meshGraph.wL = 1;
+	meshGraph.wH = new float[n_vertices];
+
+	CVector3 *vertices = new CVector3[n_vertices];
+	int idx = 0;
+	//avarage face area
+	float area = 0;
+	for (MyTriMesh::FaceIter f_it = polyhedron->faces_begin(); f_it != polyhedron->faces_end(); ++f_it)	{
+		MyTriMesh::FVIter fv_it = polyhedron->fv_begin(f_it.handle());
+		MyTriMesh::Point A = polyhedron->point(fv_it.handle());
+		++fv_it;
+		MyTriMesh::Point B = polyhedron->point(fv_it.handle());
+		++fv_it;
+		MyTriMesh::Point C = polyhedron->point(fv_it.handle());
+
+		OpenMesh::Vec3f u = B - A;
+		OpenMesh::Vec3f v = C - A;
+		OpenMesh::Vec3f w = cross(u, v);
+		area += (w.norm() / 2.0);
+	}
+	area /= (float)n_faces;
+	//formula from paper
+	meshGraph.wL = sqrtf(area)/1000.0;
+	//get the vertices
+	for (MyTriMesh::VertexIter v_it = polyhedron->vertices_begin(); v_it != polyhedron->vertices_end(); ++v_it) 
+	{
+		MyTriMesh::VHandle vh = v_it.handle();
+		MyTriMesh::Point P = polyhedron->point(vh);
+		vertices[idx] = CVector3(polyhedron->point(vh).values_);
+		//one ring area weighted 1.0 from paper
+		meshGraph.wH[idx] = 1.0;
+		idx++;
+	}
+
+	meshGraph.pVerts = vertices;
+	meshGraph.E = TNT::Array2D<bool>(n_vertices, n_vertices, false);
+
+	for (MyTriMesh::EdgeIter e_it = polyhedron->edges_begin(); e_it != polyhedron->edges_end(); ++e_it) {
+		MyTriMesh::HalfedgeHandle heh0 = polyhedron->halfedge_handle(e_it.handle(), 0);
+		MyTriMesh::HalfedgeHandle heh1 = polyhedron->halfedge_handle(e_it.handle(), 1);
+		int i = polyhedron->to_vertex_handle(heh0).idx();
+		int j = polyhedron->to_vertex_handle(heh1).idx();
+		//register to map
+		meshGraph.E[i][j] = true;
+		meshGraph.E[j][i] = true;
+	}
 }
 
 void SQMNode::recalculateSmoothedVertices(MeshGraph& meshGraph) {

@@ -21,12 +21,14 @@ class SQMAlgorithm {
 	filebuf *fb;
 	ostream *os;
 	int numOfNodes;
+	SQMSmoothingAlgorithm smoothingAlgorithm;
 public:
 	SQMAlgorithm(void);
 	~SQMAlgorithm(void);
 
 	void setRoot(SQMNode *newRoot);
 	void setNumberOfNodes(int newNumberOfNodes);
+	void setSmoothingAlgorithm(SQMSmoothingAlgorithm sqmSmoothingAlgorithm);
 
 	SQMNode* getRoot();
 	SQMState getState();

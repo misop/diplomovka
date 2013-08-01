@@ -613,6 +613,16 @@ namespace OpenGLForm
 		SQMNode* getSelected() {
 			return sqmControler->getSelected();
 		}
+		//setters
+		void setQuaternionSmoothing() {
+			sqmControler->setSmoothingAlgorithm(SQMQuaternionSmoothing);
+		}
+		void setOneRingWeightedLaplacian() {
+			sqmControler->setSmoothingAlgorithm(SQMOneRingLaplacianSmoothing);
+		}
+		void setValencyWeightedLaplacian() {
+			sqmControler->setSmoothingAlgorithm(SQMValencyLaplacianSmoothing);
+		}
 		//functions
 		void alterWireframe() {
 			sqmControler->setWireframe(!sqmControler->getWireframe());

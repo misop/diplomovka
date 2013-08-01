@@ -210,6 +210,10 @@ void SQMControler::setSelectedTessLevel(float tessLevel) {
 	selected->setTessLevel(tessLevel);
 }
 
+void SQMControler::setSmoothingAlgorithm(SQMSmoothingAlgorithm smoothingAlgorithm) {
+	sqmALgorithm->setSmoothingAlgorithm(smoothingAlgorithm);
+}
+
 #pragma region drawing
 
 void SQMControler::draw(OpenGLPrograms *programs, GLCamera *camera) {
