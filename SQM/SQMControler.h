@@ -13,6 +13,7 @@ class SQMControler
 private:
 	SQMAlgorithm *sqmALgorithm;
 	GLArrayBuffer *buffer1;
+	GLArrayBuffer *buffer2;
 	GLArrayBuffer *icosahedron;
 	vector<glm::mat4> modelMatrices;
 	int selectedIndex;
@@ -51,6 +52,8 @@ public:
 	void setSelectedTessLevel(float tessLevel);
 	SQMNode* getSelected();
 	
+	void drawTriNormals();
+	void drawNormals();
 	void draw(OpenGLPrograms *programs, GLCamera *camera);
 	void drawSkeleton(OpenGLPrograms *programs, GLCamera *camera);
 	void drawSkeleton();

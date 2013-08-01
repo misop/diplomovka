@@ -30,6 +30,9 @@ void addToConvertedMeshArray(std::vector<int> &vertices, std::vector<int> &indic
 void convertMeshToArray(MyMesh *mesh, std::vector<float> &points, std::vector<int> &triIndices, std::vector<int> &quadIndices);
 void addToConvertedMeshArray(std::vector<int> &vertices, std::vector<int> &triIndices, std::vector<int> &quadIndices);
 
+void calculateTriMeshNormals(MyTriMesh *mesh, std::vector<float> &points);
+void calculateMeshNormals(MyMesh *mesh, std::vector<float> &points);
+
 void writeTriMesh(MyTriMesh* mesh);
 void writeTriMesh(MyTriMesh* mesh, std::string fileName);
 void writeMesh(MyMesh* mesh, std::string fileName);

@@ -6,8 +6,13 @@ in vec3 gTriDistance;
 in vec3 gTriDistanceCtrl;
 in vec4 gPatchDistance;
 in vec4 gPatchDistanceCtrl;
+in vec3 gVertex;
+in vec3 gNormal;
 
+uniform vec3 LightPosition;
 uniform vec3 DiffuseColor;
+uniform vec4 AmbientColor;
+uniform mat4 MVPmatrix;
 uniform int Wireframe;
 
 const vec3 WireframeColor = vec3(1, 1, 1);
@@ -53,7 +58,13 @@ vec4 adjust(vec4 vals, vec4 sizes) {
 
 void main()
 {
-    vec3 color = DiffuseColor;
+    vec3 color = AmbientColor.w * vec3(AmbientColor);
+
+	vec3 light = normalize(vec3(MVPmatrix * vec4(LightPosition, 1)) - gVertex);
+	float diffuseFactor = max(dot(gNormal, light), 0);
+	color += diffuseFactor * DiffuseColor;
+	//color = DiffuseColor;
+
 	if (Wireframe == 1) {
 		vec3 adjusted0 = adjust(gTriDistance, gTriDistanceCtrl);
 		float d1 = min(min(adjusted0.x, adjusted0.y), adjusted0.z);

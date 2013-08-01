@@ -1,0 +1,3 @@
+Fragment info
+-------------
+0(61) : error C1008: undefined variable "normnalize"

@@ -310,6 +310,60 @@ void addToConvertedMeshArray(std::vector<int> &vertices, std::vector<int> &triIn
 	}
 }
 
+void calculateTriMeshNormals(MyTriMesh *mesh, std::vector<float> &points) {
+	for (MyTriMesh::FaceIter f_it = mesh->faces_begin(); f_it != mesh->faces_end(); ++f_it) {
+		std::vector<MyTriMesh::VHandle> vhandles;
+		for (MyTriMesh::FVIter fv_it = mesh->fv_begin(f_it.handle()); fv_it != mesh->fv_end(f_it.handle()); ++fv_it) {
+			vhandles.push_back(fv_it.handle());
+		}
+		MyTriMesh::Point P0 = mesh->point(vhandles[0]);
+		MyTriMesh::Point P1 = mesh->point(vhandles[1]);
+		MyTriMesh::Point P2 = mesh->point(vhandles[2]);
+		OpenMesh::Vec3f u = P1 - P0;
+		OpenMesh::Vec3f v = P2 - P0;
+		OpenMesh::Vec3f normal = cross(u, v).normalize();
+		MyTriMesh::Point center = (P0 + P1 + P2) / 3.0;
+		OpenMesh::Vec3f dest = center + (normal * 50);
+		points.push_back(center[0]);
+		points.push_back(center[1]);
+		points.push_back(center[2]);
+		
+		points.push_back(dest[0]);
+		points.push_back(dest[1]);
+		points.push_back(dest[2]);
+	}
+}
+
+void calculateMeshNormals(MyMesh *mesh, std::vector<float> &points) {
+	for (MyMesh::FaceIter f_it = mesh->faces_begin(); f_it != mesh->faces_end(); ++f_it) {
+		std::vector<MyTriMesh::VHandle> vhandles;
+		for (MyMesh::FVIter fv_it = mesh->fv_begin(f_it.handle()); fv_it != mesh->fv_end(f_it.handle()); ++fv_it) {
+			vhandles.push_back(fv_it.handle());
+		}
+		MyMesh::Point P0 = mesh->point(vhandles[0]);
+		MyMesh::Point P1 = mesh->point(vhandles[1]);
+		MyMesh::Point P2 = mesh->point(vhandles[2]);
+		OpenMesh::Vec3f u = P1 - P0;
+		OpenMesh::Vec3f v = P2 - P0;
+		OpenMesh::Vec3f normal = cross(u, v).normalize();
+		MyMesh::Point center;
+		if (vhandles.size() == 3) {
+			center = (P0 + P1 + P2) / 3.0;
+		} else {
+			MyMesh::Point P3 = mesh->point(vhandles[3]);
+			center = (P0 + P1 + P2 + P3) / 4.0;
+		}
+		OpenMesh::Vec3f dest = center + (normal * 50);
+		points.push_back(center[0]);
+		points.push_back(center[1]);
+		points.push_back(center[2]);
+		
+		points.push_back(dest[0]);
+		points.push_back(dest[1]);
+		points.push_back(dest[2]);
+	}
+}
+
 #pragma endregion
 
 #pragma region Mesh Writing

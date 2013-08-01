@@ -70,7 +70,7 @@ std::string GLShader::GetShaderLog() {
 }
 
 void GLShader::SaveShaderLog() {
-	string fileName = "log_shader_" + name + ".txt";
+	string fileName = "logs/log_shader_" + name + ".txt";
 	ofstream output(fileName);
 	output << GetShaderLog();
 	output.close();

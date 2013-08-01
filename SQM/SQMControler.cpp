@@ -20,6 +20,7 @@ SQMControler::SQMControler(void)
 	sqmALgorithm = new SQMAlgorithm();
 	selected = NULL;
 	buffer1 = NULL;
+	buffer2 = NULL;
 	icosahedron = NULL;
 	selectedIndex = -1;
 	wireframe = true;
@@ -31,6 +32,7 @@ SQMControler::~SQMControler(void)
 	delete sqmALgorithm;
 	if (icosahedron) delete icosahedron;
 	if (buffer1) delete buffer1;
+	if (buffer2) delete buffer2;
 }
 
 #pragma region Saving and Loading
@@ -226,21 +228,21 @@ void SQMControler::draw(OpenGLPrograms *programs, GLCamera *camera) {
 
 void SQMControler::drawSkeleton(OpenGLPrograms *programs, GLCamera *camera) {
 	programs->SklLines->Use();
-	camera->lookFromCamera(programs->SklLines->uniforms.MVPmatrix);
+	camera->lookFromCamera(programs->SklLines->getUniformLocation(MVP_MATRIX_STR));
 	if (buffer1) buffer1->DrawElement(0, GL_LINES);
 
 	programs->SklNodes->Use();
-	camera->lookFromCamera(programs->SklNodes->uniforms.MVPmatrix);
-	glUniformMatrix4fv(programs->SklNodes->uniforms.ModelMatrix, 1, GL_FALSE, glm::value_ptr(camera->cameraModelMatrix()));
-	glUniform1f(programs->SklNodes->uniforms.TessLevelInner, TESSELATION_LEVEL);
-	glUniform1f(programs->SklNodes->uniforms.TessLevelOuter, TESSELATION_LEVEL);
-	glUniform3fv(programs->SklNodes->uniforms.DiffuseColor, 1, camera->color);
+	camera->lookFromCamera(programs->SklNodes->getUniformLocation(MVP_MATRIX_STR));
+	glUniformMatrix4fv(programs->SklNodes->getUniformLocation(MODEL_MATRIX_STR), 1, GL_FALSE, glm::value_ptr(camera->cameraModelMatrix()));
+	glUniform1f(programs->SklNodes->getUniformLocation(TESS_LEVEL_INNER_STR), TESSELATION_LEVEL);
+	glUniform1f(programs->SklNodes->getUniformLocation(TESS_LEVEL_OUTER_STR), TESSELATION_LEVEL);
+	glUniform3fv(programs->SklNodes->getUniformLocation(DIFFUSE_COLOR_STR), 1, camera->color);
 	icosahedron->DrawElement(0, GL_PATCHES);
 
 	glPatchParameteri(GL_PATCH_VERTICES, 3);
 	for (int i = 0; i < modelMatrices.size(); i++) {
-		glUniformMatrix4fv(programs->SklNodes->uniforms.ModelMatrix, 1, GL_FALSE, glm::value_ptr(modelMatrices[i]));
-		glUniform3f(programs->SklNodes->uniforms.DiffuseColor, 1.0, (selectedIndex == i) ? 1.0 : 0.0, 0.0);
+		glUniformMatrix4fv(programs->SklNodes->getUniformLocation(MODEL_MATRIX_STR), 1, GL_FALSE, glm::value_ptr(modelMatrices[i]));
+		glUniform3f(programs->SklNodes->getUniformLocation(DIFFUSE_COLOR_STR), 1.0, (selectedIndex == i) ? 1.0 : 0.0, 0.0);
 		icosahedron->DrawElement(0, GL_PATCHES);
 	}
 }
@@ -248,17 +250,21 @@ void SQMControler::drawSkeleton(OpenGLPrograms *programs, GLCamera *camera) {
 void SQMControler::drawBNPs(OpenGLPrograms *programs, GLCamera *camera) {
 	//show camera
 	programs->SklNodes->Use();
-	camera->lookFromCamera(programs->SklNodes->uniforms.MVPmatrix);
-	glUniformMatrix4fv(programs->SklNodes->uniforms.ModelMatrix, 1, GL_FALSE, glm::value_ptr(camera->cameraModelMatrix()));
-	glUniform1f(programs->SklNodes->uniforms.TessLevelInner, TESSELATION_LEVEL);
-	glUniform1f(programs->SklNodes->uniforms.TessLevelOuter, TESSELATION_LEVEL);
-	glUniform3fv(programs->SklNodes->uniforms.DiffuseColor, 1, camera->color);
+	camera->lookFromCamera(programs->SklNodes->getUniformLocation(MVP_MATRIX_STR));
+	glUniformMatrix4fv(programs->SklNodes->getUniformLocation(MODEL_MATRIX_STR), 1, GL_FALSE, glm::value_ptr(camera->cameraModelMatrix()));
+	glUniform1f(programs->SklNodes->getUniformLocation(TESS_LEVEL_INNER_STR), TESSELATION_LEVEL);
+	glUniform1f(programs->SklNodes->getUniformLocation(TESS_LEVEL_OUTER_STR), TESSELATION_LEVEL);
+	glUniform3fv(programs->SklNodes->getUniformLocation(DIFFUSE_COLOR_STR), 1, camera->color);
 	icosahedron->DrawElement(0, GL_PATCHES);
 	//draw BNPs
 	programs->BNPs->Use();
-	camera->lookFromCamera(programs->BNPs->uniforms.MVPmatrix);
-	glUniform3f(programs->BNPs->uniforms.DiffuseColor, 0.0, 0.75, 0.75);
+	camera->lookFromCamera(programs->BNPs->getUniformLocation(MVP_MATRIX_STR));
+	glUniform3f(programs->BNPs->getUniformLocation(DIFFUSE_COLOR_STR), 0.0, 0.75, 0.75);
 	buffer1->DrawElement(0, GL_TRIANGLES);
+	//draw normals
+	//programs->SklLines->Use();
+	//camera->lookFromCamera(programs->SklLines->getUniformLocation(MVP_MATRIX_STR));
+	//buffer2->Draw(GL_LINES);
 }
 
 void SQMControler::drawBNPs() {
@@ -288,21 +294,61 @@ void SQMControler::drawBNPs() {
 	buffer1->Bind();
 	buffer1->BindBufferData(points, 3, GL_STATIC_DRAW);
 	buffer1->BindElement(indices, GL_STATIC_DRAW);
+
+	//drawTriNormals();
+}
+
+void SQMControler::drawTriNormals() {
+	if (buffer2) delete buffer2;
+
+	vector<float> points;
+	deque<SQMNode*> queue;
+	queue.push_back(sqmALgorithm->getRoot());
+
+	while (!queue.empty()) {
+		SQMNode *node = queue.front();
+		queue.pop_front();
+
+		if (node->isBranchNode()) {
+			calculateTriMeshNormals(node->getPolyhedron(), points);
+		}
+
+		vector<SQMNode*> *childs = node->getNodes();
+		for (int i = 0; i < childs->size(); i++) {
+			SQMNode *child = (*childs)[i];
+			queue.push_back(child);
+		}
+	}
+	
+	buffer2 = new GLArrayBuffer();
+	buffer2->Bind();
+	buffer2->BindBufferData(points, 3, GL_STATIC_DRAW);
+}
+
+void SQMControler::drawNormals() {
+	if (buffer2) delete buffer2;
+
+	vector<float> points;
+	calculateMeshNormals(sqmALgorithm->getMesh(), points);
+
+	buffer2 = new GLArrayBuffer();
+	buffer2->Bind();
+	buffer2->BindBufferData(points, 3, GL_STATIC_DRAW);
 }
 
 void SQMControler::drawMesh(OpenGLPrograms *programs, GLCamera *camera) {
 	//show camera
 	programs->SklNodes->Use();
-	camera->lookFromCamera(programs->SklNodes->uniforms.MVPmatrix);
-	glUniformMatrix4fv(programs->SklNodes->uniforms.ModelMatrix, 1, GL_FALSE, glm::value_ptr(camera->cameraModelMatrix()));
-	glUniform1f(programs->SklNodes->uniforms.TessLevelInner, TESSELATION_LEVEL);
-	glUniform1f(programs->SklNodes->uniforms.TessLevelOuter, TESSELATION_LEVEL);
-	glUniform3fv(programs->SklNodes->uniforms.DiffuseColor, 1, camera->color);
+	camera->lookFromCamera(programs->SklNodes->getUniformLocation(MVP_MATRIX_STR));
+	glUniformMatrix4fv(programs->SklNodes->getUniformLocation(MODEL_MATRIX_STR), 1, GL_FALSE, glm::value_ptr(camera->cameraModelMatrix()));
+	glUniform1f(programs->SklNodes->getUniformLocation(TESS_LEVEL_INNER_STR), TESSELATION_LEVEL);
+	glUniform1f(programs->SklNodes->getUniformLocation(TESS_LEVEL_OUTER_STR), TESSELATION_LEVEL);
+	glUniform3fv(programs->SklNodes->getUniformLocation(DIFFUSE_COLOR_STR), 1, camera->color);
 	icosahedron->DrawElement(0, GL_PATCHES);
 	//draw BNPs
 	programs->BNPs->Use();
-	camera->lookFromCamera(programs->BNPs->uniforms.MVPmatrix);
-	glUniform3f(programs->BNPs->uniforms.DiffuseColor, 0.0, 0.75, 0.75);
+	camera->lookFromCamera(programs->BNPs->getUniformLocation(MVP_MATRIX_STR));
+	glUniform3f(programs->BNPs->getUniformLocation(DIFFUSE_COLOR_STR), 0.0, 0.75, 0.75);
 	buffer1->DrawElement(0, GL_TRIANGLES);
 }
 
@@ -310,26 +356,38 @@ void SQMControler::drawMeshForTesselation(OpenGLPrograms *programs, GLCamera *ca
 	//show camera
 	programs->SklNodes->Use();
 	glPatchParameteri(GL_PATCH_VERTICES, 3);
-	camera->lookFromCamera(programs->SklNodes->uniforms.MVPmatrix);
-	glUniformMatrix4fv(programs->SklNodes->uniforms.ModelMatrix, 1, GL_FALSE, glm::value_ptr(camera->cameraModelMatrix()));
-	glUniform1f(programs->SklNodes->uniforms.TessLevelInner, TESSELATION_LEVEL);
-	glUniform1f(programs->SklNodes->uniforms.TessLevelOuter, TESSELATION_LEVEL);
-	glUniform3fv(programs->SklNodes->uniforms.DiffuseColor, 1, camera->color);
+	camera->lookFromCamera(programs->SklNodes->getUniformLocation(MVP_MATRIX_STR));
+	glUniformMatrix4fv(programs->SklNodes->getUniformLocation(MODEL_MATRIX_STR), 1, GL_FALSE, glm::value_ptr(camera->cameraModelMatrix()));
+	glUniform1f(programs->SklNodes->getUniformLocation(TESS_LEVEL_INNER_STR), TESSELATION_LEVEL);
+	glUniform1f(programs->SklNodes->getUniformLocation(TESS_LEVEL_OUTER_STR), TESSELATION_LEVEL);
+	glUniform3fv(programs->SklNodes->getUniformLocation(DIFFUSE_COLOR_STR), 1, camera->color);
 	icosahedron->DrawElement(0, GL_PATCHES);
 	//draw tri patches
+	glm::vec3 eye = camera->getEye();
 	programs->TriMeshTess->Use();
 	glPatchParameteri(GL_PATCH_VERTICES, 3);
-	camera->lookFromCamera(programs->TriMeshTess->uniforms.MVPmatrix);
-	glUniform3f(programs->TriMeshTess->uniforms.DiffuseColor, 0.0, 0.75, 0.75);
-	glUniform1i(programs->TriMeshTess->uniforms.Wireframe, wireframe ? 1 : 0);
+	camera->lookFromCamera(programs->TriMeshTess->getUniformLocation(MVP_MATRIX_STR));
+	camera->setupNormalMatrix(programs->TriMeshTess->getUniformLocation(NORMAL_MATRIX_STR));
+	glUniform3f(programs->TriMeshTess->getUniformLocation(LIGHT_POSITION_STR), eye.x, eye.y, eye.z);
+	glUniform4f(programs->TriMeshTess->getUniformLocation(AMBIENT_COLOR_STR), 0.0, 0.75, 0.75, 0.1);
+	glUniform3f(programs->TriMeshTess->getUniformLocation(DIFFUSE_COLOR_STR), 0.0, 0.75, 0.75);
+	glUniform1i(programs->TriMeshTess->getUniformLocation(WIREFRAME_STR), wireframe ? 1 : 0);
 	buffer1->DrawElement(0, GL_PATCHES);
+
 	//draw quad patches
 	programs->QuadMeshTess->Use();
 	glPatchParameteri(GL_PATCH_VERTICES, 4);
-	camera->lookFromCamera(programs->QuadMeshTess->uniforms.MVPmatrix);
-	glUniform3f(programs->QuadMeshTess->uniforms.DiffuseColor, 0.0, 0.75, 0.75);
-	glUniform1i(programs->QuadMeshTess->uniforms.Wireframe, wireframe ? 1 : 0);
+	camera->lookFromCamera(programs->QuadMeshTess->getUniformLocation(MVP_MATRIX_STR));
+	camera->setupNormalMatrix(programs->QuadMeshTess->getUniformLocation(NORMAL_MATRIX_STR));
+	glUniform3f(programs->QuadMeshTess->getUniformLocation(LIGHT_POSITION_STR), eye.x, eye.y, eye.z);
+	glUniform4f(programs->QuadMeshTess->getUniformLocation(AMBIENT_COLOR_STR), 0.0, 0.75, 0.75, 0.1);
+	glUniform3f(programs->QuadMeshTess->getUniformLocation(DIFFUSE_COLOR_STR), 0.0, 0.75, 0.75);
+	glUniform1i(programs->QuadMeshTess->getUniformLocation(WIREFRAME_STR), wireframe ? 1 : 0);
 	buffer1->DrawElement(1, GL_PATCHES);
+	//draw normals
+	//programs->SklLines->Use();
+	//camera->lookFromCamera(programs->SklLines->getUniformLocation(MVP_MATRIX_STR));
+	//buffer2->Draw(GL_LINES);
 }
 
 void SQMControler::drawMesh() {
@@ -380,6 +438,8 @@ void SQMControler::drawMeshForTesselation() {
 	buffer1->BindBufferData(nodePositions, 4, GL_STATIC_DRAW);
 	buffer1->BindElement(triIndices, GL_STATIC_DRAW);
 	buffer1->BindElement(quadIndices, GL_STATIC_DRAW);
+
+	//drawNormals();
 }
 
 void SQMControler::drawSkeleton(vector<float> &points, vector<int> &indices) {

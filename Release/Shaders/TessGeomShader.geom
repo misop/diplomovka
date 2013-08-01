@@ -3,7 +3,6 @@
 layout(triangles) in;
 layout(triangle_strip, max_vertices = 3) out;
 
-uniform mat4 Modelview;
 uniform mat3 NormalMatrix;
 
 in int teTriPatch[];
@@ -15,6 +14,8 @@ out vec4 gPatchDistance;
 out vec4 gPatchDistanceCtrl;
 out vec3 gTriDistance;
 out vec3 gTriDistanceCtrl;
+out vec3 gVertex;
+out vec3 gNormal;
 
 void main()
 {    
@@ -26,6 +27,9 @@ void main()
 	float d02 = length(p2 - p0);
 	float d12 = length(p2 - p1);
 	gTriDistanceCtrl = vec3(d01, d02, d12);
+
+	gNormal = normalize(NormalMatrix * normalize(cross(p1 - p0, p2 - p0)));
+	gVertex = (p0 + p1 + p2) / 3.0;
 
 	gPatchDistanceCtrl = tePatchDistanceCtrl[0];
 

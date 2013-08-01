@@ -1,28 +1,26 @@
 #pragma once
 #include "GLShader.h"
 
-struct ProgramUniforms {
-	GLint MVPmatrix;
-	GLint ModelMatrix;
-	GLint ModelViewMatrix;
-	GLint NormalMatrix;
+#define MVP_MATRIX_STR "MVPmatrix"
+#define MODEL_MATRIX_STR "ModelMatrix"
+#define MODEL_VIEW_MATRIX_STR "ModelViewMatrix"
+#define NORMAL_MATRIX_STR "NormalMatrix"
 
-	GLint SpecularColor;
-	GLint TessLevelInner;
-	GLint TessLevelOuter;
+#define TESS_LEVEL_INNER_STR "TessLevelInner"
+#define TESS_LEVEL_OUTER_STR "TessLevelOuter"
 
-	GLint AmbientColor;
-	GLint DiffuseColor;
-	GLint LightPosition;
-	GLint Wireframe;
-};
+#define AMBIENT_COLOR_STR "AmbientColor"
+#define DIFFUSE_COLOR_STR "DiffuseColor"
+#define SPECULAR_COLOR_STR "SpecularColor"
+#define LIGHT_POSITION_STR "LightPosition"
+
+#define WIREFRAME_STR "Wireframe"
 
 class GLProgram
 {
 private:
 	GLuint program;
 public:
-	ProgramUniforms uniforms;
 	std::string name;
 	
 	GLProgram(void);

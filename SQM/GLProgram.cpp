@@ -49,7 +49,11 @@ void GLProgram::BindAttribLocation(GLuint index, string name) {
 }
 
 GLint GLProgram::getUniformLocation(std::string name) {
-	return glGetUniformLocation(program, name.c_str());
+	GLint location = glGetUniformLocation(program, name.c_str());
+	if (location == -1) {
+		int error = 1;
+	}
+	return location;
 }
 
 string GLProgram::GetProgramLog() {
@@ -65,7 +69,7 @@ string GLProgram::GetProgramLog() {
 }
 
 void GLProgram::SaveProgramLog() {
-	string fileName = "log_program_" + name + ".txt";
+	string fileName = "logs/log_program_" + name + ".txt";
 	ofstream output(fileName);
 	output << GetProgramLog();
 	output.close();
