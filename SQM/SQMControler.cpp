@@ -111,6 +111,19 @@ void SQMControler::exportSkeletonToFile(string fileName) {
 	if (state == SQMJoinBNPs || state == SQMFinalPlacement) {
 		writeMesh(sqmALgorithm->getMesh(), fileName);
 	}
+	deque<SQMNode*> queue;
+	queue.push_back(sqmALgorithm->getRoot());
+	while (!queue.empty()) {
+		SQMNode *node = queue.front();
+		queue.pop_front();
+
+		if (node->getId() == "0-0-2" && node->isBranchNode())
+			writeTriMesh(node->getPolyhedron());
+
+		vector<SQMNode*> *childs = node->getNodes();
+		for (int i = 0; i < childs->size(); i++)
+			queue.push_back((*childs)[i]);
+	}
 }
 
 #pragma endregion

@@ -260,9 +260,12 @@ void SQMNode::calculateConvexHull() {
 	vector<OpenMesh::Vec3i> triangles;
 	vector<OpenMesh::Vec3f> translatedIntersections(intersections.size());
 	//in triangularization the points are normalized
+	centerOfMass = OpenMesh::Vec3f(0, 0, 0);
 	for (int i = 0; i < intersections.size(); i++) {
 		translatedIntersections[i] = intersections[i] - position;
+		centerOfMass += intersections[i];
 	}
+	centerOfMass /= intersections.size();
 	Delaunay_on_sphere(translatedIntersections, triangles);
 	//Delaunay_on_sphere(intersections, triangles);
 	triangles2 = triangles;
@@ -604,6 +607,7 @@ void SQMNode::fillLIEMap(int parentNeed, std::map<int, LIENeedEntry>& lieMap, st
 		MyTriMesh::HHandle firstLieHEdge = heh;
 		MyTriMesh::HHandle lastLieHEdge = heh;
 		CVector3 offset = CVector3(position.values_);
+		//CVector3 offset = CVector3(centerOfMass.values_);
 
 		bool good = true;
 		while (good) {
@@ -633,16 +637,14 @@ void SQMNode::fillLIEMap(int parentNeed, std::map<int, LIENeedEntry>& lieMap, st
 				CVector3 P = CVector3(polyhedron->point(secondLieVertex).values_) - offset;
 				//CVector3 axis = Normalize(Cross(P - start, dest - start));
 				//default axis between start and P because they cannot be colinear and fit the one-ring
+				/*CVector3 axis;
+				float angle = Dot(Normalize(start), Normalize(dest));
+				if (equal(fabs(angle), 1)) {
+					axis = Normalize(Cross(start, P));
+				} else {
+					axis = Normalize(Cross(start, dest));
+				}*/
 				CVector3 axis = Normalize(Cross(start, P));
-				//check if start, P and dest are colinear
-				//we do it by finding the distance between start and P and the distance between dest and rotated start
-				Quaternion quat = SQMQuaternionBetweenVectorsWithAxis(start, dest, axis);
-				CVector3 test = QuaternionRotateVector(quat, start);
-				float dist = Length(test - dest);
-				//2.0 is a constant
-				if (dist * 2.0 > Length(P - start)) {
-					axis = Normalize(Cross(start, (start*0.5) + (dest * 0.5)));
-				}
 				lie.quaternion = SQMQuaternionBetweenVectorsWithAxis(start, dest, axis);
 				verticeLIEs.push_back(lie);
 
@@ -765,6 +767,7 @@ void SQMNode::smoothLIE(LIE lie) {
 	float partAlfa = alfa;
 	CVector3 axis = Normalize(CVector3(lie.quaternion.i, lie.quaternion.j, lie.quaternion.k));
 	CVector3 offset = CVector3(position.values_);
+	//CVector3 offset = CVector3(centerOfMass.values_);
 	//get first vertice
 	MyTriMesh::HHandle heh = lie.firstHHandle;
 	CVector3 v = CVector3(polyhedron->point(polyhedron->to_vertex_handle(polyhedron->opposite_halfedge_handle(heh))).values_) - offset;
@@ -920,7 +923,9 @@ void SQMNode::recalculateSmoothedVertices(MeshGraph& meshGraph) {
 		index++;
 	}
 	//translate vertices on the sphere
-	CVector3 offset(position.values_);
+	//not alwys in the center!!!!
+	//CVector3 offset(position.values_);
+	/*CVector3 offset(centerOfMass.values_);
 	for (MyTriMesh::VertexIter v_it = polyhedron->vertices_begin(); v_it != polyhedron->vertices_end(); ++v_it) 
 	{
 		MyTriMesh::VHandle vh = v_it.handle();
@@ -930,7 +935,7 @@ void SQMNode::recalculateSmoothedVertices(MeshGraph& meshGraph) {
 		P = P + offset;
 		MyTriMesh::Point Q(P.x, P.y, P.z);
 		polyhedron->set_point(vh, Q);
-	}
+	}*/
 }
 
 #pragma endregion

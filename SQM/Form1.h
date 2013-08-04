@@ -115,6 +115,7 @@ namespace SQM {
 	private: System::Windows::Forms::ToolStripMenuItem^  quaternionToolStripMenuItem;
 	private: System::Windows::Forms::ToolStripMenuItem^  valencyWeightedLaplacianToolStripMenuItem;
 	private: System::Windows::Forms::ToolStripMenuItem^  oneRingAreaWeightedLaplacianToolStripMenuItem;
+	private: System::Windows::Forms::ToolStripMenuItem^  noSmoothingToolStripMenuItem;
 
 
 
@@ -150,6 +151,11 @@ namespace SQM {
 				 this->straightenToolStripMenuItem1 = (gcnew System::Windows::Forms::ToolStripMenuItem());
 				 this->computeConvexHullToolStripMenuItem1 = (gcnew System::Windows::Forms::ToolStripMenuItem());
 				 this->subdivideConvexHullToolStripMenuItem1 = (gcnew System::Windows::Forms::ToolStripMenuItem());
+				 this->quaternionSmoothingToolStripMenuItem = (gcnew System::Windows::Forms::ToolStripMenuItem());
+				 this->toolStripSeparator2 = (gcnew System::Windows::Forms::ToolStripSeparator());
+				 this->quaternionToolStripMenuItem = (gcnew System::Windows::Forms::ToolStripMenuItem());
+				 this->valencyWeightedLaplacianToolStripMenuItem = (gcnew System::Windows::Forms::ToolStripMenuItem());
+				 this->oneRingAreaWeightedLaplacianToolStripMenuItem = (gcnew System::Windows::Forms::ToolStripMenuItem());
 				 this->joinBranchNodePolyhedronsToolStripMenuItem = (gcnew System::Windows::Forms::ToolStripMenuItem());
 				 this->straightenMeshToolStripMenuItem = (gcnew System::Windows::Forms::ToolStripMenuItem());
 				 this->editToolStripMenuItem = (gcnew System::Windows::Forms::ToolStripMenuItem());
@@ -170,11 +176,7 @@ namespace SQM {
 				 this->numericUpDown1 = (gcnew System::Windows::Forms::NumericUpDown());
 				 this->textBox1 = (gcnew System::Windows::Forms::TextBox());
 				 this->label1 = (gcnew System::Windows::Forms::Label());
-				 this->quaternionSmoothingToolStripMenuItem = (gcnew System::Windows::Forms::ToolStripMenuItem());
-				 this->toolStripSeparator2 = (gcnew System::Windows::Forms::ToolStripSeparator());
-				 this->quaternionToolStripMenuItem = (gcnew System::Windows::Forms::ToolStripMenuItem());
-				 this->valencyWeightedLaplacianToolStripMenuItem = (gcnew System::Windows::Forms::ToolStripMenuItem());
-				 this->oneRingAreaWeightedLaplacianToolStripMenuItem = (gcnew System::Windows::Forms::ToolStripMenuItem());
+				 this->noSmoothingToolStripMenuItem = (gcnew System::Windows::Forms::ToolStripMenuItem());
 				 this->toolStrip1->SuspendLayout();
 				 this->menuStrip1->SuspendLayout();
 				 this->panel2->SuspendLayout();
@@ -328,12 +330,47 @@ namespace SQM {
 				 // 
 				 // subdivideConvexHullToolStripMenuItem1
 				 // 
-				 this->subdivideConvexHullToolStripMenuItem1->DropDownItems->AddRange(gcnew cli::array< System::Windows::Forms::ToolStripItem^  >(5) {this->quaternionSmoothingToolStripMenuItem, 
-					 this->toolStripSeparator2, this->quaternionToolStripMenuItem, this->valencyWeightedLaplacianToolStripMenuItem, this->oneRingAreaWeightedLaplacianToolStripMenuItem});
+				 this->subdivideConvexHullToolStripMenuItem1->DropDownItems->AddRange(gcnew cli::array< System::Windows::Forms::ToolStripItem^  >(6) {this->quaternionSmoothingToolStripMenuItem, 
+					 this->toolStripSeparator2, this->noSmoothingToolStripMenuItem, this->quaternionToolStripMenuItem, this->valencyWeightedLaplacianToolStripMenuItem, 
+					 this->oneRingAreaWeightedLaplacianToolStripMenuItem});
 				 this->subdivideConvexHullToolStripMenuItem1->Name = L"subdivideConvexHullToolStripMenuItem1";
 				 this->subdivideConvexHullToolStripMenuItem1->Size = System::Drawing::Size(236, 22);
 				 this->subdivideConvexHullToolStripMenuItem1->Text = L"Subdivide Convex Hull";
 				 this->subdivideConvexHullToolStripMenuItem1->Click += gcnew System::EventHandler(this, &Form1::subdivideConvexHullToolStripMenuItem1_Click);
+				 // 
+				 // quaternionSmoothingToolStripMenuItem
+				 // 
+				 this->quaternionSmoothingToolStripMenuItem->Name = L"quaternionSmoothingToolStripMenuItem";
+				 this->quaternionSmoothingToolStripMenuItem->Size = System::Drawing::Size(257, 22);
+				 this->quaternionSmoothingToolStripMenuItem->Text = L"Smoothing";
+				 // 
+				 // toolStripSeparator2
+				 // 
+				 this->toolStripSeparator2->Name = L"toolStripSeparator2";
+				 this->toolStripSeparator2->Size = System::Drawing::Size(254, 6);
+				 // 
+				 // quaternionToolStripMenuItem
+				 // 
+				 this->quaternionToolStripMenuItem->Checked = true;
+				 this->quaternionToolStripMenuItem->CheckState = System::Windows::Forms::CheckState::Checked;
+				 this->quaternionToolStripMenuItem->Name = L"quaternionToolStripMenuItem";
+				 this->quaternionToolStripMenuItem->Size = System::Drawing::Size(257, 22);
+				 this->quaternionToolStripMenuItem->Text = L"Quaternion";
+				 this->quaternionToolStripMenuItem->Click += gcnew System::EventHandler(this, &Form1::quaternionToolStripMenuItem_Click);
+				 // 
+				 // valencyWeightedLaplacianToolStripMenuItem
+				 // 
+				 this->valencyWeightedLaplacianToolStripMenuItem->Name = L"valencyWeightedLaplacianToolStripMenuItem";
+				 this->valencyWeightedLaplacianToolStripMenuItem->Size = System::Drawing::Size(257, 22);
+				 this->valencyWeightedLaplacianToolStripMenuItem->Text = L"Valency Weighted Laplacian";
+				 this->valencyWeightedLaplacianToolStripMenuItem->Click += gcnew System::EventHandler(this, &Form1::valencyWeightedLaplacianToolStripMenuItem_Click);
+				 // 
+				 // oneRingAreaWeightedLaplacianToolStripMenuItem
+				 // 
+				 this->oneRingAreaWeightedLaplacianToolStripMenuItem->Name = L"oneRingAreaWeightedLaplacianToolStripMenuItem";
+				 this->oneRingAreaWeightedLaplacianToolStripMenuItem->Size = System::Drawing::Size(257, 22);
+				 this->oneRingAreaWeightedLaplacianToolStripMenuItem->Text = L"One Ring Area Weighted Laplacian";
+				 this->oneRingAreaWeightedLaplacianToolStripMenuItem->Click += gcnew System::EventHandler(this, &Form1::oneRingAreaWeightedLaplacianToolStripMenuItem_Click);
 				 // 
 				 // joinBranchNodePolyhedronsToolStripMenuItem
 				 // 
@@ -359,7 +396,7 @@ namespace SQM {
 				 // restartToolStripMenuItem
 				 // 
 				 this->restartToolStripMenuItem->Name = L"restartToolStripMenuItem";
-				 this->restartToolStripMenuItem->Size = System::Drawing::Size(142, 22);
+				 this->restartToolStripMenuItem->Size = System::Drawing::Size(152, 22);
 				 this->restartToolStripMenuItem->Text = L"Edit Skeleton";
 				 this->restartToolStripMenuItem->Click += gcnew System::EventHandler(this, &Form1::restartToolStripMenuItem_Click);
 				 // 
@@ -376,7 +413,7 @@ namespace SQM {
 				 this->wireframeToolStripMenuItem->CheckOnClick = true;
 				 this->wireframeToolStripMenuItem->CheckState = System::Windows::Forms::CheckState::Checked;
 				 this->wireframeToolStripMenuItem->Name = L"wireframeToolStripMenuItem";
-				 this->wireframeToolStripMenuItem->Size = System::Drawing::Size(152, 22);
+				 this->wireframeToolStripMenuItem->Size = System::Drawing::Size(129, 22);
 				 this->wireframeToolStripMenuItem->Text = L"Wireframe";
 				 this->wireframeToolStripMenuItem->Click += gcnew System::EventHandler(this, &Form1::wireframeToolStripMenuItem_Click);
 				 // 
@@ -541,39 +578,12 @@ namespace SQM {
 				 this->label1->TabIndex = 0;
 				 this->label1->Text = L"Node";
 				 // 
-				 // quaternionSmoothingToolStripMenuItem
+				 // noSmoothingToolStripMenuItem
 				 // 
-				 this->quaternionSmoothingToolStripMenuItem->Name = L"quaternionSmoothingToolStripMenuItem";
-				 this->quaternionSmoothingToolStripMenuItem->Size = System::Drawing::Size(257, 22);
-				 this->quaternionSmoothingToolStripMenuItem->Text = L"Smoothing";
-				 // 
-				 // toolStripSeparator2
-				 // 
-				 this->toolStripSeparator2->Name = L"toolStripSeparator2";
-				 this->toolStripSeparator2->Size = System::Drawing::Size(254, 6);
-				 // 
-				 // quaternionToolStripMenuItem
-				 // 
-				 this->quaternionToolStripMenuItem->Checked = true;
-				 this->quaternionToolStripMenuItem->CheckState = System::Windows::Forms::CheckState::Checked;
-				 this->quaternionToolStripMenuItem->Name = L"quaternionToolStripMenuItem";
-				 this->quaternionToolStripMenuItem->Size = System::Drawing::Size(257, 22);
-				 this->quaternionToolStripMenuItem->Text = L"Quaternion";
-				 this->quaternionToolStripMenuItem->Click += gcnew System::EventHandler(this, &Form1::quaternionToolStripMenuItem_Click);
-				 // 
-				 // valencyWeightedLaplacianToolStripMenuItem
-				 // 
-				 this->valencyWeightedLaplacianToolStripMenuItem->Name = L"valencyWeightedLaplacianToolStripMenuItem";
-				 this->valencyWeightedLaplacianToolStripMenuItem->Size = System::Drawing::Size(257, 22);
-				 this->valencyWeightedLaplacianToolStripMenuItem->Text = L"Valency Weighted Laplacian";
-				 this->valencyWeightedLaplacianToolStripMenuItem->Click += gcnew System::EventHandler(this, &Form1::valencyWeightedLaplacianToolStripMenuItem_Click);
-				 // 
-				 // oneRingAreaWeightedLaplacianToolStripMenuItem
-				 // 
-				 this->oneRingAreaWeightedLaplacianToolStripMenuItem->Name = L"oneRingAreaWeightedLaplacianToolStripMenuItem";
-				 this->oneRingAreaWeightedLaplacianToolStripMenuItem->Size = System::Drawing::Size(257, 22);
-				 this->oneRingAreaWeightedLaplacianToolStripMenuItem->Text = L"One Ring Area Weighted Laplacian";
-				 this->oneRingAreaWeightedLaplacianToolStripMenuItem->Click += gcnew System::EventHandler(this, &Form1::oneRingAreaWeightedLaplacianToolStripMenuItem_Click);
+				 this->noSmoothingToolStripMenuItem->Name = L"noSmoothingToolStripMenuItem";
+				 this->noSmoothingToolStripMenuItem->Size = System::Drawing::Size(257, 22);
+				 this->noSmoothingToolStripMenuItem->Text = L"No Smoothing";
+				 this->noSmoothingToolStripMenuItem->Click += gcnew System::EventHandler(this, &Form1::noSmoothingToolStripMenuItem_Click);
 				 // 
 				 // Form1
 				 // 
@@ -726,6 +736,7 @@ namespace SQM {
 
 #pragma endregion
 			 void refreshCheckBoxes() {
+				 noSmoothingToolStripMenuItem->Checked = false;
 				 quaternionToolStripMenuItem->Checked = true;
 				 valencyWeightedLaplacianToolStripMenuItem->Checked = false;
 				 oneRingAreaWeightedLaplacianToolStripMenuItem->Checked = false;
@@ -829,6 +840,7 @@ namespace SQM {
 				 Application::Exit();
 			 }
 	private: System::Void quaternionToolStripMenuItem_Click(System::Object^  sender, System::EventArgs^  e) {
+				 noSmoothingToolStripMenuItem->Checked = false;
 				 quaternionToolStripMenuItem->Checked = true;
 				 valencyWeightedLaplacianToolStripMenuItem->Checked = false;
 				 oneRingAreaWeightedLaplacianToolStripMenuItem->Checked = false;
@@ -836,6 +848,7 @@ namespace SQM {
 				 OpenGL->setQuaternionSmoothing();
 			 }
 	private: System::Void valencyWeightedLaplacianToolStripMenuItem_Click(System::Object^  sender, System::EventArgs^  e) {
+				 noSmoothingToolStripMenuItem->Checked = false;
 				 quaternionToolStripMenuItem->Checked = false;
 				 valencyWeightedLaplacianToolStripMenuItem->Checked = true;
 				 oneRingAreaWeightedLaplacianToolStripMenuItem->Checked = false;
@@ -843,11 +856,20 @@ namespace SQM {
 				 OpenGL->setValencyWeightedLaplacian();
 			 }
 	private: System::Void oneRingAreaWeightedLaplacianToolStripMenuItem_Click(System::Object^  sender, System::EventArgs^  e) {
+				 noSmoothingToolStripMenuItem->Checked = false;
 				 quaternionToolStripMenuItem->Checked = false;
 				 valencyWeightedLaplacianToolStripMenuItem->Checked = false;
 				 oneRingAreaWeightedLaplacianToolStripMenuItem->Checked = true;
 
 				 OpenGL->setOneRingWeightedLaplacian();
+			 }
+	private: System::Void noSmoothingToolStripMenuItem_Click(System::Object^  sender, System::EventArgs^  e) {
+				 noSmoothingToolStripMenuItem->Checked = true;
+				 quaternionToolStripMenuItem->Checked = false;
+				 valencyWeightedLaplacianToolStripMenuItem->Checked = false;
+				 oneRingAreaWeightedLaplacianToolStripMenuItem->Checked = false;
+
+				 OpenGL->setSmoothingOff();
 			 }
 	};
 }

@@ -614,6 +614,9 @@ namespace OpenGLForm
 			return sqmControler->getSelected();
 		}
 		//setters
+		void setSmoothingOff() {
+			sqmControler->setSmoothingAlgorithm(SQMNoSmoothing);
+		}
 		void setQuaternionSmoothing() {
 			sqmControler->setSmoothingAlgorithm(SQMQuaternionSmoothing);
 		}

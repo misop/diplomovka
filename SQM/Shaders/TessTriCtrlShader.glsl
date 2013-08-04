@@ -7,6 +7,7 @@ in float vTessLevel[];
 void main()
 {
 	float tessLevel = round((vTessLevel[0] + vTessLevel[1] + vTessLevel[2]) / 3.0);
+	tessLevel = 1;
 	//inner level
     gl_TessLevelInner[0] = tessLevel;
 	//outter levels

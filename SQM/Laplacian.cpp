@@ -6,7 +6,7 @@ void contractMeshGraphCPUCotangent(MeshGraph * pMesh) {
 	static int logInd = 0;
 	logInd++;
 	std::stringstream ss;//create a stringstream
-    ss << "log" << logInd;
+	ss << "log" << logInd;
 	std::string file = ss.str() + ".txt";
 	fb->open(file, ios::out);
 	ostream *os = new ostream(fb);
@@ -90,8 +90,12 @@ void contractMeshGraphCPUCotangent(MeshGraph * pMesh) {
 			UPA = Array2D< double >(pMesh->numOfVertices, pMesh->numOfVertices, 0.0f);
 
 			for (int i = 0; i < pMesh->numOfVertices; i++) {
-				WL[i][i] = pMesh->wL;
-				WH[i][i] = pMesh->wH[i];
+				float sum = 0;
+				for (int j = 0; j < pMesh->numOfVertices; j++) {
+					if (pMesh->E[i][j]) sum += 1;
+				}
+				WL[i][i] = sum * pMesh->wL;//pMesh->wL;
+				WH[i][i] = 3;//pMesh->wH[i];
 			}
 
 			(*os) << "WL" << endl;
@@ -100,7 +104,9 @@ void contractMeshGraphCPUCotangent(MeshGraph * pMesh) {
 			log(WH, os);
 			(*os) << "L" << endl;
 			log(L, os);
-			UPA = WL * L;
+			UPA = matmult(WL, L);//WL * L;
+			(*os) << "UPA" << endl;
+			log(UPA, os);
 
 			for (int m = 0; m < UPA.dim1(); m++) {
 				for (int n = 0; n < UPA.dim2(); n++)
@@ -113,49 +119,46 @@ void contractMeshGraphCPUCotangent(MeshGraph * pMesh) {
 						//log(LOG_LEVEL_WARNING, "UPA[m][n] bolo vacsie ako float v sume");
 						//log(LOG_LEVEL_WARNING, "UPA[m][n] : " ,UPA[m][n]);
 					}
-					(*os) << "UPA" << endl;
-					log(UPA, os);
-
-
-					// now solve the system using TNT and JAMA with QR decomposition
-
-					A = Array2D<double>(2 * pMesh->numOfVertices, pMesh->numOfVertices, 0.0f);
-
-					for (int j = 0; j < pMesh->numOfVertices; j++){
-						for (int i = 0; i < pMesh->numOfVertices; i++)
-							A[pMesh->numOfVertices + i][j] = (double)WH[i][j];
-						for (int i = 0; i < pMesh->numOfVertices; i++)
-							A[i][j] = (double)UPA[i][j];
-					}
-					(*os) << "A" << endl;
-					log(A, os);
-
-					B = Array2D<double>(2 * pMesh->numOfVertices, 3, 0.0f);
-
-					// X
-					for (int i = 0; i < pMesh->numOfVertices; i++){
-						CVector3 P = pMesh->pVerts[i];
-						float wh = WH[i][i];
-						B[pMesh->numOfVertices + i][0] = (double)(pMesh->pVerts[i].x * wh);//pMesh->wH[i]);
-						B[pMesh->numOfVertices + i][1] = (double)(pMesh->pVerts[i].y * wh);//pMesh->wH[i]);
-						B[pMesh->numOfVertices + i][2] = (double)(pMesh->pVerts[i].z * wh);//pMesh->wH[i]);
-					}
-					(*os) << "B" << endl;
-					log(B, os);
-
-					JAMA::QR<double> qr(A);
-					V = qr.solve(B);
-					(*os) << "V" << endl;
-					log(V, os);
-
-					//delete[] curOneRingArea;
-					//curOneRingArea = NULL;
-
-					for (int i = 0; i < pMesh->numOfVertices; i++)
-						pMesh->pVerts[i] = CVector3((float)V[i][0], (float)V[i][1], (float)V[i][2]);
-
-
 			}
+			(*os) << "UPA" << endl;
+			log(UPA, os);
+			// now solve the system using TNT and JAMA with QR decomposition
+
+			A = Array2D<double>(2 * pMesh->numOfVertices, pMesh->numOfVertices, 0.0f);
+
+			for (int j = 0; j < pMesh->numOfVertices; j++){
+				for (int i = 0; i < pMesh->numOfVertices; i++)
+					A[pMesh->numOfVertices + i][j] = (double)WH[i][j];
+				for (int i = 0; i < pMesh->numOfVertices; i++)
+					A[i][j] = (double)UPA[i][j];
+			}
+			(*os) << "A" << endl;
+			log(A, os);
+
+			B = Array2D<double>(2 * pMesh->numOfVertices, 3, 0.0f);
+
+			// X
+			for (int i = 0; i < pMesh->numOfVertices; i++){
+				CVector3 P = pMesh->pVerts[i];
+				float wh = WH[i][i];
+				B[pMesh->numOfVertices + i][0] = (double)(pMesh->pVerts[i].x * wh);//pMesh->wH[i]);
+				B[pMesh->numOfVertices + i][1] = (double)(pMesh->pVerts[i].y * wh);//pMesh->wH[i]);
+				B[pMesh->numOfVertices + i][2] = (double)(pMesh->pVerts[i].z * wh);//pMesh->wH[i]);
+			}
+			(*os) << "B" << endl;
+			log(B, os);
+
+			JAMA::QR<double> qr(A);
+			V = qr.solve(B);
+			(*os) << "V" << endl;
+			log(V, os);
+
+			//delete[] curOneRingArea;
+			//curOneRingArea = NULL;
+
+			for (int i = 0; i < pMesh->numOfVertices; i++)
+				pMesh->pVerts[i] = CVector3((float)V[i][0], (float)V[i][1], (float)V[i][2]);
+
 
 			fb->close();
 			delete fb;
@@ -182,7 +185,7 @@ void computeLaplacian(MeshGraph * pMesh) {
 	//while (*ite <= numOfIter){
 
 	contractMeshGraphCPUCotangent(pMesh);
-	
+
 	pMesh->wL = pMesh->wL * 3.0;
 }
 

@@ -23,7 +23,8 @@ struct VHandleCount {
 };
 
 typedef enum {
-	SQMQuaternionSmoothing = 0,
+	SQMNoSmoothing = 0,
+	SQMQuaternionSmoothing,
 	SQMValencyLaplacianSmoothing,
 	SQMOneRingLaplacianSmoothing
 } SQMSmoothingAlgorithm;
@@ -38,6 +39,7 @@ class SQMNode {
 	float nodeRadius;
 	float tessLevel;
 	OpenMesh::Vec3f position;
+	OpenMesh::Vec3f centerOfMass;
 	OpenMesh::Vec3f oldPosition;
 	Quaternion axisAngle;
 	vector<SQMNode*> nodes;
