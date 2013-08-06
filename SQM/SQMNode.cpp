@@ -267,7 +267,6 @@ void SQMNode::calculateConvexHull() {
 	}
 	centerOfMass /= intersections.size();
 	Delaunay_on_sphere(translatedIntersections, triangles);
-	//Delaunay_on_sphere(intersections, triangles);
 	triangles2 = triangles;
 	createPolyhedra(triangles);
 }
@@ -321,44 +320,83 @@ void SQMNode::createPolyhedra(vector<OpenMesh::Vec3i> triangles) {
 	//for each triangle create 6 new triangles and translate new vertices and translate vertices with face normals add only unique
 	vector<OpenMesh::Vec3f> vertices;
 	vector<OpenMesh::Vec3i> faces;
+	vector<OpenMesh::Vec2i> visited;
 	for (int i = 0; i < triangles.size(); i++) {
 		//get triangle points and create new ones
 		OpenMesh::Vec3i triangle = triangles[i];
-		OpenMesh::Vec3f v1 = intersections[triangle.values_[0]];
-		OpenMesh::Vec3f v2 = intersections[triangle.values_[1]];
-		OpenMesh::Vec3f v3 = intersections[triangle.values_[2]];
+		OpenMesh::Vec2i e1(triangle[0], triangle[1]);
+		OpenMesh::Vec2i e2(triangle[1], triangle[2]);
+		OpenMesh::Vec2i e3(triangle[2], triangle[0]);
 
-		OpenMesh::Vec3f u12 = 0.5*v1 + 0.5*v2;
-		OpenMesh::Vec3f u23 = 0.5*v2 + 0.5*v3;
-		OpenMesh::Vec3f u31 = 0.5*v3 + 0.5*v1;
+		int v1Index = getPointPositionInArray(OpenMesh::Vec2i(triangle[0], triangle[0]), visited);
+		int v2Index = getPointPositionInArray(OpenMesh::Vec2i(triangle[1], triangle[1]), visited);
+		int v3Index = getPointPositionInArray(OpenMesh::Vec2i(triangle[2], triangle[2]), visited);
+
+		int u12Index = getPointPositionInArray(e1, visited);
+		int u23Index = getPointPositionInArray(e2, visited);
+		int u31Index = getPointPositionInArray(e3, visited);
+
+		OpenMesh::Vec3f v1 = intersections[triangle[0]];
+		OpenMesh::Vec3f v2 = intersections[triangle[1]];
+		OpenMesh::Vec3f v3 = intersections[triangle[2]];
+
+		if (v1Index == -1) {
+			v1Index = vertices.size();
+			vertices.push_back(v1);
+			visited.push_back(OpenMesh::Vec2i(triangle[0], triangle[0]));
+		}
+		if (v2Index == -1) {
+			v2Index = vertices.size();
+			vertices.push_back(v2);
+			visited.push_back(OpenMesh::Vec2i(triangle[1], triangle[1]));
+		}
+		if (v3Index == -1) {
+			v3Index = vertices.size();
+			vertices.push_back(v3);
+			visited.push_back(OpenMesh::Vec2i(triangle[2], triangle[2]));
+		}
+		if (u12Index == -1) {
+			OpenMesh::Vec3f u12 = 0.5*v1 + 0.5*v2;
+			//translate point
+			vector<int> u12NormalIndexis = getNormalIndexis(edgeFaceIndexMap[OpenMesh::Vec2i(triangle.values_[0], triangle.values_[1])], i);
+			int i1 = u12NormalIndexis[0];
+			int i2 = u12NormalIndexis[1];
+			u12 = translatedPointToSphereWithFaceNormals(u12, normals[i1], normals[i2], centers[i1], centers[i2]);
+
+			u12Index = vertices.size();
+			vertices.push_back(u12);
+			visited.push_back(e1);
+		}
+		if (u23Index == -1) {
+			OpenMesh::Vec3f u23 = 0.5*v2 + 0.5*v3;
+			//translate point
+			vector<int> u23NormalIndexis = getNormalIndexis(edgeFaceIndexMap[OpenMesh::Vec2i(triangle.values_[1], triangle.values_[2])], i);
+			int i1 = u23NormalIndexis[0];
+			int i2 = u23NormalIndexis[1];
+			u23 = translatedPointToSphereWithFaceNormals(u23, normals[i1], normals[i2], centers[i1], centers[i2]);
+
+			u23Index = vertices.size();
+			vertices.push_back(u23);
+			visited.push_back(e2);
+		}
+		if (u31Index == -1) {
+			OpenMesh::Vec3f u31 = 0.5*v3 + 0.5*v1;
+			//translate point
+			vector<int> u31NormalIndexis = getNormalIndexis(edgeFaceIndexMap[OpenMesh::Vec2i(triangle.values_[2], triangle.values_[0])], i);
+			int i1 = u31NormalIndexis[0];
+			int i2 = u31NormalIndexis[1];
+			u31 = translatedPointToSphereWithFaceNormals(u31, normals[i1], normals[i2], centers[i1], centers[i2]);
+
+			u31Index = vertices.size();
+			vertices.push_back(u31);
+			visited.push_back(e3);
+		}		
 		OpenMesh::Vec3f center = centers[i];
-		//translate points
-		vector<int> u12NormalIndexis = getNormalIndexis(edgeFaceIndexMap[OpenMesh::Vec2i(triangle.values_[0], triangle.values_[1])], i);
-		int i1 = u12NormalIndexis[0];
-		int i2 = u12NormalIndexis[1];
-		u12 = translatedPointToSphereWithFaceNormals(u12, normals[i1], normals[i2], centers[i1], centers[i2]);
-
-		vector<int> u23NormalIndexis = getNormalIndexis(edgeFaceIndexMap[OpenMesh::Vec2i(triangle.values_[1], triangle.values_[2])], i);
-		i1 = u23NormalIndexis[0];
-		i2 = u23NormalIndexis[1];
-		u23 = translatedPointToSphereWithFaceNormals(u23, normals[i1], normals[i2], centers[i1], centers[i2]);
-
-		vector<int> u31NormalIndexis = getNormalIndexis(edgeFaceIndexMap[OpenMesh::Vec2i(triangle.values_[2], triangle.values_[0])], i);
-		i1 = u31NormalIndexis[0];
-		i2 = u31NormalIndexis[1];
-		u31 = translatedPointToSphereWithFaceNormals(u31, normals[i1], normals[i2], centers[i1], centers[i2]);
-
 		center = translatedPointToSphereWithFaceNormals(center, normals[i], normals[i], center, center);
-		//add only unique points to vertex list
-		int v1Index = getPointPositionInArrayOrAdd(v1, vertices);
-		int v2Index = getPointPositionInArrayOrAdd(v2, vertices);
-		int v3Index = getPointPositionInArrayOrAdd(v3, vertices);
-
-		int u12Index = getPointPositionInArrayOrAdd(u12, vertices);
-		int u23Index = getPointPositionInArrayOrAdd(u23, vertices);
-		int u31Index = getPointPositionInArrayOrAdd(u31, vertices);
-
-		int centerIndex = getPointPositionInArrayOrAdd(center, vertices);
+		//need something to hold the same size
+		int centerIndex = vertices.size();
+		visited.push_back(OpenMesh::Vec2i(-1, -1));
+		vertices.push_back(center);
 		//add new triangles to face list
 		faces.push_back(OpenMesh::Vec3i(v1Index, u12Index, centerIndex));
 		faces.push_back(OpenMesh::Vec3i(u12Index, v2Index, centerIndex));
@@ -1159,37 +1197,6 @@ void SQMNode::getMeshTessData(std::vector<float> &tessLevels, std::vector<float>
 		nodePositions.push_back(position[2]);
 		nodePositions.push_back(nodeRadius);
 	}
-	/*//if is branch node
-	if (this->isBranchNode()) {
-		//calculate radius dor each one ring
-		//also store the corresponding vertice
-		vector<float> radius;
-		map<int, vector<int> > verticeIntersection;
-		calculateOneRingRadiusAndMap(radius, verticeIntersection);
-		//for each vertice
-		for (MyTriMesh::VIter v_it = polyhedron->vertices_begin(); v_it != polyhedron->vertices_end(); ++v_it) {
-			MyTriMesh::VHandle vhandle = v_it.handle();
-			int position = getPositionInArray<MyTriMesh::VHandle>(vhandle, intersectionVHandles);
-			if (position == -1) {
-				//get corresponding intersection vertices
-				//add one ring radiuses
-				vector<int> intersections = verticeIntersection[vhandle.idx()];
-				for (int i = 0; i < intersections.size(); i++) {
-					nodeRadiuses.push_back(radius[intersections[i]]);
-				}
-				if (intersections.size() == 2) {
-					nodeRadiuses.push_back((radius[intersections[0]] + radius[intersections[1]]) / 2.0);
-				}
-			}
-		}
-	} else {
-		//add radius 3 times for each vertex
-		for (int i = 0; i < meshVhandlesToRotate.size(); i++) {
-			nodeRadiuses.push_back(nodeRadius);
-			nodeRadiuses.push_back(nodeRadius);
-			nodeRadiuses.push_back(nodeRadius);
-		}
-	}*/
 	for (int i = 0; i < nodes.size(); i++) {
 		nodes[i]->getMeshTessData(tessLevels, nodePositions);
 	}
@@ -1246,26 +1253,6 @@ void SQMNode::rotateSelfAndDescendants(Quaternion q, CVector3 offset) {
 		}
 	}
 	this->rotatePosition(q, offset);
-}
-
-int SQMNode::getPointPositionInArrayOrAdd(OpenMesh::Vec3f& v, vector<OpenMesh::Vec3f>& vectorArray) {
-	for (int i = 0; i < vectorArray.size(); i++) {
-		OpenMesh::Vec3f u = vectorArray[i];
-		if (OpenMeshVec3fEqual(v, u))
-			return i;
-	}
-	vectorArray.push_back(v);
-	return vectorArray.size() - 1;
-}
-
-int SQMNode::getPointPositionInArray(OpenMesh::Vec3f& v, vector<OpenMesh::Vec3f>& vectorArray) {
-	for (int i = 0; i < vectorArray.size(); i++) {
-		OpenMesh::Vec3f u = vectorArray[i];
-		if (OpenMeshVec3fEqual(v, u))
-			return i;
-	}
-
-	return -1;
 }
 
 SQMNode* SQMNode::getDescendantBranchNode(SQMNode* node) {
@@ -1345,6 +1332,40 @@ template <typename T> void flipVector(vector<T>& toFlip, vector<T>& flipped) {
 	for (vector<T>::reverse_iterator rit = toFlip.rbegin(); rit != toFlip.rend(); rit++) {
 		flipped.push_back(*rit);
 	}
+}
+
+#pragma endregion
+
+#pragma region Position In Array
+
+int getPointPositionInArrayOrAdd(OpenMesh::Vec3f& v, vector<OpenMesh::Vec3f>& vectorArray) {
+	for (int i = 0; i < vectorArray.size(); i++) {
+		OpenMesh::Vec3f u = vectorArray[i];
+		if (OpenMeshVec3fEqual(v, u))
+			return i;
+	}
+	vectorArray.push_back(v);
+	return vectorArray.size() - 1;
+}
+
+int getPointPositionInArray(OpenMesh::Vec3f& v, vector<OpenMesh::Vec3f>& vectorArray) {
+	for (int i = 0; i < vectorArray.size(); i++) {
+		OpenMesh::Vec3f u = vectorArray[i];
+		if (OpenMeshVec3fEqual(v, u))
+			return i;
+	}
+
+	return -1;
+}
+
+int getPointPositionInArray(OpenMesh::Vec2i& v, vector<OpenMesh::Vec2i>& vectorArray) {
+	for (int i = 0; i < vectorArray.size(); i++) {
+		OpenMesh::Vec2i u = vectorArray[i];
+		if (OpenMeshVec2iEqual(v, u))
+			return i;
+	}
+
+	return -1;
 }
 
 #pragma endregion

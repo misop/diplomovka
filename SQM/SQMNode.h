@@ -156,8 +156,6 @@ public:
 
 #pragma region Utility
 	void rotateSelfAndDescendants(Quaternion q, CVector3 offset);
-	int getPointPositionInArrayOrAdd(OpenMesh::Vec3f& v, vector<OpenMesh::Vec3f>& vectorArray);
-	int getPointPositionInArray(OpenMesh::Vec3f& v, vector<OpenMesh::Vec3f>& vectorArray);
 	SQMNode* getDescendantBranchNode(SQMNode* node);
 	SQMNode* getAncestorBranchNode(SQMNode* node);
 	MyMesh::VHandle getSecondVHandle(MyMesh::EdgeHandle edgeHandle, MyMesh::VHandle vhandle);
@@ -187,6 +185,12 @@ protected:
 template <typename T> int getPositionInArray(T& v, std::vector<T>& vectorArray);
 template <typename T> bool equals(T& a, T& b);
 template <typename T> void flipVector(std::vector<T>& toFlip, std::vector<T>& flipped);
+#pragma endregion
+
+#pragma region Position In Array
+int getPointPositionInArrayOrAdd(OpenMesh::Vec3f& v, vector<OpenMesh::Vec3f>& vectorArray);
+int getPointPositionInArray(OpenMesh::Vec3f& v, vector<OpenMesh::Vec3f>& vectorArray);
+int getPointPositionInArray(OpenMesh::Vec2i& v, vector<OpenMesh::Vec2i>& vectorArray);
 #pragma endregion
 
 #pragma region Mesh Functions

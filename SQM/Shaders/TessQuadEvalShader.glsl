@@ -3,7 +3,7 @@
 layout(quads) in;
 
 in vec3 tcNodePosition[];
-in vec3 tcNodeRadius[];
+in float tcNodeRadius[];
 
 out vec4 tePatchDistance;
 out vec4 tePatchDistanceCtrl;
@@ -25,10 +25,7 @@ void main()
     vec3 position = mix(a, b, v);
 
 	if (!(floatEqual(v, 1) || floatEqual(v, 0))) {
-		//float radius = mix(tcNodeRadius[0], tcNodeRadius[1], v);
-		float radius1 = min(min(tcNodeRadius[0].x, tcNodeRadius[0].y), tcNodeRadius[0].z); //(tcNodeRadius[0].x + tcNodeRadius[0].y + tcNodeRadius[0].z) / 3.0;
-		float radius2 = min(min(tcNodeRadius[1].x, tcNodeRadius[2].y), tcNodeRadius[3].z); //(tcNodeRadius[1].x + tcNodeRadius[1].y + tcNodeRadius[1].z) / 3.0;
-		float radius = mix(radius1, radius2, v);
+		float radius = mix(tcNodeRadius[0], tcNodeRadius[1], v);
 		vec3 dir = normalize(tcNodePosition[1] - tcNodePosition[0]);
 		float projLength = dot(dir, position - tcNodePosition[0]);
 		vec3 projection = tcNodePosition[0] + (dir * projLength);
