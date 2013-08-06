@@ -452,7 +452,8 @@ void SQMControler::drawMeshForTesselation() {
 	buffer1->Bind();
 	buffer1->BindBufferData(points, 3, GL_STATIC_DRAW);
 	buffer1->BindBufferData(tessLevels, 1, GL_STATIC_DRAW);
-	buffer1->BindBufferData(nodePositions, 4, GL_STATIC_DRAW);
+	buffer1->BindBufferData(nodePositions, 3, GL_STATIC_DRAW);
+	buffer1->BindBufferData(nodeRadiuses, 3, GL_STATIC_DRAW);
 	buffer1->BindElement(triIndices, GL_STATIC_DRAW);
 	buffer1->BindElement(quadIndices, GL_STATIC_DRAW);
 

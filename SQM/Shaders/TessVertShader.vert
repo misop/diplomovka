@@ -2,17 +2,18 @@
  
 layout (location = 0) in vec3 Position;
 layout (location = 1) in float TessLevel;
-layout (location = 2) in vec4 SQMNode;
+layout (location = 2) in vec3 SQMNode;
+layout (location = 3) in vec3 Radius;
 
 out vec3 vTest;
 out float vTessLevel;
 out vec3 vNodePosition;
-out float vNodeRadius;
+out vec3 vNodeRadius;
  
 void main(void)
 {
 	vTessLevel = TessLevel;
-	vNodePosition = vec3(SQMNode);
-	vNodeRadius = SQMNode.w;
+	vNodePosition = SQMNode;
+	vNodeRadius = Radius;
 	gl_Position = vec4(Position, 1.0);
 }

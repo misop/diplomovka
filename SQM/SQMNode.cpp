@@ -28,7 +28,7 @@ SQMNode::SQMNode(SkeletonNode &node, SQMNode* newParent) : parent(newParent) {
 	}
 	position = OpenMesh::Vec3f(node.point.x, node.point.y, node.point.z);
 	//nodeRadius = (float)(rand()%100)/100*10 + 5;
-	nodeRadius = 10;
+	nodeRadius = node.radius;
 	tessLevel = 3;
 	for (int i = 0; i < node.nodes.size(); i++) {
 		SQMNode *newNode = new SQMNode(*node.nodes[i], this);
@@ -197,7 +197,7 @@ void SQMNode::setZ(float newZ) {
 #pragma region Export
 
 SkeletonNode* SQMNode::exportToSkeletonNode() {
-	SkeletonNode* node = new SkeletonNode(position[0], position[1], position[2]);
+	SkeletonNode* node = new SkeletonNode(position[0], position[1], position[2], nodeRadius);
 	for (int i = 0; i < nodes.size(); i++) {
 		node->addChild(nodes[i]->exportToSkeletonNode());
 	}
@@ -640,9 +640,9 @@ void SQMNode::fillLIEMap(int parentNeed, std::map<int, LIENeedEntry>& lieMap, st
 				/*CVector3 axis;
 				float angle = Dot(Normalize(start), Normalize(dest));
 				if (equal(fabs(angle), 1)) {
-					axis = Normalize(Cross(start, P));
+				axis = Normalize(Cross(start, P));
 				} else {
-					axis = Normalize(Cross(start, dest));
+				axis = Normalize(Cross(start, dest));
 				}*/
 				CVector3 axis = Normalize(Cross(start, P));
 				lie.quaternion = SQMQuaternionBetweenVectorsWithAxis(start, dest, axis);
@@ -928,13 +928,13 @@ void SQMNode::recalculateSmoothedVertices(MeshGraph& meshGraph) {
 	/*CVector3 offset(centerOfMass.values_);
 	for (MyTriMesh::VertexIter v_it = polyhedron->vertices_begin(); v_it != polyhedron->vertices_end(); ++v_it) 
 	{
-		MyTriMesh::VHandle vh = v_it.handle();
-		CVector3 P(polyhedron->point(vh).values_);
-		P = Normalize(P - offset);
-		P = P * nodeRadius;
-		P = P + offset;
-		MyTriMesh::Point Q(P.x, P.y, P.z);
-		polyhedron->set_point(vh, Q);
+	MyTriMesh::VHandle vh = v_it.handle();
+	CVector3 P(polyhedron->point(vh).values_);
+	P = Normalize(P - offset);
+	P = P * nodeRadius;
+	P = P + offset;
+	MyTriMesh::Point Q(P.x, P.y, P.z);
+	polyhedron->set_point(vh, Q);
 	}*/
 }
 
@@ -1159,8 +1159,79 @@ void SQMNode::getMeshTessData(std::vector<float> &tessLevels, std::vector<float>
 		nodePositions.push_back(position[2]);
 		nodePositions.push_back(nodeRadius);
 	}
+	/*//if is branch node
+	if (this->isBranchNode()) {
+		//calculate radius dor each one ring
+		//also store the corresponding vertice
+		vector<float> radius;
+		map<int, vector<int> > verticeIntersection;
+		calculateOneRingRadiusAndMap(radius, verticeIntersection);
+		//for each vertice
+		for (MyTriMesh::VIter v_it = polyhedron->vertices_begin(); v_it != polyhedron->vertices_end(); ++v_it) {
+			MyTriMesh::VHandle vhandle = v_it.handle();
+			int position = getPositionInArray<MyTriMesh::VHandle>(vhandle, intersectionVHandles);
+			if (position == -1) {
+				//get corresponding intersection vertices
+				//add one ring radiuses
+				vector<int> intersections = verticeIntersection[vhandle.idx()];
+				for (int i = 0; i < intersections.size(); i++) {
+					nodeRadiuses.push_back(radius[intersections[i]]);
+				}
+				if (intersections.size() == 2) {
+					nodeRadiuses.push_back((radius[intersections[0]] + radius[intersections[1]]) / 2.0);
+				}
+			}
+		}
+	} else {
+		//add radius 3 times for each vertex
+		for (int i = 0; i < meshVhandlesToRotate.size(); i++) {
+			nodeRadiuses.push_back(nodeRadius);
+			nodeRadiuses.push_back(nodeRadius);
+			nodeRadiuses.push_back(nodeRadius);
+		}
+	}*/
 	for (int i = 0; i < nodes.size(); i++) {
 		nodes[i]->getMeshTessData(tessLevels, nodePositions);
+	}
+}
+
+void SQMNode::calculateOneRingRadiusAndMap(std::vector<float> &oneRingRadius, std::map<int, std::vector<int> > &intersectionMap) {
+	for (int i = 0; i < intersectionVHandles.size(); i++) {
+		MyTriMesh::VHandle vh = intersectionVHandles[i];
+		MyTriMesh::VHandle first_vh(-1);
+		MyTriMesh::VHandle prev_vh(-1);
+		float radius = 0;
+		for (MyTriMesh::VVIter vv_it = polyhedron->vv_begin(vh); vv_it != polyhedron->vv_end(vh); ++vv_it) {
+			if (first_vh.idx() == -1) {
+				first_vh = vv_it.handle();
+				prev_vh = vv_it.handle();
+			}
+			//add to map
+			int id = vv_it.handle().idx();
+			map<int, vector<int> >::iterator it = intersectionMap.find(id);
+			if (it != intersectionMap.end()) {
+				vector<int> oneRings = intersectionMap[id];
+				oneRings.push_back(i);
+				intersectionMap[id] = oneRings;
+			} else {
+				vector<int> oneRings;
+				oneRings.push_back(i);
+				intersectionMap[id] = oneRings;
+			}
+
+			//calculate length
+			MyTriMesh::Point P = polyhedron->point(prev_vh);
+			MyTriMesh::Point Q = polyhedron->point(vv_it.handle());
+			radius += (P - Q).norm();
+
+			prev_vh = vv_it.handle();
+		}
+		MyTriMesh::Point P = polyhedron->point(prev_vh);
+		MyTriMesh::Point Q = polyhedron->point(first_vh);
+		radius += (P - Q).norm();
+		//we calculated circumference (2*PI*r) so now we need to divide by 2*PI
+		radius /= (2*M_PI);
+		oneRingRadius.push_back(radius);
 	}
 }
 
@@ -1219,6 +1290,10 @@ SQMNode* SQMNode::getAncestorBranchNode(SQMNode* node) {
 	return getDescendantBranchNode(node->parent);
 }
 
+MyTriMesh::HalfedgeHandle SQMNode::startLink(MyTriMesh::VertexHandle vh) {
+	//its next halfedge from the first outgoing halfedge from intersection vertice
+	return polyhedron->next_halfedge_handle(polyhedron->voh_begin(vh).current_halfedge_handle());
+}
 
 MyTriMesh::HalfedgeHandle SQMNode::nextLink(MyTriMesh::HalfedgeHandle heh) {
 	//get on the side of the next triangle

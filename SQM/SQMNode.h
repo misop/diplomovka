@@ -151,6 +151,7 @@ public:
 #pragma region BNP Tesselation
 	void getMeshTessLevel(std::vector<float> &tessLevels);
 	void getMeshTessData(std::vector<float> &tessLevels, std::vector<float> &nodePositions);
+	void calculateOneRingRadiusAndMap(std::vector<float> &oneRingRadius, std::map<int, std::vector<int> > &intersectionMap);
 #pragma endregion
 
 #pragma region Utility
@@ -160,6 +161,7 @@ public:
 	SQMNode* getDescendantBranchNode(SQMNode* node);
 	SQMNode* getAncestorBranchNode(SQMNode* node);
 	MyMesh::VHandle getSecondVHandle(MyMesh::EdgeHandle edgeHandle, MyMesh::VHandle vhandle);
+	MyTriMesh::HalfedgeHandle startLink(MyTriMesh::VertexHandle vh);
 	MyTriMesh::HalfedgeHandle nextLink(MyTriMesh::HalfedgeHandle heh);
 	MyTriMesh::HalfedgeHandle prevLink(MyTriMesh::HalfedgeHandle heh);
 	MyTriMesh::VHandle oppositeVHandle(MyTriMesh::HalfedgeHandle heh);

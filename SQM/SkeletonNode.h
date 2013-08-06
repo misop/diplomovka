@@ -1,6 +1,7 @@
 #pragma once
 #include "m_math.h"
 #include <vector>
+#include <boost/serialization/version.hpp>
 
 using namespace std;
 
@@ -9,12 +10,14 @@ class SkeletonNode
 	friend class boost::serialization::access;
 public:
 	CVector3 point;
+	float radius;
 	int id;
 	bool cyclic;
 	vector<SkeletonNode*> nodes;
 public:
 	SkeletonNode();
 	SkeletonNode(float x, float y, float z);
+	SkeletonNode(float x, float y, float z, float Radius);
 	~SkeletonNode(void);
 
 	void addChild(SkeletonNode *node);
@@ -27,6 +30,11 @@ protected:
 		ar & BOOST_SERIALIZATION_NVP(id);
 		ar & BOOST_SERIALIZATION_NVP(cyclic);
 		ar & BOOST_SERIALIZATION_NVP(point);
+		if (version > 0) {
+			ar & BOOST_SERIALIZATION_NVP(radius);
+		}
 		ar & BOOST_SERIALIZATION_NVP(nodes);
 	}
 };
+
+BOOST_CLASS_VERSION(SkeletonNode, 1)

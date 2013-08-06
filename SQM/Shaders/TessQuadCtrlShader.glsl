@@ -4,10 +4,10 @@ layout(vertices = 4) out;
 
 in float vTessLevel[];
 in vec3 vNodePosition[];
-in float vNodeRadius[];
+in vec3 vNodeRadius[];
 
 out vec3 tcNodePosition[];
-out float tcNodeRadius[];
+out vec3 tcNodeRadius[];
 
 void main()
 {
