@@ -1189,16 +1189,22 @@ void SQMNode::getMeshTessLevel(std::vector<float> &tessLevels) {
 	}
 }
 
-void SQMNode::getMeshTessData(std::vector<float> &tessLevels, std::vector<float> &nodePositions) {
+void SQMNode::getMeshTessData(std::vector<float> &tessLevels, std::vector<float> &nodePositions, std::vector<float> &data) {
+	float type = 0.0;
+	if (this->isBranchNode()) type = 1.0;
+	else if (this->isLeafNode()) type = 2.0;
+
 	for (int i = 0; i < meshVhandlesToRotate.size(); i++) {
 		tessLevels.push_back(tessLevel);
 		nodePositions.push_back(position[0]);
 		nodePositions.push_back(position[1]);
 		nodePositions.push_back(position[2]);
-		nodePositions.push_back(nodeRadius);
+
+		data.push_back(nodeRadius);
+		data.push_back(type);
 	}
 	for (int i = 0; i < nodes.size(); i++) {
-		nodes[i]->getMeshTessData(tessLevels, nodePositions);
+		nodes[i]->getMeshTessData(tessLevels, nodePositions, data);
 	}
 }
 

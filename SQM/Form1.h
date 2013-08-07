@@ -153,6 +153,7 @@ namespace SQM {
 				 this->subdivideConvexHullToolStripMenuItem1 = (gcnew System::Windows::Forms::ToolStripMenuItem());
 				 this->quaternionSmoothingToolStripMenuItem = (gcnew System::Windows::Forms::ToolStripMenuItem());
 				 this->toolStripSeparator2 = (gcnew System::Windows::Forms::ToolStripSeparator());
+				 this->noSmoothingToolStripMenuItem = (gcnew System::Windows::Forms::ToolStripMenuItem());
 				 this->quaternionToolStripMenuItem = (gcnew System::Windows::Forms::ToolStripMenuItem());
 				 this->valencyWeightedLaplacianToolStripMenuItem = (gcnew System::Windows::Forms::ToolStripMenuItem());
 				 this->oneRingAreaWeightedLaplacianToolStripMenuItem = (gcnew System::Windows::Forms::ToolStripMenuItem());
@@ -176,7 +177,6 @@ namespace SQM {
 				 this->numericUpDown1 = (gcnew System::Windows::Forms::NumericUpDown());
 				 this->textBox1 = (gcnew System::Windows::Forms::TextBox());
 				 this->label1 = (gcnew System::Windows::Forms::Label());
-				 this->noSmoothingToolStripMenuItem = (gcnew System::Windows::Forms::ToolStripMenuItem());
 				 this->toolStrip1->SuspendLayout();
 				 this->menuStrip1->SuspendLayout();
 				 this->panel2->SuspendLayout();
@@ -349,6 +349,13 @@ namespace SQM {
 				 this->toolStripSeparator2->Name = L"toolStripSeparator2";
 				 this->toolStripSeparator2->Size = System::Drawing::Size(254, 6);
 				 // 
+				 // noSmoothingToolStripMenuItem
+				 // 
+				 this->noSmoothingToolStripMenuItem->Name = L"noSmoothingToolStripMenuItem";
+				 this->noSmoothingToolStripMenuItem->Size = System::Drawing::Size(257, 22);
+				 this->noSmoothingToolStripMenuItem->Text = L"No Smoothing";
+				 this->noSmoothingToolStripMenuItem->Click += gcnew System::EventHandler(this, &Form1::noSmoothingToolStripMenuItem_Click);
+				 // 
 				 // quaternionToolStripMenuItem
 				 // 
 				 this->quaternionToolStripMenuItem->Checked = true;
@@ -396,7 +403,7 @@ namespace SQM {
 				 // restartToolStripMenuItem
 				 // 
 				 this->restartToolStripMenuItem->Name = L"restartToolStripMenuItem";
-				 this->restartToolStripMenuItem->Size = System::Drawing::Size(152, 22);
+				 this->restartToolStripMenuItem->Size = System::Drawing::Size(142, 22);
 				 this->restartToolStripMenuItem->Text = L"Edit Skeleton";
 				 this->restartToolStripMenuItem->Click += gcnew System::EventHandler(this, &Form1::restartToolStripMenuItem_Click);
 				 // 
@@ -443,7 +450,6 @@ namespace SQM {
 				 // 
 				 this->numericUpDown5->Enabled = false;
 				 this->numericUpDown5->Location = System::Drawing::Point(72, 155);
-				 this->numericUpDown5->Maximum = System::Decimal(gcnew cli::array< System::Int32 >(4) {10, 0, 0, 0});
 				 this->numericUpDown5->Minimum = System::Decimal(gcnew cli::array< System::Int32 >(4) {1, 0, 0, 0});
 				 this->numericUpDown5->Name = L"numericUpDown5";
 				 this->numericUpDown5->ReadOnly = true;
@@ -577,13 +583,6 @@ namespace SQM {
 				 this->label1->Size = System::Drawing::Size(33, 13);
 				 this->label1->TabIndex = 0;
 				 this->label1->Text = L"Node";
-				 // 
-				 // noSmoothingToolStripMenuItem
-				 // 
-				 this->noSmoothingToolStripMenuItem->Name = L"noSmoothingToolStripMenuItem";
-				 this->noSmoothingToolStripMenuItem->Size = System::Drawing::Size(257, 22);
-				 this->noSmoothingToolStripMenuItem->Text = L"No Smoothing";
-				 this->noSmoothingToolStripMenuItem->Click += gcnew System::EventHandler(this, &Form1::noSmoothingToolStripMenuItem_Click);
 				 // 
 				 // Form1
 				 // 

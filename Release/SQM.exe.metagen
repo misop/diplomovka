@@ -42,6 +42,7 @@ Class OpenGLForm.COpenGL: AutoLayout, AnsiClass, Class, Public, BeforeFieldInit
     resize(Int32, Int32): PrivateScope, Public, HideBySig
     setupView(): PrivateScope, Public, HideBySig
     getSelected(): PrivateScope, Public, HideBySig
+    setSmoothingOff(): PrivateScope, Public, HideBySig
     setQuaternionSmoothing(): PrivateScope, Public, HideBySig
     setOneRingWeightedLaplacian(): PrivateScope, Public, HideBySig
     setValencyWeightedLaplacian(): PrivateScope, Public, HideBySig

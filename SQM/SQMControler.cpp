@@ -443,16 +443,18 @@ void SQMControler::drawMeshForTesselation() {
 	vector<int> quadIndices;
 	vector<float> tessLevels;
 	vector<float> nodePositions;
+	vector<float> data;
 
 	convertMeshToArray(sqmALgorithm->getMesh(), points, triIndices, quadIndices);
 	//sqmALgorithm->getRoot()->getMeshTessLevel(tessLevels);
-	sqmALgorithm->getRoot()->getMeshTessData(tessLevels, nodePositions);
+	sqmALgorithm->getRoot()->getMeshTessData(tessLevels, nodePositions, data);
 
 	buffer1 = new GLArrayBuffer();
 	buffer1->Bind();
 	buffer1->BindBufferData(points, 3, GL_STATIC_DRAW);
 	buffer1->BindBufferData(tessLevels, 1, GL_STATIC_DRAW);
-	buffer1->BindBufferData(nodePositions, 4, GL_STATIC_DRAW);
+	buffer1->BindBufferData(nodePositions, 3, GL_STATIC_DRAW);
+	buffer1->BindBufferData(data, 2, GL_STATIC_DRAW);
 	buffer1->BindElement(triIndices, GL_STATIC_DRAW);
 	buffer1->BindElement(quadIndices, GL_STATIC_DRAW);
 
