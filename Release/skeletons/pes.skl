@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
 <!DOCTYPE boost_serialization>
 <boost_serialization signature="serialization::archive" version="9">
-<node class_id="0" tracking_level="1" version="0" object_id="_0">
+<node class_id="0" tracking_level="1" version="1" object_id="_0">
 	<id>0</id>
 	<cyclic>0</cyclic>
 	<point class_id="1" tracking_level="0" version="0">
@@ -9,6 +9,7 @@
 		<y>-2.0999999</y>
 		<z>0</z>
 	</point>
+	<radius>10</radius>
 	<nodes class_id="2" tracking_level="0" version="0">
 		<count>4</count>
 		<item_version>0</item_version>
@@ -20,6 +21,7 @@
 				<y>-88.734543</y>
 				<z>0</z>
 			</point>
+			<radius>10</radius>
 			<nodes>
 				<count>3</count>
 				<item_version>0</item_version>
@@ -31,6 +33,7 @@
 						<y>-96.233231</y>
 						<z>0</z>
 					</point>
+					<radius>10</radius>
 					<nodes>
 						<count>3</count>
 						<item_version>0</item_version>
@@ -42,6 +45,7 @@
 								<y>-175.4202</y>
 								<z>23.6996</z>
 							</point>
+							<radius>10</radius>
 							<nodes>
 								<count>0</count>
 								<item_version>0</item_version>
@@ -55,6 +59,7 @@
 								<y>-161.8708</y>
 								<z>-33.995739</z>
 							</point>
+							<radius>10</radius>
 							<nodes>
 								<count>0</count>
 								<item_version>0</item_version>
@@ -68,6 +73,7 @@
 								<y>-42.744991</y>
 								<z>-0.29317591</z>
 							</point>
+							<radius>10</radius>
 							<nodes>
 								<count>0</count>
 								<item_version>0</item_version>
@@ -83,6 +89,7 @@
 						<y>-165.92059</y>
 						<z>20.662001</z>
 					</point>
+					<radius>10</radius>
 					<nodes>
 						<count>0</count>
 						<item_version>0</item_version>
@@ -96,6 +103,7 @@
 						<y>-157.3224</y>
 						<z>-37.916458</z>
 					</point>
+					<radius>10</radius>
 					<nodes>
 						<count>0</count>
 						<item_version>0</item_version>
@@ -111,6 +119,7 @@
 				<y>-1.700436</y>
 				<z>-0.45808741</z>
 			</point>
+			<radius>10</radius>
 			<nodes>
 				<count>1</count>
 				<item_version>0</item_version>
@@ -118,10 +127,11 @@
 					<id>0</id>
 					<cyclic>0</cyclic>
 					<point>
-						<x>22.985939</x>
-						<y>-1.5842514</y>
-						<z>-0.59128934</z>
+						<x>22.985941</x>
+						<y>-1.584251</y>
+						<z>-0.59128928</z>
 					</point>
+					<radius>8</radius>
 					<nodes>
 						<count>1</count>
 						<item_version>0</item_version>
@@ -129,10 +139,11 @@
 							<id>0</id>
 							<cyclic>0</cyclic>
 							<point>
-								<x>28.535168</x>
+								<x>28.53517</x>
 								<y>-1.46342</y>
-								<z>-0.72981876</z>
+								<z>-0.72981882</z>
 							</point>
+							<radius>4</radius>
 							<nodes>
 								<count>0</count>
 								<item_version>0</item_version>
@@ -150,6 +161,7 @@
 				<y>33.993469</y>
 				<z>14.69679</z>
 			</point>
+			<radius>10</radius>
 			<nodes>
 				<count>0</count>
 				<item_version>0</item_version>
@@ -163,6 +175,7 @@
 				<y>36.093472</y>
 				<z>-20.995399</z>
 			</point>
+			<radius>10</radius>
 			<nodes>
 				<count>0</count>
 				<item_version>0</item_version>

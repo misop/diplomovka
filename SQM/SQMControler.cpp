@@ -396,6 +396,7 @@ void SQMControler::drawMeshForTesselation(OpenGLPrograms *programs, GLCamera *ca
 	glPatchParameteri(GL_PATCH_VERTICES, 4);
 	camera->lookFromCamera(programs->QuadMeshTess->getUniformLocation(MVP_MATRIX_STR));
 	camera->setupNormalMatrix(programs->QuadMeshTess->getUniformLocation(NORMAL_MATRIX_STR));
+	camera->setupModelViewMatrix(programs->QuadMeshTess->getUniformLocation(MODEL_VIEW_MATRIX_STR));
 	glUniform3f(programs->QuadMeshTess->getUniformLocation(LIGHT_POSITION_STR), eye.x, eye.y, eye.z);
 	glUniform4f(programs->QuadMeshTess->getUniformLocation(AMBIENT_COLOR_STR), 0.0, 0.75, 0.75, 0.1);
 	glUniform3f(programs->QuadMeshTess->getUniformLocation(DIFFUSE_COLOR_STR), 0.0, 0.75, 0.75);
