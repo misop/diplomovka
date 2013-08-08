@@ -58,12 +58,12 @@ vec4 adjust(vec4 vals, vec4 sizes) {
 
 void main()
 {
-    vec3 color = AmbientColor.w * vec3(AmbientColor);
+    /*vec3 color = AmbientColor.w * vec3(AmbientColor);
 
 	vec3 light = normalize(vec3(MVPmatrix * vec4(LightPosition, 1)) - gVertex);
 	float diffuseFactor = max(dot(gNormal, light), 0);
-	color += diffuseFactor * DiffuseColor;
-	//color = DiffuseColor;
+	color += diffuseFactor * DiffuseColor;*/
+	vec3 color = DiffuseColor;
 
 	if (Wireframe == 1) {
 		vec3 adjusted0 = adjust(gTriDistance, gTriDistanceCtrl);

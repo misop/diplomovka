@@ -746,6 +746,9 @@ void SQMNode::splitLIE(LIE lie, std::map<int, LIENeedEntry>& lieMap, int entryIn
 	if (algorithm == SQMQuaternionSmoothing) {
 		smoothLIE(newLie);
 	}
+	if (algorithm == SQMAvaragingSmoothing) {
+		smoothLIEByAvaraging(newLie);
+	}
 	//decrease need for both vertices
 	LIENeedEntry entry1 = lieMap.at(entryIndex);
 	LIENeedEntry entry2 = lieMap.at(lie.otherVerticeIndex(entryIndex));
@@ -796,7 +799,11 @@ MyTriMesh::EHandle SQMNode::splitEdgeInHalfAndReturnNewEdge(MyTriMesh::EdgeHandl
 	return polyhedron->InvalidEdgeHandle;
 }
 
+#pragma endregion
+
 #pragma region Smoothing
+
+#pragma region Quaternion Smoothing
 
 void SQMNode::smoothLIE(LIE lie) {
 	//angle and axis of rotation
@@ -832,6 +839,10 @@ void SQMNode::smoothLIEs(map<int, LIENeedEntry> lieMap) {
 	}
 }
 
+#pragma endregion
+
+#pragma region Laplacian Smoothing
+
 void SQMNode::laplacianSMoothing(SQMSmoothingAlgorithm algorithm) {
 	//convert mesh
 	MeshGraph meshGraph = MeshGraph();
@@ -850,7 +861,6 @@ void SQMNode::mesh2graph(MeshGraph& meshGraph, SQMSmoothingAlgorithm algorithm) 
 		mesh2graphValencyWeighted(meshGraph);
 	}
 }
-
 
 void SQMNode::mesh2graphValencyWeighted(MeshGraph& meshGraph) {
 	int n_vertices = polyhedron->n_vertices();
@@ -961,19 +971,48 @@ void SQMNode::recalculateSmoothedVertices(MeshGraph& meshGraph) {
 		index++;
 	}
 	//translate vertices on the sphere
-	//not alwys in the center!!!!
+	//not always in the center!!!!
 	//CVector3 offset(position.values_);
-	/*CVector3 offset(centerOfMass.values_);
+	CVector3 offset(centerOfMass.values_);
 	for (MyTriMesh::VertexIter v_it = polyhedron->vertices_begin(); v_it != polyhedron->vertices_end(); ++v_it) 
 	{
-	MyTriMesh::VHandle vh = v_it.handle();
-	CVector3 P(polyhedron->point(vh).values_);
-	P = Normalize(P - offset);
-	P = P * nodeRadius;
-	P = P + offset;
-	MyTriMesh::Point Q(P.x, P.y, P.z);
-	polyhedron->set_point(vh, Q);
-	}*/
+		MyTriMesh::VHandle vh = v_it.handle();
+		CVector3 P(polyhedron->point(vh).values_);
+		P = Normalize(P - offset);
+		P = P * nodeRadius;
+		P = P + offset;
+		MyTriMesh::Point Q(P.x, P.y, P.z);
+		polyhedron->set_point(vh, Q);
+	}
+}
+
+#pragma endregion
+
+#pragma region Avaraging Smoothing
+
+void SQMNode::smoothLIEByAvaraging(LIE lie) {
+	MyTriMesh::HHandle heh = lie.lastHHandle;
+	while (heh != lie.firstHHandle) {
+		MyTriMesh::VHandle vh = polyhedron->to_vertex_handle(polyhedron->opposite_halfedge_handle(heh));
+
+		MyTriMesh::Point P(0, 0, 0);
+		float count = 0; 
+		for (MyTriMesh::VVIter vv_it = polyhedron->vv_begin(vh); vv_it != polyhedron->vv_end(vh); ++vv_it) {
+			P += polyhedron->point(vv_it.handle());
+			count++;
+		}
+		P /= count;
+		OpenMesh::Vec3f ray_origin(P[0], P[1], P[2]);
+		OpenMesh::Vec3f ray_dir = (ray_origin - centerOfMass).normalize();
+		float t = 0;
+		if (raySphereIntersection(ray_origin, ray_dir, position, nodeRadius, t)) {
+			P = ray_origin + (t * ray_dir);
+		}
+
+		polyhedron->set_point(vh, P);
+
+		heh = prevLink(heh);
+	}
 }
 
 #pragma endregion

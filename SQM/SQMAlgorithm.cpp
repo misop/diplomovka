@@ -13,7 +13,7 @@ SQMAlgorithm::SQMAlgorithm(void) : root(NULL)
 	root = new SQMNode();
 	resetRoot = NULL;
 	numOfNodes = 1;
-	smoothingAlgorithm = SQMOneRingLaplacianSmoothing;
+	smoothingAlgorithm = SQMAvaragingSmoothing;
 }
 
 SQMAlgorithm::~SQMAlgorithm(void)

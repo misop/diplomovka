@@ -25,6 +25,7 @@ struct VHandleCount {
 typedef enum {
 	SQMNoSmoothing = 0,
 	SQMQuaternionSmoothing,
+	SQMAvaragingSmoothing,
 	SQMValencyLaplacianSmoothing,
 	SQMOneRingLaplacianSmoothing
 } SQMSmoothingAlgorithm;
@@ -123,15 +124,26 @@ public:
 	void splitLIE(LIE lie, std::map<int, LIENeedEntry>& lieMap, int entryIndex, int lieIndex, SQMSmoothingAlgorithm algorithm);
 	LIE splitLIEEdge(LIE lie);
 	MyTriMesh::EHandle splitEdgeInHalfAndReturnNewEdge(MyTriMesh::EdgeHandle eh);
+	
+#pragma endregion
 
 #pragma region Smoothing
+
+#pragma region Quaternion Smoothing
 	void smoothLIE(LIE lie);
 	void smoothLIEs(map<int, LIENeedEntry> lieMap);
+#pragma endregion
+
+#pragma region Laplacian Smoothing
 	void laplacianSMoothing(SQMSmoothingAlgorithm algorithm);
 	void mesh2graph(MeshGraph& meshGraph, SQMSmoothingAlgorithm algorithm);
 	void mesh2graphValencyWeighted(MeshGraph& meshGraph);
 	void mesh2graphOneRingWeighted(MeshGraph& meshGraph);
 	void recalculateSmoothedVertices(MeshGraph& meshGraph);
+#pragma endregion
+
+#pragma region Avaraging Smoothing
+	void smoothLIEByAvaraging(LIE lie);
 #pragma endregion
 
 #pragma endregion

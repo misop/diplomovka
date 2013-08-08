@@ -116,6 +116,7 @@ namespace SQM {
 	private: System::Windows::Forms::ToolStripMenuItem^  valencyWeightedLaplacianToolStripMenuItem;
 	private: System::Windows::Forms::ToolStripMenuItem^  oneRingAreaWeightedLaplacianToolStripMenuItem;
 	private: System::Windows::Forms::ToolStripMenuItem^  noSmoothingToolStripMenuItem;
+	private: System::Windows::Forms::ToolStripMenuItem^  avaragingToolStripMenuItem;
 
 
 
@@ -177,6 +178,7 @@ namespace SQM {
 				 this->numericUpDown1 = (gcnew System::Windows::Forms::NumericUpDown());
 				 this->textBox1 = (gcnew System::Windows::Forms::TextBox());
 				 this->label1 = (gcnew System::Windows::Forms::Label());
+				 this->avaragingToolStripMenuItem = (gcnew System::Windows::Forms::ToolStripMenuItem());
 				 this->toolStrip1->SuspendLayout();
 				 this->menuStrip1->SuspendLayout();
 				 this->panel2->SuspendLayout();
@@ -330,9 +332,9 @@ namespace SQM {
 				 // 
 				 // subdivideConvexHullToolStripMenuItem1
 				 // 
-				 this->subdivideConvexHullToolStripMenuItem1->DropDownItems->AddRange(gcnew cli::array< System::Windows::Forms::ToolStripItem^  >(6) {this->quaternionSmoothingToolStripMenuItem, 
-					 this->toolStripSeparator2, this->noSmoothingToolStripMenuItem, this->quaternionToolStripMenuItem, this->valencyWeightedLaplacianToolStripMenuItem, 
-					 this->oneRingAreaWeightedLaplacianToolStripMenuItem});
+				 this->subdivideConvexHullToolStripMenuItem1->DropDownItems->AddRange(gcnew cli::array< System::Windows::Forms::ToolStripItem^  >(7) {this->quaternionSmoothingToolStripMenuItem, 
+					 this->toolStripSeparator2, this->noSmoothingToolStripMenuItem, this->avaragingToolStripMenuItem, this->quaternionToolStripMenuItem, 
+					 this->valencyWeightedLaplacianToolStripMenuItem, this->oneRingAreaWeightedLaplacianToolStripMenuItem});
 				 this->subdivideConvexHullToolStripMenuItem1->Name = L"subdivideConvexHullToolStripMenuItem1";
 				 this->subdivideConvexHullToolStripMenuItem1->Size = System::Drawing::Size(236, 22);
 				 this->subdivideConvexHullToolStripMenuItem1->Text = L"Subdivide Convex Hull";
@@ -358,8 +360,6 @@ namespace SQM {
 				 // 
 				 // quaternionToolStripMenuItem
 				 // 
-				 this->quaternionToolStripMenuItem->Checked = true;
-				 this->quaternionToolStripMenuItem->CheckState = System::Windows::Forms::CheckState::Checked;
 				 this->quaternionToolStripMenuItem->Name = L"quaternionToolStripMenuItem";
 				 this->quaternionToolStripMenuItem->Size = System::Drawing::Size(257, 22);
 				 this->quaternionToolStripMenuItem->Text = L"Quaternion";
@@ -584,6 +584,15 @@ namespace SQM {
 				 this->label1->TabIndex = 0;
 				 this->label1->Text = L"Node";
 				 // 
+				 // avaragingToolStripMenuItem
+				 // 
+				 this->avaragingToolStripMenuItem->Checked = true;
+				 this->avaragingToolStripMenuItem->CheckState = System::Windows::Forms::CheckState::Checked;
+				 this->avaragingToolStripMenuItem->Name = L"avaragingToolStripMenuItem";
+				 this->avaragingToolStripMenuItem->Size = System::Drawing::Size(257, 22);
+				 this->avaragingToolStripMenuItem->Text = L"Avaraging";
+				 this->avaragingToolStripMenuItem->Click += gcnew System::EventHandler(this, &Form1::avaragingToolStripMenuItem_Click);
+				 // 
 				 // Form1
 				 // 
 				 this->AutoScaleDimensions = System::Drawing::SizeF(6, 13);
@@ -736,7 +745,8 @@ namespace SQM {
 #pragma endregion
 			 void refreshCheckBoxes() {
 				 noSmoothingToolStripMenuItem->Checked = false;
-				 quaternionToolStripMenuItem->Checked = true;
+				 avaragingToolStripMenuItem->Checked = true;
+				 quaternionToolStripMenuItem->Checked = false;
 				 valencyWeightedLaplacianToolStripMenuItem->Checked = false;
 				 oneRingAreaWeightedLaplacianToolStripMenuItem->Checked = false;
 			 }
@@ -840,6 +850,7 @@ namespace SQM {
 			 }
 	private: System::Void quaternionToolStripMenuItem_Click(System::Object^  sender, System::EventArgs^  e) {
 				 noSmoothingToolStripMenuItem->Checked = false;
+				 avaragingToolStripMenuItem->Checked = false;
 				 quaternionToolStripMenuItem->Checked = true;
 				 valencyWeightedLaplacianToolStripMenuItem->Checked = false;
 				 oneRingAreaWeightedLaplacianToolStripMenuItem->Checked = false;
@@ -848,6 +859,7 @@ namespace SQM {
 			 }
 	private: System::Void valencyWeightedLaplacianToolStripMenuItem_Click(System::Object^  sender, System::EventArgs^  e) {
 				 noSmoothingToolStripMenuItem->Checked = false;
+				 avaragingToolStripMenuItem->Checked = false;
 				 quaternionToolStripMenuItem->Checked = false;
 				 valencyWeightedLaplacianToolStripMenuItem->Checked = true;
 				 oneRingAreaWeightedLaplacianToolStripMenuItem->Checked = false;
@@ -856,6 +868,7 @@ namespace SQM {
 			 }
 	private: System::Void oneRingAreaWeightedLaplacianToolStripMenuItem_Click(System::Object^  sender, System::EventArgs^  e) {
 				 noSmoothingToolStripMenuItem->Checked = false;
+				 avaragingToolStripMenuItem->Checked = false;
 				 quaternionToolStripMenuItem->Checked = false;
 				 valencyWeightedLaplacianToolStripMenuItem->Checked = false;
 				 oneRingAreaWeightedLaplacianToolStripMenuItem->Checked = true;
@@ -864,11 +877,21 @@ namespace SQM {
 			 }
 	private: System::Void noSmoothingToolStripMenuItem_Click(System::Object^  sender, System::EventArgs^  e) {
 				 noSmoothingToolStripMenuItem->Checked = true;
+				 avaragingToolStripMenuItem->Checked = false;
 				 quaternionToolStripMenuItem->Checked = false;
 				 valencyWeightedLaplacianToolStripMenuItem->Checked = false;
 				 oneRingAreaWeightedLaplacianToolStripMenuItem->Checked = false;
 
 				 OpenGL->setSmoothingOff();
+			 }
+	private: System::Void avaragingToolStripMenuItem_Click(System::Object^  sender, System::EventArgs^  e) {
+				 noSmoothingToolStripMenuItem->Checked = false;
+				 avaragingToolStripMenuItem->Checked = true;
+				 quaternionToolStripMenuItem->Checked = false;
+				 valencyWeightedLaplacianToolStripMenuItem->Checked = false;
+				 oneRingAreaWeightedLaplacianToolStripMenuItem->Checked = false;
+
+				 OpenGL->setAvaragingSmoothing();
 			 }
 	};
 }
