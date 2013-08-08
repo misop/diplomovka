@@ -580,7 +580,7 @@ void SQMNode::subdividePolyhedra(SQMNode* parentBranchNode, int count, SQMSmooth
 	map<int, LIENeedEntry> lieMap;
 	fillLIEMap(count, lieMap, branchingNodes);
 	if (algorithm == SQMQuaternionSmoothing) {
-		smoothLIEs(lieMap);
+		//smoothLIEs(lieMap);
 	}
 	splitLIEs(lieMap, algorithm);
 	//take care of the rest
@@ -644,8 +644,8 @@ void SQMNode::fillLIEMap(int parentNeed, std::map<int, LIENeedEntry>& lieMap, st
 		MyTriMesh::VHandle lastLieVertex = polyhedron->to_vertex_handle(heh);
 		MyTriMesh::HHandle firstLieHEdge = heh;
 		MyTriMesh::HHandle lastLieHEdge = heh;
-		CVector3 offset = CVector3(position.values_);
-		//CVector3 offset = CVector3(centerOfMass.values_);
+		//CVector3 offset = CVector3(position.values_);
+		CVector3 offset = CVector3(centerOfMass.values_);
 
 		bool good = true;
 		while (good) {
@@ -675,14 +675,14 @@ void SQMNode::fillLIEMap(int parentNeed, std::map<int, LIENeedEntry>& lieMap, st
 				CVector3 P = CVector3(polyhedron->point(secondLieVertex).values_) - offset;
 				//CVector3 axis = Normalize(Cross(P - start, dest - start));
 				//default axis between start and P because they cannot be colinear and fit the one-ring
-				/*CVector3 axis;
+				CVector3 axis;
 				float angle = Dot(Normalize(start), Normalize(dest));
 				if (equal(fabs(angle), 1)) {
-				axis = Normalize(Cross(start, P));
+					axis = Normalize(Cross(start, P));
 				} else {
-				axis = Normalize(Cross(start, dest));
-				}*/
-				CVector3 axis = Normalize(Cross(start, P));
+					axis = Normalize(Cross(start, dest));
+				}
+				//CVector3 axis = Normalize(Cross(start, P));
 				lie.quaternion = SQMQuaternionBetweenVectorsWithAxis(start, dest, axis);
 				verticeLIEs.push_back(lie);
 
@@ -811,8 +811,8 @@ void SQMNode::smoothLIE(LIE lie) {
 	float alfa = acos(lie.quaternion.s) * 2.0 / div;//lie.quaternion.s / div;
 	float partAlfa = alfa;
 	CVector3 axis = Normalize(CVector3(lie.quaternion.i, lie.quaternion.j, lie.quaternion.k));
-	CVector3 offset = CVector3(position.values_);
-	//CVector3 offset = CVector3(centerOfMass.values_);
+	//CVector3 offset = CVector3(position.values_);
+	CVector3 offset = CVector3(centerOfMass.values_);
 	//get first vertice
 	MyTriMesh::HHandle heh = lie.firstHHandle;
 	CVector3 v = CVector3(polyhedron->point(polyhedron->to_vertex_handle(polyhedron->opposite_halfedge_handle(heh))).values_) - offset;
@@ -822,6 +822,12 @@ void SQMNode::smoothLIE(LIE lie) {
 		CVector3 u = QuaternionRotateVector(q, v);
 		u = u + offset;
 		MyTriMesh::Point P(u.x, u.y, u.z);
+		OpenMesh::Vec3f ray_origin = centerOfMass;
+		OpenMesh::Vec3f ray_dir = (P - centerOfMass).normalize();
+		float t = 0;
+		raySphereIntersection(ray_origin, ray_dir, position, nodeRadius, t);
+		P = ray_origin + (t * ray_dir);
+
 		polyhedron->set_point(vh, P);
 
 		alfa += partAlfa;
