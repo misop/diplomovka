@@ -104,8 +104,8 @@ namespace SQM {
 	private: System::Windows::Forms::TextBox^  textBox1;
 	private: System::Windows::Forms::NumericUpDown^  numericUpDown5;
 	private: System::Windows::Forms::Label^  label7;
-	private: System::Windows::Forms::ToolStripMenuItem^  editToolStripMenuItem;
-	private: System::Windows::Forms::ToolStripMenuItem^  restartToolStripMenuItem;
+
+
 	private: System::Windows::Forms::ToolStripMenuItem^  showToolStripMenuItem;
 	private: System::Windows::Forms::ToolStripMenuItem^  wireframeToolStripMenuItem;
 	private: System::Windows::Forms::ToolStripSeparator^  toolStripSeparator1;
@@ -117,6 +117,7 @@ namespace SQM {
 	private: System::Windows::Forms::ToolStripMenuItem^  oneRingAreaWeightedLaplacianToolStripMenuItem;
 	private: System::Windows::Forms::ToolStripMenuItem^  noSmoothingToolStripMenuItem;
 	private: System::Windows::Forms::ToolStripMenuItem^  avaragingToolStripMenuItem;
+	private: System::Windows::Forms::ToolStripMenuItem^  editSkeletonToolStripMenuItem;
 
 
 
@@ -149,19 +150,19 @@ namespace SQM {
 				 this->toolStripSeparator1 = (gcnew System::Windows::Forms::ToolStripSeparator());
 				 this->exitToolStripMenuItem = (gcnew System::Windows::Forms::ToolStripMenuItem());
 				 this->sQMToolStripMenuItem = (gcnew System::Windows::Forms::ToolStripMenuItem());
+				 this->editSkeletonToolStripMenuItem = (gcnew System::Windows::Forms::ToolStripMenuItem());
 				 this->straightenToolStripMenuItem1 = (gcnew System::Windows::Forms::ToolStripMenuItem());
 				 this->computeConvexHullToolStripMenuItem1 = (gcnew System::Windows::Forms::ToolStripMenuItem());
 				 this->subdivideConvexHullToolStripMenuItem1 = (gcnew System::Windows::Forms::ToolStripMenuItem());
 				 this->quaternionSmoothingToolStripMenuItem = (gcnew System::Windows::Forms::ToolStripMenuItem());
 				 this->toolStripSeparator2 = (gcnew System::Windows::Forms::ToolStripSeparator());
 				 this->noSmoothingToolStripMenuItem = (gcnew System::Windows::Forms::ToolStripMenuItem());
+				 this->avaragingToolStripMenuItem = (gcnew System::Windows::Forms::ToolStripMenuItem());
 				 this->quaternionToolStripMenuItem = (gcnew System::Windows::Forms::ToolStripMenuItem());
 				 this->valencyWeightedLaplacianToolStripMenuItem = (gcnew System::Windows::Forms::ToolStripMenuItem());
 				 this->oneRingAreaWeightedLaplacianToolStripMenuItem = (gcnew System::Windows::Forms::ToolStripMenuItem());
 				 this->joinBranchNodePolyhedronsToolStripMenuItem = (gcnew System::Windows::Forms::ToolStripMenuItem());
 				 this->straightenMeshToolStripMenuItem = (gcnew System::Windows::Forms::ToolStripMenuItem());
-				 this->editToolStripMenuItem = (gcnew System::Windows::Forms::ToolStripMenuItem());
-				 this->restartToolStripMenuItem = (gcnew System::Windows::Forms::ToolStripMenuItem());
 				 this->showToolStripMenuItem = (gcnew System::Windows::Forms::ToolStripMenuItem());
 				 this->wireframeToolStripMenuItem = (gcnew System::Windows::Forms::ToolStripMenuItem());
 				 this->panel2 = (gcnew System::Windows::Forms::Panel());
@@ -178,7 +179,6 @@ namespace SQM {
 				 this->numericUpDown1 = (gcnew System::Windows::Forms::NumericUpDown());
 				 this->textBox1 = (gcnew System::Windows::Forms::TextBox());
 				 this->label1 = (gcnew System::Windows::Forms::Label());
-				 this->avaragingToolStripMenuItem = (gcnew System::Windows::Forms::ToolStripMenuItem());
 				 this->toolStrip1->SuspendLayout();
 				 this->menuStrip1->SuspendLayout();
 				 this->panel2->SuspendLayout();
@@ -245,8 +245,8 @@ namespace SQM {
 				 // 
 				 // menuStrip1
 				 // 
-				 this->menuStrip1->Items->AddRange(gcnew cli::array< System::Windows::Forms::ToolStripItem^  >(4) {this->fileToolStripMenuItem, 
-					 this->sQMToolStripMenuItem, this->editToolStripMenuItem, this->showToolStripMenuItem});
+				 this->menuStrip1->Items->AddRange(gcnew cli::array< System::Windows::Forms::ToolStripItem^  >(3) {this->fileToolStripMenuItem, 
+					 this->sQMToolStripMenuItem, this->showToolStripMenuItem});
 				 this->menuStrip1->Location = System::Drawing::Point(0, 0);
 				 this->menuStrip1->Name = L"menuStrip1";
 				 this->menuStrip1->Size = System::Drawing::Size(744, 24);
@@ -309,12 +309,21 @@ namespace SQM {
 				 // 
 				 // sQMToolStripMenuItem
 				 // 
-				 this->sQMToolStripMenuItem->DropDownItems->AddRange(gcnew cli::array< System::Windows::Forms::ToolStripItem^  >(5) {this->straightenToolStripMenuItem1, 
-					 this->computeConvexHullToolStripMenuItem1, this->subdivideConvexHullToolStripMenuItem1, this->joinBranchNodePolyhedronsToolStripMenuItem, 
+				 this->sQMToolStripMenuItem->DropDownItems->AddRange(gcnew cli::array< System::Windows::Forms::ToolStripItem^  >(6) {this->editSkeletonToolStripMenuItem, 
+					 this->straightenToolStripMenuItem1, this->computeConvexHullToolStripMenuItem1, this->subdivideConvexHullToolStripMenuItem1, this->joinBranchNodePolyhedronsToolStripMenuItem, 
 					 this->straightenMeshToolStripMenuItem});
 				 this->sQMToolStripMenuItem->Name = L"sQMToolStripMenuItem";
 				 this->sQMToolStripMenuItem->Size = System::Drawing::Size(45, 20);
 				 this->sQMToolStripMenuItem->Text = L"&SQM";
+				 // 
+				 // editSkeletonToolStripMenuItem
+				 // 
+				 this->editSkeletonToolStripMenuItem->Checked = true;
+				 this->editSkeletonToolStripMenuItem->CheckState = System::Windows::Forms::CheckState::Checked;
+				 this->editSkeletonToolStripMenuItem->Name = L"editSkeletonToolStripMenuItem";
+				 this->editSkeletonToolStripMenuItem->Size = System::Drawing::Size(236, 22);
+				 this->editSkeletonToolStripMenuItem->Text = L"Edit Skeleton";
+				 this->editSkeletonToolStripMenuItem->Click += gcnew System::EventHandler(this, &Form1::editSkeletonToolStripMenuItem_Click);
 				 // 
 				 // straightenToolStripMenuItem1
 				 // 
@@ -358,6 +367,15 @@ namespace SQM {
 				 this->noSmoothingToolStripMenuItem->Text = L"No Smoothing";
 				 this->noSmoothingToolStripMenuItem->Click += gcnew System::EventHandler(this, &Form1::noSmoothingToolStripMenuItem_Click);
 				 // 
+				 // avaragingToolStripMenuItem
+				 // 
+				 this->avaragingToolStripMenuItem->Checked = true;
+				 this->avaragingToolStripMenuItem->CheckState = System::Windows::Forms::CheckState::Checked;
+				 this->avaragingToolStripMenuItem->Name = L"avaragingToolStripMenuItem";
+				 this->avaragingToolStripMenuItem->Size = System::Drawing::Size(257, 22);
+				 this->avaragingToolStripMenuItem->Text = L"Avaraging";
+				 this->avaragingToolStripMenuItem->Click += gcnew System::EventHandler(this, &Form1::avaragingToolStripMenuItem_Click);
+				 // 
 				 // quaternionToolStripMenuItem
 				 // 
 				 this->quaternionToolStripMenuItem->Name = L"quaternionToolStripMenuItem";
@@ -393,20 +411,6 @@ namespace SQM {
 				 this->straightenMeshToolStripMenuItem->Text = L"Final Vertex Placement";
 				 this->straightenMeshToolStripMenuItem->Click += gcnew System::EventHandler(this, &Form1::straightenMeshToolStripMenuItem_Click);
 				 // 
-				 // editToolStripMenuItem
-				 // 
-				 this->editToolStripMenuItem->DropDownItems->AddRange(gcnew cli::array< System::Windows::Forms::ToolStripItem^  >(1) {this->restartToolStripMenuItem});
-				 this->editToolStripMenuItem->Name = L"editToolStripMenuItem";
-				 this->editToolStripMenuItem->Size = System::Drawing::Size(39, 20);
-				 this->editToolStripMenuItem->Text = L"&Edit";
-				 // 
-				 // restartToolStripMenuItem
-				 // 
-				 this->restartToolStripMenuItem->Name = L"restartToolStripMenuItem";
-				 this->restartToolStripMenuItem->Size = System::Drawing::Size(142, 22);
-				 this->restartToolStripMenuItem->Text = L"Edit Skeleton";
-				 this->restartToolStripMenuItem->Click += gcnew System::EventHandler(this, &Form1::restartToolStripMenuItem_Click);
-				 // 
 				 // showToolStripMenuItem
 				 // 
 				 this->showToolStripMenuItem->DropDownItems->AddRange(gcnew cli::array< System::Windows::Forms::ToolStripItem^  >(1) {this->wireframeToolStripMenuItem});
@@ -420,7 +424,7 @@ namespace SQM {
 				 this->wireframeToolStripMenuItem->CheckOnClick = true;
 				 this->wireframeToolStripMenuItem->CheckState = System::Windows::Forms::CheckState::Checked;
 				 this->wireframeToolStripMenuItem->Name = L"wireframeToolStripMenuItem";
-				 this->wireframeToolStripMenuItem->Size = System::Drawing::Size(129, 22);
+				 this->wireframeToolStripMenuItem->Size = System::Drawing::Size(152, 22);
 				 this->wireframeToolStripMenuItem->Text = L"Wireframe";
 				 this->wireframeToolStripMenuItem->Click += gcnew System::EventHandler(this, &Form1::wireframeToolStripMenuItem_Click);
 				 // 
@@ -584,15 +588,6 @@ namespace SQM {
 				 this->label1->TabIndex = 0;
 				 this->label1->Text = L"Node";
 				 // 
-				 // avaragingToolStripMenuItem
-				 // 
-				 this->avaragingToolStripMenuItem->Checked = true;
-				 this->avaragingToolStripMenuItem->CheckState = System::Windows::Forms::CheckState::Checked;
-				 this->avaragingToolStripMenuItem->Name = L"avaragingToolStripMenuItem";
-				 this->avaragingToolStripMenuItem->Size = System::Drawing::Size(257, 22);
-				 this->avaragingToolStripMenuItem->Text = L"Avaraging";
-				 this->avaragingToolStripMenuItem->Click += gcnew System::EventHandler(this, &Form1::avaragingToolStripMenuItem_Click);
-				 // 
 				 // Form1
 				 // 
 				 this->AutoScaleDimensions = System::Drawing::SizeF(6, 13);
@@ -749,6 +744,21 @@ namespace SQM {
 				 quaternionToolStripMenuItem->Checked = false;
 				 valencyWeightedLaplacianToolStripMenuItem->Checked = false;
 				 oneRingAreaWeightedLaplacianToolStripMenuItem->Checked = false;
+				 
+				 editSkeletonToolStripMenuItem->Checked = true;
+				 straightenToolStripMenuItem1->Checked = false;
+				 computeConvexHullToolStripMenuItem1->Checked = false;
+				 subdivideConvexHullToolStripMenuItem1->Checked = false;
+				 joinBranchNodePolyhedronsToolStripMenuItem->Checked = false;
+				 straightenMeshToolStripMenuItem->Checked = false;
+			 }
+			 void checkSQMMenu(int idx) {
+				 editSkeletonToolStripMenuItem->Checked = (idx == 0) ? true : false;
+				 straightenToolStripMenuItem1->Checked = (idx == 1) ? true : false;
+				 computeConvexHullToolStripMenuItem1->Checked = (idx == 2) ? true : false;
+				 subdivideConvexHullToolStripMenuItem1->Checked = (idx == 3) ? true : false;
+				 joinBranchNodePolyhedronsToolStripMenuItem->Checked = (idx == 4) ? true : false;
+				 straightenMeshToolStripMenuItem->Checked = (idx == 5) ? true : false;
 			 }
 	private: System::Void newToolStripMenuItem_Click(System::Object^  sender, System::EventArgs^  e) {
 				 OpenGL->newFile();
@@ -778,20 +788,29 @@ namespace SQM {
 					 OpenGL->exportSkeletonToFile(fileName);
 				 }
 			 }
+	private: System::Void editSkeletonToolStripMenuItem_Click(System::Object^  sender, System::EventArgs^  e) {
+				 OpenGL->restartSQMAlgorithm();
+				 checkSQMMenu(0);
+			 }
 	private: System::Void straightenToolStripMenuItem1_Click(System::Object^  sender, System::EventArgs^  e) {
 				 OpenGL->executeSQMAlgorithm(SQMStraighten);
+				 checkSQMMenu(1);
 			 }
 	private: System::Void computeConvexHullToolStripMenuItem1_Click(System::Object^  sender, System::EventArgs^  e) {
 				 OpenGL->executeSQMAlgorithm(SQMComputeConvexHull);
+				 checkSQMMenu(2);
 			 }
 	private: System::Void subdivideConvexHullToolStripMenuItem1_Click(System::Object^  sender, System::EventArgs^  e) {
 				 OpenGL->executeSQMAlgorithm(SQMSubdivideConvexHull);
+				 checkSQMMenu(3);
 			 }
 	private: System::Void joinBranchNodePolyhedronsToolStripMenuItem_Click(System::Object^  sender, System::EventArgs^  e) {
 				 OpenGL->executeSQMAlgorithm(SQMJoinBNPs);
+				 checkSQMMenu(4);
 			 }
 	private: System::Void straightenMeshToolStripMenuItem_Click(System::Object^  sender, System::EventArgs^  e) {
 				 OpenGL->executeSQMAlgorithm(SQMFinalPlacement);
+				 checkSQMMenu(5);
 			 }
 	private: System::Void toolStripButton1_Click(System::Object^  sender, System::EventArgs^  e) {
 				 OpenGL->glEventHandler->state = CameraMoveState;

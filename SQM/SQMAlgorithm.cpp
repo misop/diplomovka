@@ -192,6 +192,7 @@ void SQMAlgorithm::joinBNPs() {
 void SQMAlgorithm::finalVertexPlacement() {
 	(*os) << "Final vertex placement\n";
 	root->rotateBack(mesh);
+	sqmState = SQMFinalPlacement;
 }
 
 void SQMAlgorithm::executeSQMAlgorithm() {
@@ -204,6 +205,9 @@ void SQMAlgorithm::executeSQMAlgorithm() {
 
 
 void SQMAlgorithm::executeSQMAlgorithm(SQMState state) {
+	if (sqmState > state) {
+		restart();
+	}
 	if (sqmState < state) {
 		if (sqmState < SQMStraighten && state >= SQMStraighten) {
 			straightenSkeleton();

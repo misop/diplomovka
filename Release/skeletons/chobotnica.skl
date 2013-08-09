@@ -1,0 +1,201 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<!DOCTYPE boost_serialization>
+<boost_serialization signature="serialization::archive" version="9">
+<node class_id="0" tracking_level="1" version="1" object_id="_0">
+	<id>0</id>
+	<cyclic>0</cyclic>
+	<point class_id="1" tracking_level="0" version="0">
+		<x>-8.3774328</x>
+		<y>-0.69999999</y>
+		<z>-0.61530101</z>
+	</point>
+	<radius>20</radius>
+	<nodes class_id="2" tracking_level="0" version="0">
+		<count>13</count>
+		<item_version>0</item_version>
+		<item class_id_reference="0" object_id="_1">
+			<id>0</id>
+			<cyclic>0</cyclic>
+			<point>
+				<x>-7.1807952</x>
+				<y>16.221621</y>
+				<z>-0.30765039</z>
+			</point>
+			<radius>10</radius>
+			<nodes>
+				<count>0</count>
+				<item_version>0</item_version>
+			</nodes>
+		</item>
+		<item class_id_reference="0" object_id="_2">
+			<id>0</id>
+			<cyclic>0</cyclic>
+			<point>
+				<x>13.06704</x>
+				<y>-3.596041</y>
+				<z>-2.820127</z>
+			</point>
+			<radius>10</radius>
+			<nodes>
+				<count>0</count>
+				<item_version>0</item_version>
+			</nodes>
+		</item>
+		<item class_id_reference="0" object_id="_3">
+			<id>0</id>
+			<cyclic>0</cyclic>
+			<point>
+				<x>-25.533119</x>
+				<y>2.105541</y>
+				<z>1.3331521</z>
+			</point>
+			<radius>10</radius>
+			<nodes>
+				<count>0</count>
+				<item_version>0</item_version>
+			</nodes>
+		</item>
+		<item class_id_reference="0" object_id="_4">
+			<id>0</id>
+			<cyclic>0</cyclic>
+			<point>
+				<x>3.9425099</x>
+				<y>-135.78371</y>
+				<z>37.185539</z>
+			</point>
+			<radius>10</radius>
+			<nodes>
+				<count>0</count>
+				<item_version>0</item_version>
+			</nodes>
+		</item>
+		<item class_id_reference="0" object_id="_5">
+			<id>0</id>
+			<cyclic>0</cyclic>
+			<point>
+				<x>-21.327681</x>
+				<y>-125.5357</y>
+				<z>-40.24818</z>
+			</point>
+			<radius>10</radius>
+			<nodes>
+				<count>0</count>
+				<item_version>0</item_version>
+			</nodes>
+		</item>
+		<item class_id_reference="0" object_id="_6">
+			<id>0</id>
+			<cyclic>0</cyclic>
+			<point>
+				<x>42.371941</x>
+				<y>-131.72009</y>
+				<z>-8.2058048</z>
+			</point>
+			<radius>10</radius>
+			<nodes>
+				<count>0</count>
+				<item_version>0</item_version>
+			</nodes>
+		</item>
+		<item class_id_reference="0" object_id="_7">
+			<id>0</id>
+			<cyclic>0</cyclic>
+			<point>
+				<x>16.292431</x>
+				<y>-129.03529</y>
+				<z>-35.87075</z>
+			</point>
+			<radius>10</radius>
+			<nodes>
+				<count>0</count>
+				<item_version>0</item_version>
+			</nodes>
+		</item>
+		<item class_id_reference="0" object_id="_8">
+			<id>0</id>
+			<cyclic>0</cyclic>
+			<point>
+				<x>-60.322479</x>
+				<y>-120.3217</y>
+				<z>10.92194</z>
+			</point>
+			<radius>10</radius>
+			<nodes>
+				<count>0</count>
+				<item_version>0</item_version>
+			</nodes>
+		</item>
+		<item class_id_reference="0" object_id="_9">
+			<id>0</id>
+			<cyclic>0</cyclic>
+			<point>
+				<x>-65.650002</x>
+				<y>-117.5429</y>
+				<z>-16.02519</z>
+			</point>
+			<radius>10</radius>
+			<nodes>
+				<count>0</count>
+				<item_version>0</item_version>
+			</nodes>
+		</item>
+		<item class_id_reference="0" object_id="_10">
+			<id>0</id>
+			<cyclic>0</cyclic>
+			<point>
+				<x>-37.147011</x>
+				<y>-125.9838</y>
+				<z>44.152821</z>
+			</point>
+			<radius>10</radius>
+			<nodes>
+				<count>0</count>
+				<item_version>0</item_version>
+			</nodes>
+		</item>
+		<item class_id_reference="0" object_id="_11">
+			<id>0</id>
+			<cyclic>0</cyclic>
+			<point>
+				<x>32.84993</x>
+				<y>-128.98219</y>
+				<z>19.97039</z>
+			</point>
+			<radius>10</radius>
+			<nodes>
+				<count>0</count>
+				<item_version>0</item_version>
+			</nodes>
+		</item>
+		<item class_id_reference="0" object_id="_12">
+			<id>0</id>
+			<cyclic>0</cyclic>
+			<point>
+				<x>-10.69131</x>
+				<y>-1.352209</y>
+				<z>17.879299</z>
+			</point>
+			<radius>10</radius>
+			<nodes>
+				<count>0</count>
+				<item_version>0</item_version>
+			</nodes>
+		</item>
+		<item class_id_reference="0" object_id="_13">
+			<id>0</id>
+			<cyclic>0</cyclic>
+			<point>
+				<x>-4.1040139</x>
+				<y>-3.775146</y>
+				<z>-17.493231</z>
+			</point>
+			<radius>10</radius>
+			<nodes>
+				<count>0</count>
+				<item_version>0</item_version>
+			</nodes>
+		</item>
+	</nodes>
+</node>
+</boost_serialization>
+
