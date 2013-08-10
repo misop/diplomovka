@@ -118,6 +118,10 @@ namespace SQM {
 	private: System::Windows::Forms::ToolStripMenuItem^  noSmoothingToolStripMenuItem;
 	private: System::Windows::Forms::ToolStripMenuItem^  avaragingToolStripMenuItem;
 	private: System::Windows::Forms::ToolStripMenuItem^  editSkeletonToolStripMenuItem;
+	private: System::Windows::Forms::ToolStripMenuItem^  normalsToolStripMenuItem;
+	private: System::Windows::Forms::Label^  label9;
+	private: System::Windows::Forms::Label^  label8;
+	private: System::Windows::Forms::NumericUpDown^  numericUpDown6;
 
 
 
@@ -165,7 +169,11 @@ namespace SQM {
 				 this->straightenMeshToolStripMenuItem = (gcnew System::Windows::Forms::ToolStripMenuItem());
 				 this->showToolStripMenuItem = (gcnew System::Windows::Forms::ToolStripMenuItem());
 				 this->wireframeToolStripMenuItem = (gcnew System::Windows::Forms::ToolStripMenuItem());
+				 this->normalsToolStripMenuItem = (gcnew System::Windows::Forms::ToolStripMenuItem());
 				 this->panel2 = (gcnew System::Windows::Forms::Panel());
+				 this->label9 = (gcnew System::Windows::Forms::Label());
+				 this->label8 = (gcnew System::Windows::Forms::Label());
+				 this->numericUpDown6 = (gcnew System::Windows::Forms::NumericUpDown());
 				 this->numericUpDown5 = (gcnew System::Windows::Forms::NumericUpDown());
 				 this->label7 = (gcnew System::Windows::Forms::Label());
 				 this->label6 = (gcnew System::Windows::Forms::Label());
@@ -182,6 +190,7 @@ namespace SQM {
 				 this->toolStrip1->SuspendLayout();
 				 this->menuStrip1->SuspendLayout();
 				 this->panel2->SuspendLayout();
+				 (cli::safe_cast<System::ComponentModel::ISupportInitialize^  >(this->numericUpDown6))->BeginInit();
 				 (cli::safe_cast<System::ComponentModel::ISupportInitialize^  >(this->numericUpDown5))->BeginInit();
 				 (cli::safe_cast<System::ComponentModel::ISupportInitialize^  >(this->numericUpDown4))->BeginInit();
 				 (cli::safe_cast<System::ComponentModel::ISupportInitialize^  >(this->numericUpDown3))->BeginInit();
@@ -413,7 +422,8 @@ namespace SQM {
 				 // 
 				 // showToolStripMenuItem
 				 // 
-				 this->showToolStripMenuItem->DropDownItems->AddRange(gcnew cli::array< System::Windows::Forms::ToolStripItem^  >(1) {this->wireframeToolStripMenuItem});
+				 this->showToolStripMenuItem->DropDownItems->AddRange(gcnew cli::array< System::Windows::Forms::ToolStripItem^  >(2) {this->wireframeToolStripMenuItem, 
+					 this->normalsToolStripMenuItem});
 				 this->showToolStripMenuItem->Name = L"showToolStripMenuItem";
 				 this->showToolStripMenuItem->Size = System::Drawing::Size(48, 20);
 				 this->showToolStripMenuItem->Text = L"Show";
@@ -424,14 +434,25 @@ namespace SQM {
 				 this->wireframeToolStripMenuItem->CheckOnClick = true;
 				 this->wireframeToolStripMenuItem->CheckState = System::Windows::Forms::CheckState::Checked;
 				 this->wireframeToolStripMenuItem->Name = L"wireframeToolStripMenuItem";
-				 this->wireframeToolStripMenuItem->Size = System::Drawing::Size(152, 22);
+				 this->wireframeToolStripMenuItem->Size = System::Drawing::Size(129, 22);
 				 this->wireframeToolStripMenuItem->Text = L"Wireframe";
 				 this->wireframeToolStripMenuItem->Click += gcnew System::EventHandler(this, &Form1::wireframeToolStripMenuItem_Click);
+				 // 
+				 // normalsToolStripMenuItem
+				 // 
+				 this->normalsToolStripMenuItem->CheckOnClick = true;
+				 this->normalsToolStripMenuItem->Name = L"normalsToolStripMenuItem";
+				 this->normalsToolStripMenuItem->Size = System::Drawing::Size(129, 22);
+				 this->normalsToolStripMenuItem->Text = L"Normals";
+				 this->normalsToolStripMenuItem->Click += gcnew System::EventHandler(this, &Form1::normalsToolStripMenuItem_Click);
 				 // 
 				 // panel2
 				 // 
 				 this->panel2->Anchor = static_cast<System::Windows::Forms::AnchorStyles>(((System::Windows::Forms::AnchorStyles::Top | System::Windows::Forms::AnchorStyles::Bottom) 
 					 | System::Windows::Forms::AnchorStyles::Left));
+				 this->panel2->Controls->Add(this->label9);
+				 this->panel2->Controls->Add(this->label8);
+				 this->panel2->Controls->Add(this->numericUpDown6);
 				 this->panel2->Controls->Add(this->numericUpDown5);
 				 this->panel2->Controls->Add(this->label7);
 				 this->panel2->Controls->Add(this->label6);
@@ -450,10 +471,40 @@ namespace SQM {
 				 this->panel2->Size = System::Drawing::Size(176, 464);
 				 this->panel2->TabIndex = 3;
 				 // 
+				 // label9
+				 // 
+				 this->label9->AutoSize = true;
+				 this->label9->Location = System::Drawing::Point(8, 219);
+				 this->label9->Name = L"label9";
+				 this->label9->Size = System::Drawing::Size(62, 13);
+				 this->label9->TabIndex = 15;
+				 this->label9->Text = L"Tess Level:";
+				 // 
+				 // label8
+				 // 
+				 this->label8->AutoSize = true;
+				 this->label8->Font = (gcnew System::Drawing::Font(L"Microsoft Sans Serif", 9.75F, System::Drawing::FontStyle::Bold, System::Drawing::GraphicsUnit::Point, 
+					 static_cast<System::Byte>(238)));
+				 this->label8->Location = System::Drawing::Point(5, 193);
+				 this->label8->Name = L"label8";
+				 this->label8->Size = System::Drawing::Size(114, 16);
+				 this->label8->TabIndex = 14;
+				 this->label8->Text = L"Global Settings";
+				 // 
+				 // numericUpDown6
+				 // 
+				 this->numericUpDown6->Enabled = false;
+				 this->numericUpDown6->Location = System::Drawing::Point(76, 217);
+				 this->numericUpDown6->Name = L"numericUpDown6";
+				 this->numericUpDown6->ReadOnly = true;
+				 this->numericUpDown6->Size = System::Drawing::Size(87, 20);
+				 this->numericUpDown6->TabIndex = 13;
+				 this->numericUpDown6->ValueChanged += gcnew System::EventHandler(this, &Form1::numericUpDown6_ValueChanged);
+				 // 
 				 // numericUpDown5
 				 // 
 				 this->numericUpDown5->Enabled = false;
-				 this->numericUpDown5->Location = System::Drawing::Point(72, 155);
+				 this->numericUpDown5->Location = System::Drawing::Point(72, 159);
 				 this->numericUpDown5->Minimum = System::Decimal(gcnew cli::array< System::Int32 >(4) {1, 0, 0, 0});
 				 this->numericUpDown5->Name = L"numericUpDown5";
 				 this->numericUpDown5->ReadOnly = true;
@@ -465,7 +516,7 @@ namespace SQM {
 				 // label7
 				 // 
 				 this->label7->AutoSize = true;
-				 this->label7->Location = System::Drawing::Point(8, 158);
+				 this->label7->Location = System::Drawing::Point(8, 162);
 				 this->label7->Name = L"label7";
 				 this->label7->Size = System::Drawing::Size(58, 13);
 				 this->label7->TabIndex = 11;
@@ -474,7 +525,7 @@ namespace SQM {
 				 // label6
 				 // 
 				 this->label6->AutoSize = true;
-				 this->label6->Location = System::Drawing::Point(8, 132);
+				 this->label6->Location = System::Drawing::Point(8, 136);
 				 this->label6->Name = L"label6";
 				 this->label6->Size = System::Drawing::Size(43, 13);
 				 this->label6->TabIndex = 10;
@@ -484,7 +535,7 @@ namespace SQM {
 				 // 
 				 this->numericUpDown4->DecimalPlaces = 2;
 				 this->numericUpDown4->Enabled = false;
-				 this->numericUpDown4->Location = System::Drawing::Point(57, 129);
+				 this->numericUpDown4->Location = System::Drawing::Point(57, 133);
 				 this->numericUpDown4->Maximum = System::Decimal(gcnew cli::array< System::Int32 >(4) {100000, 0, 0, 0});
 				 this->numericUpDown4->Minimum = System::Decimal(gcnew cli::array< System::Int32 >(4) {1, 0, 0, 0});
 				 this->numericUpDown4->Name = L"numericUpDown4";
@@ -497,7 +548,7 @@ namespace SQM {
 				 // label5
 				 // 
 				 this->label5->AutoSize = true;
-				 this->label5->Location = System::Drawing::Point(8, 106);
+				 this->label5->Location = System::Drawing::Point(8, 110);
 				 this->label5->Name = L"label5";
 				 this->label5->Size = System::Drawing::Size(17, 13);
 				 this->label5->TabIndex = 8;
@@ -507,7 +558,7 @@ namespace SQM {
 				 // 
 				 this->numericUpDown3->DecimalPlaces = 2;
 				 this->numericUpDown3->Enabled = false;
-				 this->numericUpDown3->Location = System::Drawing::Point(31, 103);
+				 this->numericUpDown3->Location = System::Drawing::Point(31, 107);
 				 this->numericUpDown3->Maximum = System::Decimal(gcnew cli::array< System::Int32 >(4) {100000, 0, 0, 0});
 				 this->numericUpDown3->Minimum = System::Decimal(gcnew cli::array< System::Int32 >(4) {100000, 0, 0, System::Int32::MinValue});
 				 this->numericUpDown3->Name = L"numericUpDown3";
@@ -519,7 +570,7 @@ namespace SQM {
 				 // label4
 				 // 
 				 this->label4->AutoSize = true;
-				 this->label4->Location = System::Drawing::Point(8, 80);
+				 this->label4->Location = System::Drawing::Point(8, 84);
 				 this->label4->Name = L"label4";
 				 this->label4->Size = System::Drawing::Size(17, 13);
 				 this->label4->TabIndex = 6;
@@ -529,7 +580,7 @@ namespace SQM {
 				 // 
 				 this->numericUpDown2->DecimalPlaces = 2;
 				 this->numericUpDown2->Enabled = false;
-				 this->numericUpDown2->Location = System::Drawing::Point(31, 77);
+				 this->numericUpDown2->Location = System::Drawing::Point(31, 81);
 				 this->numericUpDown2->Maximum = System::Decimal(gcnew cli::array< System::Int32 >(4) {100000, 0, 0, 0});
 				 this->numericUpDown2->Minimum = System::Decimal(gcnew cli::array< System::Int32 >(4) {100000, 0, 0, System::Int32::MinValue});
 				 this->numericUpDown2->Name = L"numericUpDown2";
@@ -541,7 +592,7 @@ namespace SQM {
 				 // label3
 				 // 
 				 this->label3->AutoSize = true;
-				 this->label3->Location = System::Drawing::Point(8, 54);
+				 this->label3->Location = System::Drawing::Point(8, 58);
 				 this->label3->Name = L"label3";
 				 this->label3->Size = System::Drawing::Size(17, 13);
 				 this->label3->TabIndex = 4;
@@ -550,7 +601,7 @@ namespace SQM {
 				 // label2
 				 // 
 				 this->label2->AutoSize = true;
-				 this->label2->Location = System::Drawing::Point(5, 28);
+				 this->label2->Location = System::Drawing::Point(5, 32);
 				 this->label2->Name = L"label2";
 				 this->label2->Size = System::Drawing::Size(21, 13);
 				 this->label2->TabIndex = 3;
@@ -560,7 +611,7 @@ namespace SQM {
 				 // 
 				 this->numericUpDown1->DecimalPlaces = 2;
 				 this->numericUpDown1->Enabled = false;
-				 this->numericUpDown1->Location = System::Drawing::Point(31, 51);
+				 this->numericUpDown1->Location = System::Drawing::Point(31, 55);
 				 this->numericUpDown1->Maximum = System::Decimal(gcnew cli::array< System::Int32 >(4) {100000, 0, 0, 0});
 				 this->numericUpDown1->Minimum = System::Decimal(gcnew cli::array< System::Int32 >(4) {100000, 0, 0, System::Int32::MinValue});
 				 this->numericUpDown1->Name = L"numericUpDown1";
@@ -572,7 +623,7 @@ namespace SQM {
 				 // textBox1
 				 // 
 				 this->textBox1->Enabled = false;
-				 this->textBox1->Location = System::Drawing::Point(31, 25);
+				 this->textBox1->Location = System::Drawing::Point(31, 29);
 				 this->textBox1->Name = L"textBox1";
 				 this->textBox1->ReadOnly = true;
 				 this->textBox1->Size = System::Drawing::Size(132, 20);
@@ -582,9 +633,11 @@ namespace SQM {
 				 // label1
 				 // 
 				 this->label1->AutoSize = true;
+				 this->label1->Font = (gcnew System::Drawing::Font(L"Microsoft Sans Serif", 9.75F, System::Drawing::FontStyle::Bold, System::Drawing::GraphicsUnit::Point, 
+					 static_cast<System::Byte>(238)));
 				 this->label1->Location = System::Drawing::Point(5, 6);
 				 this->label1->Name = L"label1";
-				 this->label1->Size = System::Drawing::Size(33, 13);
+				 this->label1->Size = System::Drawing::Size(46, 16);
 				 this->label1->TabIndex = 0;
 				 this->label1->Text = L"Node";
 				 // 
@@ -607,6 +660,7 @@ namespace SQM {
 				 this->menuStrip1->PerformLayout();
 				 this->panel2->ResumeLayout(false);
 				 this->panel2->PerformLayout();
+				 (cli::safe_cast<System::ComponentModel::ISupportInitialize^  >(this->numericUpDown6))->EndInit();
 				 (cli::safe_cast<System::ComponentModel::ISupportInitialize^  >(this->numericUpDown5))->EndInit();
 				 (cli::safe_cast<System::ComponentModel::ISupportInitialize^  >(this->numericUpDown4))->EndInit();
 				 (cli::safe_cast<System::ComponentModel::ISupportInitialize^  >(this->numericUpDown3))->EndInit();
@@ -644,7 +698,7 @@ namespace SQM {
 			 void UpdateNodeGUI() {
 				 SQMNode *node = OpenGL->getSelected();
 				 if (node != NULL) {
-					 System::String^ stringID = gcnew System::String(node->getId().c_str());
+					 System::String^ stringID = gcnew System::String(node->getIdStr().c_str());
 					 this->textBox1->Text = stringID;
 					 this->numericUpDown1->Value = System::Decimal(node->getX());
 					 this->numericUpDown2->Value = System::Decimal(node->getY());;
@@ -744,13 +798,21 @@ namespace SQM {
 				 quaternionToolStripMenuItem->Checked = false;
 				 valencyWeightedLaplacianToolStripMenuItem->Checked = false;
 				 oneRingAreaWeightedLaplacianToolStripMenuItem->Checked = false;
-				 
+
 				 editSkeletonToolStripMenuItem->Checked = true;
 				 straightenToolStripMenuItem1->Checked = false;
 				 computeConvexHullToolStripMenuItem1->Checked = false;
 				 subdivideConvexHullToolStripMenuItem1->Checked = false;
 				 joinBranchNodePolyhedronsToolStripMenuItem->Checked = false;
 				 straightenMeshToolStripMenuItem->Checked = false;
+			 }
+			 void turnOffGlobal() {
+				 this->numericUpDown6->Enabled = false;
+				 this->numericUpDown6->ReadOnly = true;
+			 }
+			 void turnOnGlobal() {
+				 this->numericUpDown6->Enabled = true;
+				 this->numericUpDown6->ReadOnly = false;
 			 }
 			 void checkSQMMenu(int idx) {
 				 editSkeletonToolStripMenuItem->Checked = (idx == 0) ? true : false;
@@ -763,6 +825,7 @@ namespace SQM {
 	private: System::Void newToolStripMenuItem_Click(System::Object^  sender, System::EventArgs^  e) {
 				 OpenGL->newFile();
 				 refreshCheckBoxes();
+				 turnOffGlobal();
 			 }
 	private: System::Void loadToolStripMenuItem_Click(System::Object^  sender, System::EventArgs^  e) {
 				 if (this->openFileDialog1->ShowDialog() == System::Windows::Forms::DialogResult::OK)
@@ -772,6 +835,7 @@ namespace SQM {
 					 //MessageBox::Show(this->openFileDialog1->FileName);
 					 OpenGL->loadSkeletonFromFile(fileName);
 					 refreshCheckBoxes();
+					 turnOffGlobal();
 				 }
 			 }
 	private: System::Void saveToolStripMenuItem1_Click(System::Object^  sender, System::EventArgs^  e) {
@@ -791,26 +855,38 @@ namespace SQM {
 	private: System::Void editSkeletonToolStripMenuItem_Click(System::Object^  sender, System::EventArgs^  e) {
 				 OpenGL->restartSQMAlgorithm();
 				 checkSQMMenu(0);
+
+				 turnOffGlobal();
 			 }
 	private: System::Void straightenToolStripMenuItem1_Click(System::Object^  sender, System::EventArgs^  e) {
 				 OpenGL->executeSQMAlgorithm(SQMStraighten);
 				 checkSQMMenu(1);
+
+				 turnOffGlobal();
 			 }
 	private: System::Void computeConvexHullToolStripMenuItem1_Click(System::Object^  sender, System::EventArgs^  e) {
 				 OpenGL->executeSQMAlgorithm(SQMComputeConvexHull);
 				 checkSQMMenu(2);
+
+				 turnOffGlobal();
 			 }
 	private: System::Void subdivideConvexHullToolStripMenuItem1_Click(System::Object^  sender, System::EventArgs^  e) {
 				 OpenGL->executeSQMAlgorithm(SQMSubdivideConvexHull);
 				 checkSQMMenu(3);
+
+				 turnOffGlobal();
 			 }
 	private: System::Void joinBranchNodePolyhedronsToolStripMenuItem_Click(System::Object^  sender, System::EventArgs^  e) {
 				 OpenGL->executeSQMAlgorithm(SQMJoinBNPs);
 				 checkSQMMenu(4);
+
+				 turnOnGlobal();
 			 }
 	private: System::Void straightenMeshToolStripMenuItem_Click(System::Object^  sender, System::EventArgs^  e) {
 				 OpenGL->executeSQMAlgorithm(SQMFinalPlacement);
 				 checkSQMMenu(5);
+
+				 turnOnGlobal();
 			 }
 	private: System::Void toolStripButton1_Click(System::Object^  sender, System::EventArgs^  e) {
 				 OpenGL->glEventHandler->state = CameraMoveState;
@@ -857,6 +933,11 @@ namespace SQM {
 					 float value = System::Decimal::ToSingle(this->numericUpDown5->Value);
 					 OpenGL->getSQMController()->setSelectedTessLevel(value);
 				 }
+			 }
+	private: System::Void numericUpDown6_ValueChanged(System::Object^  sender, System::EventArgs^  e) {
+				 float value = System::Decimal::ToSingle(this->numericUpDown6->Value);
+				 OpenGL->setGlobalTesselation(value);
+				 this->panel1->Focus();
 			 }
 	private: System::Void restartToolStripMenuItem_Click(System::Object^  sender, System::EventArgs^  e) {
 				 OpenGL->restartSQMAlgorithm();
@@ -911,6 +992,9 @@ namespace SQM {
 				 oneRingAreaWeightedLaplacianToolStripMenuItem->Checked = false;
 
 				 OpenGL->setAvaragingSmoothing();
+			 }
+	private: System::Void normalsToolStripMenuItem_Click(System::Object^  sender, System::EventArgs^  e) {
+				 OpenGL->alterDrawNormals();
 			 }
 	};
 }

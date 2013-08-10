@@ -47,7 +47,9 @@ Class OpenGLForm.COpenGL: AutoLayout, AnsiClass, Class, Public, BeforeFieldInit
     setQuaternionSmoothing(): PrivateScope, Public, HideBySig
     setOneRingWeightedLaplacian(): PrivateScope, Public, HideBySig
     setValencyWeightedLaplacian(): PrivateScope, Public, HideBySig
+    setGlobalTesselation(Single): PrivateScope, Public, HideBySig
     alterWireframe(): PrivateScope, Public, HideBySig
+    alterDrawNormals(): PrivateScope, Public, HideBySig
     newFile(): PrivateScope, Public, HideBySig
     loadSkeletonFromFile(basic_string<char\,std::char_traits<char>\,std::allocator<char> >*): PrivateScope, Public, HideBySig
     saveSkeletonToFile(basic_string<char\,std::char_traits<char>\,std::allocator<char> >*): PrivateScope, Public, HideBySig

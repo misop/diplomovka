@@ -38,6 +38,7 @@ public:
 	void straightenSkeleton();
 
 	int countNodes();
+	void refreshIDs();
 
 	void getBoundingSphere(float &x, float &y, float &z, float &d);
 	void updateResetRoot();

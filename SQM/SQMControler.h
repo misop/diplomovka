@@ -18,6 +18,8 @@ private:
 	vector<glm::mat4> modelMatrices;
 	int selectedIndex;
 	bool wireframe;
+	bool shouldDrawNormals;
+	float globalTesselation;
 public:
 	SQMNode *selected;
 
@@ -41,6 +43,9 @@ public:
 
 	void setWireframe(bool newWireframe);
 	bool getWireframe();
+	void setShouldDrawNormals(bool newShouldDrawNormals);
+	bool getShouldDrawNormals();
+	void setGlobalTesselation(float newGlobalTesselation);
 
 	void insertNode(float x, float y, float z);
 	void setSelectedPosition(OpenMesh::Vec3f pos);

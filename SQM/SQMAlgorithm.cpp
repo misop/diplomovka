@@ -69,13 +69,21 @@ int SQMAlgorithm::getNumberOfNodes() {
 	return numOfNodes;
 }
 
+#pragma endregion
+
+#pragma region Tree Functions
+
 int SQMAlgorithm::countNodes() {
 	deque<SQMNode*> queue;
 	queue.push_back(root);
 	int count = 0;
+
 	while (!queue.empty()) {
 		SQMNode* node = queue.front();
 		queue.pop_front();
+
+		count++;
+
 		vector<SQMNode*> *childs = node->getNodes();
 		for (int i = 0; i < childs->size(); i++) {
 			queue.push_back((*childs)[i]);
@@ -83,6 +91,26 @@ int SQMAlgorithm::countNodes() {
 	}
 	return count;
 }
+
+void SQMAlgorithm::refreshIDs() {
+	deque<SQMNode*> queue;
+	queue.push_back(root);
+	unsigned int count = 0;
+
+	while (!queue.empty()) {
+		SQMNode* node = queue.front();
+		queue.pop_front();
+
+		node->setID(count);
+		count++;
+
+		vector<SQMNode*> *childs = node->getNodes();
+		for (int i = 0; i < childs->size(); i++) {
+			queue.push_back((*childs)[i]);
+		}
+	}
+}
+
 
 #pragma endregion
 
@@ -139,6 +167,7 @@ void SQMAlgorithm::restart() {
 
 void SQMAlgorithm::straightenSkeleton() {
 	updateResetRoot();
+	refreshIDs();
 
 	fb->open("log.txt", ios::out);
 	(*os) << "Skeleton straightening\n";

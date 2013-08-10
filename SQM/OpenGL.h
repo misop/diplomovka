@@ -629,9 +629,15 @@ namespace OpenGLForm
 		void setValencyWeightedLaplacian() {
 			sqmControler->setSmoothingAlgorithm(SQMValencyLaplacianSmoothing);
 		}
+		void setGlobalTesselation(float globalTesselation) {
+			sqmControler->setGlobalTesselation(globalTesselation);
+		}
 		//functions
 		void alterWireframe() {
 			sqmControler->setWireframe(!sqmControler->getWireframe());
+		}
+		void alterDrawNormals() {
+			sqmControler->setShouldDrawNormals(!sqmControler->getShouldDrawNormals());
 		}
 		void newFile() {
 			sqmControler->newFile();

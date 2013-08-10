@@ -24,6 +24,8 @@ SQMControler::SQMControler(void)
 	icosahedron = NULL;
 	selectedIndex = -1;
 	wireframe = true;
+	shouldDrawNormals = false;
+	globalTesselation = 0;
 }
 
 
@@ -117,7 +119,7 @@ void SQMControler::exportSkeletonToFile(string fileName) {
 		SQMNode *node = queue.front();
 		queue.pop_front();
 
-		if (node->getId() == "0-0-2" && node->isBranchNode())
+		if (node->getIdStr() == "0-0-2" && node->isBranchNode())
 			writeTriMesh(node->getPolyhedron());
 
 		vector<SQMNode*> *childs = node->getNodes();
@@ -190,6 +192,18 @@ bool SQMControler::getWireframe() {
 	return wireframe;
 }
 
+void SQMControler::setShouldDrawNormals(bool newShouldDrawNormals) {
+	shouldDrawNormals = newShouldDrawNormals;
+}
+
+bool SQMControler::getShouldDrawNormals() {
+	return shouldDrawNormals;
+}
+
+void SQMControler::setGlobalTesselation(float newGlobalTesselation) {
+	globalTesselation = newGlobalTesselation;
+}
+
 void SQMControler::setSelectedPosition(OpenMesh::Vec3f pos) {
 	selected->setPosition(pos);
 	drawSkeleton();
@@ -246,6 +260,7 @@ void SQMControler::draw(OpenGLPrograms *programs, GLCamera *camera) {
 void SQMControler::drawSkeleton(OpenGLPrograms *programs, GLCamera *camera) {
 	programs->SklLines->Use();
 	camera->lookFromCamera(programs->SklLines->getUniformLocation(MVP_MATRIX_STR));
+	glUniform3f(programs->SklLines->getUniformLocation(DIFFUSE_COLOR_STR), 0.0, 1.0, 0.0);
 	if (buffer1) buffer1->DrawElement(0, GL_LINES);
 
 	programs->SklNodes->Use();
@@ -279,9 +294,12 @@ void SQMControler::drawBNPs(OpenGLPrograms *programs, GLCamera *camera) {
 	glUniform3f(programs->BNPs->getUniformLocation(DIFFUSE_COLOR_STR), 0.0, 0.75, 0.75);
 	buffer1->DrawElement(0, GL_TRIANGLES);
 	//draw normals
-	//programs->SklLines->Use();
-	//camera->lookFromCamera(programs->SklLines->getUniformLocation(MVP_MATRIX_STR));
-	//buffer2->Draw(GL_LINES);
+	if (shouldDrawNormals) {
+		programs->SklLines->Use();
+		camera->lookFromCamera(programs->SklLines->getUniformLocation(MVP_MATRIX_STR));
+		glUniform3f(programs->SklLines->getUniformLocation(DIFFUSE_COLOR_STR), 1.0, 0.0, 0.0);
+		buffer2->Draw(GL_LINES);
+	}
 }
 
 void SQMControler::drawBNPs() {
@@ -312,7 +330,7 @@ void SQMControler::drawBNPs() {
 	buffer1->BindBufferData(points, 3, GL_STATIC_DRAW);
 	buffer1->BindElement(indices, GL_STATIC_DRAW);
 
-	//drawTriNormals();
+	drawTriNormals();
 }
 
 void SQMControler::drawTriNormals() {
@@ -336,7 +354,7 @@ void SQMControler::drawTriNormals() {
 			queue.push_back(child);
 		}
 	}
-	
+
 	buffer2 = new GLArrayBuffer();
 	buffer2->Bind();
 	buffer2->BindBufferData(points, 3, GL_STATIC_DRAW);
@@ -400,12 +418,16 @@ void SQMControler::drawMeshForTesselation(OpenGLPrograms *programs, GLCamera *ca
 	glUniform3f(programs->QuadMeshTess->getUniformLocation(LIGHT_POSITION_STR), eye.x, eye.y, eye.z);
 	glUniform4f(programs->QuadMeshTess->getUniformLocation(AMBIENT_COLOR_STR), 0.0, 0.75, 0.75, 0.1);
 	glUniform3f(programs->QuadMeshTess->getUniformLocation(DIFFUSE_COLOR_STR), 0.0, 0.75, 0.75);
+	glUniform1f(programs->QuadMeshTess->getUniformLocation(TESS_LEVEL_INNER_STR), globalTesselation);
 	glUniform1i(programs->QuadMeshTess->getUniformLocation(WIREFRAME_STR), wireframe ? 1 : 0);
 	buffer1->DrawElement(1, GL_PATCHES);
 	//draw normals
-	//programs->SklLines->Use();
-	//camera->lookFromCamera(programs->SklLines->getUniformLocation(MVP_MATRIX_STR));
-	//buffer2->Draw(GL_LINES);
+	if (shouldDrawNormals) {
+		programs->SklLines->Use();
+		camera->lookFromCamera(programs->SklLines->getUniformLocation(MVP_MATRIX_STR));
+		glUniform3f(programs->SklLines->getUniformLocation(DIFFUSE_COLOR_STR), 1.0, 0.0, 0.0);
+		buffer2->Draw(GL_LINES);
+	}
 }
 
 void SQMControler::drawMesh() {
@@ -459,7 +481,7 @@ void SQMControler::drawMeshForTesselation() {
 	buffer1->BindElement(triIndices, GL_STATIC_DRAW);
 	buffer1->BindElement(quadIndices, GL_STATIC_DRAW);
 
-	//drawNormals();
+	drawNormals();
 }
 
 void SQMControler::drawSkeleton(vector<float> &points, vector<int> &indices) {

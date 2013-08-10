@@ -12,7 +12,8 @@
 SQMNode::SQMNode(void) {
 	position = OpenMesh::Vec3f(0, 0, 0);
 	nodeRadius = 10;
-	id = "0";
+	id = 0;
+	idStr = "0";
 	parent = NULL;
 	polyhedron = NULL;
 	tessLevel = 1;
@@ -20,12 +21,13 @@ SQMNode::SQMNode(void) {
 
 SQMNode::SQMNode(SkeletonNode &node, SQMNode* newParent) : parent(newParent) {
 	if (parent == NULL) {
-		id = "0";
+		idStr = "0";
 	} else {
-		id = parent->getId();
+		idStr = parent->getIdStr();
 		string s = to_string(parent->getNumOfChilds());
-		id += "-" + s;
+		idStr += "-" + s;
 	}
+	id = 0;
 	position = OpenMesh::Vec3f(node.point.x, node.point.y, node.point.z);
 	//nodeRadius = (float)(rand()%100)/100*10 + 5;
 	nodeRadius = node.radius;
@@ -41,7 +43,8 @@ SQMNode::SQMNode(SkeletonNode &node, SQMNode* newParent) : parent(newParent) {
 SQMNode::SQMNode(SQMNode &node) {
 	parent = NULL;
 	polyhedron = NULL;
-	id = node.id;
+	id = node.getId();
+	idStr = node.getIdStr();
 	nodeRadius = node.getNodeRadius();
 	tessLevel = node.getTessLevel();
 	position = node.getPosition();
@@ -66,8 +69,12 @@ SQMNode::~SQMNode(void) {
 
 #pragma region Getters
 
-string SQMNode::getId() {
+unsigned int SQMNode::getId() {
 	return id;
+}
+
+string SQMNode::getIdStr() {
+	return idStr;
 }
 
 bool SQMNode::isBranchNode() {
@@ -140,6 +147,10 @@ float SQMNode::getZ() {
 #pragma endregion
 
 #pragma region Setters
+
+void SQMNode::setID(unsigned int newID) {
+	id = newID;
+}
 
 void SQMNode::setParent(SQMNode *node) {
 	parent = node;
@@ -1250,6 +1261,52 @@ void SQMNode::getMeshTessData(std::vector<float> &tessLevels, std::vector<float>
 	}
 	for (int i = 0; i < nodes.size(); i++) {
 		nodes[i]->getMeshTessData(tessLevels, nodePositions, data);
+	}
+}
+
+//TODO set fixed size acording to max valency in mesh
+void SQMNode::getMeshTessData2(std::vector<float> &tessLevels, std::vector<float> &nodePositions, std::vector<float> &data) {
+	bool isBranch = this->isBranchNode();
+	bool isLeaf = this->isLeafNode();
+
+	float type = 0.0;
+	if (isBranch) type = 1.0;
+	else if (isLeaf) type = 2.0;
+
+	vector<float> radiuses;
+	map<int, std::vector<int> > interMap;
+	calculateOneRingRadiusAndMap(radiuses, interMap);
+
+	for (int i = 0; i < meshVhandlesToRotate.size(); i++) {
+		MyMesh::VHandle vh = meshVhandlesToRotate[i];
+		tessLevels.push_back(tessLevel);
+		nodePositions.push_back(position[0]);
+		nodePositions.push_back(position[1]);
+		nodePositions.push_back(position[2]);
+
+		data.push_back(type);
+		data.push_back(id);
+		//push back num of radius
+		//push back all radiuses
+		if (!isBranch) {//just push node radius
+			data.push_back(1);
+			data.push_back(nodeRadius);
+		} else {
+			map<int, std::vector<int> >::iterator it = interMap.find(vh.idx());
+			if (it != interMap.end()) {//if found push all radiuses
+				vector<int> correspondingIntersections = interMap[vh.idx()];
+				data.push_back(correspondingIntersections.size());
+				for (int i = 0; i < correspondingIntersections.size(); i++) {
+					data.push_back(radiuses[correspondingIntersections[i]]);
+				}
+			} else {//else just push node radius
+				data.push_back(1);
+				data.push_back(nodeRadius);
+			}
+		}
+	}
+	for (int i = 0; i < nodes.size(); i++) {
+		nodes[i]->getMeshTessData2(tessLevels, nodePositions, data);
 	}
 }
 

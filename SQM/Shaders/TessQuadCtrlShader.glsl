@@ -7,6 +7,7 @@ in vec3 vNodePosition[];
 in float vNodeRadius[];
 in float vNodeType[];
 
+uniform float TessLevelInner;
 
 out vec3 tcNodePosition[];
 out float tcNodeRadius[];
@@ -15,6 +16,7 @@ out float tcNodeType[];
 void main()
 {
 	float tessLevel = round((vTessLevel[0] + vTessLevel[1] + vTessLevel[2] + vTessLevel[3]) / 4.0);
+	if (TessLevelInner > 0.5) tessLevel = TessLevelInner;
 	//inner level
     gl_TessLevelInner[0] = tessLevel;
     gl_TessLevelInner[1] = tessLevel;

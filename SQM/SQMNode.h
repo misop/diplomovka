@@ -34,8 +34,9 @@ typedef enum {
 
 class SQMNode {
 	friend class boost::serialization::access;
-
-	string id;
+	
+	unsigned int id;
+	string idStr;
 	SQMNode* parent;
 	float nodeRadius;
 	float tessLevel;
@@ -63,7 +64,8 @@ public:
 #pragma endregion
 
 #pragma region Getters
-	string getId();
+	unsigned int getId();
+	string getIdStr();
 	bool isBranchNode();
 	bool isLeafNode();
 	OpenMesh::Vec3f getPosition();
@@ -83,6 +85,7 @@ public:
 #pragma endregion
 
 #pragma region Setters
+	void setID(unsigned int newID);
 	void setParent(SQMNode *node);
 	void setNodeRadius(float newNodeRadius);
 	void setTessLevel(float newTessLevel);
@@ -163,6 +166,7 @@ public:
 #pragma region BNP Tesselation
 	void getMeshTessLevel(std::vector<float> &tessLevels);
 	void getMeshTessData(std::vector<float> &tessLevels, std::vector<float> &nodePositions, std::vector<float> &data);
+	void getMeshTessData2(std::vector<float> &tessLevels, std::vector<float> &nodePositions, std::vector<float> &data);
 	void calculateOneRingRadiusAndMap(std::vector<float> &oneRingRadius, std::map<int, std::vector<int> > &intersectionMap);
 #pragma endregion
 
