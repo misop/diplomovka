@@ -311,87 +311,6 @@ namespace OpenGLForm
 			shouldRender = true;
 		}
 	protected:
-		void ReLoadTessShaders() {
-			shouldRender = false;
-
-			delete triTessShaders;
-			delete quadTessShaders;
-			delete programs->TriMeshTess;
-			delete programs->QuadMeshTess;
-			
-			triTessShaders = new OpenGLShaders();
-			quadTessShaders = new OpenGLShaders();
-
-			InitTessShaders();
-
-			shouldRender = true;
-		}
-		void InitTessShaders() {
-			std::string key = "_valency";
-			std::string value = ToStringT(sqmControler->getMaxValency());
-
-			std::map<std::string, std::string> replaceMap;
-			replaceMap.insert(std::pair<std::string, std::string>(key, value));
-
-			//tri mesh tesselation
-			triTessShaders->vert = new GLShader(GL_VERTEX_SHADER);
-			triTessShaders->vert->Load("Shaders/TessVertShader.vert", replaceMap);
-			triTessShaders->vert->Compile();
-
-			triTessShaders->ctrl = new GLShader(GL_TESS_CONTROL_SHADER);
-			triTessShaders->ctrl->Load("Shaders/TessTriCtrlShader.glsl", replaceMap);
-			triTessShaders->ctrl->Compile();
-
-			triTessShaders->eval = new GLShader(GL_TESS_EVALUATION_SHADER);
-			triTessShaders->eval->Load("Shaders/TessTriEvalShader.glsl", replaceMap);
-			triTessShaders->eval->Compile();
-
-			triTessShaders->geom = new GLShader(GL_GEOMETRY_SHADER);
-			triTessShaders->geom->Load("Shaders/TessGeomShader.geom", replaceMap);
-			triTessShaders->geom->Compile();
-
-			triTessShaders->frag = new GLShader(GL_FRAGMENT_SHADER);
-			triTessShaders->frag->Load("Shaders/TessFragShader.frag", replaceMap);
-			triTessShaders->frag->Compile();
-
-			programs->TriMeshTess = new GLProgram("TriMeshTess");
-			programs->TriMeshTess->AttachShader(triTessShaders->vert);
-			programs->TriMeshTess->AttachShader(triTessShaders->ctrl);
-			programs->TriMeshTess->AttachShader(triTessShaders->eval);
-			programs->TriMeshTess->AttachShader(triTessShaders->geom);
-			programs->TriMeshTess->AttachShader(triTessShaders->frag);
-			programs->TriMeshTess->Link();
-			programs->TriMeshTess->SaveProgramLog();
-			//quad mesh tesselation
-			quadTessShaders->vert = new GLShader(GL_VERTEX_SHADER);
-			quadTessShaders->vert->Load("Shaders/TessVertShader.vert", replaceMap);
-			quadTessShaders->vert->Compile();
-
-			quadTessShaders->ctrl = new GLShader(GL_TESS_CONTROL_SHADER);
-			quadTessShaders->ctrl->Load("Shaders/TessQuadCtrlShader.glsl", replaceMap);
-			quadTessShaders->ctrl->Compile();
-
-			quadTessShaders->eval = new GLShader(GL_TESS_EVALUATION_SHADER);
-			quadTessShaders->eval->Load("Shaders/TessQuadEvalShader.glsl", replaceMap);
-			quadTessShaders->eval->Compile();
-
-			quadTessShaders->geom = new GLShader(GL_GEOMETRY_SHADER);
-			quadTessShaders->geom->Load("Shaders/TessGeomShader.geom", replaceMap);
-			quadTessShaders->geom->Compile();
-
-			quadTessShaders->frag = new GLShader(GL_FRAGMENT_SHADER);
-			quadTessShaders->frag->Load("Shaders/TessFragShader.frag", replaceMap);
-			quadTessShaders->frag->Compile();
-
-			programs->QuadMeshTess = new GLProgram("QuadMeshTess");
-			programs->QuadMeshTess->AttachShader(quadTessShaders->vert);
-			programs->QuadMeshTess->AttachShader(quadTessShaders->ctrl);
-			programs->QuadMeshTess->AttachShader(quadTessShaders->eval);
-			programs->QuadMeshTess->AttachShader(quadTessShaders->geom);
-			programs->QuadMeshTess->AttachShader(quadTessShaders->frag);
-			programs->QuadMeshTess->Link();
-			programs->QuadMeshTess->SaveProgramLog();
-		}
 		bool InitShaders() {
 			//skeleton node drawing
 			sklTessShaders->vert = new GLShader(GL_VERTEX_SHADER);
@@ -450,8 +369,65 @@ namespace OpenGLForm
 			programs->BNPs->AttachShader(bnpShaders->frag);
 			programs->BNPs->Link();
 			programs->BNPs->SaveProgramLog();
+			
+			//tri mesh tesselation
+			triTessShaders->vert = new GLShader(GL_VERTEX_SHADER);
+			triTessShaders->vert->Load("Shaders/TessVertShader.vert");
+			triTessShaders->vert->Compile();
 
-			InitTessShaders();
+			triTessShaders->ctrl = new GLShader(GL_TESS_CONTROL_SHADER);
+			triTessShaders->ctrl->Load("Shaders/TessTriCtrlShader.glsl");
+			triTessShaders->ctrl->Compile();
+
+			triTessShaders->eval = new GLShader(GL_TESS_EVALUATION_SHADER);
+			triTessShaders->eval->Load("Shaders/TessTriEvalShader.glsl");
+			triTessShaders->eval->Compile();
+
+			triTessShaders->geom = new GLShader(GL_GEOMETRY_SHADER);
+			triTessShaders->geom->Load("Shaders/TessGeomShader.geom");
+			triTessShaders->geom->Compile();
+
+			triTessShaders->frag = new GLShader(GL_FRAGMENT_SHADER);
+			triTessShaders->frag->Load("Shaders/TessFragShader.frag");
+			triTessShaders->frag->Compile();
+
+			programs->TriMeshTess = new GLProgram("TriMeshTess");
+			programs->TriMeshTess->AttachShader(triTessShaders->vert);
+			programs->TriMeshTess->AttachShader(triTessShaders->ctrl);
+			programs->TriMeshTess->AttachShader(triTessShaders->eval);
+			programs->TriMeshTess->AttachShader(triTessShaders->geom);
+			programs->TriMeshTess->AttachShader(triTessShaders->frag);
+			programs->TriMeshTess->Link();
+			programs->TriMeshTess->SaveProgramLog();
+			//quad mesh tesselation
+			quadTessShaders->vert = new GLShader(GL_VERTEX_SHADER);
+			quadTessShaders->vert->Load("Shaders/TessVertShader.vert");
+			quadTessShaders->vert->Compile();
+
+			quadTessShaders->ctrl = new GLShader(GL_TESS_CONTROL_SHADER);
+			quadTessShaders->ctrl->Load("Shaders/TessQuadCtrlShader.glsl");
+			quadTessShaders->ctrl->Compile();
+
+			quadTessShaders->eval = new GLShader(GL_TESS_EVALUATION_SHADER);
+			quadTessShaders->eval->Load("Shaders/TessQuadEvalShader.glsl");
+			quadTessShaders->eval->Compile();
+
+			quadTessShaders->geom = new GLShader(GL_GEOMETRY_SHADER);
+			quadTessShaders->geom->Load("Shaders/TessGeomShader.geom");
+			quadTessShaders->geom->Compile();
+
+			quadTessShaders->frag = new GLShader(GL_FRAGMENT_SHADER);
+			quadTessShaders->frag->Load("Shaders/TessFragShader.frag");
+			quadTessShaders->frag->Compile();
+
+			programs->QuadMeshTess = new GLProgram("QuadMeshTess");
+			programs->QuadMeshTess->AttachShader(quadTessShaders->vert);
+			programs->QuadMeshTess->AttachShader(quadTessShaders->ctrl);
+			programs->QuadMeshTess->AttachShader(quadTessShaders->eval);
+			programs->QuadMeshTess->AttachShader(quadTessShaders->geom);
+			programs->QuadMeshTess->AttachShader(quadTessShaders->frag);
+			programs->QuadMeshTess->Link();
+			programs->QuadMeshTess->SaveProgramLog();
 
 			return true;
 		}
@@ -718,7 +694,6 @@ namespace OpenGLForm
 		}
 		void joinBNPs() {
 			sqmControler->joinBNPs();
-			ReLoadTessShaders();
 		}
 		void executeSQMAlgorithm() {
 			sqmControler->executeSQMAlgorithm();
