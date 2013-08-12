@@ -1,9 +1,12 @@
 #version 410
  
+ #define VALENCY _valency
+
 layout (location = 0) in vec3 Position;
 layout (location = 1) in float TessLevel;
 layout (location = 2) in vec3 SQMNode;
-layout (location = 3) in vec2 Data;
+layout (location = 3) in int[VALENCY] Indices;
+layout (location = 4) in float[VALENCY] Data;
 
 out vec3 vTest;
 out float vTessLevel;
@@ -15,7 +18,7 @@ void main(void)
 {
 	vTessLevel = TessLevel;
 	vNodePosition = SQMNode;
-	vNodeRadius = Data.x;
-	vNodeType = Data.y;
+	vNodeRadius = 10.0;
+	vNodeType = 1.0;
 	gl_Position = vec4(Position, 1.0);
 }

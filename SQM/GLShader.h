@@ -2,6 +2,7 @@
 #include <GL\glew.h>
 #include <GL\wglew.h>
 #include <string>
+#include <map>
 
 class GLShader
 {
@@ -18,6 +19,7 @@ public:
 
 	GLuint GetShader();
 	void Load(std::string shaderFileName);
+	void Load(std::string shaderFileName, std::map<std::string, std::string> replaceMap);
 	bool Compile();
 	std::string GetShaderLog();
 	void SaveShaderLog();

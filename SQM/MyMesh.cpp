@@ -364,6 +364,22 @@ void calculateMeshNormals(MyMesh *mesh, std::vector<float> &points) {
 	}
 }
 
+int calculateMaxValency(MyMesh *mesh) {
+	int max = 0;
+
+	for (MyMesh::VIter v_it = mesh->vertices_begin(); v_it != mesh->vertices_end(); ++v_it) {
+		int count = 0;
+		for (MyMesh::VVIter vv_it = mesh->vv_begin(v_it.handle()); vv_it != mesh->vv_end(v_it.handle()); ++vv_it) {
+			count++;
+		}
+		if (count > max) {
+			max = count;
+		}
+	}
+
+	return max;
+}
+
 #pragma endregion
 
 #pragma region Mesh Writing

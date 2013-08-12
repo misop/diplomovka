@@ -26,6 +26,7 @@ SQMControler::SQMControler(void)
 	wireframe = true;
 	shouldDrawNormals = false;
 	globalTesselation = 0;
+	maxValency = 1;
 }
 
 
@@ -202,6 +203,10 @@ bool SQMControler::getShouldDrawNormals() {
 
 void SQMControler::setGlobalTesselation(float newGlobalTesselation) {
 	globalTesselation = newGlobalTesselation;
+}
+
+int SQMControler::getMaxValency() {
+	return maxValency;
 }
 
 void SQMControler::setSelectedPosition(OpenMesh::Vec3f pos) {
@@ -467,17 +472,22 @@ void SQMControler::drawMeshForTesselation() {
 	vector<float> tessLevels;
 	vector<float> nodePositions;
 	vector<float> data;
+	vector<int> indices;
 
 	convertMeshToArray(sqmALgorithm->getMesh(), points, triIndices, quadIndices);
 	//sqmALgorithm->getRoot()->getMeshTessLevel(tessLevels);
-	sqmALgorithm->getRoot()->getMeshTessData(tessLevels, nodePositions, data);
+	//sqmALgorithm->getRoot()->getMeshTessData(tessLevels, nodePositions, data);
+	sqmALgorithm->getRoot()->getMeshTessData(tessLevels, nodePositions, data, indices, maxValency);
 
 	buffer1 = new GLArrayBuffer();
 	buffer1->Bind();
 	buffer1->BindBufferData(points, 3, GL_STATIC_DRAW);
 	buffer1->BindBufferData(tessLevels, 1, GL_STATIC_DRAW);
 	buffer1->BindBufferData(nodePositions, 3, GL_STATIC_DRAW);
-	buffer1->BindBufferData(data, 2, GL_STATIC_DRAW);
+	//buffer1->BindBufferData(data, 2, GL_STATIC_DRAW);
+	buffer1->BindBufferData(indices, 4, GL_STATIC_DRAW);//type + ID + used + max valency indices
+	//buffer1->BindBufferData(data, maxValency, GL_STATIC_DRAW);//maxValency radiuses
+
 	buffer1->BindElement(triIndices, GL_STATIC_DRAW);
 	buffer1->BindElement(quadIndices, GL_STATIC_DRAW);
 
@@ -623,6 +633,11 @@ void SQMControler::executeSQMAlgorithm() {
 
 void SQMControler::executeSQMAlgorithm(SQMState state) {
 	sqmALgorithm->executeSQMAlgorithm(state);
+
+	if (state == SQMJoinBNPs) {
+		maxValency = calculateMaxValency(sqmALgorithm->getMesh());
+	}
+
 	if (state == SQMStart || state == SQMStraighten) drawSkeleton();
 	if (state == SQMComputeConvexHull || state == SQMSubdivideConvexHull) drawBNPs();
 	if (state == SQMJoinBNPs || state == SQMFinalPlacement) drawMeshForTesselation();//drawMesh();

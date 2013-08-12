@@ -20,6 +20,7 @@ private:
 	bool wireframe;
 	bool shouldDrawNormals;
 	float globalTesselation;
+	int maxValency;
 public:
 	SQMNode *selected;
 
@@ -46,6 +47,7 @@ public:
 	void setShouldDrawNormals(bool newShouldDrawNormals);
 	bool getShouldDrawNormals();
 	void setGlobalTesselation(float newGlobalTesselation);
+	int getMaxValency();
 
 	void insertNode(float x, float y, float z);
 	void setSelectedPosition(OpenMesh::Vec3f pos);

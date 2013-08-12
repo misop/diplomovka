@@ -122,6 +122,8 @@ namespace SQM {
 	private: System::Windows::Forms::Label^  label9;
 	private: System::Windows::Forms::Label^  label8;
 	private: System::Windows::Forms::NumericUpDown^  numericUpDown6;
+	private: System::Windows::Forms::ToolStripMenuItem^  shadersToolStripMenuItem;
+	private: System::Windows::Forms::ToolStripMenuItem^  reloadShadersToolStripMenuItem;
 
 
 
@@ -187,6 +189,8 @@ namespace SQM {
 				 this->numericUpDown1 = (gcnew System::Windows::Forms::NumericUpDown());
 				 this->textBox1 = (gcnew System::Windows::Forms::TextBox());
 				 this->label1 = (gcnew System::Windows::Forms::Label());
+				 this->shadersToolStripMenuItem = (gcnew System::Windows::Forms::ToolStripMenuItem());
+				 this->reloadShadersToolStripMenuItem = (gcnew System::Windows::Forms::ToolStripMenuItem());
 				 this->toolStrip1->SuspendLayout();
 				 this->menuStrip1->SuspendLayout();
 				 this->panel2->SuspendLayout();
@@ -254,8 +258,8 @@ namespace SQM {
 				 // 
 				 // menuStrip1
 				 // 
-				 this->menuStrip1->Items->AddRange(gcnew cli::array< System::Windows::Forms::ToolStripItem^  >(3) {this->fileToolStripMenuItem, 
-					 this->sQMToolStripMenuItem, this->showToolStripMenuItem});
+				 this->menuStrip1->Items->AddRange(gcnew cli::array< System::Windows::Forms::ToolStripItem^  >(4) {this->fileToolStripMenuItem, 
+					 this->sQMToolStripMenuItem, this->showToolStripMenuItem, this->shadersToolStripMenuItem});
 				 this->menuStrip1->Location = System::Drawing::Point(0, 0);
 				 this->menuStrip1->Name = L"menuStrip1";
 				 this->menuStrip1->Size = System::Drawing::Size(744, 24);
@@ -641,6 +645,20 @@ namespace SQM {
 				 this->label1->TabIndex = 0;
 				 this->label1->Text = L"Node";
 				 // 
+				 // shadersToolStripMenuItem
+				 // 
+				 this->shadersToolStripMenuItem->DropDownItems->AddRange(gcnew cli::array< System::Windows::Forms::ToolStripItem^  >(1) {this->reloadShadersToolStripMenuItem});
+				 this->shadersToolStripMenuItem->Name = L"shadersToolStripMenuItem";
+				 this->shadersToolStripMenuItem->Size = System::Drawing::Size(60, 20);
+				 this->shadersToolStripMenuItem->Text = L"Shaders";
+				 // 
+				 // reloadShadersToolStripMenuItem
+				 // 
+				 this->reloadShadersToolStripMenuItem->Name = L"reloadShadersToolStripMenuItem";
+				 this->reloadShadersToolStripMenuItem->Size = System::Drawing::Size(154, 22);
+				 this->reloadShadersToolStripMenuItem->Text = L"Reload Shaders";
+				 this->reloadShadersToolStripMenuItem->Click += gcnew System::EventHandler(this, &Form1::reloadShadersToolStripMenuItem_Click);
+				 // 
 				 // Form1
 				 // 
 				 this->AutoScaleDimensions = System::Drawing::SizeF(6, 13);
@@ -996,6 +1014,9 @@ namespace SQM {
 	private: System::Void normalsToolStripMenuItem_Click(System::Object^  sender, System::EventArgs^  e) {
 				 OpenGL->alterDrawNormals();
 			 }
-	};
+	private: System::Void reloadShadersToolStripMenuItem_Click(System::Object^  sender, System::EventArgs^  e) {
+				 OpenGL->ReloadShaders();
+			 }
+};
 }
 

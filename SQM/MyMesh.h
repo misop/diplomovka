@@ -32,6 +32,7 @@ void addToConvertedMeshArray(std::vector<int> &vertices, std::vector<int> &triIn
 
 void calculateTriMeshNormals(MyTriMesh *mesh, std::vector<float> &points);
 void calculateMeshNormals(MyMesh *mesh, std::vector<float> &points);
+int calculateMaxValency(MyMesh *mesh);
 
 void writeTriMesh(MyTriMesh* mesh);
 void writeTriMesh(MyTriMesh* mesh, std::string fileName);

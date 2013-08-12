@@ -47,6 +47,27 @@ void GLShader::Load(std::string shaderFileName) {
 	glShaderSource(shader, 1, &shaderSourceCstr, &length);
 }
 
+void GLShader::Load(std::string shaderFileName, std::map<std::string, std::string> replaceMap) {
+	string shaderSource = readShaderFile(shaderFileName);
+
+	for(map<string, string>::iterator it = replaceMap.begin(); it != replaceMap.end(); it++) {
+		string key = it->first;
+		string value = it->second;
+		size_t found = shaderSource.find(key);
+
+		while (found != string::npos) {
+			shaderSource.replace(found, key.length(), value);
+
+			found = shaderSource.find(key);
+		}
+	}
+
+	GLint length = shaderSource.length();
+	const char *shaderSourceCstr = shaderSource.c_str();
+
+	glShaderSource(shader, 1, &shaderSourceCstr, &length);
+}
+
 bool GLShader::Compile() {
 	glCompileShader(shader);
 

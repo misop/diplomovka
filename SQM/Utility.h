@@ -1,5 +1,7 @@
 #pragma once
 #include <string>
+#include <vector>
+#include <sstream>
 #include <GL\glew.h>
 #include <GL\wglew.h>
 #include "GLProgram.h"
@@ -42,9 +44,21 @@ struct OpenGLShaders {
 	}
 };
 
-/*#pragma region Template Functions
-template <typename T> std::string ToString(T& a);
-#pragma endregion*/
+#pragma region Template Functions
+
+template <typename T> std::string ToStringT(T a) {
+	std::stringstream ss;
+	ss << a;
+	return ss.str();
+}
+
+template <typename T> void fillUp(std::vector<T> &v, T val, int count) {
+	for (int i = 0; i < count; i++) {
+		v.push_back(val);
+	}
+}
+
+#pragma endregion
 
 #pragma region Ray Intersections
 bool raySphereIntersection(OpenMesh::Vec3f ray_origin, OpenMesh::Vec3f ray_direction, OpenMesh::Vec3f sphere_center, float sphere_radius, float &t_param);

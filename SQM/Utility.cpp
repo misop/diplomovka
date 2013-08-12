@@ -2,21 +2,10 @@
 #include "Utility.h"
 #include <GL\glew.h>
 #include <GL\wglew.h>
-#include <sstream>
 
 #define BIAS 0.1
 
 using namespace std;
-
-/*#pragma region Template Functions
-
-template <typename T> string ToString(T& a) {
-	stringstream ss;
-	ss << a;
-	return ss.str();
-}
-
-#pragma endregion*/
 
 #pragma region Ray Intersections
 

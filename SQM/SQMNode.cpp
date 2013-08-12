@@ -1265,13 +1265,13 @@ void SQMNode::getMeshTessData(std::vector<float> &tessLevels, std::vector<float>
 }
 
 //TODO set fixed size acording to max valency in mesh
-void SQMNode::getMeshTessData2(std::vector<float> &tessLevels, std::vector<float> &nodePositions, std::vector<float> &data) {
+void SQMNode::getMeshTessData(vector<float> &tessLevels, vector<float> &nodePositions, vector<float> &data, vector<int> &indices, int valency) {
 	bool isBranch = this->isBranchNode();
 	bool isLeaf = this->isLeafNode();
 
-	float type = 0.0;
-	if (isBranch) type = 1.0;
-	else if (isLeaf) type = 2.0;
+	int type = 0;
+	if (isBranch) type = 1;
+	else if (isLeaf) type = 2;
 
 	vector<float> radiuses;
 	map<int, std::vector<int> > interMap;
@@ -1280,33 +1280,43 @@ void SQMNode::getMeshTessData2(std::vector<float> &tessLevels, std::vector<float
 	for (int i = 0; i < meshVhandlesToRotate.size(); i++) {
 		MyMesh::VHandle vh = meshVhandlesToRotate[i];
 		tessLevels.push_back(tessLevel);
-		nodePositions.push_back(position[0]);
-		nodePositions.push_back(position[1]);
-		nodePositions.push_back(position[2]);
+		nodePositions.push_back(centerOfMass[0]);
+		nodePositions.push_back(centerOfMass[1]);
+		nodePositions.push_back(centerOfMass[2]);
 
-		data.push_back(type);
-		data.push_back(id);
+		indices.push_back(type);
+		indices.push_back(id);
 		//push back num of radius
 		//push back all radiuses
 		if (!isBranch) {//just push node radius
-			data.push_back(1);
-			data.push_back(nodeRadius);
+			indices.push_back(1);
+			fillUp(indices, -1, valency);
+			fillUp(data, nodeRadius, valency);
 		} else {
 			map<int, std::vector<int> >::iterator it = interMap.find(vh.idx());
 			if (it != interMap.end()) {//if found push all radiuses
 				vector<int> correspondingIntersections = interMap[vh.idx()];
-				data.push_back(correspondingIntersections.size());
+				indices.push_back(correspondingIntersections.size());
+
 				for (int i = 0; i < correspondingIntersections.size(); i++) {
-					data.push_back(radiuses[correspondingIntersections[i]]);
+					int index = correspondingIntersections[i];
+					int node_id = (index == nodes.size()) ? parent->getId() : nodes[index]->getId();
+
+					indices.push_back(node_id);
+					data.push_back(radiuses[index]);
 				}
+
+				fillUp(indices, -1, valency - correspondingIntersections.size());
+				fillUp(data, nodeRadius, valency - correspondingIntersections.size());
 			} else {//else just push node radius
-				data.push_back(1);
-				data.push_back(nodeRadius);
+				indices.push_back(1);
+				fillUp(indices, -1, valency);
+				fillUp(data, nodeRadius, valency);
 			}
 		}
 	}
 	for (int i = 0; i < nodes.size(); i++) {
-		nodes[i]->getMeshTessData2(tessLevels, nodePositions, data);
+		nodes[i]->getMeshTessData(tessLevels, nodePositions, data, indices, valency);
 	}
 }
 
