@@ -16,6 +16,8 @@
 
 #define WIREFRAME_STR "Wireframe"
 
+#define RADIUS_TEXTURE_STR "RadiusesSampler"
+
 class GLProgram
 {
 private:

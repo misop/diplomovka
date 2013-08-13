@@ -69,6 +69,7 @@ void main()
 	//color = gNormal;
 
 	if (Wireframe == 1) {
+
 		vec3 adjusted0 = adjust(gTriDistance, gTriDistanceCtrl);
 		float d1 = min(min(adjusted0.x, adjusted0.y), adjusted0.z);
 		//float d1 = min(min(gTriDistance.x, gTriDistance.y), gTriDistance.z);

@@ -1272,15 +1272,43 @@ void SQMNode::getMeshTessData(vector<float> &tessLevels, vector<float> &nodePosi
 	for (int i = 0; i < meshVhandlesToRotate.size(); i++) {
 		MyMesh::VHandle vh = meshVhandlesToRotate[i];
 		tessLevels.push_back(tessLevel);
-		nodePositions.push_back(centerOfMass[0]);
-		nodePositions.push_back(centerOfMass[1]);
-		nodePositions.push_back(centerOfMass[2]);
+		nodePositions.push_back(position[0]);
+		nodePositions.push_back(position[1]);
+		nodePositions.push_back(position[2]);
 
 		data.push_back(type);
 		data.push_back(id);
 	}
 	for (int i = 0; i < nodes.size(); i++) {
 		nodes[i]->getMeshTessData(tessLevels, nodePositions, data);
+	}
+}
+
+void SQMNode::fillRadiusTable(float *table, int width) {
+	bool isLeaf = this->isLeafNode();
+	bool isBranch = this->isBranchNode();
+	bool isConnection = (!isLeaf && !isBranch);
+	//always store original radius
+	table[id*width + id] = nodeRadius;
+	//store radius from yourself to connected nodes
+	if (isLeaf) {//leaf is max radius
+		table[id*width + parent->getId()] = nodeRadius;
+	}
+	if (isConnection) {//connection is max radius
+		table[id*width + parent->getId()] = nodeRadius;
+		table[id*width + nodes[0]->getId()] = nodeRadius;
+	}
+	if (isBranch) {//branch has one-ring radiuses instead of node radius
+		//for each node get one-ring radius and store
+		for (int i = 0; i < intersectionVHandles.size(); i++) {
+			float radius = calculateOneRingRadius(polyhedron, intersectionVHandles[i]);
+			int id2 = (i >= nodes.size()) ? parent->getId() : nodes[i]->getId();
+			table[id*width + id2] = radius;
+		}
+	}
+
+	for (int i = 0; i < nodes.size(); i++) {
+		nodes[i]->fillRadiusTable(table, width);
 	}
 }
 

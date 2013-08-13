@@ -3,13 +3,14 @@
 layout(quads) in;
 
 in vec3 tcNodePosition[];
-in float tcNodeRadius[];
-in float tcNodeType[];
+in int tcNodeType[];
+in int tcNodeID[];
 
 out vec4 tePatchDistance;
 out vec4 tePatchDistanceCtrl;
 
 uniform mat4 MVPmatrix;
+uniform sampler2D RadiusesSampler;
 
 const float EPSILON = 0.00001;
 
@@ -48,16 +49,16 @@ float easeinout(in float start, in float end, in float t) {
 	return (start + (end - start)*percent);
 }
 
-bool isConnectionNode(in float type) {
-	return (type < 0.5);
+bool isConnectionNode(in int type) {
+	return type == 0;
 }
 
-bool isBranchNode(in float type) {
-	return (type > 0.5 && type < 1.5);
+bool isBranchNode(in int type) {
+	return type == 1;
 }
 
-bool isLeafNode(in float type) {
-	return (type > 1.5);
+bool isLeafNode(in int type) {
+	return type == 2;
 }
 
 void main()
@@ -71,20 +72,27 @@ void main()
 	if (!(floatEqual(v, 1) || floatEqual(v, 0))) {
 		//float radius = mix(tcNodeRadius[0], tcNodeRadius[1], v);
 		float radius = 0.0;
-		float type0 = tcNodeType[0];
-		float type1 = tcNodeType[1];
-		if ((isConnectionNode(type0) || isLeafNode(type0)) && (isConnectionNode(type1) || isLeafNode(type1))) {
-			radius = mix(tcNodeRadius[0], tcNodeRadius[1], v);
+		//float radius1 = texture(RadiusesSampler, vec2(tcNodeID[0], tcNodeID[1])).r;
+		float radius1 = texture(RadiusesSampler, vec2(0, 0)).r;
+		float radius2 = texture(RadiusesSampler, vec2(tcNodeID[1], tcNodeID[0])).r;
+
+		int type0 = tcNodeType[0];
+		int type1 = tcNodeType[1];
+		
+		radius = mix(radius1, radius2, v);
+		radius = radius1;
+		/*if ((isConnectionNode(type0) || isLeafNode(type0)) && (isConnectionNode(type1) || isLeafNode(type1))) {
+			radius = mix(radius1, radius2, v);
 		}
 		if (isBranchNode(type0) && (isConnectionNode(type1) || isLeafNode(type1))) {
-			radius = easein(tcNodeRadius[0] / 2.0, tcNodeRadius[1], v);
+			radius = easein(radius1 / 2.0, radius2, v);
 		}
 		if (isBranchNode(type1) && (isConnectionNode(type0) || isLeafNode(type0))) {
-			radius = easeout(tcNodeRadius[0], tcNodeRadius[1] / 2.0, v);
+			radius = easeout(radius1, radius2 / 2.0, v);
 		}
 		if (isBranchNode(type0) && isBranchNode(type1)) {
-			radius = easeinout(tcNodeRadius[0] / 2.0, tcNodeRadius[1] / 2.0, v);
-		}
+			radius = easeinout(radius1 / 2.0, radius2 / 2.0, v);
+		}*/
 		vec3 dir = normalize(tcNodePosition[1] - tcNodePosition[0]);
 		float projLength = dot(dir, position - tcNodePosition[0]);
 		vec3 projection = tcNodePosition[0] + (dir * projLength);

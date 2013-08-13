@@ -5,6 +5,7 @@
 #include "SQMAlgorithm.h"
 #include "GLArrayBuffer.h"
 #include "GLCamera.h"
+#include "GLTexture.h"
 
 using namespace std;
 
@@ -20,6 +21,7 @@ private:
 	bool wireframe;
 	bool shouldDrawNormals;
 	float globalTesselation;
+	GLTexture *nodeRadiuses;
 public:
 	SQMNode *selected;
 
@@ -32,6 +34,7 @@ public:
 	void exportSkeletonToFile(string fileName);
 
 	bool selectNodeInRay(glm::vec3 position, glm::vec3 direction);
+	void fillRadiusTable();
 
 	void restart();
 	void straightenSkeleton();

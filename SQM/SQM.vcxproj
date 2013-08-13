@@ -107,6 +107,7 @@
     <ClCompile Include="GLEventHandler.cpp" />
     <ClCompile Include="GLProgram.cpp" />
     <ClCompile Include="GLShader.cpp" />
+    <ClCompile Include="GLTexture.cpp" />
     <ClCompile Include="Laplacian.cpp" />
     <ClCompile Include="LIE.cpp" />
     <ClCompile Include="LIENeedEntry.cpp" />
@@ -137,6 +138,7 @@
     <ClInclude Include="GLEventHandler.h" />
     <ClInclude Include="GLProgram.h" />
     <ClInclude Include="GLShader.h" />
+    <ClInclude Include="GLTexture.h" />
     <ClInclude Include="Laplacian.h" />
     <ClInclude Include="LIE.h" />
     <ClInclude Include="LIENeedEntry.h" />

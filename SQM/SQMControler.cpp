@@ -26,6 +26,7 @@ SQMControler::SQMControler(void)
 	wireframe = true;
 	shouldDrawNormals = false;
 	globalTesselation = 0;
+	nodeRadiuses = NULL;
 }
 
 
@@ -35,6 +36,7 @@ SQMControler::~SQMControler(void)
 	if (icosahedron) delete icosahedron;
 	if (buffer1) delete buffer1;
 	if (buffer2) delete buffer2;
+	if (nodeRadiuses) delete nodeRadiuses;
 }
 
 #pragma region Saving and Loading
@@ -420,6 +422,7 @@ void SQMControler::drawMeshForTesselation(OpenGLPrograms *programs, GLCamera *ca
 	glUniform3f(programs->QuadMeshTess->getUniformLocation(DIFFUSE_COLOR_STR), 0.0, 0.75, 0.75);
 	glUniform1f(programs->QuadMeshTess->getUniformLocation(TESS_LEVEL_INNER_STR), globalTesselation);
 	glUniform1i(programs->QuadMeshTess->getUniformLocation(WIREFRAME_STR), wireframe ? 1 : 0);
+	nodeRadiuses->UseTexture(programs->QuadMeshTess->getUniformLocation(RADIUS_TEXTURE_STR));
 	buffer1->DrawElement(1, GL_PATCHES);
 	//draw normals
 	if (shouldDrawNormals) {
@@ -603,6 +606,33 @@ void SQMControler::createIcosahedron() {
 	icosahedron->BindElement(indices, GL_STATIC_DRAW);
 }
 
+void SQMControler::fillRadiusTable() {
+	if (nodeRadiuses) delete nodeRadiuses;
+
+	int nodes = sqmALgorithm->getNumberOfNodes();
+	float *table = new float[nodes*nodes];
+	for (int i = 0; i < nodes*nodes; i++) {
+		table[i] = 0;
+	}
+
+	sqmALgorithm->getRoot()->fillRadiusTable(table, nodes);
+	nodeRadiuses = new GLTexture(GL_TEXTURE_2D);
+	nodeRadiuses->Bind();
+	nodeRadiuses->FunctionTexture(nodes, nodes, table);
+
+	ofstream f;
+	f.open ("log_radiuses.txt");
+	for (int i = 0; i < nodes; i++) {
+		for (int j = 0; j < nodes; j++) {
+			f << table[i*nodes + j] << " ";
+		}
+		f << endl;
+	}
+	f.close();
+
+	delete [] table;
+}
+
 void SQMControler::getBoundingSphere(float &x, float &y, float &z, float &d) {
 	sqmALgorithm->getBoundingSphere(x, y, z, d);
 }
@@ -627,6 +657,10 @@ void SQMControler::executeSQMAlgorithm() {
 
 void SQMControler::executeSQMAlgorithm(SQMState state) {
 	sqmALgorithm->executeSQMAlgorithm(state);
+
+	if (state == SQMJoinBNPs) {
+		fillRadiusTable();
+	}
 
 	if (state == SQMStart || state == SQMStraighten) drawSkeleton();
 	if (state == SQMComputeConvexHull || state == SQMSubdivideConvexHull) drawBNPs();

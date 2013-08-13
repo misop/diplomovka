@@ -327,7 +327,7 @@ void calculateTriMeshNormals(MyTriMesh *mesh, std::vector<float> &points) {
 		points.push_back(center[0]);
 		points.push_back(center[1]);
 		points.push_back(center[2]);
-		
+
 		points.push_back(dest[0]);
 		points.push_back(dest[1]);
 		points.push_back(dest[2]);
@@ -357,7 +357,7 @@ void calculateMeshNormals(MyMesh *mesh, std::vector<float> &points) {
 		points.push_back(center[0]);
 		points.push_back(center[1]);
 		points.push_back(center[2]);
-		
+
 		points.push_back(dest[0]);
 		points.push_back(dest[1]);
 		points.push_back(dest[2]);
@@ -378,6 +378,32 @@ int calculateMaxValency(MyMesh *mesh) {
 	}
 
 	return max;
+}
+
+float calculateOneRingRadius(MyTriMesh *mesh, MyTriMesh::VHandle vh) {
+	MyTriMesh::VHandle first_vh(-1);
+	MyTriMesh::VHandle prev_vh(-1);
+	float radius = 0;
+
+	for (MyTriMesh::VVIter vv_it = mesh->vv_begin(vh); vv_it != mesh->vv_end(vh); ++vv_it) {
+		if (first_vh.idx() == -1) {
+			first_vh = vv_it.handle();
+			prev_vh = vv_it.handle();
+		}
+		//calculate length
+		MyTriMesh::Point P = mesh->point(prev_vh);
+		MyTriMesh::Point Q = mesh->point(vv_it.handle());
+		radius += (P - Q).norm();
+
+		prev_vh = vv_it.handle();
+	}
+	MyTriMesh::Point P = mesh->point(prev_vh);
+	MyTriMesh::Point Q = mesh->point(first_vh);
+	radius += (P - Q).norm();
+	//we calculated circumference (2*PI*r) so now we need to divide by 2*PI
+	radius /= (2*M_PI);
+
+	return radius;
 }
 
 #pragma endregion
