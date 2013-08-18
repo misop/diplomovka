@@ -413,7 +413,11 @@ void SQMControler::drawMeshForTesselation(OpenGLPrograms *programs, GLCamera *ca
 
 	//draw quad patches
 	programs->QuadMeshTess->Use();
+	glActiveTexture(GL_TEXTURE0);
+	//nodeRadiuses->Enable();
+	nodeRadiuses->Bind();
 	glPatchParameteri(GL_PATCH_VERTICES, 4);
+
 	camera->lookFromCamera(programs->QuadMeshTess->getUniformLocation(MVP_MATRIX_STR));
 	camera->setupNormalMatrix(programs->QuadMeshTess->getUniformLocation(NORMAL_MATRIX_STR));
 	camera->setupModelViewMatrix(programs->QuadMeshTess->getUniformLocation(MODEL_VIEW_MATRIX_STR));
@@ -422,8 +426,11 @@ void SQMControler::drawMeshForTesselation(OpenGLPrograms *programs, GLCamera *ca
 	glUniform3f(programs->QuadMeshTess->getUniformLocation(DIFFUSE_COLOR_STR), 0.0, 0.75, 0.75);
 	glUniform1f(programs->QuadMeshTess->getUniformLocation(TESS_LEVEL_INNER_STR), globalTesselation);
 	glUniform1i(programs->QuadMeshTess->getUniformLocation(WIREFRAME_STR), wireframe ? 1 : 0);
-	nodeRadiuses->UseTexture(programs->QuadMeshTess->getUniformLocation(RADIUS_TEXTURE_STR));
+	nodeRadiuses->UseTexture(programs->QuadMeshTess->getUniformLocation(RADIUS_TEXTURE_STR), 0);
 	buffer1->DrawElement(1, GL_PATCHES);
+
+	//nodeRadiuses->Disable();
+
 	//draw normals
 	if (shouldDrawNormals) {
 		programs->SklLines->Use();
@@ -616,6 +623,7 @@ void SQMControler::fillRadiusTable() {
 	}
 
 	sqmALgorithm->getRoot()->fillRadiusTable(table, nodes);
+	//glActiveTexture(GL_TEXTURE0);
 	nodeRadiuses = new GLTexture(GL_TEXTURE_2D);
 	nodeRadiuses->Bind();
 	nodeRadiuses->FunctionTexture(nodes, nodes, table);
