@@ -5,6 +5,7 @@
 GLTexture::GLTexture(GLenum texType)
 {
 	glGenTextures(1, &texture);
+	glBindTexture(texType, texture);
 	target = texType;
 
 	glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);    

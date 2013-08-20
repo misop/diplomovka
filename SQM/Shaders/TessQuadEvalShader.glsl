@@ -50,15 +50,15 @@ float easeinout(in float start, in float end, in float t) {
 }
 
 bool isConnectionNode(in int type) {
-	return type == 0;
+	return (type == 0);
 }
 
 bool isBranchNode(in int type) {
-	return type == 1;
+	return (type == 1);
 }
 
 bool isLeafNode(in int type) {
-	return type == 2;
+	return (type == 2);
 }
 
 void main()
@@ -73,15 +73,14 @@ void main()
 		//float radius = mix(tcNodeRadius[0], tcNodeRadius[1], v);
 		float radius = 0.0;
 		//float radius1 = texture(RadiusesSampler, vec2(tcNodeID[0], tcNodeID[1])).r;
-		float radius1 = texture(RadiusesSampler, vec2(0, 0)).r;
+		float radius1 = texture(RadiusesSampler, vec2(tcNodeID[0], tcNodeID[1])).r;
 		float radius2 = texture(RadiusesSampler, vec2(tcNodeID[1], tcNodeID[0])).r;
 
 		int type0 = tcNodeType[0];
 		int type1 = tcNodeType[1];
-		
+
 		radius = mix(radius1, radius2, v);
-		radius = radius1;
-		/*if ((isConnectionNode(type0) || isLeafNode(type0)) && (isConnectionNode(type1) || isLeafNode(type1))) {
+		if ((isConnectionNode(type0) || isLeafNode(type0)) && (isConnectionNode(type1) || isLeafNode(type1))) {
 			radius = mix(radius1, radius2, v);
 		}
 		if (isBranchNode(type0) && (isConnectionNode(type1) || isLeafNode(type1))) {
@@ -92,7 +91,8 @@ void main()
 		}
 		if (isBranchNode(type0) && isBranchNode(type1)) {
 			radius = easeinout(radius1 / 2.0, radius2 / 2.0, v);
-		}*/
+		}
+
 		vec3 dir = normalize(tcNodePosition[1] - tcNodePosition[0]);
 		float projLength = dot(dir, position - tcNodePosition[0]);
 		vec3 projection = tcNodePosition[0] + (dir * projLength);

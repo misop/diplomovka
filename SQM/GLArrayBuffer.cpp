@@ -43,7 +43,7 @@ void GLArrayBuffer::DrawElement(int element, GLenum mode, bool bind) {
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 }
 
-void GLArrayBuffer::BindBufferData(std::vector<float> &data, GLint elements, GLenum storageMode, GLboolean normalize, GLsizei stride, GLvoid* offset, bool bind) {
+void GLArrayBuffer::BindBufferDataf(std::vector<float> &data, GLint elements, GLenum storageMode, GLboolean normalize, GLsizei stride, GLvoid* offset, bool bind) {
 	if (data.size() == 0) return;
 	if (bind) glBindVertexArray(vao);
 	if (attribs == 0) {//0 index is reserved for vertices
@@ -64,12 +64,9 @@ void GLArrayBuffer::BindBufferData(std::vector<float> &data, GLint elements, GLe
 }
 
 
-void GLArrayBuffer::BindBufferData(std::vector<int> &data, GLint elements, GLenum storageMode, GLboolean normalize, GLsizei stride, GLvoid* offset, bool bind) {
+void GLArrayBuffer::BindBufferDatai(std::vector<int> &data, GLint elements, GLenum storageMode, GLsizei stride, GLvoid* offset, bool bind) {
 	if (data.size() == 0) return;
 	if (bind) glBindVertexArray(vao);
-	if (attribs == 0) {//0 index is reserved for vertices
-		vertices = (int)floor((float)data.size()/(float)elements);
-	}
 
 	glEnableVertexAttribArray(attribs);
 
@@ -79,7 +76,7 @@ void GLArrayBuffer::BindBufferData(std::vector<int> &data, GLint elements, GLenu
 
 	glBindBuffer(GL_ARRAY_BUFFER, vbo);
 	glBufferData(GL_ARRAY_BUFFER, data.size()*sizeof(int), &data[0], storageMode);
-	glVertexAttribPointer(attribs, elements, GL_INT, normalize, stride, offset);
+	glVertexAttribIPointer(attribs, elements, GL_INT, stride, offset);
 
 	attribs++;
 }

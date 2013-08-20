@@ -22,11 +22,14 @@ private:
 	bool shouldDrawNormals;
 	float globalTesselation;
 	GLTexture *nodeRadiuses;
+	bool shouldRender;
 public:
 	SQMNode *selected;
 
 	SQMControler(void);
 	~SQMControler(void);
+
+	void generateTextures();
 
 	void newFile();
 	void loadSkeletonFromFile(string fileName);

@@ -27,6 +27,7 @@ SQMControler::SQMControler(void)
 	shouldDrawNormals = false;
 	globalTesselation = 0;
 	nodeRadiuses = NULL;
+	shouldRender = true;
 }
 
 
@@ -37,6 +38,11 @@ SQMControler::~SQMControler(void)
 	if (buffer1) delete buffer1;
 	if (buffer2) delete buffer2;
 	if (nodeRadiuses) delete nodeRadiuses;
+}
+
+void SQMControler::generateTextures() {
+	nodeRadiuses = new GLTexture(GL_TEXTURE_2D);
+	nodeRadiuses->Bind();
 }
 
 #pragma region Saving and Loading
@@ -329,7 +335,7 @@ void SQMControler::drawBNPs() {
 
 	buffer1 = new GLArrayBuffer();
 	buffer1->Bind();
-	buffer1->BindBufferData(points, 3, GL_STATIC_DRAW);
+	buffer1->BindBufferDataf(points, 3, GL_STATIC_DRAW);
 	buffer1->BindElement(indices, GL_STATIC_DRAW);
 
 	drawTriNormals();
@@ -359,7 +365,7 @@ void SQMControler::drawTriNormals() {
 
 	buffer2 = new GLArrayBuffer();
 	buffer2->Bind();
-	buffer2->BindBufferData(points, 3, GL_STATIC_DRAW);
+	buffer2->BindBufferDataf(points, 3, GL_STATIC_DRAW);
 }
 
 void SQMControler::drawNormals() {
@@ -370,7 +376,7 @@ void SQMControler::drawNormals() {
 
 	buffer2 = new GLArrayBuffer();
 	buffer2->Bind();
-	buffer2->BindBufferData(points, 3, GL_STATIC_DRAW);
+	buffer2->BindBufferDataf(points, 3, GL_STATIC_DRAW);
 }
 
 void SQMControler::drawMesh(OpenGLPrograms *programs, GLCamera *camera) {
@@ -390,6 +396,9 @@ void SQMControler::drawMesh(OpenGLPrograms *programs, GLCamera *camera) {
 }
 
 void SQMControler::drawMeshForTesselation(OpenGLPrograms *programs, GLCamera *camera) {
+	glActiveTexture(GL_TEXTURE0);
+	nodeRadiuses->Bind();
+
 	//show camera
 	programs->SklNodes->Use();
 	glPatchParameteri(GL_PATCH_VERTICES, 3);
@@ -410,27 +419,21 @@ void SQMControler::drawMeshForTesselation(OpenGLPrograms *programs, GLCamera *ca
 	glUniform3f(programs->TriMeshTess->getUniformLocation(DIFFUSE_COLOR_STR), 0.0, 0.75, 0.75);
 	glUniform1i(programs->TriMeshTess->getUniformLocation(WIREFRAME_STR), wireframe ? 1 : 0);
 	buffer1->DrawElement(0, GL_PATCHES);
-
 	//draw quad patches
 	programs->QuadMeshTess->Use();
-	glActiveTexture(GL_TEXTURE0);
-	//nodeRadiuses->Enable();
-	nodeRadiuses->Bind();
 	glPatchParameteri(GL_PATCH_VERTICES, 4);
 
 	camera->lookFromCamera(programs->QuadMeshTess->getUniformLocation(MVP_MATRIX_STR));
 	camera->setupNormalMatrix(programs->QuadMeshTess->getUniformLocation(NORMAL_MATRIX_STR));
 	camera->setupModelViewMatrix(programs->QuadMeshTess->getUniformLocation(MODEL_VIEW_MATRIX_STR));
-	glUniform3f(programs->QuadMeshTess->getUniformLocation(LIGHT_POSITION_STR), eye.x, eye.y, eye.z);
+	//glUniform3f(programs->QuadMeshTess->getUniformLocation(LIGHT_POSITION_STR), eye.x, eye.y, eye.z);
 	glUniform4f(programs->QuadMeshTess->getUniformLocation(AMBIENT_COLOR_STR), 0.0, 0.75, 0.75, 0.1);
 	glUniform3f(programs->QuadMeshTess->getUniformLocation(DIFFUSE_COLOR_STR), 0.0, 0.75, 0.75);
 	glUniform1f(programs->QuadMeshTess->getUniformLocation(TESS_LEVEL_INNER_STR), globalTesselation);
 	glUniform1i(programs->QuadMeshTess->getUniformLocation(WIREFRAME_STR), wireframe ? 1 : 0);
-	nodeRadiuses->UseTexture(programs->QuadMeshTess->getUniformLocation(RADIUS_TEXTURE_STR), 0);
+	GLint loc = programs->QuadMeshTess->getUniformLocation(RADIUS_TEXTURE_STR);
+	glUniform1i(programs->QuadMeshTess->getUniformLocation(RADIUS_TEXTURE_STR), 0);
 	buffer1->DrawElement(1, GL_PATCHES);
-
-	//nodeRadiuses->Disable();
-
 	//draw normals
 	if (shouldDrawNormals) {
 		programs->SklLines->Use();
@@ -449,7 +452,7 @@ void SQMControler::drawMesh() {
 
 	buffer1 = new GLArrayBuffer();
 	buffer1->Bind();
-	buffer1->BindBufferData(points, 3, GL_STATIC_DRAW);
+	buffer1->BindBufferDataf(points, 3, GL_STATIC_DRAW);
 	buffer1->BindElement(indices, GL_STATIC_DRAW);
 }
 
@@ -465,7 +468,7 @@ void SQMControler::drawSkeleton() {
 	drawSkeleton(linePoints, lineIndices);
 
 	buffer1->Bind();
-	buffer1->BindBufferData(linePoints, 3, GL_STATIC_DRAW);
+	buffer1->BindBufferDataf(linePoints, 3, GL_STATIC_DRAW);
 	buffer1->BindElement(lineIndices, GL_STATIC_DRAW);
 }
 
@@ -480,17 +483,14 @@ void SQMControler::drawMeshForTesselation() {
 	vector<int> data;
 
 	convertMeshToArray(sqmALgorithm->getMesh(), points, triIndices, quadIndices);
-	//sqmALgorithm->getRoot()->getMeshTessLevel(tessLevels);
-	//sqmALgorithm->getRoot()->getMeshTessData(tessLevels, nodePositions, data);
-	sqmALgorithm->getRoot()->getMeshTessData(tessLevels, nodePositions, data);
+	sqmALgorithm->getRoot()->getMeshTessDatai(tessLevels, nodePositions, data);
 
 	buffer1 = new GLArrayBuffer();
 	buffer1->Bind();
-	buffer1->BindBufferData(points, 3, GL_STATIC_DRAW);
-	buffer1->BindBufferData(tessLevels, 1, GL_STATIC_DRAW);
-	buffer1->BindBufferData(nodePositions, 3, GL_STATIC_DRAW);
-	//buffer1->BindBufferData(data, 2, GL_STATIC_DRAW);
-	buffer1->BindBufferData(data, 2, GL_STATIC_DRAW);
+	buffer1->BindBufferDataf(points, 3, GL_STATIC_DRAW);
+	buffer1->BindBufferDataf(tessLevels, 1, GL_STATIC_DRAW);
+	buffer1->BindBufferDataf(nodePositions, 3, GL_STATIC_DRAW);
+	buffer1->BindBufferDatai(data, 2, GL_STATIC_DRAW);
 
 	buffer1->BindElement(triIndices, GL_STATIC_DRAW);
 	buffer1->BindElement(quadIndices, GL_STATIC_DRAW);
@@ -609,12 +609,17 @@ void SQMControler::createIcosahedron() {
 	icosahedron = new GLArrayBuffer();
 
 	icosahedron->Bind();
-	icosahedron->BindBufferData(points, 3, GL_STATIC_DRAW);
+	icosahedron->BindBufferDataf(points, 3, GL_STATIC_DRAW);
 	icosahedron->BindElement(indices, GL_STATIC_DRAW);
 }
 
 void SQMControler::fillRadiusTable() {
-	if (nodeRadiuses) delete nodeRadiuses;
+	shouldRender = false;
+
+	//GLenum error;
+	//string s;
+	//error = glGetError();
+	//s = string((char*)gluErrorString(error));
 
 	int nodes = sqmALgorithm->getNumberOfNodes();
 	float *table = new float[nodes*nodes];
@@ -623,8 +628,7 @@ void SQMControler::fillRadiusTable() {
 	}
 
 	sqmALgorithm->getRoot()->fillRadiusTable(table, nodes);
-	//glActiveTexture(GL_TEXTURE0);
-	nodeRadiuses = new GLTexture(GL_TEXTURE_2D);
+
 	nodeRadiuses->Bind();
 	nodeRadiuses->FunctionTexture(nodes, nodes, table);
 
@@ -639,6 +643,7 @@ void SQMControler::fillRadiusTable() {
 	f.close();
 
 	delete [] table;
+	shouldRender = true;
 }
 
 void SQMControler::getBoundingSphere(float &x, float &y, float &z, float &d) {

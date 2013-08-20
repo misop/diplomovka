@@ -1245,7 +1245,7 @@ void SQMNode::getMeshTessLevel(std::vector<float> &tessLevels) {
 	}
 }
 
-void SQMNode::getMeshTessData(std::vector<float> &tessLevels, std::vector<float> &nodePositions, std::vector<float> &data) {
+void SQMNode::getMeshTessDataf(std::vector<float> &tessLevels, std::vector<float> &nodePositions, std::vector<float> &data) {
 	float type = 0.0;
 	if (this->isBranchNode()) type = 1.0;
 	else if (this->isLeafNode()) type = 2.0;
@@ -1256,15 +1256,15 @@ void SQMNode::getMeshTessData(std::vector<float> &tessLevels, std::vector<float>
 		nodePositions.push_back(position[1]);
 		nodePositions.push_back(position[2]);
 
-		data.push_back(nodeRadius);
 		data.push_back(type);
+		data.push_back(id);
 	}
 	for (int i = 0; i < nodes.size(); i++) {
-		nodes[i]->getMeshTessData(tessLevels, nodePositions, data);
+		nodes[i]->getMeshTessDataf(tessLevels, nodePositions, data);
 	}
 }
 
-void SQMNode::getMeshTessData(vector<float> &tessLevels, vector<float> &nodePositions, vector<int> &data) {
+void SQMNode::getMeshTessDatai(vector<float> &tessLevels, vector<float> &nodePositions, vector<int> &data) {
 	int type = 0;
 	if (this->isBranchNode()) type = 1;
 	else if (this->isLeafNode()) type = 2;
@@ -1272,6 +1272,9 @@ void SQMNode::getMeshTessData(vector<float> &tessLevels, vector<float> &nodePosi
 	for (int i = 0; i < meshVhandlesToRotate.size(); i++) {
 		MyMesh::VHandle vh = meshVhandlesToRotate[i];
 		tessLevels.push_back(tessLevel);
+		//tessLevels.push_back(type);
+		//tessLevels.push_back(id);
+
 		nodePositions.push_back(position[0]);
 		nodePositions.push_back(position[1]);
 		nodePositions.push_back(position[2]);
@@ -1280,7 +1283,7 @@ void SQMNode::getMeshTessData(vector<float> &tessLevels, vector<float> &nodePosi
 		data.push_back(id);
 	}
 	for (int i = 0; i < nodes.size(); i++) {
-		nodes[i]->getMeshTessData(tessLevels, nodePositions, data);
+		nodes[i]->getMeshTessDatai(tessLevels, nodePositions, data);
 	}
 }
 

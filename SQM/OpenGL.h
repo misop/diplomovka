@@ -258,7 +258,7 @@ namespace OpenGLForm
 				0
 			};
 
-			if(wglewIsSupported("WGL_ARB_create_context") == 1) {
+			if(false && wglewIsSupported("WGL_ARB_create_context") == 1) {
 				m_hglrc = wglCreateContextAttribsARB(m_hDC,0, attribs);
 				wglMakeCurrent(NULL,NULL);
 				wglDeleteContext(tempContext);
@@ -284,6 +284,7 @@ namespace OpenGLForm
 			glDepthFunc(GL_LEQUAL);								// The type of depth testing to do
 			glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST);	// Really nice perspective calculations
 			glEnable(GL_PROGRAM_POINT_SIZE);
+			sqmControler->generateTextures();
 			InitShaders();
 			SetData();
 			return true;										// Initialisation went ok
@@ -369,7 +370,7 @@ namespace OpenGLForm
 			programs->BNPs->AttachShader(bnpShaders->frag);
 			programs->BNPs->Link();
 			programs->BNPs->SaveProgramLog();
-			
+
 			//tri mesh tesselation
 			triTessShaders->vert = new GLShader(GL_VERTEX_SHADER);
 			triTessShaders->vert->Load("Shaders/TessVertShader.vert");
@@ -400,6 +401,12 @@ namespace OpenGLForm
 			programs->TriMeshTess->Link();
 			programs->TriMeshTess->SaveProgramLog();
 			//quad mesh tesselation
+			programs->SklLines = new GLProgram("Basic");
+			programs->SklLines->AttachShader(sklLineShaders->vert);
+			programs->SklLines->AttachShader(sklLineShaders->frag);
+			programs->SklLines->Link();
+			programs->SklLines->SaveProgramLog();
+
 			quadTessShaders->vert = new GLShader(GL_VERTEX_SHADER);
 			quadTessShaders->vert->Load("Shaders/TessVertShader.vert");
 			quadTessShaders->vert->Compile();
@@ -447,8 +454,8 @@ namespace OpenGLForm
 			std::vector<float> col;
 
 			arrayBuffer->Bind();
-			arrayBuffer->BindBufferData(vert, 3, GL_STATIC_DRAW);
-			arrayBuffer->BindBufferData(col, 3, GL_STATIC_DRAW);
+			arrayBuffer->BindBufferDataf(vert, 3, GL_STATIC_DRAW);
+			arrayBuffer->BindBufferDataf(col, 3, GL_STATIC_DRAW);
 
 			/*delete [] m_vao;
 			delete [] m_vbo;

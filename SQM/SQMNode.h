@@ -165,8 +165,8 @@ public:
 
 #pragma region BNP Tesselation
 	void getMeshTessLevel(std::vector<float> &tessLevels);
-	void getMeshTessData(std::vector<float> &tessLevels, std::vector<float> &nodePositions, std::vector<float> &data);
-	void getMeshTessData(std::vector<float> &tessLevels, std::vector<float> &nodePositions, std::vector<int> &data);
+	void getMeshTessDataf(std::vector<float> &tessLevels, std::vector<float> &nodePositions, std::vector<float> &data);
+	void getMeshTessDatai(std::vector<float> &tessLevels, std::vector<float> &nodePositions, std::vector<int> &data);
 	void calculateOneRingRadiusAndMap(std::vector<float> &oneRingRadius, std::map<int, std::vector<int> > &intersectionMap);
 	void fillRadiusTable(float *table, int width);
 #pragma endregion

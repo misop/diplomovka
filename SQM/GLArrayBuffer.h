@@ -20,8 +20,8 @@ public:
 	void Draw(GLenum mode, bool bind = true);
 	void DrawElement(int element, GLenum mode, bool bind = true);
 	
-	void BindBufferData(std::vector<float> &data, GLint elements, GLenum storageMode = GL_DYNAMIC_DRAW, GLboolean normalize = GL_FALSE, GLsizei stride = 0, GLvoid* offset = NULL, bool bind = false);
-	void BindBufferData(std::vector<int> &data, GLint elements, GLenum storageMode = GL_DYNAMIC_DRAW, GLboolean normalize = GL_FALSE, GLsizei stride = 0, GLvoid* offset = NULL, bool bind = false);
+	void BindBufferDataf(std::vector<float> &data, GLint elements, GLenum storageMode = GL_DYNAMIC_DRAW, GLboolean normalize = GL_FALSE, GLsizei stride = 0, GLvoid* offset = NULL, bool bind = false);
+	void BindBufferDatai(std::vector<int> &data, GLint elements, GLenum storageMode = GL_DYNAMIC_DRAW, GLsizei stride = 0, GLvoid* offset = NULL, bool bind = false);
 	void Attrib3f(float a, float b, float c, bool bind = false);
 
 	int BindElement(std::vector<int> &data, GLenum storageMode = GL_DYNAMIC_DRAW);
