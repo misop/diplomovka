@@ -9,6 +9,7 @@ in int teTriPatch[];
 in vec3 tePosition[3];
 in vec4 tePatchDistance[3];
 in vec4 tePatchDistanceCtrl[3];
+in vec3 teColor[3];
 
 out vec4 gPatchDistance;
 out vec4 gPatchDistanceCtrl;
@@ -16,6 +17,7 @@ out vec3 gTriDistance;
 out vec3 gTriDistanceCtrl;
 out vec3 gVertex;
 out vec3 gNormal;
+out vec3 gColor;
 
 void main()
 {    
@@ -33,14 +35,17 @@ void main()
 
 	gPatchDistanceCtrl = tePatchDistanceCtrl[0];
 
+	gColor = teColor[0];
     gPatchDistance = tePatchDistance[0];
     gTriDistance = vec3(1, 0, 0);
     gl_Position = gl_in[0].gl_Position; EmitVertex();
 	
+	gColor = teColor[1];
     gPatchDistance = tePatchDistance[1];
     gTriDistance = vec3(0, 1, 0);
     gl_Position = gl_in[1].gl_Position; EmitVertex();
 	
+	gColor = teColor[2];
     gPatchDistance = tePatchDistance[2];
     gTriDistance = vec3(0, 0, 1);
     gl_Position = gl_in[2].gl_Position; EmitVertex();

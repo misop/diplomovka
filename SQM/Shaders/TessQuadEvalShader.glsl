@@ -2,17 +2,20 @@
 
 layout(quads) in;
 
+in vec3 tcVertexNormal[];
 in vec3 tcNodePosition[];
 in int tcNodeType[];
 in int tcNodeID[];
 
 out vec4 tePatchDistance;
 out vec4 tePatchDistanceCtrl;
+out vec3 teColor;
 
 uniform mat4 MVPmatrix;
 uniform sampler2D RadiusesSampler;
 
 const float EPSILON = 0.00001;
+const float threshold = 0.9;
 
 bool floatEqual(in float a, in float b) {
 	return abs(a - b) < EPSILON;
@@ -68,8 +71,14 @@ void main()
     vec3 a = mix(gl_in[0].gl_Position.xyz, gl_in[3].gl_Position.xyz, u);
     vec3 b = mix(gl_in[1].gl_Position.xyz, gl_in[2].gl_Position.xyz, u);
     vec3 position = mix(a, b, v);
-
+	
+	vec3 v1 = gl_in[1].gl_Position.xyz - gl_in[0].gl_Position.xyz;
+	vec3 v2 = gl_in[3].gl_Position.xyz - gl_in[0].gl_Position.xyz;
+	vec3 face_normal = normalize(cross(v1, v2));
+	
+	teColor = vec3(0, 0, u);
 	if (!(floatEqual(v, 1) || floatEqual(v, 0))) {
+		vec3 d = normalize(tcNodePosition[1] - tcNodePosition[0]);
 		//float radius = mix(tcNodeRadius[0], tcNodeRadius[1], v);
 		float radius = 0.0;
 		//float radius1 = texture(RadiusesSampler, vec2(tcNodeID[0], tcNodeID[1])).r;
@@ -79,19 +88,41 @@ void main()
 		int type0 = tcNodeType[0];
 		int type1 = tcNodeType[1];
 
-		radius = mix(radius1, radius2, v);
+		float r0 = mix(radius1, radius2, v);
+		float r1 = r0;
 		if ((isConnectionNode(type0) || isLeafNode(type0)) && (isConnectionNode(type1) || isLeafNode(type1))) {
-			radius = mix(radius1, radius2, v);
+			//radius = mix(radius1, radius2, v);
+			//already set up
 		}
 		if (isBranchNode(type0) && (isConnectionNode(type1) || isLeafNode(type1))) {
-			radius = easein(radius1 / 2.0, radius2, v);
+			teColor = vec3(abs(dot(face_normal, tcVertexNormal[0])), abs(dot(face_normal, tcVertexNormal[3])), 0);
+			if (abs(dot(d, tcVertexNormal[0])) >= threshold) {
+				r0 = easein(radius1 / 2.0, radius2, v);
+			}
+			if (abs(dot(d, tcVertexNormal[3])) >= threshold) {
+				r1 = easein(radius1 / 2.0, radius2, v);
+			}
 		}
 		if (isBranchNode(type1) && (isConnectionNode(type0) || isLeafNode(type0))) {
-			radius = easeout(radius1, radius2 / 2.0, v);
+			//radius = easeout(radius1, radius2 / 2.0, v);
+			teColor = vec3(abs(dot(face_normal, tcVertexNormal[1])), abs(dot(face_normal, tcVertexNormal[2])), 0);
+			if (abs(dot(d, tcVertexNormal[1])) >= threshold) {
+				r0 = easeout(radius1, radius2 / 2.0, v);
+			}
+			if (abs(dot(d, tcVertexNormal[2])) >= threshold) {
+				r1 = easeout(radius1, radius2 / 2.0, v);
+			}
 		}
 		if (isBranchNode(type0) && isBranchNode(type1)) {
 			radius = easeinout(radius1 / 2.0, radius2 / 2.0, v);
+			r0 = radius;
+			r1 = radius;
 		}
+
+		radius = mix(r0, r1, u);
+
+		//teColor = vec3(r0/max(r0,r1), r1/max(r0,r1), u);
+		//teColor = vec3(r0/max(r0,r1), r1/max(r0,r1), 0);
 
 		vec3 dir = normalize(tcNodePosition[1] - tcNodePosition[0]);
 		float projLength = dot(dir, position - tcNodePosition[0]);
@@ -99,7 +130,8 @@ void main()
 		vec3 normal = normalize(position - projection);
 		position = projection + (normal * radius);
 	}
-
+	
+	//teColor = vec3(0, 0, u);
     tePatchDistance = vec4(u, v, 1-u, 1-v);
 	
 	float d01 = length(gl_in[0].gl_Position - gl_in[1].gl_Position);

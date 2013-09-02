@@ -8,6 +8,7 @@ in vec4 gPatchDistance;
 in vec4 gPatchDistanceCtrl;
 in vec3 gVertex;
 in vec3 gNormal;
+in vec3 gColor;
 
 uniform vec3 LightPosition;
 uniform vec3 DiffuseColor;
@@ -81,6 +82,7 @@ void main()
 		d2 = amplify(d2, 50, -0.5);
 		color = d2 * color + d1 * d2 * WireframeColor;
 	}
-
+	
+	//color = gColor;
     fColor = vec4(color, 1.0);
 }

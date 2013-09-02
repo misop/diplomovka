@@ -296,6 +296,41 @@ void convertMeshToArray(MyMesh *mesh, std::vector<float> &points, std::vector<in
 	}
 }
 
+void convertMeshToArray(MyMesh *mesh, std::vector<float> &points, std::vector<float> &vertex_normals, std::vector<int> &triIndices, std::vector<int> &quadIndices) {
+	int length = (int)floor((float)points.size() / 3.0);
+	points.reserve(length + (mesh->n_vertices() * 3));
+	vertex_normals.reserve(length + (mesh->n_vertices() * 3));
+	triIndices.reserve(triIndices.size() + (mesh->n_faces() * 3));
+	quadIndices.reserve(quadIndices.size() + (mesh->n_faces() * 4));
+
+	mesh->request_vertex_normals();
+	mesh->request_face_normals();
+	mesh->update_normals();
+
+	for (MyTriMesh::VertexIter v_it = mesh->vertices_begin(); v_it != mesh->vertices_end(); ++v_it) {
+		MyTriMesh::Point P = mesh->point(v_it.handle());
+		points.push_back(P[0]);
+		points.push_back(P[1]);
+		points.push_back(P[2]);
+		OpenMesh::Vec3f n = mesh->normal(v_it.handle());
+		vertex_normals.push_back(n[0]);
+		vertex_normals.push_back(n[1]);
+		vertex_normals.push_back(n[2]);
+	}
+
+	mesh->release_face_normals();
+	mesh->release_vertex_normals();
+
+	for (MyTriMesh::FaceIter f_it = mesh->faces_begin(); f_it != mesh->faces_end(); ++f_it) {
+		MyTriMesh::FaceVertexIter fv_it = mesh->fv_begin(f_it.handle());
+		std::vector<int> vertices;
+		for ( ; fv_it != mesh->fv_end(f_it.handle()); ++fv_it) {
+			vertices.push_back(fv_it.handle().idx() + length);
+		}
+		addToConvertedMeshArray(vertices, triIndices, quadIndices);
+	}
+}
+
 void addToConvertedMeshArray(std::vector<int> &vertices, std::vector<int> &triIndices, std::vector<int> &quadIndices) {
 	if (vertices.size() == 3) {
 		triIndices.push_back(vertices[0]);

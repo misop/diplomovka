@@ -475,6 +475,7 @@ void SQMControler::drawSkeleton() {
 void SQMControler::drawMeshForTesselation() {
 	if (buffer1) delete buffer1;
 	vector<float> points;
+	vector<float> vertex_normals;
 	vector<int> triIndices;
 	vector<int> quadIndices;
 	vector<float> tessLevels;
@@ -482,12 +483,13 @@ void SQMControler::drawMeshForTesselation() {
 	//vector<float> data;
 	vector<int> data;
 
-	convertMeshToArray(sqmALgorithm->getMesh(), points, triIndices, quadIndices);
+	convertMeshToArray(sqmALgorithm->getMesh(), points, vertex_normals, triIndices, quadIndices);
 	sqmALgorithm->getRoot()->getMeshTessDatai(tessLevels, nodePositions, data);
 
 	buffer1 = new GLArrayBuffer();
 	buffer1->Bind();
 	buffer1->BindBufferDataf(points, 3, GL_STATIC_DRAW);
+	buffer1->BindBufferDataf(vertex_normals, 3, GL_STATIC_DRAW);
 	buffer1->BindBufferDataf(tessLevels, 1, GL_STATIC_DRAW);
 	buffer1->BindBufferDataf(nodePositions, 3, GL_STATIC_DRAW);
 	buffer1->BindBufferDatai(data, 2, GL_STATIC_DRAW);
