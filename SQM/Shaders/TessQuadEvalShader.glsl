@@ -15,7 +15,7 @@ uniform mat4 MVPmatrix;
 uniform sampler2D RadiusesSampler;
 
 const float EPSILON = 0.00001;
-const float threshold = 0.9;
+const float threshold = 0.85;
 
 bool floatEqual(in float a, in float b) {
 	return abs(a - b) < EPSILON;
@@ -114,12 +114,35 @@ void main()
 			}
 		}
 		if (isBranchNode(type0) && isBranchNode(type1)) {
-			radius = easeinout(radius1 / 2.0, radius2 / 2.0, v);
-			r0 = radius;
-			r1 = radius;
+			float t = threshold - 0.5;
+			bool b0 = abs(dot(d, tcVertexNormal[0])) >= t;
+			bool b1 = abs(dot(d, tcVertexNormal[1])) >= t;
+			bool b2 = abs(dot(d, tcVertexNormal[2])) >= t;
+			bool b3 = abs(dot(d, tcVertexNormal[3])) >= t;
+
+			if (b0 && b1) {
+				r0 = easeinout(radius1 / 2.0, radius2 / 2.0, v);
+			} else if (b0) {
+				r0 = easein(radius1 / 2.0, radius2, v);
+			} else if (b1) {
+				r0 = easeout(radius1, radius2 / 2.0, v);
+			}
+			
+			if (b3 && b2) {
+				r1 = easeinout(radius1 / 2.0, radius2 / 2.0, v);
+			} else if (b3) {
+				r1 = easein(radius1 / 2.0, radius2, v);
+			} else if (b2) {
+				r1 = easeout(radius1, radius2 / 2.0, v);
+			}
+			//radius = easeinout(radius1 / 2.0, radius2 / 2.0, v);
 		}
 
 		radius = mix(r0, r1, u);
+		if (r0 < r1)
+			radius = easein(r0, r1, u);
+		else
+			radius = easeout(r0, r1, u);
 
 		//teColor = vec3(r0/max(r0,r1), r1/max(r0,r1), u);
 		//teColor = vec3(r0/max(r0,r1), r1/max(r0,r1), 0);

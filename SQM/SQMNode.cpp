@@ -1104,7 +1104,7 @@ void SQMNode::addPolyhedronAndRememberVHandles(MyMesh* mesh, SQMNode* parentBNPN
 			oldOneRing = flipped;
 		}
 		//find closest point
-		vector<MyMesh::VertexHandle> newOneRing;
+		/*vector<MyMesh::VertexHandle> newOneRing;
 		MyMesh::Point P = mesh->point(oneRing[0]);
 		float minDist = 0;
 		int index = 0;
@@ -1113,11 +1113,50 @@ void SQMNode::addPolyhedronAndRememberVHandles(MyMesh* mesh, SQMNode* parentBNPN
 			//float dist = (P - Q).norm();
 			OpenMesh::Vec3f vv = -directionVector.normalized();
 			float dist = dot((P - Q).normalized(), vv);
+			//it is an angle
 			if (i == 0 || dist > minDist) {
 				minDist = dist;
 				index = i;
 			}
+		}*/
+		//find point which will have smallest sum of distances
+		vector<MyMesh::VertexHandle> newOneRing;
+		MyMesh::Point P = mesh->point(oneRing[0]);
+		float minDist = 0;
+		int index = 0;
+		//minimum distance approach
+		for (int i = 0; i < oldOneRing.size(); i++) {
+			int k = i;
+			float dist = 0;
+			for (int j = 0; j < oneRing.size(); j++) {
+				if (k >= oldOneRing.size()) k = 0;
+				MyMesh::Point A = mesh->point(oneRing[j]);
+				MyMesh::Point B = mesh->point(oldOneRing[k]);
+				dist += (A - B).norm();
+				k++;
+			}
+			if (i == 0 || dist < minDist) {
+				minDist = dist;
+				index = i;
+			}
 		}
+		/*//dot product approach
+		OpenMesh::Vec3f vv = -directionVector.normalized();
+		for (int i = 0; i < oldOneRing.size(); i++) {
+			int k = i;
+			float dist = 0;
+			for (int j = 0; j < oneRing.size(); j++) {
+				if (k >= oldOneRing.size()) k = 0;
+				MyMesh::Point A = mesh->point(oneRing[j]);
+				MyMesh::Point B = mesh->point(oldOneRing[k]);
+				dist += dot((A - B).normalized(), vv);
+				k++;
+			}
+			if (i == 0 || dist > minDist) {
+				minDist = dist;
+				index = i;
+			}
+		}*/
 		//reorder array
 		for (int i = 0; i < oldOneRing.size(); i++) {
 			if (index == oldOneRing.size()) {
