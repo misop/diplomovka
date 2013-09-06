@@ -4,8 +4,8 @@ layout(quads) in;
 
 in vec3 tcVertexNormal[];
 in vec3 tcNodePosition[];
-in int tcNodeType[];
-in int tcNodeID[];
+flat in int tcNodeType[];
+flat in int tcNodeID[];
 
 out vec4 tePatchDistance;
 out vec4 tePatchDistanceCtrl;

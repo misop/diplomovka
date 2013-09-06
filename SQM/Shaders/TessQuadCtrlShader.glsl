@@ -5,15 +5,15 @@ layout(vertices = 4) out;
 in vec3 vVertexNormal[];
 in float vTessLevel[];
 in vec3 vNodePosition[];
-in int vNodeType[];
-in int vNodeID[];
+flat in int vNodeType[];
+flat in int vNodeID[];
 
 uniform float TessLevelInner;
 
 out vec3 tcVertexNormal[];
 out vec3 tcNodePosition[];
-out int tcNodeType[];
-out int tcNodeID[];
+flat out int tcNodeType[];
+flat out int tcNodeID[];
 
 void main()
 {

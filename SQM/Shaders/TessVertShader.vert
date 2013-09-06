@@ -9,8 +9,8 @@ layout (location = 4) in ivec2 Data;
 out vec3 vVertexNormal;
 out float vTessLevel;
 out vec3 vNodePosition;
-out int vNodeType;
-out int vNodeID;
+flat out int vNodeType;
+flat out int vNodeID;
  
 void main(void)
 {
