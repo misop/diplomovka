@@ -17,6 +17,7 @@ SQMNode::SQMNode(void) {
 	parent = NULL;
 	polyhedron = NULL;
 	tessLevel = 1;
+	transformationMatrix = glm::mat3();
 }
 
 SQMNode::SQMNode(SkeletonNode &node, SQMNode* newParent) : parent(newParent) {
@@ -37,6 +38,7 @@ SQMNode::SQMNode(SkeletonNode &node, SQMNode* newParent) : parent(newParent) {
 		nodes.push_back(newNode);
 	}
 	polyhedron = NULL;
+	transformationMatrix = glm::mat3();
 }
 
 
@@ -50,12 +52,13 @@ SQMNode::SQMNode(SQMNode &node) {
 	position = node.getPosition();
 	axisAngle = node.getAxisAngle();
 	vector<SQMNode *> *childs = node.getNodes();
-	for (int i = 0; i < childs->size(); i++) {
-		SQMNode *childRef = (*childs)[i];
-		SQMNode *child = new SQMNode(*childRef);
-		child->setParent(this);
-		nodes.push_back(child);
-	}
+	transformationMatrix = node.getTransformationMatrix();
+		for (int i = 0; i < childs->size(); i++) {
+			SQMNode *childRef = (*childs)[i];
+			SQMNode *child = new SQMNode(*childRef);
+			child->setParent(this);
+			nodes.push_back(child);
+		}
 }
 
 SQMNode::~SQMNode(void) {
@@ -144,6 +147,10 @@ float SQMNode::getZ() {
 	return position[2];
 }
 
+glm::mat3 SQMNode::getTransformationMatrix() {
+	return transformationMatrix;
+}
+
 #pragma endregion
 
 #pragma region Setters
@@ -201,6 +208,10 @@ void SQMNode::setY(float newY) {
 
 void SQMNode::setZ(float newZ) {
 	position[2] = newZ;
+}
+
+void SQMNode::setTransformationMatrix(glm::mat3 tm) {
+	transformationMatrix = tm;
 }
 
 #pragma endregion
@@ -1109,15 +1120,15 @@ void SQMNode::addPolyhedronAndRememberVHandles(MyMesh* mesh, SQMNode* parentBNPN
 		float minDist = 0;
 		int index = 0;
 		for (int i = 0; i < oldOneRing.size(); i++) {
-			MyMesh::Point Q = mesh->point(oldOneRing[i]);
-			//float dist = (P - Q).norm();
-			OpenMesh::Vec3f vv = -directionVector.normalized();
-			float dist = dot((P - Q).normalized(), vv);
-			//it is an angle
-			if (i == 0 || dist > minDist) {
-				minDist = dist;
-				index = i;
-			}
+		MyMesh::Point Q = mesh->point(oldOneRing[i]);
+		//float dist = (P - Q).norm();
+		OpenMesh::Vec3f vv = -directionVector.normalized();
+		float dist = dot((P - Q).normalized(), vv);
+		//it is an angle
+		if (i == 0 || dist > minDist) {
+		minDist = dist;
+		index = i;
+		}
 		}*/
 		//find point which will have smallest sum of distances
 		vector<MyMesh::VertexHandle> newOneRing;
@@ -1143,19 +1154,19 @@ void SQMNode::addPolyhedronAndRememberVHandles(MyMesh* mesh, SQMNode* parentBNPN
 		/*//dot product approach
 		OpenMesh::Vec3f vv = -directionVector.normalized();
 		for (int i = 0; i < oldOneRing.size(); i++) {
-			int k = i;
-			float dist = 0;
-			for (int j = 0; j < oneRing.size(); j++) {
-				if (k >= oldOneRing.size()) k = 0;
-				MyMesh::Point A = mesh->point(oneRing[j]);
-				MyMesh::Point B = mesh->point(oldOneRing[k]);
-				dist += dot((A - B).normalized(), vv);
-				k++;
-			}
-			if (i == 0 || dist > minDist) {
-				minDist = dist;
-				index = i;
-			}
+		int k = i;
+		float dist = 0;
+		for (int j = 0; j < oneRing.size(); j++) {
+		if (k >= oldOneRing.size()) k = 0;
+		MyMesh::Point A = mesh->point(oneRing[j]);
+		MyMesh::Point B = mesh->point(oldOneRing[k]);
+		dist += dot((A - B).normalized(), vv);
+		k++;
+		}
+		if (i == 0 || dist > minDist) {
+		minDist = dist;
+		index = i;
+		}
 		}*/
 		//reorder array
 		for (int i = 0; i < oldOneRing.size(); i++) {
@@ -1261,9 +1272,11 @@ void SQMNode::rotateBack(MyMesh *mesh) {
 				v = QuaternionRotateVector(ancestor->getAxisAngle(), v);
 				v = v + offset;
 			}
-			P[0] = v.x;
-			P[1] = v.y;
-			P[2] = v.z;
+			glm::vec3 u(v.x, v.y, v.z);
+			u = transformationMatrix * u;
+			P[0] = u.x;
+			P[1] = u.y;
+			P[2] = u.z;
 			mesh->set_point(vhandle, P);
 		}
 	}

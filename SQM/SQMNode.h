@@ -47,6 +47,7 @@ class SQMNode {
 	vector<SQMNode*> nodes;
 	vector<OpenMesh::Vec3f> intersections;
 	MyTriMesh *polyhedron;
+	glm::mat3 transformationMatrix;
 	vector<MyTriMesh::VertexHandle> polyhedronPoints;
 	vector<MyTriMesh::VertexHandle> intersectionVHandles;
 	vector<MyTriMesh::VertexHandle> meshIntersectionVHandles;
@@ -82,6 +83,7 @@ public:
 	float getX();
 	float getY();
 	float getZ();
+	glm::mat3 getTransformationMatrix();
 #pragma endregion
 
 #pragma region Setters
@@ -97,6 +99,7 @@ public:
 	void setX(float newX);
 	void setY(float newY);
 	void setZ(float newZ);
+	void setTransformationMatrix(glm::mat3 tm);
 #pragma endregion
 
 #pragma region Export

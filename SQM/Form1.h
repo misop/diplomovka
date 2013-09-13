@@ -91,7 +91,7 @@ namespace SQM {
 	private: System::Windows::Forms::Panel^  panel2;
 	private: System::Windows::Forms::ToolStripMenuItem^  exportMeshToolStripMenuItem;
 	private: System::Windows::Forms::ToolStripMenuItem^  newToolStripMenuItem;
-	private: System::Windows::Forms::Label^  label1;
+
 	private: System::Windows::Forms::Label^  label6;
 	private: System::Windows::Forms::NumericUpDown^  numericUpDown4;
 	private: System::Windows::Forms::Label^  label5;
@@ -120,10 +120,17 @@ namespace SQM {
 	private: System::Windows::Forms::ToolStripMenuItem^  editSkeletonToolStripMenuItem;
 	private: System::Windows::Forms::ToolStripMenuItem^  normalsToolStripMenuItem;
 	private: System::Windows::Forms::Label^  label9;
-	private: System::Windows::Forms::Label^  label8;
+
 	private: System::Windows::Forms::NumericUpDown^  numericUpDown6;
 	private: System::Windows::Forms::ToolStripMenuItem^  shadersToolStripMenuItem;
 	private: System::Windows::Forms::ToolStripMenuItem^  reloadShadersToolStripMenuItem;
+	private: System::Windows::Forms::TabControl^  tabControl1;
+	private: System::Windows::Forms::TabPage^  tabPage1;
+	private: System::Windows::Forms::TabPage^  tabPage2;
+	private: System::Windows::Forms::NumericUpDown^  numericUpDown7;
+	private: System::Windows::Forms::Label^  label1;
+
+
 
 
 
@@ -172,34 +179,41 @@ namespace SQM {
 				 this->showToolStripMenuItem = (gcnew System::Windows::Forms::ToolStripMenuItem());
 				 this->wireframeToolStripMenuItem = (gcnew System::Windows::Forms::ToolStripMenuItem());
 				 this->normalsToolStripMenuItem = (gcnew System::Windows::Forms::ToolStripMenuItem());
-				 this->panel2 = (gcnew System::Windows::Forms::Panel());
-				 this->label9 = (gcnew System::Windows::Forms::Label());
-				 this->label8 = (gcnew System::Windows::Forms::Label());
-				 this->numericUpDown6 = (gcnew System::Windows::Forms::NumericUpDown());
-				 this->numericUpDown5 = (gcnew System::Windows::Forms::NumericUpDown());
-				 this->label7 = (gcnew System::Windows::Forms::Label());
-				 this->label6 = (gcnew System::Windows::Forms::Label());
-				 this->numericUpDown4 = (gcnew System::Windows::Forms::NumericUpDown());
-				 this->label5 = (gcnew System::Windows::Forms::Label());
-				 this->numericUpDown3 = (gcnew System::Windows::Forms::NumericUpDown());
-				 this->label4 = (gcnew System::Windows::Forms::Label());
-				 this->numericUpDown2 = (gcnew System::Windows::Forms::NumericUpDown());
-				 this->label3 = (gcnew System::Windows::Forms::Label());
-				 this->label2 = (gcnew System::Windows::Forms::Label());
-				 this->numericUpDown1 = (gcnew System::Windows::Forms::NumericUpDown());
-				 this->textBox1 = (gcnew System::Windows::Forms::TextBox());
-				 this->label1 = (gcnew System::Windows::Forms::Label());
 				 this->shadersToolStripMenuItem = (gcnew System::Windows::Forms::ToolStripMenuItem());
 				 this->reloadShadersToolStripMenuItem = (gcnew System::Windows::Forms::ToolStripMenuItem());
+				 this->panel2 = (gcnew System::Windows::Forms::Panel());
+				 this->tabControl1 = (gcnew System::Windows::Forms::TabControl());
+				 this->tabPage1 = (gcnew System::Windows::Forms::TabPage());
+				 this->numericUpDown5 = (gcnew System::Windows::Forms::NumericUpDown());
+				 this->textBox1 = (gcnew System::Windows::Forms::TextBox());
+				 this->numericUpDown1 = (gcnew System::Windows::Forms::NumericUpDown());
+				 this->label2 = (gcnew System::Windows::Forms::Label());
+				 this->label3 = (gcnew System::Windows::Forms::Label());
+				 this->label7 = (gcnew System::Windows::Forms::Label());
+				 this->numericUpDown2 = (gcnew System::Windows::Forms::NumericUpDown());
+				 this->label6 = (gcnew System::Windows::Forms::Label());
+				 this->label4 = (gcnew System::Windows::Forms::Label());
+				 this->numericUpDown4 = (gcnew System::Windows::Forms::NumericUpDown());
+				 this->numericUpDown3 = (gcnew System::Windows::Forms::NumericUpDown());
+				 this->label5 = (gcnew System::Windows::Forms::Label());
+				 this->tabPage2 = (gcnew System::Windows::Forms::TabPage());
+				 this->numericUpDown7 = (gcnew System::Windows::Forms::NumericUpDown());
+				 this->label1 = (gcnew System::Windows::Forms::Label());
+				 this->numericUpDown6 = (gcnew System::Windows::Forms::NumericUpDown());
+				 this->label9 = (gcnew System::Windows::Forms::Label());
 				 this->toolStrip1->SuspendLayout();
 				 this->menuStrip1->SuspendLayout();
 				 this->panel2->SuspendLayout();
-				 (cli::safe_cast<System::ComponentModel::ISupportInitialize^  >(this->numericUpDown6))->BeginInit();
+				 this->tabControl1->SuspendLayout();
+				 this->tabPage1->SuspendLayout();
 				 (cli::safe_cast<System::ComponentModel::ISupportInitialize^  >(this->numericUpDown5))->BeginInit();
+				 (cli::safe_cast<System::ComponentModel::ISupportInitialize^  >(this->numericUpDown1))->BeginInit();
+				 (cli::safe_cast<System::ComponentModel::ISupportInitialize^  >(this->numericUpDown2))->BeginInit();
 				 (cli::safe_cast<System::ComponentModel::ISupportInitialize^  >(this->numericUpDown4))->BeginInit();
 				 (cli::safe_cast<System::ComponentModel::ISupportInitialize^  >(this->numericUpDown3))->BeginInit();
-				 (cli::safe_cast<System::ComponentModel::ISupportInitialize^  >(this->numericUpDown2))->BeginInit();
-				 (cli::safe_cast<System::ComponentModel::ISupportInitialize^  >(this->numericUpDown1))->BeginInit();
+				 this->tabPage2->SuspendLayout();
+				 (cli::safe_cast<System::ComponentModel::ISupportInitialize^  >(this->numericUpDown7))->BeginInit();
+				 (cli::safe_cast<System::ComponentModel::ISupportInitialize^  >(this->numericUpDown6))->BeginInit();
 				 this->SuspendLayout();
 				 // 
 				 // timer1
@@ -450,201 +464,6 @@ namespace SQM {
 				 this->normalsToolStripMenuItem->Text = L"Normals";
 				 this->normalsToolStripMenuItem->Click += gcnew System::EventHandler(this, &Form1::normalsToolStripMenuItem_Click);
 				 // 
-				 // panel2
-				 // 
-				 this->panel2->Anchor = static_cast<System::Windows::Forms::AnchorStyles>(((System::Windows::Forms::AnchorStyles::Top | System::Windows::Forms::AnchorStyles::Bottom) 
-					 | System::Windows::Forms::AnchorStyles::Left));
-				 this->panel2->Controls->Add(this->label9);
-				 this->panel2->Controls->Add(this->label8);
-				 this->panel2->Controls->Add(this->numericUpDown6);
-				 this->panel2->Controls->Add(this->numericUpDown5);
-				 this->panel2->Controls->Add(this->label7);
-				 this->panel2->Controls->Add(this->label6);
-				 this->panel2->Controls->Add(this->numericUpDown4);
-				 this->panel2->Controls->Add(this->label5);
-				 this->panel2->Controls->Add(this->numericUpDown3);
-				 this->panel2->Controls->Add(this->label4);
-				 this->panel2->Controls->Add(this->numericUpDown2);
-				 this->panel2->Controls->Add(this->label3);
-				 this->panel2->Controls->Add(this->label2);
-				 this->panel2->Controls->Add(this->numericUpDown1);
-				 this->panel2->Controls->Add(this->textBox1);
-				 this->panel2->Controls->Add(this->label1);
-				 this->panel2->Location = System::Drawing::Point(0, 49);
-				 this->panel2->Name = L"panel2";
-				 this->panel2->Size = System::Drawing::Size(176, 464);
-				 this->panel2->TabIndex = 3;
-				 // 
-				 // label9
-				 // 
-				 this->label9->AutoSize = true;
-				 this->label9->Location = System::Drawing::Point(8, 219);
-				 this->label9->Name = L"label9";
-				 this->label9->Size = System::Drawing::Size(62, 13);
-				 this->label9->TabIndex = 15;
-				 this->label9->Text = L"Tess Level:";
-				 // 
-				 // label8
-				 // 
-				 this->label8->AutoSize = true;
-				 this->label8->Font = (gcnew System::Drawing::Font(L"Microsoft Sans Serif", 9.75F, System::Drawing::FontStyle::Bold, System::Drawing::GraphicsUnit::Point, 
-					 static_cast<System::Byte>(238)));
-				 this->label8->Location = System::Drawing::Point(5, 193);
-				 this->label8->Name = L"label8";
-				 this->label8->Size = System::Drawing::Size(114, 16);
-				 this->label8->TabIndex = 14;
-				 this->label8->Text = L"Global Settings";
-				 // 
-				 // numericUpDown6
-				 // 
-				 this->numericUpDown6->Enabled = false;
-				 this->numericUpDown6->Location = System::Drawing::Point(76, 217);
-				 this->numericUpDown6->Name = L"numericUpDown6";
-				 this->numericUpDown6->ReadOnly = true;
-				 this->numericUpDown6->Size = System::Drawing::Size(87, 20);
-				 this->numericUpDown6->TabIndex = 13;
-				 this->numericUpDown6->ValueChanged += gcnew System::EventHandler(this, &Form1::numericUpDown6_ValueChanged);
-				 // 
-				 // numericUpDown5
-				 // 
-				 this->numericUpDown5->Enabled = false;
-				 this->numericUpDown5->Location = System::Drawing::Point(72, 159);
-				 this->numericUpDown5->Minimum = System::Decimal(gcnew cli::array< System::Int32 >(4) {1, 0, 0, 0});
-				 this->numericUpDown5->Name = L"numericUpDown5";
-				 this->numericUpDown5->ReadOnly = true;
-				 this->numericUpDown5->Size = System::Drawing::Size(91, 20);
-				 this->numericUpDown5->TabIndex = 12;
-				 this->numericUpDown5->Value = System::Decimal(gcnew cli::array< System::Int32 >(4) {1, 0, 0, 0});
-				 this->numericUpDown5->ValueChanged += gcnew System::EventHandler(this, &Form1::numericUpDown5_ValueChanged);
-				 // 
-				 // label7
-				 // 
-				 this->label7->AutoSize = true;
-				 this->label7->Location = System::Drawing::Point(8, 162);
-				 this->label7->Name = L"label7";
-				 this->label7->Size = System::Drawing::Size(58, 13);
-				 this->label7->TabIndex = 11;
-				 this->label7->Text = L"Tess level:";
-				 // 
-				 // label6
-				 // 
-				 this->label6->AutoSize = true;
-				 this->label6->Location = System::Drawing::Point(8, 136);
-				 this->label6->Name = L"label6";
-				 this->label6->Size = System::Drawing::Size(43, 13);
-				 this->label6->TabIndex = 10;
-				 this->label6->Text = L"Radius:";
-				 // 
-				 // numericUpDown4
-				 // 
-				 this->numericUpDown4->DecimalPlaces = 2;
-				 this->numericUpDown4->Enabled = false;
-				 this->numericUpDown4->Location = System::Drawing::Point(57, 133);
-				 this->numericUpDown4->Maximum = System::Decimal(gcnew cli::array< System::Int32 >(4) {100000, 0, 0, 0});
-				 this->numericUpDown4->Minimum = System::Decimal(gcnew cli::array< System::Int32 >(4) {1, 0, 0, 0});
-				 this->numericUpDown4->Name = L"numericUpDown4";
-				 this->numericUpDown4->ReadOnly = true;
-				 this->numericUpDown4->Size = System::Drawing::Size(106, 20);
-				 this->numericUpDown4->TabIndex = 9;
-				 this->numericUpDown4->Value = System::Decimal(gcnew cli::array< System::Int32 >(4) {1, 0, 0, 0});
-				 this->numericUpDown4->ValueChanged += gcnew System::EventHandler(this, &Form1::numericUpDown4_ValueChanged);
-				 // 
-				 // label5
-				 // 
-				 this->label5->AutoSize = true;
-				 this->label5->Location = System::Drawing::Point(8, 110);
-				 this->label5->Name = L"label5";
-				 this->label5->Size = System::Drawing::Size(17, 13);
-				 this->label5->TabIndex = 8;
-				 this->label5->Text = L"Z:";
-				 // 
-				 // numericUpDown3
-				 // 
-				 this->numericUpDown3->DecimalPlaces = 2;
-				 this->numericUpDown3->Enabled = false;
-				 this->numericUpDown3->Location = System::Drawing::Point(31, 107);
-				 this->numericUpDown3->Maximum = System::Decimal(gcnew cli::array< System::Int32 >(4) {100000, 0, 0, 0});
-				 this->numericUpDown3->Minimum = System::Decimal(gcnew cli::array< System::Int32 >(4) {100000, 0, 0, System::Int32::MinValue});
-				 this->numericUpDown3->Name = L"numericUpDown3";
-				 this->numericUpDown3->ReadOnly = true;
-				 this->numericUpDown3->Size = System::Drawing::Size(132, 20);
-				 this->numericUpDown3->TabIndex = 7;
-				 this->numericUpDown3->ValueChanged += gcnew System::EventHandler(this, &Form1::numericUpDown3_ValueChanged);
-				 // 
-				 // label4
-				 // 
-				 this->label4->AutoSize = true;
-				 this->label4->Location = System::Drawing::Point(8, 84);
-				 this->label4->Name = L"label4";
-				 this->label4->Size = System::Drawing::Size(17, 13);
-				 this->label4->TabIndex = 6;
-				 this->label4->Text = L"Y:";
-				 // 
-				 // numericUpDown2
-				 // 
-				 this->numericUpDown2->DecimalPlaces = 2;
-				 this->numericUpDown2->Enabled = false;
-				 this->numericUpDown2->Location = System::Drawing::Point(31, 81);
-				 this->numericUpDown2->Maximum = System::Decimal(gcnew cli::array< System::Int32 >(4) {100000, 0, 0, 0});
-				 this->numericUpDown2->Minimum = System::Decimal(gcnew cli::array< System::Int32 >(4) {100000, 0, 0, System::Int32::MinValue});
-				 this->numericUpDown2->Name = L"numericUpDown2";
-				 this->numericUpDown2->ReadOnly = true;
-				 this->numericUpDown2->Size = System::Drawing::Size(132, 20);
-				 this->numericUpDown2->TabIndex = 5;
-				 this->numericUpDown2->ValueChanged += gcnew System::EventHandler(this, &Form1::numericUpDown2_ValueChanged);
-				 // 
-				 // label3
-				 // 
-				 this->label3->AutoSize = true;
-				 this->label3->Location = System::Drawing::Point(8, 58);
-				 this->label3->Name = L"label3";
-				 this->label3->Size = System::Drawing::Size(17, 13);
-				 this->label3->TabIndex = 4;
-				 this->label3->Text = L"X:";
-				 // 
-				 // label2
-				 // 
-				 this->label2->AutoSize = true;
-				 this->label2->Location = System::Drawing::Point(5, 32);
-				 this->label2->Name = L"label2";
-				 this->label2->Size = System::Drawing::Size(21, 13);
-				 this->label2->TabIndex = 3;
-				 this->label2->Text = L"ID:";
-				 // 
-				 // numericUpDown1
-				 // 
-				 this->numericUpDown1->DecimalPlaces = 2;
-				 this->numericUpDown1->Enabled = false;
-				 this->numericUpDown1->Location = System::Drawing::Point(31, 55);
-				 this->numericUpDown1->Maximum = System::Decimal(gcnew cli::array< System::Int32 >(4) {100000, 0, 0, 0});
-				 this->numericUpDown1->Minimum = System::Decimal(gcnew cli::array< System::Int32 >(4) {100000, 0, 0, System::Int32::MinValue});
-				 this->numericUpDown1->Name = L"numericUpDown1";
-				 this->numericUpDown1->ReadOnly = true;
-				 this->numericUpDown1->Size = System::Drawing::Size(132, 20);
-				 this->numericUpDown1->TabIndex = 2;
-				 this->numericUpDown1->ValueChanged += gcnew System::EventHandler(this, &Form1::numericUpDown1_ValueChanged);
-				 // 
-				 // textBox1
-				 // 
-				 this->textBox1->Enabled = false;
-				 this->textBox1->Location = System::Drawing::Point(31, 29);
-				 this->textBox1->Name = L"textBox1";
-				 this->textBox1->ReadOnly = true;
-				 this->textBox1->Size = System::Drawing::Size(132, 20);
-				 this->textBox1->TabIndex = 1;
-				 this->textBox1->Text = L"no node selected";
-				 // 
-				 // label1
-				 // 
-				 this->label1->AutoSize = true;
-				 this->label1->Font = (gcnew System::Drawing::Font(L"Microsoft Sans Serif", 9.75F, System::Drawing::FontStyle::Bold, System::Drawing::GraphicsUnit::Point, 
-					 static_cast<System::Byte>(238)));
-				 this->label1->Location = System::Drawing::Point(5, 6);
-				 this->label1->Name = L"label1";
-				 this->label1->Size = System::Drawing::Size(46, 16);
-				 this->label1->TabIndex = 0;
-				 this->label1->Text = L"Node";
-				 // 
 				 // shadersToolStripMenuItem
 				 // 
 				 this->shadersToolStripMenuItem->DropDownItems->AddRange(gcnew cli::array< System::Windows::Forms::ToolStripItem^  >(1) {this->reloadShadersToolStripMenuItem});
@@ -658,6 +477,235 @@ namespace SQM {
 				 this->reloadShadersToolStripMenuItem->Size = System::Drawing::Size(154, 22);
 				 this->reloadShadersToolStripMenuItem->Text = L"Reload Shaders";
 				 this->reloadShadersToolStripMenuItem->Click += gcnew System::EventHandler(this, &Form1::reloadShadersToolStripMenuItem_Click);
+				 // 
+				 // panel2
+				 // 
+				 this->panel2->Anchor = static_cast<System::Windows::Forms::AnchorStyles>(((System::Windows::Forms::AnchorStyles::Top | System::Windows::Forms::AnchorStyles::Bottom) 
+					 | System::Windows::Forms::AnchorStyles::Left));
+				 this->panel2->Controls->Add(this->tabControl1);
+				 this->panel2->Location = System::Drawing::Point(0, 49);
+				 this->panel2->Name = L"panel2";
+				 this->panel2->Size = System::Drawing::Size(176, 464);
+				 this->panel2->TabIndex = 3;
+				 // 
+				 // tabControl1
+				 // 
+				 this->tabControl1->Anchor = static_cast<System::Windows::Forms::AnchorStyles>(((System::Windows::Forms::AnchorStyles::Top | System::Windows::Forms::AnchorStyles::Bottom) 
+					 | System::Windows::Forms::AnchorStyles::Left));
+				 this->tabControl1->Controls->Add(this->tabPage1);
+				 this->tabControl1->Controls->Add(this->tabPage2);
+				 this->tabControl1->Location = System::Drawing::Point(4, 3);
+				 this->tabControl1->Name = L"tabControl1";
+				 this->tabControl1->SelectedIndex = 0;
+				 this->tabControl1->Size = System::Drawing::Size(172, 449);
+				 this->tabControl1->TabIndex = 16;
+				 // 
+				 // tabPage1
+				 // 
+				 this->tabPage1->BackColor = System::Drawing::SystemColors::Control;
+				 this->tabPage1->Controls->Add(this->numericUpDown5);
+				 this->tabPage1->Controls->Add(this->textBox1);
+				 this->tabPage1->Controls->Add(this->numericUpDown1);
+				 this->tabPage1->Controls->Add(this->label2);
+				 this->tabPage1->Controls->Add(this->label3);
+				 this->tabPage1->Controls->Add(this->label7);
+				 this->tabPage1->Controls->Add(this->numericUpDown2);
+				 this->tabPage1->Controls->Add(this->label6);
+				 this->tabPage1->Controls->Add(this->label4);
+				 this->tabPage1->Controls->Add(this->numericUpDown4);
+				 this->tabPage1->Controls->Add(this->numericUpDown3);
+				 this->tabPage1->Controls->Add(this->label5);
+				 this->tabPage1->Location = System::Drawing::Point(4, 22);
+				 this->tabPage1->Name = L"tabPage1";
+				 this->tabPage1->Padding = System::Windows::Forms::Padding(3);
+				 this->tabPage1->Size = System::Drawing::Size(164, 423);
+				 this->tabPage1->TabIndex = 0;
+				 this->tabPage1->Text = L"Node";
+				 // 
+				 // numericUpDown5
+				 // 
+				 this->numericUpDown5->Enabled = false;
+				 this->numericUpDown5->Location = System::Drawing::Point(70, 136);
+				 this->numericUpDown5->Minimum = System::Decimal(gcnew cli::array< System::Int32 >(4) {1, 0, 0, 0});
+				 this->numericUpDown5->Name = L"numericUpDown5";
+				 this->numericUpDown5->ReadOnly = true;
+				 this->numericUpDown5->Size = System::Drawing::Size(91, 20);
+				 this->numericUpDown5->TabIndex = 12;
+				 this->numericUpDown5->Value = System::Decimal(gcnew cli::array< System::Int32 >(4) {1, 0, 0, 0});
+				 this->numericUpDown5->ValueChanged += gcnew System::EventHandler(this, &Form1::numericUpDown5_ValueChanged);
+				 // 
+				 // textBox1
+				 // 
+				 this->textBox1->Enabled = false;
+				 this->textBox1->Location = System::Drawing::Point(29, 6);
+				 this->textBox1->Name = L"textBox1";
+				 this->textBox1->ReadOnly = true;
+				 this->textBox1->Size = System::Drawing::Size(132, 20);
+				 this->textBox1->TabIndex = 1;
+				 this->textBox1->Text = L"no node selected";
+				 // 
+				 // numericUpDown1
+				 // 
+				 this->numericUpDown1->DecimalPlaces = 2;
+				 this->numericUpDown1->Enabled = false;
+				 this->numericUpDown1->Location = System::Drawing::Point(29, 32);
+				 this->numericUpDown1->Maximum = System::Decimal(gcnew cli::array< System::Int32 >(4) {100000, 0, 0, 0});
+				 this->numericUpDown1->Minimum = System::Decimal(gcnew cli::array< System::Int32 >(4) {100000, 0, 0, System::Int32::MinValue});
+				 this->numericUpDown1->Name = L"numericUpDown1";
+				 this->numericUpDown1->ReadOnly = true;
+				 this->numericUpDown1->Size = System::Drawing::Size(132, 20);
+				 this->numericUpDown1->TabIndex = 2;
+				 this->numericUpDown1->ValueChanged += gcnew System::EventHandler(this, &Form1::numericUpDown1_ValueChanged);
+				 // 
+				 // label2
+				 // 
+				 this->label2->AutoSize = true;
+				 this->label2->Location = System::Drawing::Point(3, 9);
+				 this->label2->Name = L"label2";
+				 this->label2->Size = System::Drawing::Size(21, 13);
+				 this->label2->TabIndex = 3;
+				 this->label2->Text = L"ID:";
+				 // 
+				 // label3
+				 // 
+				 this->label3->AutoSize = true;
+				 this->label3->Location = System::Drawing::Point(6, 35);
+				 this->label3->Name = L"label3";
+				 this->label3->Size = System::Drawing::Size(17, 13);
+				 this->label3->TabIndex = 4;
+				 this->label3->Text = L"X:";
+				 // 
+				 // label7
+				 // 
+				 this->label7->AutoSize = true;
+				 this->label7->Location = System::Drawing::Point(6, 139);
+				 this->label7->Name = L"label7";
+				 this->label7->Size = System::Drawing::Size(58, 13);
+				 this->label7->TabIndex = 11;
+				 this->label7->Text = L"Tess level:";
+				 // 
+				 // numericUpDown2
+				 // 
+				 this->numericUpDown2->DecimalPlaces = 2;
+				 this->numericUpDown2->Enabled = false;
+				 this->numericUpDown2->Location = System::Drawing::Point(29, 58);
+				 this->numericUpDown2->Maximum = System::Decimal(gcnew cli::array< System::Int32 >(4) {100000, 0, 0, 0});
+				 this->numericUpDown2->Minimum = System::Decimal(gcnew cli::array< System::Int32 >(4) {100000, 0, 0, System::Int32::MinValue});
+				 this->numericUpDown2->Name = L"numericUpDown2";
+				 this->numericUpDown2->ReadOnly = true;
+				 this->numericUpDown2->Size = System::Drawing::Size(132, 20);
+				 this->numericUpDown2->TabIndex = 5;
+				 this->numericUpDown2->ValueChanged += gcnew System::EventHandler(this, &Form1::numericUpDown2_ValueChanged);
+				 // 
+				 // label6
+				 // 
+				 this->label6->AutoSize = true;
+				 this->label6->Location = System::Drawing::Point(6, 113);
+				 this->label6->Name = L"label6";
+				 this->label6->Size = System::Drawing::Size(43, 13);
+				 this->label6->TabIndex = 10;
+				 this->label6->Text = L"Radius:";
+				 // 
+				 // label4
+				 // 
+				 this->label4->AutoSize = true;
+				 this->label4->Location = System::Drawing::Point(6, 61);
+				 this->label4->Name = L"label4";
+				 this->label4->Size = System::Drawing::Size(17, 13);
+				 this->label4->TabIndex = 6;
+				 this->label4->Text = L"Y:";
+				 // 
+				 // numericUpDown4
+				 // 
+				 this->numericUpDown4->DecimalPlaces = 2;
+				 this->numericUpDown4->Enabled = false;
+				 this->numericUpDown4->Location = System::Drawing::Point(55, 110);
+				 this->numericUpDown4->Maximum = System::Decimal(gcnew cli::array< System::Int32 >(4) {100000, 0, 0, 0});
+				 this->numericUpDown4->Minimum = System::Decimal(gcnew cli::array< System::Int32 >(4) {1, 0, 0, 0});
+				 this->numericUpDown4->Name = L"numericUpDown4";
+				 this->numericUpDown4->ReadOnly = true;
+				 this->numericUpDown4->Size = System::Drawing::Size(106, 20);
+				 this->numericUpDown4->TabIndex = 9;
+				 this->numericUpDown4->Value = System::Decimal(gcnew cli::array< System::Int32 >(4) {1, 0, 0, 0});
+				 this->numericUpDown4->ValueChanged += gcnew System::EventHandler(this, &Form1::numericUpDown4_ValueChanged);
+				 // 
+				 // numericUpDown3
+				 // 
+				 this->numericUpDown3->DecimalPlaces = 2;
+				 this->numericUpDown3->Enabled = false;
+				 this->numericUpDown3->Location = System::Drawing::Point(29, 84);
+				 this->numericUpDown3->Maximum = System::Decimal(gcnew cli::array< System::Int32 >(4) {100000, 0, 0, 0});
+				 this->numericUpDown3->Minimum = System::Decimal(gcnew cli::array< System::Int32 >(4) {100000, 0, 0, System::Int32::MinValue});
+				 this->numericUpDown3->Name = L"numericUpDown3";
+				 this->numericUpDown3->ReadOnly = true;
+				 this->numericUpDown3->Size = System::Drawing::Size(132, 20);
+				 this->numericUpDown3->TabIndex = 7;
+				 this->numericUpDown3->ValueChanged += gcnew System::EventHandler(this, &Form1::numericUpDown3_ValueChanged);
+				 // 
+				 // label5
+				 // 
+				 this->label5->AutoSize = true;
+				 this->label5->Location = System::Drawing::Point(6, 87);
+				 this->label5->Name = L"label5";
+				 this->label5->Size = System::Drawing::Size(17, 13);
+				 this->label5->TabIndex = 8;
+				 this->label5->Text = L"Z:";
+				 // 
+				 // tabPage2
+				 // 
+				 this->tabPage2->BackColor = System::Drawing::SystemColors::Control;
+				 this->tabPage2->Controls->Add(this->numericUpDown7);
+				 this->tabPage2->Controls->Add(this->label1);
+				 this->tabPage2->Controls->Add(this->numericUpDown6);
+				 this->tabPage2->Controls->Add(this->label9);
+				 this->tabPage2->Location = System::Drawing::Point(4, 22);
+				 this->tabPage2->Name = L"tabPage2";
+				 this->tabPage2->Padding = System::Windows::Forms::Padding(3);
+				 this->tabPage2->Size = System::Drawing::Size(164, 423);
+				 this->tabPage2->TabIndex = 1;
+				 this->tabPage2->Text = L"Global";
+				 // 
+				 // numericUpDown7
+				 // 
+				 this->numericUpDown7->DecimalPlaces = 2;
+				 this->numericUpDown7->Enabled = false;
+				 this->numericUpDown7->Increment = System::Decimal(gcnew cli::array< System::Int32 >(4) {1, 0, 0, 131072});
+				 this->numericUpDown7->Location = System::Drawing::Point(68, 32);
+				 this->numericUpDown7->Maximum = System::Decimal(gcnew cli::array< System::Int32 >(4) {1, 0, 0, 0});
+				 this->numericUpDown7->Name = L"numericUpDown7";
+				 this->numericUpDown7->ReadOnly = true;
+				 this->numericUpDown7->Size = System::Drawing::Size(87, 20);
+				 this->numericUpDown7->TabIndex = 17;
+				 this->numericUpDown7->Value = System::Decimal(gcnew cli::array< System::Int32 >(4) {85, 0, 0, 131072});
+				 this->numericUpDown7->ValueChanged += gcnew System::EventHandler(this, &Form1::numericUpDown7_ValueChanged);
+				 // 
+				 // label1
+				 // 
+				 this->label1->AutoSize = true;
+				 this->label1->Location = System::Drawing::Point(3, 34);
+				 this->label1->Name = L"label1";
+				 this->label1->Size = System::Drawing::Size(57, 13);
+				 this->label1->TabIndex = 16;
+				 this->label1->Text = L"Threshold:";
+				 // 
+				 // numericUpDown6
+				 // 
+				 this->numericUpDown6->Enabled = false;
+				 this->numericUpDown6->Location = System::Drawing::Point(68, 6);
+				 this->numericUpDown6->Name = L"numericUpDown6";
+				 this->numericUpDown6->ReadOnly = true;
+				 this->numericUpDown6->Size = System::Drawing::Size(87, 20);
+				 this->numericUpDown6->TabIndex = 13;
+				 this->numericUpDown6->ValueChanged += gcnew System::EventHandler(this, &Form1::numericUpDown6_ValueChanged);
+				 // 
+				 // label9
+				 // 
+				 this->label9->AutoSize = true;
+				 this->label9->Location = System::Drawing::Point(0, 8);
+				 this->label9->Name = L"label9";
+				 this->label9->Size = System::Drawing::Size(62, 13);
+				 this->label9->TabIndex = 15;
+				 this->label9->Text = L"Tess Level:";
 				 // 
 				 // Form1
 				 // 
@@ -677,13 +725,18 @@ namespace SQM {
 				 this->menuStrip1->ResumeLayout(false);
 				 this->menuStrip1->PerformLayout();
 				 this->panel2->ResumeLayout(false);
-				 this->panel2->PerformLayout();
-				 (cli::safe_cast<System::ComponentModel::ISupportInitialize^  >(this->numericUpDown6))->EndInit();
+				 this->tabControl1->ResumeLayout(false);
+				 this->tabPage1->ResumeLayout(false);
+				 this->tabPage1->PerformLayout();
 				 (cli::safe_cast<System::ComponentModel::ISupportInitialize^  >(this->numericUpDown5))->EndInit();
+				 (cli::safe_cast<System::ComponentModel::ISupportInitialize^  >(this->numericUpDown1))->EndInit();
+				 (cli::safe_cast<System::ComponentModel::ISupportInitialize^  >(this->numericUpDown2))->EndInit();
 				 (cli::safe_cast<System::ComponentModel::ISupportInitialize^  >(this->numericUpDown4))->EndInit();
 				 (cli::safe_cast<System::ComponentModel::ISupportInitialize^  >(this->numericUpDown3))->EndInit();
-				 (cli::safe_cast<System::ComponentModel::ISupportInitialize^  >(this->numericUpDown2))->EndInit();
-				 (cli::safe_cast<System::ComponentModel::ISupportInitialize^  >(this->numericUpDown1))->EndInit();
+				 this->tabPage2->ResumeLayout(false);
+				 this->tabPage2->PerformLayout();
+				 (cli::safe_cast<System::ComponentModel::ISupportInitialize^  >(this->numericUpDown7))->EndInit();
+				 (cli::safe_cast<System::ComponentModel::ISupportInitialize^  >(this->numericUpDown6))->EndInit();
 				 this->ResumeLayout(false);
 				 this->PerformLayout();
 
@@ -827,10 +880,16 @@ namespace SQM {
 			 void turnOffGlobal() {
 				 this->numericUpDown6->Enabled = false;
 				 this->numericUpDown6->ReadOnly = true;
+
+				 this->numericUpDown7->Enabled = false;
+				 this->numericUpDown7->ReadOnly = true;
 			 }
 			 void turnOnGlobal() {
 				 this->numericUpDown6->Enabled = true;
 				 this->numericUpDown6->ReadOnly = false;
+
+				 this->numericUpDown7->Enabled = true;
+				 this->numericUpDown7->ReadOnly = false;
 			 }
 			 void checkSQMMenu(int idx) {
 				 editSkeletonToolStripMenuItem->Checked = (idx == 0) ? true : false;
@@ -1017,6 +1076,11 @@ namespace SQM {
 	private: System::Void reloadShadersToolStripMenuItem_Click(System::Object^  sender, System::EventArgs^  e) {
 				 OpenGL->ReloadShaders();
 			 }
-};
+	private: System::Void numericUpDown7_ValueChanged(System::Object^  sender, System::EventArgs^  e) {
+				 float value = System::Decimal::ToSingle(this->numericUpDown7->Value);
+				 OpenGL->setGlobalThreshold(value);
+				 this->panel1->Focus();
+			 }
+	};
 }
 

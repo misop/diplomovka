@@ -15,6 +15,7 @@
 #define LIGHT_POSITION_STR "LightPosition"
 
 #define WIREFRAME_STR "Wireframe"
+#define THRESHOLD_STR "Threshold"
 
 #define RADIUS_TEXTURE_STR "RadiusesSampler"
 

@@ -40,6 +40,7 @@ std::string GLShader::readShaderFile(std::string fileName) {
 }
 
 void GLShader::Load(std::string shaderFileName) {
+	name = shaderFileName;
 	string shaderSource = readShaderFile(shaderFileName);
 	GLint length = shaderSource.length();
 	const char *shaderSourceCstr = shaderSource.c_str();

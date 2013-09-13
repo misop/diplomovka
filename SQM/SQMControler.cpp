@@ -28,6 +28,7 @@ SQMControler::SQMControler(void)
 	globalTesselation = 0;
 	nodeRadiuses = NULL;
 	shouldRender = true;
+	threshold = 0.85;
 }
 
 
@@ -210,6 +211,14 @@ bool SQMControler::getShouldDrawNormals() {
 
 void SQMControler::setGlobalTesselation(float newGlobalTesselation) {
 	globalTesselation = newGlobalTesselation;
+}
+
+float SQMControler::getThreshold() {
+	return threshold;
+}
+
+void SQMControler::setThreshold(float th) {
+	threshold = th;
 }
 
 void SQMControler::setSelectedPosition(OpenMesh::Vec3f pos) {
@@ -430,6 +439,7 @@ void SQMControler::drawMeshForTesselation(OpenGLPrograms *programs, GLCamera *ca
 	glUniform4f(programs->QuadMeshTess->getUniformLocation(AMBIENT_COLOR_STR), 0.0, 0.75, 0.75, 0.1);
 	glUniform3f(programs->QuadMeshTess->getUniformLocation(DIFFUSE_COLOR_STR), 0.0, 0.75, 0.75);
 	glUniform1f(programs->QuadMeshTess->getUniformLocation(TESS_LEVEL_INNER_STR), globalTesselation);
+	glUniform1f(programs->QuadMeshTess->getUniformLocation(THRESHOLD_STR), threshold);
 	glUniform1i(programs->QuadMeshTess->getUniformLocation(WIREFRAME_STR), wireframe ? 1 : 0);
 	GLint loc = programs->QuadMeshTess->getUniformLocation(RADIUS_TEXTURE_STR);
 	glUniform1i(programs->QuadMeshTess->getUniformLocation(RADIUS_TEXTURE_STR), 0);

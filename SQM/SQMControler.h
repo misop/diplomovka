@@ -23,6 +23,7 @@ private:
 	float globalTesselation;
 	GLTexture *nodeRadiuses;
 	bool shouldRender;
+	float threshold;
 public:
 	SQMNode *selected;
 
@@ -55,6 +56,8 @@ public:
 
 	void insertNode(float x, float y, float z);
 	void setSelectedPosition(OpenMesh::Vec3f pos);
+	float getThreshold();
+	void setThreshold(float th);
 	void setSelectedPosition(glm::vec3 pos);
 	void setSelectedX(float x);
 	void setSelectedY(float y);

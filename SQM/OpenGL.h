@@ -401,12 +401,6 @@ namespace OpenGLForm
 			programs->TriMeshTess->Link();
 			programs->TriMeshTess->SaveProgramLog();
 			//quad mesh tesselation
-			programs->SklLines = new GLProgram("Basic");
-			programs->SklLines->AttachShader(sklLineShaders->vert);
-			programs->SklLines->AttachShader(sklLineShaders->frag);
-			programs->SklLines->Link();
-			programs->SklLines->SaveProgramLog();
-
 			quadTessShaders->vert = new GLShader(GL_VERTEX_SHADER);
 			quadTessShaders->vert->Load("Shaders/TessVertShader.vert");
 			quadTessShaders->vert->Compile();
@@ -665,6 +659,9 @@ namespace OpenGLForm
 		}
 		void setGlobalTesselation(float globalTesselation) {
 			sqmControler->setGlobalTesselation(globalTesselation);
+		}
+		void setGlobalThreshold(float globalThreshold) {
+			sqmControler->setThreshold(globalThreshold);
 		}
 		//functions
 		void alterWireframe() {
