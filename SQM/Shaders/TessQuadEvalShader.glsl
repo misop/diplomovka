@@ -78,6 +78,10 @@ void main()
 	vec3 face_normal = normalize(cross(v1, v2));
 	
 	teColor = vec3(0, 0, u);
+	int type0 = tcNodeType[0];
+	int type1 = tcNodeType[1];
+
+	//if (!((isBranchNode(type0) && floatEqual(v, 0)) || (isBranchNode(type1) && floatEqual(v, 1)))) {
 	if (!(floatEqual(v, 1) || floatEqual(v, 0))) {
 		vec3 d = normalize(tcNodePosition[1] - tcNodePosition[0]);
 		//float radius = mix(tcNodeRadius[0], tcNodeRadius[1], v);
@@ -85,9 +89,6 @@ void main()
 		//float radius1 = texture(RadiusesSampler, vec2(tcNodeID[0], tcNodeID[1])).r;
 		float radius1 = texture(RadiusesSampler, vec2(tcNodeID[0], tcNodeID[1])).r;
 		float radius2 = texture(RadiusesSampler, vec2(tcNodeID[1], tcNodeID[0])).r;
-
-		int type0 = tcNodeType[0];
-		int type1 = tcNodeType[1];
 
 		float r0 = mix(radius1, radius2, v);
 		float r1 = r0;

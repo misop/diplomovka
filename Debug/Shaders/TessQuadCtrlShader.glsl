@@ -2,16 +2,18 @@
 
 layout(vertices = 4) out;
 
+in vec3 vVertexNormal[];
 in float vTessLevel[];
 in vec3 vNodePosition[];
-in int vNodeType[];
-in int vNodeID[];
+flat in int vNodeType[];
+flat in int vNodeID[];
 
 uniform float TessLevelInner;
 
+out vec3 tcVertexNormal[];
 out vec3 tcNodePosition[];
-out int tcNodeType[];
-out int tcNodeID[];
+flat out int tcNodeType[];
+flat out int tcNodeID[];
 
 void main()
 {
@@ -26,6 +28,7 @@ void main()
     gl_TessLevelOuter[2] = tessLevel;
     gl_TessLevelOuter[3] = tessLevel;
 	
+	tcVertexNormal[gl_InvocationID] = vVertexNormal[gl_InvocationID];
 	tcNodePosition[gl_InvocationID] = vNodePosition[gl_InvocationID];
 	tcNodeType[gl_InvocationID] = vNodeType[gl_InvocationID];
 	tcNodeID[gl_InvocationID] = vNodeID[gl_InvocationID];

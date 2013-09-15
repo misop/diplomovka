@@ -13,6 +13,7 @@ out vec3 teColor;
 
 uniform mat4 MVPmatrix;
 uniform sampler2D RadiusesSampler;
+uniform float Threshold;
 
 const float EPSILON = 0.00001;
 const float threshold = 0.85;
@@ -77,6 +78,10 @@ void main()
 	vec3 face_normal = normalize(cross(v1, v2));
 	
 	teColor = vec3(0, 0, u);
+	int type0 = tcNodeType[0];
+	int type1 = tcNodeType[1];
+
+	//if (!((isBranchNode(type0) && floatEqual(v, 0)) || (isBranchNode(type1) && floatEqual(v, 1)))) {
 	if (!(floatEqual(v, 1) || floatEqual(v, 0))) {
 		vec3 d = normalize(tcNodePosition[1] - tcNodePosition[0]);
 		//float radius = mix(tcNodeRadius[0], tcNodeRadius[1], v);
@@ -84,9 +89,6 @@ void main()
 		//float radius1 = texture(RadiusesSampler, vec2(tcNodeID[0], tcNodeID[1])).r;
 		float radius1 = texture(RadiusesSampler, vec2(tcNodeID[0], tcNodeID[1])).r;
 		float radius2 = texture(RadiusesSampler, vec2(tcNodeID[1], tcNodeID[0])).r;
-
-		int type0 = tcNodeType[0];
-		int type1 = tcNodeType[1];
 
 		float r0 = mix(radius1, radius2, v);
 		float r1 = r0;
@@ -96,25 +98,25 @@ void main()
 		}
 		if (isBranchNode(type0) && (isConnectionNode(type1) || isLeafNode(type1))) {
 			teColor = vec3(abs(dot(face_normal, tcVertexNormal[0])), abs(dot(face_normal, tcVertexNormal[3])), 0);
-			if (abs(dot(d, tcVertexNormal[0])) >= threshold) {
+			if (abs(dot(d, tcVertexNormal[0])) >= Threshold) {
 				r0 = easein(radius1 / 2.0, radius2, v);
 			}
-			if (abs(dot(d, tcVertexNormal[3])) >= threshold) {
+			if (abs(dot(d, tcVertexNormal[3])) >= Threshold) {
 				r1 = easein(radius1 / 2.0, radius2, v);
 			}
 		}
 		if (isBranchNode(type1) && (isConnectionNode(type0) || isLeafNode(type0))) {
 			//radius = easeout(radius1, radius2 / 2.0, v);
 			teColor = vec3(abs(dot(face_normal, tcVertexNormal[1])), abs(dot(face_normal, tcVertexNormal[2])), 0);
-			if (abs(dot(d, tcVertexNormal[1])) >= threshold) {
+			if (abs(dot(d, tcVertexNormal[1])) >= Threshold) {
 				r0 = easeout(radius1, radius2 / 2.0, v);
 			}
-			if (abs(dot(d, tcVertexNormal[2])) >= threshold) {
+			if (abs(dot(d, tcVertexNormal[2])) >= Threshold) {
 				r1 = easeout(radius1, radius2 / 2.0, v);
 			}
 		}
 		if (isBranchNode(type0) && isBranchNode(type1)) {
-			float t = threshold - 0.5;
+			float t = Threshold - 0.5;
 			bool b0 = abs(dot(d, tcVertexNormal[0])) >= t;
 			bool b1 = abs(dot(d, tcVertexNormal[1])) >= t;
 			bool b2 = abs(dot(d, tcVertexNormal[2])) >= t;
