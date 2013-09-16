@@ -13,6 +13,7 @@ out vec3 teColor;
 
 uniform mat4 MVPmatrix;
 uniform sampler2D RadiusesSampler;
+uniform sampler2D CenterSampler;
 uniform float Threshold;
 
 const float EPSILON = 0.00001;
@@ -24,6 +25,14 @@ bool floatEqual(in float a, in float b) {
 
 const vec2 P0 = vec2(0.0, 0.0);
 const vec2 P3 = vec2(1.0, 1.0);
+
+vec3 getNodePosition(int id) {
+	float x = texture(CenterSampler, vec2(id, 0)).r;
+	float y = texture(CenterSampler, vec2(id, 1)).r;
+	float z = texture(CenterSampler, vec2(id, 2)).r;
+
+	return vec3(x, y, z);
+}
 
 vec2 bezier(in vec2 P1, in vec2 P2, in float t) {
 	return (pow(1 - t, 3)*P0 + 3*pow(1 - t, 2)*t*P1 + 3*(1 - t)*pow(t, 2)*P2 + pow(t, 3)*P3);
@@ -83,7 +92,9 @@ void main()
 
 	//if (!((isBranchNode(type0) && floatEqual(v, 0)) || (isBranchNode(type1) && floatEqual(v, 1)))) {
 	if (!(floatEqual(v, 1) || floatEqual(v, 0))) {
-		vec3 d = normalize(tcNodePosition[1] - tcNodePosition[0]);
+		vec3 w0 = getNodePosition(tcNodeID[0]);
+		vec3 w1 = getNodePosition(tcNodeID[1]);
+		vec3 d = normalize(w1 - w0);
 		//float radius = mix(tcNodeRadius[0], tcNodeRadius[1], v);
 		float radius = 0.0;
 		//float radius1 = texture(RadiusesSampler, vec2(tcNodeID[0], tcNodeID[1])).r;
@@ -148,10 +159,13 @@ void main()
 
 		//teColor = vec3(r0/max(r0,r1), r1/max(r0,r1), u);
 		//teColor = vec3(r0/max(r0,r1), r1/max(r0,r1), 0);
-
-		vec3 dir = normalize(tcNodePosition[1] - tcNodePosition[0]);
+		
+		/*vec3 dir = normalize(tcNodePosition[1] - tcNodePosition[0]);
 		float projLength = dot(dir, position - tcNodePosition[0]);
-		vec3 projection = tcNodePosition[0] + (dir * projLength);
+		vec3 projection = tcNodePosition[0] + (dir * projLength);*/
+		vec3 dir = normalize(w1 - w0);
+		float projLength = dot(dir, position - w0);
+		vec3 projection = w0 + (dir * projLength);
 		vec3 normal = normalize(position - projection);
 		position = projection + (normal * radius);
 	}

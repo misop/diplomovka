@@ -18,12 +18,13 @@
 #define THRESHOLD_STR "Threshold"
 
 #define RADIUS_TEXTURE_STR "RadiusesSampler"
+#define CENTERS_TEXTURE_STR "CenterSampler"
 
 class GLProgram
 {
 private:
-	GLuint program;
 public:
+	GLuint program;
 	std::string name;
 	
 	GLProgram(void);

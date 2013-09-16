@@ -1367,6 +1367,16 @@ void SQMNode::fillRadiusTable(float *table, int width) {
 	}
 }
 
+void SQMNode::fillCentersTable(float *table) {
+	table[id*3 + 0] = position[0];
+	table[id*3 + 1] = position[1];
+	table[id*3 + 2] = position[2];
+
+	for (int i = 0; i < nodes.size(); i++) {
+		nodes[i]->fillCentersTable(table);
+	}
+}
+
 void SQMNode::calculateOneRingRadiusAndMap(std::vector<float> &oneRingRadius, std::map<int, std::vector<int> > &intersectionMap) {
 	for (int i = 0; i < intersectionVHandles.size(); i++) {
 		MyTriMesh::VHandle vh = intersectionVHandles[i];

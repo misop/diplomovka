@@ -51,7 +51,9 @@ void GLProgram::BindAttribLocation(GLuint index, string name) {
 GLint GLProgram::getUniformLocation(std::string name) {
 	GLint location = glGetUniformLocation(program, name.c_str());
 	if (location == -1) {
-		int error = 1;
+		GLenum err = glGetError();
+		string s;
+		s = string((char*)gluErrorString(err));
 	}
 	return location;
 }

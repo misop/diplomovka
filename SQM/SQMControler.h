@@ -22,6 +22,7 @@ private:
 	bool shouldDrawNormals;
 	float globalTesselation;
 	GLTexture *nodeRadiuses;
+	GLTexture *nodeCenters;
 	bool shouldRender;
 	float threshold;
 public:
@@ -39,6 +40,7 @@ public:
 
 	bool selectNodeInRay(glm::vec3 position, glm::vec3 direction);
 	void fillRadiusTable();
+	void fillCentersTable();
 
 	void restart();
 	void straightenSkeleton();

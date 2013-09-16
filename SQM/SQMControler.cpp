@@ -27,6 +27,7 @@ SQMControler::SQMControler(void)
 	shouldDrawNormals = false;
 	globalTesselation = 0;
 	nodeRadiuses = NULL;
+	nodeCenters = NULL;
 	shouldRender = true;
 	threshold = 0.85;
 }
@@ -39,11 +40,15 @@ SQMControler::~SQMControler(void)
 	if (buffer1) delete buffer1;
 	if (buffer2) delete buffer2;
 	if (nodeRadiuses) delete nodeRadiuses;
+	if (nodeCenters) delete nodeCenters;
 }
 
 void SQMControler::generateTextures() {
 	nodeRadiuses = new GLTexture(GL_TEXTURE_2D);
 	nodeRadiuses->Bind();
+
+	nodeCenters = new GLTexture(GL_TEXTURE_2D);
+	nodeCenters->Bind();
 }
 
 #pragma region Saving and Loading
@@ -407,6 +412,8 @@ void SQMControler::drawMesh(OpenGLPrograms *programs, GLCamera *camera) {
 void SQMControler::drawMeshForTesselation(OpenGLPrograms *programs, GLCamera *camera) {
 	glActiveTexture(GL_TEXTURE0);
 	nodeRadiuses->Bind();
+	glActiveTexture(GL_TEXTURE1);
+	nodeCenters->Bind();
 
 	//show camera
 	programs->SklNodes->Use();
@@ -443,6 +450,8 @@ void SQMControler::drawMeshForTesselation(OpenGLPrograms *programs, GLCamera *ca
 	glUniform1i(programs->QuadMeshTess->getUniformLocation(WIREFRAME_STR), wireframe ? 1 : 0);
 	GLint loc = programs->QuadMeshTess->getUniformLocation(RADIUS_TEXTURE_STR);
 	glUniform1i(programs->QuadMeshTess->getUniformLocation(RADIUS_TEXTURE_STR), 0);
+	int intint = programs->QuadMeshTess->getUniformLocation(CENTERS_TEXTURE_STR);
+	glUniform1i(programs->QuadMeshTess->getUniformLocation(CENTERS_TEXTURE_STR), 1);
 	buffer1->DrawElement(1, GL_PATCHES);
 	//draw normals
 	if (shouldDrawNormals) {
@@ -643,12 +652,36 @@ void SQMControler::fillRadiusTable() {
 
 	nodeRadiuses->Bind();
 	nodeRadiuses->FunctionTexture(nodes, nodes, table);
-
+	
 	ofstream f;
 	f.open ("log_radiuses.txt");
 	for (int i = 0; i < nodes; i++) {
 		for (int j = 0; j < nodes; j++) {
 			f << table[i*nodes + j] << " ";
+		}
+		f << endl;
+	}
+	f.close();
+
+	delete [] table;
+	shouldRender = true;
+}
+
+void SQMControler::fillCentersTable() {
+	shouldRender = false;
+	int nodes = sqmALgorithm->getNumberOfNodes();
+	float *table = new float[nodes*3];
+	
+	sqmALgorithm->getRoot()->fillCentersTable(table);
+
+	nodeCenters->Bind();
+	nodeCenters->FunctionTexture(3, nodes, table);
+	
+	ofstream f;
+	f.open ("log_centers.txt");
+	for (int i = 0; i < nodes; i++) {
+		for (int j = 0; j < 3; j++) {
+			f << table[i*3 + j] << " ";
 		}
 		f << endl;
 	}
@@ -685,6 +718,9 @@ void SQMControler::executeSQMAlgorithm(SQMState state) {
 
 	if (state == SQMJoinBNPs) {
 		fillRadiusTable();
+	}
+	if (state == SQMJoinBNPs || state == SQMFinalPlacement) {
+		fillCentersTable();
 	}
 
 	if (state == SQMStart || state == SQMStraighten) drawSkeleton();

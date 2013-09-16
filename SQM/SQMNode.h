@@ -172,6 +172,7 @@ public:
 	void getMeshTessDatai(std::vector<float> &tessLevels, std::vector<float> &nodePositions, std::vector<int> &data);
 	void calculateOneRingRadiusAndMap(std::vector<float> &oneRingRadius, std::map<int, std::vector<int> > &intersectionMap);
 	void fillRadiusTable(float *table, int width);
+	void fillCentersTable(float *table);
 #pragma endregion
 
 #pragma region Utility
