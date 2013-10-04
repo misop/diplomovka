@@ -16,6 +16,7 @@
 
 #define WIREFRAME_STR "Wireframe"
 #define THRESHOLD_STR "Threshold"
+#define MAX_ID_STR "MaxID"
 
 #define RADIUS_TEXTURE_STR "RadiusesSampler"
 #define CENTERS_TEXTURE_STR "CenterSampler"

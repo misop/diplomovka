@@ -129,6 +129,21 @@ namespace SQM {
 	private: System::Windows::Forms::TabPage^  tabPage2;
 	private: System::Windows::Forms::NumericUpDown^  numericUpDown7;
 	private: System::Windows::Forms::Label^  label1;
+	private: System::Windows::Forms::TabControl^  tabControl2;
+	private: System::Windows::Forms::TabPage^  tabPage3;
+	private: System::Windows::Forms::NumericUpDown^  numericUpDown10;
+	private: System::Windows::Forms::NumericUpDown^  numericUpDown9;
+	private: System::Windows::Forms::NumericUpDown^  numericUpDown8;
+	private: System::Windows::Forms::Label^  label11;
+	private: System::Windows::Forms::Label^  label10;
+	private: System::Windows::Forms::Label^  label8;
+	private: System::Windows::Forms::TabPage^  tabPage4;
+	private: System::Windows::Forms::Label^  label14;
+	private: System::Windows::Forms::Label^  label13;
+	private: System::Windows::Forms::NumericUpDown^  numericUpDown13;
+	private: System::Windows::Forms::NumericUpDown^  numericUpDown12;
+	private: System::Windows::Forms::NumericUpDown^  numericUpDown11;
+	private: System::Windows::Forms::Label^  label12;
 
 
 
@@ -184,6 +199,21 @@ namespace SQM {
 				 this->panel2 = (gcnew System::Windows::Forms::Panel());
 				 this->tabControl1 = (gcnew System::Windows::Forms::TabControl());
 				 this->tabPage1 = (gcnew System::Windows::Forms::TabPage());
+				 this->tabControl2 = (gcnew System::Windows::Forms::TabControl());
+				 this->tabPage3 = (gcnew System::Windows::Forms::TabPage());
+				 this->numericUpDown10 = (gcnew System::Windows::Forms::NumericUpDown());
+				 this->numericUpDown9 = (gcnew System::Windows::Forms::NumericUpDown());
+				 this->numericUpDown8 = (gcnew System::Windows::Forms::NumericUpDown());
+				 this->label11 = (gcnew System::Windows::Forms::Label());
+				 this->label10 = (gcnew System::Windows::Forms::Label());
+				 this->label8 = (gcnew System::Windows::Forms::Label());
+				 this->tabPage4 = (gcnew System::Windows::Forms::TabPage());
+				 this->label14 = (gcnew System::Windows::Forms::Label());
+				 this->label13 = (gcnew System::Windows::Forms::Label());
+				 this->numericUpDown13 = (gcnew System::Windows::Forms::NumericUpDown());
+				 this->numericUpDown12 = (gcnew System::Windows::Forms::NumericUpDown());
+				 this->numericUpDown11 = (gcnew System::Windows::Forms::NumericUpDown());
+				 this->label12 = (gcnew System::Windows::Forms::Label());
 				 this->numericUpDown5 = (gcnew System::Windows::Forms::NumericUpDown());
 				 this->textBox1 = (gcnew System::Windows::Forms::TextBox());
 				 this->numericUpDown1 = (gcnew System::Windows::Forms::NumericUpDown());
@@ -206,6 +236,15 @@ namespace SQM {
 				 this->panel2->SuspendLayout();
 				 this->tabControl1->SuspendLayout();
 				 this->tabPage1->SuspendLayout();
+				 this->tabControl2->SuspendLayout();
+				 this->tabPage3->SuspendLayout();
+				 (cli::safe_cast<System::ComponentModel::ISupportInitialize^  >(this->numericUpDown10))->BeginInit();
+				 (cli::safe_cast<System::ComponentModel::ISupportInitialize^  >(this->numericUpDown9))->BeginInit();
+				 (cli::safe_cast<System::ComponentModel::ISupportInitialize^  >(this->numericUpDown8))->BeginInit();
+				 this->tabPage4->SuspendLayout();
+				 (cli::safe_cast<System::ComponentModel::ISupportInitialize^  >(this->numericUpDown13))->BeginInit();
+				 (cli::safe_cast<System::ComponentModel::ISupportInitialize^  >(this->numericUpDown12))->BeginInit();
+				 (cli::safe_cast<System::ComponentModel::ISupportInitialize^  >(this->numericUpDown11))->BeginInit();
 				 (cli::safe_cast<System::ComponentModel::ISupportInitialize^  >(this->numericUpDown5))->BeginInit();
 				 (cli::safe_cast<System::ComponentModel::ISupportInitialize^  >(this->numericUpDown1))->BeginInit();
 				 (cli::safe_cast<System::ComponentModel::ISupportInitialize^  >(this->numericUpDown2))->BeginInit();
@@ -503,6 +542,7 @@ namespace SQM {
 				 // tabPage1
 				 // 
 				 this->tabPage1->BackColor = System::Drawing::SystemColors::Control;
+				 this->tabPage1->Controls->Add(this->tabControl2);
 				 this->tabPage1->Controls->Add(this->numericUpDown5);
 				 this->tabPage1->Controls->Add(this->textBox1);
 				 this->tabPage1->Controls->Add(this->numericUpDown1);
@@ -521,6 +561,180 @@ namespace SQM {
 				 this->tabPage1->Size = System::Drawing::Size(164, 423);
 				 this->tabPage1->TabIndex = 0;
 				 this->tabPage1->Text = L"Node";
+				 // 
+				 // tabControl2
+				 // 
+				 this->tabControl2->Controls->Add(this->tabPage3);
+				 this->tabControl2->Controls->Add(this->tabPage4);
+				 this->tabControl2->Location = System::Drawing::Point(9, 162);
+				 this->tabControl2->Name = L"tabControl2";
+				 this->tabControl2->SelectedIndex = 0;
+				 this->tabControl2->Size = System::Drawing::Size(149, 117);
+				 this->tabControl2->TabIndex = 13;
+				 // 
+				 // tabPage3
+				 // 
+				 this->tabPage3->BackColor = System::Drawing::SystemColors::Control;
+				 this->tabPage3->Controls->Add(this->numericUpDown10);
+				 this->tabPage3->Controls->Add(this->numericUpDown9);
+				 this->tabPage3->Controls->Add(this->numericUpDown8);
+				 this->tabPage3->Controls->Add(this->label11);
+				 this->tabPage3->Controls->Add(this->label10);
+				 this->tabPage3->Controls->Add(this->label8);
+				 this->tabPage3->Location = System::Drawing::Point(4, 22);
+				 this->tabPage3->Name = L"tabPage3";
+				 this->tabPage3->Padding = System::Windows::Forms::Padding(3);
+				 this->tabPage3->Size = System::Drawing::Size(141, 91);
+				 this->tabPage3->TabIndex = 0;
+				 this->tabPage3->Text = L"Scale";
+				 // 
+				 // numericUpDown10
+				 // 
+				 this->numericUpDown10->DecimalPlaces = 2;
+				 this->numericUpDown10->Enabled = false;
+				 this->numericUpDown10->Increment = System::Decimal(gcnew cli::array< System::Int32 >(4) {1, 0, 0, 65536});
+				 this->numericUpDown10->Location = System::Drawing::Point(31, 63);
+				 this->numericUpDown10->Minimum = System::Decimal(gcnew cli::array< System::Int32 >(4) {100, 0, 0, System::Int32::MinValue});
+				 this->numericUpDown10->Name = L"numericUpDown10";
+				 this->numericUpDown10->ReadOnly = true;
+				 this->numericUpDown10->Size = System::Drawing::Size(104, 20);
+				 this->numericUpDown10->TabIndex = 5;
+				 this->numericUpDown10->Value = System::Decimal(gcnew cli::array< System::Int32 >(4) {1, 0, 0, 0});
+				 this->numericUpDown10->ValueChanged += gcnew System::EventHandler(this, &Form1::numericUpDown10_ValueChanged);
+				 // 
+				 // numericUpDown9
+				 // 
+				 this->numericUpDown9->DecimalPlaces = 2;
+				 this->numericUpDown9->Enabled = false;
+				 this->numericUpDown9->Increment = System::Decimal(gcnew cli::array< System::Int32 >(4) {1, 0, 0, 65536});
+				 this->numericUpDown9->Location = System::Drawing::Point(31, 36);
+				 this->numericUpDown9->Minimum = System::Decimal(gcnew cli::array< System::Int32 >(4) {100, 0, 0, System::Int32::MinValue});
+				 this->numericUpDown9->Name = L"numericUpDown9";
+				 this->numericUpDown9->ReadOnly = true;
+				 this->numericUpDown9->Size = System::Drawing::Size(104, 20);
+				 this->numericUpDown9->TabIndex = 4;
+				 this->numericUpDown9->Value = System::Decimal(gcnew cli::array< System::Int32 >(4) {1, 0, 0, 0});
+				 this->numericUpDown9->ValueChanged += gcnew System::EventHandler(this, &Form1::numericUpDown9_ValueChanged);
+				 // 
+				 // numericUpDown8
+				 // 
+				 this->numericUpDown8->DecimalPlaces = 2;
+				 this->numericUpDown8->Enabled = false;
+				 this->numericUpDown8->Increment = System::Decimal(gcnew cli::array< System::Int32 >(4) {1, 0, 0, 65536});
+				 this->numericUpDown8->Location = System::Drawing::Point(31, 9);
+				 this->numericUpDown8->Minimum = System::Decimal(gcnew cli::array< System::Int32 >(4) {100, 0, 0, System::Int32::MinValue});
+				 this->numericUpDown8->Name = L"numericUpDown8";
+				 this->numericUpDown8->ReadOnly = true;
+				 this->numericUpDown8->Size = System::Drawing::Size(104, 20);
+				 this->numericUpDown8->TabIndex = 3;
+				 this->numericUpDown8->Value = System::Decimal(gcnew cli::array< System::Int32 >(4) {1, 0, 0, 0});
+				 this->numericUpDown8->ValueChanged += gcnew System::EventHandler(this, &Form1::numericUpDown8_ValueChanged);
+				 // 
+				 // label11
+				 // 
+				 this->label11->AutoSize = true;
+				 this->label11->Location = System::Drawing::Point(6, 65);
+				 this->label11->Name = L"label11";
+				 this->label11->Size = System::Drawing::Size(17, 13);
+				 this->label11->TabIndex = 2;
+				 this->label11->Text = L"Z:";
+				 // 
+				 // label10
+				 // 
+				 this->label10->AutoSize = true;
+				 this->label10->Location = System::Drawing::Point(6, 38);
+				 this->label10->Name = L"label10";
+				 this->label10->Size = System::Drawing::Size(17, 13);
+				 this->label10->TabIndex = 1;
+				 this->label10->Text = L"Y:";
+				 // 
+				 // label8
+				 // 
+				 this->label8->AutoSize = true;
+				 this->label8->Location = System::Drawing::Point(6, 11);
+				 this->label8->Name = L"label8";
+				 this->label8->Size = System::Drawing::Size(17, 13);
+				 this->label8->TabIndex = 0;
+				 this->label8->Text = L"X:";
+				 // 
+				 // tabPage4
+				 // 
+				 this->tabPage4->BackColor = System::Drawing::SystemColors::Control;
+				 this->tabPage4->Controls->Add(this->label14);
+				 this->tabPage4->Controls->Add(this->label13);
+				 this->tabPage4->Controls->Add(this->numericUpDown13);
+				 this->tabPage4->Controls->Add(this->numericUpDown12);
+				 this->tabPage4->Controls->Add(this->numericUpDown11);
+				 this->tabPage4->Controls->Add(this->label12);
+				 this->tabPage4->Location = System::Drawing::Point(4, 22);
+				 this->tabPage4->Name = L"tabPage4";
+				 this->tabPage4->Padding = System::Windows::Forms::Padding(3);
+				 this->tabPage4->Size = System::Drawing::Size(141, 91);
+				 this->tabPage4->TabIndex = 1;
+				 this->tabPage4->Text = L"Rotate";
+				 // 
+				 // label14
+				 // 
+				 this->label14->AutoSize = true;
+				 this->label14->Location = System::Drawing::Point(6, 65);
+				 this->label14->Name = L"label14";
+				 this->label14->Size = System::Drawing::Size(17, 13);
+				 this->label14->TabIndex = 5;
+				 this->label14->Text = L"Z:";
+				 // 
+				 // label13
+				 // 
+				 this->label13->AutoSize = true;
+				 this->label13->Location = System::Drawing::Point(6, 38);
+				 this->label13->Name = L"label13";
+				 this->label13->Size = System::Drawing::Size(17, 13);
+				 this->label13->TabIndex = 4;
+				 this->label13->Text = L"Y:";
+				 // 
+				 // numericUpDown13
+				 // 
+				 this->numericUpDown13->Enabled = false;
+				 this->numericUpDown13->Increment = System::Decimal(gcnew cli::array< System::Int32 >(4) {10, 0, 0, 0});
+				 this->numericUpDown13->Location = System::Drawing::Point(31, 63);
+				 this->numericUpDown13->Maximum = System::Decimal(gcnew cli::array< System::Int32 >(4) {360, 0, 0, 0});
+				 this->numericUpDown13->Name = L"numericUpDown13";
+				 this->numericUpDown13->ReadOnly = true;
+				 this->numericUpDown13->Size = System::Drawing::Size(104, 20);
+				 this->numericUpDown13->TabIndex = 3;
+				 this->numericUpDown13->ValueChanged += gcnew System::EventHandler(this, &Form1::numericUpDown13_ValueChanged);
+				 // 
+				 // numericUpDown12
+				 // 
+				 this->numericUpDown12->Enabled = false;
+				 this->numericUpDown12->Increment = System::Decimal(gcnew cli::array< System::Int32 >(4) {10, 0, 0, 0});
+				 this->numericUpDown12->Location = System::Drawing::Point(31, 36);
+				 this->numericUpDown12->Maximum = System::Decimal(gcnew cli::array< System::Int32 >(4) {360, 0, 0, 0});
+				 this->numericUpDown12->Name = L"numericUpDown12";
+				 this->numericUpDown12->ReadOnly = true;
+				 this->numericUpDown12->Size = System::Drawing::Size(104, 20);
+				 this->numericUpDown12->TabIndex = 2;
+				 this->numericUpDown12->ValueChanged += gcnew System::EventHandler(this, &Form1::numericUpDown12_ValueChanged);
+				 // 
+				 // numericUpDown11
+				 // 
+				 this->numericUpDown11->Enabled = false;
+				 this->numericUpDown11->Increment = System::Decimal(gcnew cli::array< System::Int32 >(4) {10, 0, 0, 0});
+				 this->numericUpDown11->Location = System::Drawing::Point(31, 9);
+				 this->numericUpDown11->Maximum = System::Decimal(gcnew cli::array< System::Int32 >(4) {360, 0, 0, 0});
+				 this->numericUpDown11->Name = L"numericUpDown11";
+				 this->numericUpDown11->ReadOnly = true;
+				 this->numericUpDown11->Size = System::Drawing::Size(104, 20);
+				 this->numericUpDown11->TabIndex = 1;
+				 this->numericUpDown11->ValueChanged += gcnew System::EventHandler(this, &Form1::numericUpDown11_ValueChanged);
+				 // 
+				 // label12
+				 // 
+				 this->label12->AutoSize = true;
+				 this->label12->Location = System::Drawing::Point(6, 11);
+				 this->label12->Name = L"label12";
+				 this->label12->Size = System::Drawing::Size(17, 13);
+				 this->label12->TabIndex = 0;
+				 this->label12->Text = L"X:";
 				 // 
 				 // numericUpDown5
 				 // 
@@ -728,6 +942,17 @@ namespace SQM {
 				 this->tabControl1->ResumeLayout(false);
 				 this->tabPage1->ResumeLayout(false);
 				 this->tabPage1->PerformLayout();
+				 this->tabControl2->ResumeLayout(false);
+				 this->tabPage3->ResumeLayout(false);
+				 this->tabPage3->PerformLayout();
+				 (cli::safe_cast<System::ComponentModel::ISupportInitialize^  >(this->numericUpDown10))->EndInit();
+				 (cli::safe_cast<System::ComponentModel::ISupportInitialize^  >(this->numericUpDown9))->EndInit();
+				 (cli::safe_cast<System::ComponentModel::ISupportInitialize^  >(this->numericUpDown8))->EndInit();
+				 this->tabPage4->ResumeLayout(false);
+				 this->tabPage4->PerformLayout();
+				 (cli::safe_cast<System::ComponentModel::ISupportInitialize^  >(this->numericUpDown13))->EndInit();
+				 (cli::safe_cast<System::ComponentModel::ISupportInitialize^  >(this->numericUpDown12))->EndInit();
+				 (cli::safe_cast<System::ComponentModel::ISupportInitialize^  >(this->numericUpDown11))->EndInit();
 				 (cli::safe_cast<System::ComponentModel::ISupportInitialize^  >(this->numericUpDown5))->EndInit();
 				 (cli::safe_cast<System::ComponentModel::ISupportInitialize^  >(this->numericUpDown1))->EndInit();
 				 (cli::safe_cast<System::ComponentModel::ISupportInitialize^  >(this->numericUpDown2))->EndInit();
@@ -757,12 +982,24 @@ namespace SQM {
 				 this->numericUpDown3->ReadOnly = true;
 				 this->numericUpDown4->ReadOnly = true;
 				 this->numericUpDown5->ReadOnly = true;
+				 this->numericUpDown8->ReadOnly = true;
+				 this->numericUpDown9->ReadOnly = true;
+				 this->numericUpDown10->ReadOnly = true;
+				 this->numericUpDown11->ReadOnly = true;
+				 this->numericUpDown12->ReadOnly = true;
+				 this->numericUpDown13->ReadOnly = true;
 
 				 this->numericUpDown1->Enabled = false;
 				 this->numericUpDown2->Enabled = false;
 				 this->numericUpDown3->Enabled = false;
 				 this->numericUpDown4->Enabled = false;
 				 this->numericUpDown5->Enabled = false;
+				 this->numericUpDown8->Enabled = false;
+				 this->numericUpDown9->Enabled = false;
+				 this->numericUpDown10->Enabled = false;
+				 this->numericUpDown11->Enabled = false;
+				 this->numericUpDown12->Enabled = false;
+				 this->numericUpDown13->Enabled = false;
 
 				 this->panel1->Focus();
 			 }
@@ -776,6 +1013,12 @@ namespace SQM {
 					 this->numericUpDown3->Value = System::Decimal(node->getZ());;
 					 this->numericUpDown4->Value = System::Decimal(node->getNodeRadius());
 					 this->numericUpDown5->Value = System::Decimal(node->getTessLevel());
+					 this->numericUpDown8->Value = System::Decimal(node->getScaleX());
+					 this->numericUpDown9->Value = System::Decimal(node->getScaleY());
+					 this->numericUpDown10->Value = System::Decimal(node->getScaleZ());
+					 this->numericUpDown11->Value = System::Decimal(node->getRotateX());
+					 this->numericUpDown12->Value = System::Decimal(node->getRotateY());
+					 this->numericUpDown13->Value = System::Decimal(node->getRotateZ());
 				 }
 			 }
 			 void ReEnableNodeGUI() {
@@ -786,19 +1029,37 @@ namespace SQM {
 					 this->numericUpDown3->ReadOnly = false;
 					 this->numericUpDown4->ReadOnly = false;
 					 this->numericUpDown5->ReadOnly = false;
+					 this->numericUpDown8->ReadOnly = false;
+					 this->numericUpDown9->ReadOnly = false;
+					 this->numericUpDown10->ReadOnly = false;
+					 this->numericUpDown11->ReadOnly = false;
+					 this->numericUpDown12->ReadOnly = false;
+					 this->numericUpDown13->ReadOnly = false;
 
 					 this->numericUpDown1->Enabled = true;
 					 this->numericUpDown2->Enabled = true;
 					 this->numericUpDown3->Enabled = true;
 					 this->numericUpDown4->Enabled = true;
 					 this->numericUpDown5->Enabled = true;
+					 this->numericUpDown8->Enabled = true;
+					 this->numericUpDown9->Enabled = true;
+					 this->numericUpDown10->Enabled = true;
+					 this->numericUpDown11->Enabled = true;
+					 this->numericUpDown12->Enabled = true;
+					 this->numericUpDown13->Enabled = true;
 				 } else {
 					 this->textBox1->Text = L"no node selected";
 					 this->numericUpDown1->Value = System::Decimal(0);
-					 this->numericUpDown2->Value = System::Decimal(0);;
-					 this->numericUpDown3->Value = System::Decimal(0);;
+					 this->numericUpDown2->Value = System::Decimal(0);
+					 this->numericUpDown3->Value = System::Decimal(0);
 					 this->numericUpDown4->Value = System::Decimal(1);
 					 this->numericUpDown5->Value = System::Decimal(1);
+					 this->numericUpDown8->Value = System::Decimal(1);
+					 this->numericUpDown9->Value = System::Decimal(1);
+					 this->numericUpDown10->Value = System::Decimal(1);
+					 this->numericUpDown11->Value = System::Decimal(0);
+					 this->numericUpDown12->Value = System::Decimal(0);
+					 this->numericUpDown13->Value = System::Decimal(0);
 				 }
 			 }
 
@@ -1080,6 +1341,48 @@ namespace SQM {
 				 float value = System::Decimal::ToSingle(this->numericUpDown7->Value);
 				 OpenGL->setGlobalThreshold(value);
 				 this->panel1->Focus();
+			 }
+	private: System::Void numericUpDown8_ValueChanged(System::Object^  sender, System::EventArgs^  e) {
+				 SQMNode *node = OpenGL->getSelected();
+				 if (node != NULL) {
+					 float value = System::Decimal::ToSingle(this->numericUpDown8->Value);
+					 OpenGL->getSQMController()->setSelectedScaleX(value);
+				 }
+			 }
+	private: System::Void numericUpDown9_ValueChanged(System::Object^  sender, System::EventArgs^  e) {
+				 SQMNode *node = OpenGL->getSelected();
+				 if (node != NULL) {
+					 float value = System::Decimal::ToSingle(this->numericUpDown9->Value);
+					 OpenGL->getSQMController()->setSelectedScaleY(value);
+				 }
+			 }
+	private: System::Void numericUpDown10_ValueChanged(System::Object^  sender, System::EventArgs^  e) {
+				 SQMNode *node = OpenGL->getSelected();
+				 if (node != NULL) {
+					 float value = System::Decimal::ToSingle(this->numericUpDown10->Value);
+					 OpenGL->getSQMController()->setSelectedScaleZ(value);
+				 }
+			 }
+	private: System::Void numericUpDown11_ValueChanged(System::Object^  sender, System::EventArgs^  e) {
+				 SQMNode *node = OpenGL->getSelected();
+				 if (node != NULL) {
+					 float value = System::Decimal::ToSingle(this->numericUpDown11->Value);
+					 OpenGL->getSQMController()->setSelectedRotateX(value);
+				 }
+			 }
+	private: System::Void numericUpDown12_ValueChanged(System::Object^  sender, System::EventArgs^  e) {
+				 SQMNode *node = OpenGL->getSelected();
+				 if (node != NULL) {
+					 float value = System::Decimal::ToSingle(this->numericUpDown12->Value);
+					 OpenGL->getSQMController()->setSelectedRotateY(value);
+				 }
+			 }
+	private: System::Void numericUpDown13_ValueChanged(System::Object^  sender, System::EventArgs^  e) {
+				 SQMNode *node = OpenGL->getSelected();
+				 if (node != NULL) {
+					 float value = System::Decimal::ToSingle(this->numericUpDown13->Value);
+					 OpenGL->getSQMController()->setSelectedRotateZ(value);
+				 }
 			 }
 	};
 }

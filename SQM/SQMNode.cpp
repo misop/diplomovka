@@ -1,6 +1,7 @@
 #include "stdafx.h"
 #include "SQMNode.h"
 #include <algorithm>
+#include <gtc\matrix_transform.hpp>
 #include "SphereDelaunay.h"
 #include "FloatArithmetic.h"
 #include "Laplacian.h"
@@ -17,7 +18,9 @@ SQMNode::SQMNode(void) {
 	parent = NULL;
 	polyhedron = NULL;
 	tessLevel = 1;
-	transformationMatrix = glm::mat3();
+	scalev = glm::vec3(1, 1, 1);
+	rotatev = glm::vec3();
+	transformationMatrix = glm::mat4();
 }
 
 SQMNode::SQMNode(SkeletonNode &node, SQMNode* newParent) : parent(newParent) {
@@ -38,7 +41,9 @@ SQMNode::SQMNode(SkeletonNode &node, SQMNode* newParent) : parent(newParent) {
 		nodes.push_back(newNode);
 	}
 	polyhedron = NULL;
-	transformationMatrix = glm::mat3();
+	scalev = glm::vec3(1, 1, 1);
+	rotatev = glm::vec3();
+	transformationMatrix = glm::mat4();
 }
 
 
@@ -52,13 +57,15 @@ SQMNode::SQMNode(SQMNode &node) {
 	position = node.getPosition();
 	axisAngle = node.getAxisAngle();
 	vector<SQMNode *> *childs = node.getNodes();
+	scalev = node.getScalev();
+	rotatev = node.getRotatev();
 	transformationMatrix = node.getTransformationMatrix();
-		for (int i = 0; i < childs->size(); i++) {
-			SQMNode *childRef = (*childs)[i];
-			SQMNode *child = new SQMNode(*childRef);
-			child->setParent(this);
-			nodes.push_back(child);
-		}
+	for (int i = 0; i < childs->size(); i++) {
+		SQMNode *childRef = (*childs)[i];
+		SQMNode *child = new SQMNode(*childRef);
+		child->setParent(this);
+		nodes.push_back(child);
+	}
 }
 
 SQMNode::~SQMNode(void) {
@@ -147,8 +154,40 @@ float SQMNode::getZ() {
 	return position[2];
 }
 
-glm::mat3 SQMNode::getTransformationMatrix() {
+glm::mat4 SQMNode::getTransformationMatrix() {
 	return transformationMatrix;
+}
+
+glm::vec3 SQMNode::getScalev() {
+	return scalev;
+}
+
+glm::vec3 SQMNode::getRotatev() {
+	return rotatev;
+}
+
+float SQMNode::getScaleX() {
+	return scalev.x;
+}
+
+float SQMNode::getScaleY() {
+	return scalev.y;
+}
+
+float SQMNode::getScaleZ() {
+	return scalev.z;
+}
+
+float SQMNode::getRotateX() {
+	return rotatev.x;
+}
+
+float SQMNode::getRotateY() {
+	return rotatev.y;
+}
+
+float SQMNode::getRotateZ() {
+	return rotatev.z;
 }
 
 #pragma endregion
@@ -210,9 +249,53 @@ void SQMNode::setZ(float newZ) {
 	position[2] = newZ;
 }
 
-void SQMNode::setTransformationMatrix(glm::mat3 tm) {
+void SQMNode::setTransformationMatrix(glm::mat4 tm) {
 	transformationMatrix = tm;
 }
+
+void SQMNode::setScaleX(float value) {
+	scalev.x = value;
+	updateTransformationMatrix();
+}
+
+void SQMNode::setScaleY(float value) {
+	scalev.y = value;
+	updateTransformationMatrix();
+}
+
+void SQMNode::setScaleZ(float value) {
+	scalev.z = value;
+	updateTransformationMatrix();
+}
+
+void SQMNode::setRotateX(float value) {
+	rotatev.x = value;
+	updateTransformationMatrix();
+}
+
+void SQMNode::setRotateY(float value) {
+	rotatev.y = value;
+	updateTransformationMatrix();
+}
+
+void SQMNode::setRotateZ(float value) {
+	rotatev.z = value;
+	updateTransformationMatrix();
+}
+
+void SQMNode::updateTransformationMatrix() {
+	glm::mat4 M = glm::mat4();
+	glm::vec3 translatev = glm::vec3(position[0], position[1], position[2]);
+	M = glm::translate(M, translatev);
+	M = glm::rotate(M, rotatev.x, glm::vec3(1, 0, 0));
+	M = glm::rotate(M, rotatev.y, glm::vec3(0, 1, 0));
+	M = glm::rotate(M, rotatev.z, glm::vec3(0, 0, 1));
+	M = glm::scale(M, scalev);
+	M = glm::translate(M, -translatev);
+
+	transformationMatrix = M;
+}
+
 
 #pragma endregion
 
@@ -1272,13 +1355,21 @@ void SQMNode::rotateBack(MyMesh *mesh) {
 				v = QuaternionRotateVector(ancestor->getAxisAngle(), v);
 				v = v + offset;
 			}
-			glm::vec3 u(v.x, v.y, v.z);
-			u = transformationMatrix * u;
-			P[0] = u.x;
-			P[1] = u.y;
-			P[2] = u.z;
+			P[0] = v.x;
+			P[1] = v.y;
+			P[2] = v.z;
 			mesh->set_point(vhandle, P);
 		}
+	}
+	for (int i = 0; i < meshVhandlesToRotate.size(); i++) {
+		MyMesh::VHandle vhandle = meshVhandlesToRotate[i];
+		MyMesh::Point P = mesh->point(vhandle);
+		glm::vec4 u(P[0], P[1], P[2], 1);
+		u = transformationMatrix * u;
+		P[0] = u.x;
+		P[1] = u.y;
+		P[2] = u.z;
+		mesh->set_point(vhandle, P);
 	}
 	position = oldPosition;
 }

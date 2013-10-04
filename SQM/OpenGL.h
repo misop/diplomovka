@@ -20,7 +20,7 @@ using namespace std;
 using namespace System::Windows::Forms;
 
 #define GL_MAJOR 4
-#define GL_MINOR 1
+#define GL_MINOR 2
 
 namespace OpenGLForm 
 {

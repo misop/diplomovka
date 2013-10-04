@@ -67,6 +67,12 @@ public:
 	void setSelectedRadius(float radius);
 	void setSelectedTessLevel(float tessLevel);
 	void setSmoothingAlgorithm(SQMSmoothingAlgorithm smoothingAlgorithm);
+	void setSelectedScaleX(float value);
+	void setSelectedScaleY(float value);
+	void setSelectedScaleZ(float value);
+	void setSelectedRotateX(float value);
+	void setSelectedRotateY(float value);
+	void setSelectedRotateZ(float value);
 	SQMNode* getSelected();
 	
 	void drawTriNormals();

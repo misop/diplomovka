@@ -263,6 +263,36 @@ void SQMControler::setSmoothingAlgorithm(SQMSmoothingAlgorithm smoothingAlgorith
 	sqmALgorithm->setSmoothingAlgorithm(smoothingAlgorithm);
 }
 
+void SQMControler::setSelectedScaleX(float value) {
+	selected->setScaleX(value);
+	drawSkeleton();
+}
+
+void SQMControler::setSelectedScaleY(float value) {
+	selected->setScaleY(value);
+	drawSkeleton();
+}
+
+void SQMControler::setSelectedScaleZ(float value) {
+	selected->setScaleZ(value);
+	drawSkeleton();
+}
+
+void SQMControler::setSelectedRotateX(float value) {
+	selected->setRotateX(value);
+	drawSkeleton();
+}
+
+void SQMControler::setSelectedRotateY(float value) {
+	selected->setRotateY(value);
+	drawSkeleton();
+}
+
+void SQMControler::setSelectedRotateZ(float value) {
+	selected->setRotateZ(value);
+	drawSkeleton();
+}
+
 #pragma region drawing
 
 void SQMControler::draw(OpenGLPrograms *programs, GLCamera *camera) {
@@ -448,10 +478,10 @@ void SQMControler::drawMeshForTesselation(OpenGLPrograms *programs, GLCamera *ca
 	glUniform1f(programs->QuadMeshTess->getUniformLocation(TESS_LEVEL_INNER_STR), globalTesselation);
 	glUniform1f(programs->QuadMeshTess->getUniformLocation(THRESHOLD_STR), threshold);
 	glUniform1i(programs->QuadMeshTess->getUniformLocation(WIREFRAME_STR), wireframe ? 1 : 0);
-	GLint loc = programs->QuadMeshTess->getUniformLocation(RADIUS_TEXTURE_STR);
-	glUniform1i(programs->QuadMeshTess->getUniformLocation(RADIUS_TEXTURE_STR), 0);
-	int intint = programs->QuadMeshTess->getUniformLocation(CENTERS_TEXTURE_STR);
-	glUniform1i(programs->QuadMeshTess->getUniformLocation(CENTERS_TEXTURE_STR), 1);
+	glUniform1i(programs->QuadMeshTess->getUniformLocation(MAX_ID_STR), sqmALgorithm->getNumberOfNodes() - 1);
+	//glUniform1i(programs->QuadMeshTess->getUniformLocation(RADIUS_TEXTURE_STR), 0);
+	//glUniform1i(programs->QuadMeshTess->getUniformLocation("ZCTS"), 1);
+	//glUniform1i(8, 1);
 	buffer1->DrawElement(1, GL_PATCHES);
 	//draw normals
 	if (shouldDrawNormals) {
@@ -542,7 +572,13 @@ void SQMControler::drawSkeleton(vector<float> &points, vector<int> &indices) {
 		float radius = node->getNodeRadius();
 		//create and store model matrix
 		glm::mat4 modelMatrix;
+		//modelMatrix = glm::translate(modelMatrix, glm::vec3(position[0], position[1], position[2]));
+		//modelMatrix = glm::scale(modelMatrix, glm::vec3(radius));
 		modelMatrix = glm::translate(modelMatrix, glm::vec3(position[0], position[1], position[2]));
+		modelMatrix = glm::rotate(modelMatrix, node->getRotateX(), glm::vec3(1, 0, 0));
+		modelMatrix = glm::rotate(modelMatrix, node->getRotateY(), glm::vec3(0, 1, 0));
+		modelMatrix = glm::rotate(modelMatrix, node->getRotateZ(), glm::vec3(0, 0, 1));
+		modelMatrix = glm::scale(modelMatrix, node->getScalev());
 		modelMatrix = glm::scale(modelMatrix, glm::vec3(radius));
 		modelMatrices.push_back(modelMatrix);
 		//store node position
@@ -652,7 +688,7 @@ void SQMControler::fillRadiusTable() {
 
 	nodeRadiuses->Bind();
 	nodeRadiuses->FunctionTexture(nodes, nodes, table);
-	
+
 	ofstream f;
 	f.open ("log_radiuses.txt");
 	for (int i = 0; i < nodes; i++) {
@@ -671,17 +707,20 @@ void SQMControler::fillCentersTable() {
 	shouldRender = false;
 	int nodes = sqmALgorithm->getNumberOfNodes();
 	float *table = new float[nodes*3];
-	
+	for (int i = 0; i < nodes*3; i++) {
+		table[i] = 0;
+	}
+
 	sqmALgorithm->getRoot()->fillCentersTable(table);
 
 	nodeCenters->Bind();
 	nodeCenters->FunctionTexture(3, nodes, table);
-	
+
 	ofstream f;
 	f.open ("log_centers.txt");
 	for (int i = 0; i < nodes; i++) {
 		for (int j = 0; j < 3; j++) {
-			f << table[i*3 + j] << " ";
+			f << table[i*nodes + j] << " ";
 		}
 		f << endl;
 	}
