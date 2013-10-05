@@ -1,4 +1,0 @@
-Skeleton straightening
-Convex hull computation
-Convex hull subdivision
-BNP joining

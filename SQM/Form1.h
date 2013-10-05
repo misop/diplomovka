@@ -697,6 +697,7 @@ namespace SQM {
 				 this->numericUpDown13->Increment = System::Decimal(gcnew cli::array< System::Int32 >(4) {10, 0, 0, 0});
 				 this->numericUpDown13->Location = System::Drawing::Point(31, 63);
 				 this->numericUpDown13->Maximum = System::Decimal(gcnew cli::array< System::Int32 >(4) {360, 0, 0, 0});
+				 this->numericUpDown13->Minimum = System::Decimal(gcnew cli::array< System::Int32 >(4) {360, 0, 0, System::Int32::MinValue});
 				 this->numericUpDown13->Name = L"numericUpDown13";
 				 this->numericUpDown13->ReadOnly = true;
 				 this->numericUpDown13->Size = System::Drawing::Size(104, 20);
@@ -709,6 +710,7 @@ namespace SQM {
 				 this->numericUpDown12->Increment = System::Decimal(gcnew cli::array< System::Int32 >(4) {10, 0, 0, 0});
 				 this->numericUpDown12->Location = System::Drawing::Point(31, 36);
 				 this->numericUpDown12->Maximum = System::Decimal(gcnew cli::array< System::Int32 >(4) {360, 0, 0, 0});
+				 this->numericUpDown12->Minimum = System::Decimal(gcnew cli::array< System::Int32 >(4) {360, 0, 0, System::Int32::MinValue});
 				 this->numericUpDown12->Name = L"numericUpDown12";
 				 this->numericUpDown12->ReadOnly = true;
 				 this->numericUpDown12->Size = System::Drawing::Size(104, 20);
@@ -721,6 +723,7 @@ namespace SQM {
 				 this->numericUpDown11->Increment = System::Decimal(gcnew cli::array< System::Int32 >(4) {10, 0, 0, 0});
 				 this->numericUpDown11->Location = System::Drawing::Point(31, 9);
 				 this->numericUpDown11->Maximum = System::Decimal(gcnew cli::array< System::Int32 >(4) {360, 0, 0, 0});
+				 this->numericUpDown11->Minimum = System::Decimal(gcnew cli::array< System::Int32 >(4) {360, 0, 0, System::Int32::MinValue});
 				 this->numericUpDown11->Name = L"numericUpDown11";
 				 this->numericUpDown11->ReadOnly = true;
 				 this->numericUpDown11->Size = System::Drawing::Size(104, 20);
