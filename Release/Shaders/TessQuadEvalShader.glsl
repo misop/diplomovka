@@ -1,4 +1,4 @@
-#version 410
+#version 420
 
 layout(quads) in;
 
@@ -12,9 +12,10 @@ out vec4 tePatchDistanceCtrl;
 out vec3 teColor;
 
 uniform mat4 MVPmatrix;
-uniform sampler2D RadiusesSampler;
-uniform sampler2D CenterSampler;
+layout(binding=0) uniform sampler2D RadiusesSampler;
+layout(binding=1) uniform sampler2D CTS;
 uniform float Threshold;
+uniform int MaxID;
 
 const float EPSILON = 0.00001;
 const float threshold = 0.85;
@@ -25,14 +26,6 @@ bool floatEqual(in float a, in float b) {
 
 const vec2 P0 = vec2(0.0, 0.0);
 const vec2 P3 = vec2(1.0, 1.0);
-
-vec3 getNodePosition(int id) {
-	float x = texture(CenterSampler, vec2(1.0f, 1.0f)).r;
-	float y = texture(CenterSampler, vec2(1.0f, 1.0f)).r;
-	float z = texture(CenterSampler, vec2(1.0f, 1.0f)).r;
-
-	return vec3(x, y, z);
-}
 
 vec2 bezier(in vec2 P1, in vec2 P2, in float t) {
 	return (pow(1 - t, 3)*P0 + 3*pow(1 - t, 2)*t*P1 + 3*(1 - t)*pow(t, 2)*P2 + pow(t, 3)*P3);
@@ -92,15 +85,29 @@ void main()
 
 	//if (!((isBranchNode(type0) && floatEqual(v, 0)) || (isBranchNode(type1) && floatEqual(v, 1)))) {
 	if (!(floatEqual(v, 1) || floatEqual(v, 0))) {
-		vec3 w0 = tcNodePosition[0];//getNodePosition(tcNodeID[0]);
-		vec3 w1 = tcNodePosition[1];//getNodePosition(tcNodeID[1]);
+		//vec3 w0 = getNodePosition(tcNodeID[0]);		
+		float x = texture(CTS, vec2(0, tcNodeID[0])).r;
+		float y = texture(CTS, vec2(1, tcNodeID[0])).r;
+		float z = texture(CTS, vec2(2, tcNodeID[0])).r;
+		//vec3 w0 = vec3(x, y, z);
+		vec3 w0 = tcNodePosition[0];
+		
+		x = texture(CTS, vec2(0, tcNodeID[1])).r;
+		y = texture(CTS, vec2(1, tcNodeID[1])).r;
+		z = texture(CTS, vec2(2, tcNodeID[1])).r;
+		//vec3 w1 = vec3(x, y, z);
+		vec3 w1 = tcNodePosition[1];
 		vec3 d = normalize(w1 - w0);
 		//float radius = mix(tcNodeRadius[0], tcNodeRadius[1], v);
 		float radius = 0.0;
-		float radius1 = texture(RadiusesSampler, vec2(tcNodeID[0], tcNodeID[1])).r;
-		float radius2 = texture(RadiusesSampler, vec2(tcNodeID[1], tcNodeID[0])).r;
+		float id0 = float(tcNodeID[0]) / float(MaxID);
+		float id1 = float(tcNodeID[1]) / float(MaxID);
+		float radius1 = texture(RadiusesSampler, vec2(id0, id1)).r;
+		float radius2 = texture(RadiusesSampler, vec2(id1, id0)).r;
+		//float radius1 = texture(RadiusesSampler, vec2(tcNodeID[0], tcNodeID[1])).r;
+		//float radius2 = texture(RadiusesSampler, vec2(tcNodeID[1], tcNodeID[0])).r;
 
-		float r0 = mix(radius1, radius2, v);
+		float r0 = mix(radius2, radius1, v);
 		float r1 = r0;
 		if ((isConnectionNode(type0) || isLeafNode(type0)) && (isConnectionNode(type1) || isLeafNode(type1))) {
 			//radius = mix(radius1, radius2, v);
@@ -149,7 +156,7 @@ void main()
 			}
 			//radius = easeinout(radius1 / 2.0, radius2 / 2.0, v);
 		}
-
+		
 		radius = mix(r0, r1, u);
 		if (r0 < r1)
 			radius = easein(r0, r1, u);
@@ -169,7 +176,8 @@ void main()
 		position = projection + (normal * radius);
 	}
 	
-	//teColor = getNodePosition(tcNodeID[1]);
+	//teColor = getNodePosition(tcNodeID[1]);	
+	//teColor = texture(CTS, vec2(2, 1)).rgb;
     tePatchDistance = vec4(u, v, 1-u, 1-v);
 	
 	float d01 = length(gl_in[0].gl_Position - gl_in[1].gl_Position);
