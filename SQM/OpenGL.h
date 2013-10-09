@@ -682,8 +682,8 @@ namespace OpenGLForm
 		void saveSkeletonToFile(string fileName) {
 			sqmControler->saveSkeletonToFile(fileName);
 		}
-		void exportSkeletonToFile(string fileName) {
-			sqmControler->exportSkeletonToFile(fileName);
+		void exportMeshToFile(string fileName) {
+			sqmControler->exportMeshToFile(fileName);
 		}
 		void straightenSkeleton() {
 			sqmControler->straightenSkeleton();

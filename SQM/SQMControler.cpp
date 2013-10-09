@@ -122,7 +122,7 @@ void SQMControler::saveSkeletonToFile(string fileName) {
 	delete node;
 }
 
-void SQMControler::exportSkeletonToFile(string fileName) {
+void SQMControler::exportMeshToFile(string fileName) {
 	SQMState state = sqmALgorithm->getState();
 	if (state == SQMJoinBNPs || state == SQMFinalPlacement) {
 		writeMesh(sqmALgorithm->getMesh(), fileName);

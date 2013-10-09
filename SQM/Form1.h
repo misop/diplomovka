@@ -1190,7 +1190,7 @@ namespace SQM {
 				 if (this->saveFileDialog1->ShowDialog() == System::Windows::Forms::DialogResult::OK) {
 					 string fileName = "";
 					 MarshalString(this->saveFileDialog1->FileName, fileName);
-					 OpenGL->exportSkeletonToFile(fileName);
+					 OpenGL->exportMeshToFile(fileName);
 				 }
 			 }
 	private: System::Void editSkeletonToolStripMenuItem_Click(System::Object^  sender, System::EventArgs^  e) {

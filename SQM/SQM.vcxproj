@@ -119,6 +119,7 @@
     <ClCompile Include="SphereDelaunay.cpp" />
     <ClCompile Include="SQM.cpp" />
     <ClCompile Include="SQMAlgorithm.cpp" />
+    <ClCompile Include="SQMBasicController.cpp" />
     <ClCompile Include="SQMControler.cpp" />
     <ClCompile Include="SQMNode.cpp" />
     <ClCompile Include="stdafx.cpp">
@@ -152,6 +153,7 @@
     <ClInclude Include="SkeletonNode.h" />
     <ClInclude Include="SphereDelaunay.h" />
     <ClInclude Include="SQMAlgorithm.h" />
+    <ClInclude Include="SQMBasicController.h" />
     <ClInclude Include="SQMControler.h" />
     <ClInclude Include="SQMNode.h" />
     <ClInclude Include="stdafx.h" />

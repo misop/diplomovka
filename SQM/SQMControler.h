@@ -36,7 +36,7 @@ public:
 	void newFile();
 	void loadSkeletonFromFile(string fileName);
 	void saveSkeletonToFile(string fileName);
-	void exportSkeletonToFile(string fileName);
+	void exportMeshToFile(string fileName);
 
 	bool selectNodeInRay(glm::vec3 position, glm::vec3 direction);
 	void fillRadiusTable();
