@@ -106,6 +106,7 @@ public:
 	void addDescendant(SQMNode* node);
 	void rotatePosition(Quaternion q, CVector3 offset);
 	void addDescendant(float x, float y, float z);
+	void removeDescendant(SQMNode* node);
 	void setX(float newX);
 	void setY(float newY);
 	void setZ(float newZ);
@@ -190,6 +191,21 @@ public:
 	void calculateOneRingRadiusAndMap(std::vector<float> &oneRingRadius, std::map<int, std::vector<int> > &intersectionMap);
 	void fillRadiusTable(float *table, int width);
 	void fillCentersTable(float *table);
+#pragma endregion
+
+#pragma region SQM Special Cases
+
+#pragma region Single Node
+	void createScaledIcosahderon(MyMesh* mesh);
+#pragma endregion
+
+#pragma region Worm
+	void createWorm(MyMesh *mesh);
+	void finishWormTop(MyMesh *mesh, vector<MyMesh::VHandle> &oneRing);
+	void nextWormStep(MyMesh *mesh, vector<MyMesh::VHandle> &oneRing);
+	void finishWormBottom(MyMesh *mesh, vector<MyMesh::VHandle> &oneRing);
+#pragma endregion
+
 #pragma endregion
 
 #pragma region Utility

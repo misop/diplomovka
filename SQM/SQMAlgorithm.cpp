@@ -111,6 +111,40 @@ void SQMAlgorithm::refreshIDs() {
 	}
 }
 
+void SQMAlgorithm::fixWorm() {
+	SQMNode *node = root;
+	if (node->getNodes()->size() == 1) {
+		//if next is leaf we need to add extra node
+		if ((*node->getNodes())[0]->isLeafNode()) {
+			//add extra node
+			SQMNode *second = (*node->getNodes())[0];
+			SQMNode *temp = new SQMNode(*node);
+			temp->setPosition((node->getPosition() + second->getPosition()) / 2.0);
+			node->removeDescendant(second);
+
+			node->addDescendant(temp);
+			temp->setParent(node);
+			temp->addDescendant(second);
+			second->setParent(temp);
+		}
+	} else {//node has 2 childs
+		SQMNode *temp = (*node->getNodes())[0];
+		node->removeDescendant(temp);
+		temp->addDescendant(node);
+		node->setParent(temp);
+		node = (*temp->getNodes())[0];
+
+		while (node != NULL) {
+			temp->setParent(node);
+			temp->removeDescendant(node);
+			node->addDescendant(temp);
+			temp = node;
+			node = (*temp->getNodes())[0];
+		}
+		temp->setParent(NULL);
+		root = temp;
+	}
+}
 
 #pragma endregion
 
@@ -152,6 +186,52 @@ void SQMAlgorithm::getBoundingSphere(float &x, float &y, float &z, float &d) {
 	z = (maxZ - minZ)/2 + minZ;
 }
 
+#pragma region Skeleton Operations
+
+SQMNode* SQMAlgorithm::findBNPInTree() {
+	deque<SQMNode*> queue;
+	if (root != NULL) queue.push_back(root);
+
+	while (!queue.empty()) {
+		SQMNode* node = queue.front();
+		queue.pop_front();
+		int plus = (node->getParent() == NULL) ? 1 : 0;
+
+		if (node->getNodes()->size() >= 2 + plus)
+			return node;
+
+		for (int i = 0; i < node->getNodes()->size(); i++) {
+			queue.push_back((*node->getNodes())[i]);
+		}
+	}
+
+	return NULL;
+}
+
+void SQMAlgorithm::swapRoot(SQMNode *node) {
+	//node is the first that is BNP
+	//everything going from root is OK
+	//only route from node to root needs to be fixed
+	SQMNode *temp = node->getParent();
+	SQMNode *parent = temp->getParent();
+	node->setParent(NULL);
+	temp->setParent(node);
+	temp->removeDescendant(node);
+	node->addDescendant(temp);
+
+	while (temp != root) {
+		temp->addDescendant(parent);
+		parent->removeDescendant(temp);
+		SQMNode *newParent = parent->getParent();
+		parent->setParent(temp);
+		temp = parent;
+		parent = newParent;
+	}
+	root = node;
+}
+
+#pragma endregion
+
 #pragma region SQM Algorithm
 
 void SQMAlgorithm::updateResetRoot() {
@@ -168,6 +248,28 @@ void SQMAlgorithm::restart() {
 void SQMAlgorithm::straightenSkeleton() {
 	updateResetRoot();
 	refreshIDs();
+	if (root->getNodes()->size() == 0) {
+		//handle just root
+		if (mesh) delete mesh;
+		mesh = new MyMesh();
+		root->createScaledIcosahderon(mesh);
+		sqmState = SQMFinalPlacement;
+		return;
+	}
+	if (root->getNodes()->size() <= 2) {
+		SQMNode *node = findBNPInTree();
+		if (node == NULL) {
+			//handle worm
+			fixWorm();
+			if (mesh) delete mesh;
+			mesh = new MyMesh();
+			root->createWorm(mesh);
+			sqmState = SQMFinalPlacement;
+			return;
+		} else {
+			swapRoot(node);
+		}
+	}
 
 	fb->open("log.txt", ios::out);
 	(*os) << "Skeleton straightening\n";

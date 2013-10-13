@@ -754,6 +754,7 @@ void SQMControler::executeSQMAlgorithm() {
 
 void SQMControler::executeSQMAlgorithm(SQMState state) {
 	sqmALgorithm->executeSQMAlgorithm(state);
+	state = sqmALgorithm->getState();
 
 	if (state == SQMJoinBNPs || state == SQMFinalPlacement) {
 		fillRadiusTable();

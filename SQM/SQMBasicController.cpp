@@ -9,7 +9,6 @@
 #include <iostream>
 #include <fstream>
 #include <gtc\type_ptr.hpp>
-#include "FloatArithmetic.h"
 
 
 SQMBasicController::SQMBasicController(void)
@@ -44,6 +43,15 @@ void SQMBasicController::loadSkeletonFromFile(string fileName) {
 	sqmALgorithm = new SQMAlgorithm();
 	sqmALgorithm->setRoot(sqmNode);
 	delete node;
+}
+
+void SQMBasicController::loadSkeleton(SkeletonNode *skeleton) {
+	SQMNode *sqmNode = new SQMNode(*skeleton, NULL);
+	if (sqmALgorithm != NULL) {
+		delete sqmALgorithm;
+	}
+	sqmALgorithm = new SQMAlgorithm();
+	sqmALgorithm->setRoot(sqmNode);
 }
 
 void SQMBasicController::saveSkeletonToFile(string fileName) {

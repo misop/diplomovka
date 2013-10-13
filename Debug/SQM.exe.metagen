@@ -56,7 +56,7 @@ Class OpenGLForm.COpenGL: AutoLayout, AnsiClass, Class, Public, BeforeFieldInit
     newFile(): PrivateScope, Public, HideBySig
     loadSkeletonFromFile(basic_string<char\,std::char_traits<char>\,std::allocator<char> >*): PrivateScope, Public, HideBySig
     saveSkeletonToFile(basic_string<char\,std::char_traits<char>\,std::allocator<char> >*): PrivateScope, Public, HideBySig
-    exportSkeletonToFile(basic_string<char\,std::char_traits<char>\,std::allocator<char> >*): PrivateScope, Public, HideBySig
+    exportMeshToFile(basic_string<char\,std::char_traits<char>\,std::allocator<char> >*): PrivateScope, Public, HideBySig
     straightenSkeleton(): PrivateScope, Public, HideBySig
     computeConvexHull(): PrivateScope, Public, HideBySig
     subdivideConvexHull(): PrivateScope, Public, HideBySig

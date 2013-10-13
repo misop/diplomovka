@@ -14,6 +14,7 @@ public:
 	~SQMBasicController(void);
 
 	void loadSkeletonFromFile(string fileName);
+	void loadSkeleton(SkeletonNode *skeleton);
 	void saveSkeletonToFile(string fileName);
 	void exportMeshToFile(string fileName);
 	void exportMeshToTriangles(std::vector<float> &points, std::vector<int> &indices);

@@ -222,6 +222,16 @@ void SQMNode::addDescendant(SQMNode* node) {
 	nodes.push_back(node);
 }
 
+void SQMNode::removeDescendant(SQMNode* node) {
+	vector<SQMNode *> temp;
+	for (vector<SQMNode *>::iterator it = nodes.begin(); it != nodes.end(); it++) {
+		if ((*it) == node) {
+			it = nodes.erase(it);
+			return;
+		}
+	}
+}
+
 void SQMNode::rotatePosition(Quaternion q, CVector3 offset) {
 	CVector3 pos(position.values_);
 	pos = pos - offset;
@@ -1438,7 +1448,8 @@ void SQMNode::fillRadiusTable(float *table, int width) {
 	table[id*width + id] = nodeRadius;
 	//store radius from yourself to connected nodes
 	if (isLeaf) {//leaf is max radius
-		table[id*width + parent->getId()] = nodeRadius;
+		int plus = (parent == NULL) ? 0 : parent->getId();
+		table[id*width + plus] = nodeRadius;
 	}
 	if (isConnection) {//connection is max radius
 		table[id*width + parent->getId()] = nodeRadius;
@@ -1507,6 +1518,74 @@ void SQMNode::calculateOneRingRadiusAndMap(std::vector<float> &oneRingRadius, st
 		oneRingRadius.push_back(radius);
 	}
 }
+
+#pragma endregion
+
+#pragma region SQM Special Cases
+
+#pragma region Single Node
+
+void SQMNode::createScaledIcosahderon(MyMesh* mesh) {
+	float scale = nodeRadius;
+	meshVhandlesToRotate.push_back(mesh->add_vertex(MyMesh::Point(0.000f,  0.000f,  1.000f) * scale + position));
+	meshVhandlesToRotate.push_back(mesh->add_vertex(MyMesh::Point(0.894f,  0.000f,  0.447f) * scale + position));
+	meshVhandlesToRotate.push_back(mesh->add_vertex(MyMesh::Point(0.276f,  0.851f,  0.447f) * scale + position));
+	meshVhandlesToRotate.push_back(mesh->add_vertex(MyMesh::Point(-0.724f,  0.526f,  0.447f) * scale + position));
+	meshVhandlesToRotate.push_back(mesh->add_vertex(MyMesh::Point(-0.724f, -0.526f,  0.447f) * scale + position));
+	meshVhandlesToRotate.push_back(mesh->add_vertex(MyMesh::Point(0.276f, -0.851f,  0.447f) * scale + position));
+	meshVhandlesToRotate.push_back(mesh->add_vertex(MyMesh::Point(0.724f,  0.526f, -0.447f) * scale + position));
+	meshVhandlesToRotate.push_back(mesh->add_vertex(MyMesh::Point(-0.276f,  0.851f, -0.447f) * scale + position));
+	meshVhandlesToRotate.push_back(mesh->add_vertex(MyMesh::Point(-0.894f,  0.000f, -0.447f) * scale + position));
+	meshVhandlesToRotate.push_back(mesh->add_vertex(MyMesh::Point(-0.276f, -0.851f, -0.447f) * scale + position));
+	meshVhandlesToRotate.push_back(mesh->add_vertex(MyMesh::Point(0.724f, -0.526f, -0.447f) * scale + position));
+	meshVhandlesToRotate.push_back(mesh->add_vertex(MyMesh::Point(0.000f,  0.000f, -1.000f) * scale + position));
+
+	mesh->add_face(meshVhandlesToRotate[2], meshVhandlesToRotate[1], meshVhandlesToRotate[0]);
+	mesh->add_face(meshVhandlesToRotate[3], meshVhandlesToRotate[2], meshVhandlesToRotate[0]);
+	mesh->add_face(meshVhandlesToRotate[4], meshVhandlesToRotate[3], meshVhandlesToRotate[0]);
+	mesh->add_face(meshVhandlesToRotate[5], meshVhandlesToRotate[4], meshVhandlesToRotate[0]);
+	mesh->add_face(meshVhandlesToRotate[1], meshVhandlesToRotate[5], meshVhandlesToRotate[0]);
+
+	mesh->add_face(meshVhandlesToRotate[11], meshVhandlesToRotate[6], meshVhandlesToRotate[7]);
+	mesh->add_face(meshVhandlesToRotate[11], meshVhandlesToRotate[7], meshVhandlesToRotate[8]);
+	mesh->add_face(meshVhandlesToRotate[11], meshVhandlesToRotate[8], meshVhandlesToRotate[9]);
+	mesh->add_face(meshVhandlesToRotate[11], meshVhandlesToRotate[9], meshVhandlesToRotate[10]);
+	mesh->add_face(meshVhandlesToRotate[11], meshVhandlesToRotate[10], meshVhandlesToRotate[6]);
+
+	mesh->add_face(meshVhandlesToRotate[1], meshVhandlesToRotate[2], meshVhandlesToRotate[6]);
+	mesh->add_face(meshVhandlesToRotate[2], meshVhandlesToRotate[3], meshVhandlesToRotate[7]);
+	mesh->add_face(meshVhandlesToRotate[3], meshVhandlesToRotate[4], meshVhandlesToRotate[8]);
+	mesh->add_face(meshVhandlesToRotate[4], meshVhandlesToRotate[5], meshVhandlesToRotate[9]);
+	mesh->add_face(meshVhandlesToRotate[5], meshVhandlesToRotate[1], meshVhandlesToRotate[10]);
+
+	mesh->add_face(meshVhandlesToRotate[2], meshVhandlesToRotate[7], meshVhandlesToRotate[6]);
+	mesh->add_face(meshVhandlesToRotate[3], meshVhandlesToRotate[8], meshVhandlesToRotate[7]);
+	mesh->add_face(meshVhandlesToRotate[4], meshVhandlesToRotate[9], meshVhandlesToRotate[8]);
+	mesh->add_face(meshVhandlesToRotate[5], meshVhandlesToRotate[10], meshVhandlesToRotate[9]);
+	mesh->add_face(meshVhandlesToRotate[1], meshVhandlesToRotate[6], meshVhandlesToRotate[10]);
+}
+
+#pragma endregion
+
+#pragma region Worm
+
+void SQMNode::createWorm(MyMesh *mesh) {
+	//create first point
+	//create one ring from child node
+	//connect nodes forward
+	//end in one point
+}
+
+void SQMNode::finishWormTop(MyMesh *mesh, vector<MyMesh::VHandle> &oneRing) {
+}
+
+void SQMNode::nextWormStep(MyMesh *mesh, vector<MyMesh::VHandle> &oneRing) {
+}
+
+void SQMNode::finishWormBottom(MyMesh *mesh, vector<MyMesh::VHandle> &oneRing) {
+}
+
+#pragma endregion
 
 #pragma endregion
 
