@@ -261,6 +261,7 @@ void SQMAlgorithm::straightenSkeleton() {
 		if (node == NULL) {
 			//handle worm
 			fixWorm();
+			refreshIDs();
 			if (mesh) delete mesh;
 			mesh = new MyMesh();
 			root->createWorm(mesh);
@@ -268,6 +269,7 @@ void SQMAlgorithm::straightenSkeleton() {
 			return;
 		} else {
 			swapRoot(node);
+			refreshIDs();
 		}
 	}
 
