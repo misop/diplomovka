@@ -200,10 +200,10 @@ public:
 #pragma endregion
 
 #pragma region Worm
-	void createWorm(MyMesh *mesh);
-	void finishWormTop(MyMesh *mesh, vector<MyMesh::VHandle> &oneRing);
-	void nextWormStep(MyMesh *mesh, vector<MyMesh::VHandle> &oneRing);
-	void finishWormBottom(MyMesh *mesh, vector<MyMesh::VHandle> &oneRing);
+	void wormCreate(MyMesh *mesh, int vertices = 4);
+	void wormStraighten(OpenMesh::Vec3f lineVector);
+	void wormStep(MyMesh *mesh, vector<MyMesh::VHandle> &oneRing);
+	void wormFinalVertexPlacement(MyMesh *mesh);
 #pragma endregion
 
 #pragma endregion

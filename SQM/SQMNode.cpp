@@ -1569,20 +1569,43 @@ void SQMNode::createScaledIcosahderon(MyMesh* mesh) {
 
 #pragma region Worm
 
-void SQMNode::createWorm(MyMesh *mesh) {
-	//create first point
-	//create one ring from child node
-	//connect nodes forward
-	//end in one point
+void SQMNode::wormCreate(MyMesh *mesh, int vertices) {
+	OpenMesh::Vec3f lineVector = (nodes[0]->getPosition() - position).normalize();
+	//straighten worm
+	nodes[0]->wormStraighten(lineVector);
+	//create one ring
+	vector<MyMesh::VHandle> oneRing;
+	//extend
+	//rotate worm back
 }
 
-void SQMNode::finishWormTop(MyMesh *mesh, vector<MyMesh::VHandle> &oneRing) {
+void SQMNode::wormStraighten(OpenMesh::Vec3f lineVector) {
+	axisAngle = Quaternion();
+	oldPosition = position;
+	//straighten self
+	//translate parent to 0,0,0
+	OpenMesh::Vec3f newPosition = position - parent->getPosition();
+	CVector3 oldPos(newPosition.values_);
+	//roatate
+	float len = newPosition.length();
+	newPosition = len*lineVector;
+	CVector3 newPos(newPosition.values_);
+	Quaternion quaternion = SQMQuaternionBetweenVectors(newPos, oldPos);
+	//translate back by parent
+	newPosition = newPosition + parent->getPosition();
+	//setup
+	axisAngle = quaternion;
+	position = newPosition;
+
+	for (int i = 0; i < nodes.size(); i++) {
+		nodes[i]->wormStraighten(lineVector);
+	}
 }
 
-void SQMNode::nextWormStep(MyMesh *mesh, vector<MyMesh::VHandle> &oneRing) {
+void SQMNode::wormStep(MyMesh *mesh, vector<MyMesh::VHandle> &oneRing) {
 }
 
-void SQMNode::finishWormBottom(MyMesh *mesh, vector<MyMesh::VHandle> &oneRing) {
+void SQMNode::wormFinalVertexPlacement(MyMesh *mesh) {
 }
 
 #pragma endregion

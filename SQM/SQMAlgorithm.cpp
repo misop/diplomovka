@@ -111,41 +111,6 @@ void SQMAlgorithm::refreshIDs() {
 	}
 }
 
-void SQMAlgorithm::fixWorm() {
-	SQMNode *node = root;
-	if (node->getNodes()->size() == 1) {
-		//if next is leaf we need to add extra node
-		if ((*node->getNodes())[0]->isLeafNode()) {
-			//add extra node
-			SQMNode *second = (*node->getNodes())[0];
-			SQMNode *temp = new SQMNode(*node);
-			temp->setPosition((node->getPosition() + second->getPosition()) / 2.0);
-			node->removeDescendant(second);
-
-			node->addDescendant(temp);
-			temp->setParent(node);
-			temp->addDescendant(second);
-			second->setParent(temp);
-		}
-	} else {//node has 2 childs
-		SQMNode *temp = (*node->getNodes())[0];
-		node->removeDescendant(temp);
-		temp->addDescendant(node);
-		node->setParent(temp);
-		node = (*temp->getNodes())[0];
-
-		while (node != NULL) {
-			temp->setParent(node);
-			temp->removeDescendant(node);
-			node->addDescendant(temp);
-			temp = node;
-			node = (*temp->getNodes())[0];
-		}
-		temp->setParent(NULL);
-		root = temp;
-	}
-}
-
 #pragma endregion
 
 void SQMAlgorithm::getBoundingSphere(float &x, float &y, float &z, float &d) {
@@ -230,6 +195,37 @@ void SQMAlgorithm::swapRoot(SQMNode *node) {
 	root = node;
 }
 
+void SQMAlgorithm::fixWorm() {
+	SQMNode *node = root;
+	if (node->getNodes()->size() == 1) {
+		//if next is leaf we need to add extra node
+		if ((*node->getNodes())[0]->isLeafNode()) {
+			//add extra node
+			SQMNode *second = (*node->getNodes())[0];
+			SQMNode *temp = new SQMNode(*node);
+			temp->setPosition((node->getPosition() + second->getPosition()) / 2.0);
+			node->removeDescendant(second);
+
+			node->addDescendant(temp);
+			temp->setParent(node);
+			second->setParent(temp);
+		}
+	} else {//node has 2 childs
+		SQMNode *parent = (*node->getNodes())[0];
+
+		while (parent != NULL) {
+			node->removeDescendant(parent);
+			node->setParent(parent);
+			parent->addDescendant(node);
+			node = parent;
+			//only leaf node wont have 2 childs
+			parent = (node->getNodes()->size() == 2) ? (*node->getNodes())[0] : NULL;
+		}
+		node->setParent(NULL);
+		root = node;
+	}
+}
+
 #pragma endregion
 
 #pragma region SQM Algorithm
@@ -264,8 +260,9 @@ void SQMAlgorithm::straightenSkeleton() {
 			refreshIDs();
 			if (mesh) delete mesh;
 			mesh = new MyMesh();
-			root->createWorm(mesh);
-			sqmState = SQMFinalPlacement;
+			root->wormCreate(mesh);
+			//sqmState = SQMStraighten;
+			//sqmState = SQMFinalPlacement;
 			return;
 		} else {
 			swapRoot(node);
