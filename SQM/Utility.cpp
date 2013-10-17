@@ -2,6 +2,7 @@
 #include "Utility.h"
 #include <GL\glew.h>
 #include <GL\wglew.h>
+#include "FloatArithmetic.h"
 
 #define BIAS 0.1
 
@@ -77,6 +78,22 @@ bool rayTriangleIntersection(OpenMesh::Vec3f ray_origin, OpenMesh::Vec3f ray_dir
 
 	t_param = t;
 	return true;
+}
+
+#pragma endregion
+
+#pragma region Vector functions
+
+OpenMesh::Vec3f getAxisForCross(OpenMesh::Vec3f v) {
+	//return the axis corresponding to the smallst non zero magnitude
+	OpenMesh::Vec3f u = OpenMesh::Vec3f(fabs(v[0]), fabs(v[1]), fabs(v[2]));
+	if ((u[0] <= u[1]) && (u[0] <= u[2]) && (!equal(u[0], 0))) {
+		return OpenMesh::Vec3f(1, 0, 0);
+	}
+	if ((u[1] <= u[0]) && (u[1] <= u[2]) && (!equal(u[1], 0))) {
+		return OpenMesh::Vec3f(0, 1, 0);
+	}
+	return OpenMesh::Vec3f(0, 0, 1);
 }
 
 #pragma endregion

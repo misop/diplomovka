@@ -261,8 +261,7 @@ void SQMAlgorithm::straightenSkeleton() {
 			if (mesh) delete mesh;
 			mesh = new MyMesh();
 			root->wormCreate(mesh);
-			//sqmState = SQMStraighten;
-			//sqmState = SQMFinalPlacement;
+			sqmState = SQMJoinBNPs;
 			return;
 		} else {
 			swapRoot(node);

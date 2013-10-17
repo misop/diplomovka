@@ -35,7 +35,7 @@ SQMNode::SQMNode(SkeletonNode &node, SQMNode* newParent) : parent(newParent) {
 	position = OpenMesh::Vec3f(node.point.x, node.point.y, node.point.z);
 	//nodeRadius = (float)(rand()%100)/100*10 + 5;
 	nodeRadius = node.radius;
-	tessLevel = 3;
+	tessLevel = 1;
 	for (int i = 0; i < node.nodes.size(); i++) {
 		SQMNode *newNode = new SQMNode(*node.nodes[i], this);
 		nodes.push_back(newNode);
@@ -95,7 +95,7 @@ bool SQMNode::isBranchNode() {
 }
 
 bool SQMNode::isLeafNode() {
-	return nodes.size() == 0;
+	return (nodes.size() == 0) || (nodes.size() == 1 && parent == NULL);
 }
 
 OpenMesh::Vec3f SQMNode::getPosition() {
@@ -306,6 +306,9 @@ void SQMNode::updateTransformationMatrix() {
 	transformationMatrix = M;
 }
 
+void SQMNode::addVHandleToRotate(MyMesh::VHandle vh) {
+	meshVhandlesToRotate.push_back(vh);
+}
 
 #pragma endregion
 
@@ -1450,6 +1453,9 @@ void SQMNode::fillRadiusTable(float *table, int width) {
 	if (isLeaf) {//leaf is max radius
 		int plus = (parent == NULL) ? 0 : parent->getId();
 		table[id*width + plus] = nodeRadius;
+		if (nodes.size() != 0) {//only the top of the worm is a leaf with childs
+			table[id*width + nodes[0]->getId()] = nodeRadius;
+		}
 	}
 	if (isConnection) {//connection is max radius
 		table[id*width + parent->getId()] = nodeRadius;
@@ -1570,12 +1576,43 @@ void SQMNode::createScaledIcosahderon(MyMesh* mesh) {
 #pragma region Worm
 
 void SQMNode::wormCreate(MyMesh *mesh, int vertices) {
-	OpenMesh::Vec3f lineVector = (nodes[0]->getPosition() - position).normalize();
+	OpenMesh::Vec3f direction = (nodes[0]->getPosition() - position).normalize();
 	//straighten worm
-	nodes[0]->wormStraighten(lineVector);
+	nodes[0]->wormStraighten(direction);
 	//create one ring
+	OpenMesh::Vec3f axis = getAxisForCross(direction);
+	OpenMesh::Vec3f normal = cross(direction, axis).normalize();
+	float alfa = ((float)2.0*(float)M_PI)/(float)vertices;
+
 	vector<MyMesh::VHandle> oneRing;
+	MyMesh::Point P = nodes[0]->getPosition() + (nodes[0]->getNodeRadius() * normal);
+	MyMesh::VHandle vh = mesh->add_vertex(P);
+	oneRing.push_back(vh);
+	nodes[0]->addVHandleToRotate(vh);
+
+	CVector3 rotation = CVector3(direction.values_);
+	CVector3 offset = CVector3(nodes[0]->getPosition().values_);
+	CVector3 u = CVector3(P.values_) - offset;
+	for (int i = 1; i < vertices; i++) {
+		Quaternion q = QuaternionFromAngleAxis(alfa*(float)i, rotation);
+		CVector3 v = QuaternionRotateVector(q, u);
+		v = v + offset;
+
+		MyMesh::Point X = MyMesh::Point(v.x, v.y, v.z);
+		vh = mesh->add_vertex(X);
+		oneRing.push_back(vh);
+		nodes[0]->addVHandleToRotate(vh);
+	}
 	//extend
+	//first self
+	MyMesh::VHandle vh_Q = mesh->add_vertex(position);
+	meshVhandlesToRotate.push_back(vh_Q);
+	for (int i = 0; i < vertices; i++) {
+		int j = (i == vertices - 1) ? 0 : (i + 1);
+		mesh->add_face(oneRing[j], vh_Q, oneRing[i]);
+	}
+	//then others
+	(*nodes[0]->getNodes())[0]->wormStep(mesh, oneRing, direction);
 	//rotate worm back
 }
 
@@ -1602,7 +1639,56 @@ void SQMNode::wormStraighten(OpenMesh::Vec3f lineVector) {
 	}
 }
 
-void SQMNode::wormStep(MyMesh *mesh, vector<MyMesh::VHandle> &oneRing) {
+void SQMNode::wormStep(MyMesh *mesh, vector<MyMesh::VHandle> &oneRing, OpenMesh::Vec3f lineVector) {
+	if (nodes.size() == 0) {
+		MyMesh::VHandle vh = mesh->add_vertex(position);
+		meshVhandlesToRotate.push_back(vh);
+		for (int i = 0; i < oneRing.size(); i++) {
+			int j = (i == oneRing.size() - 1) ? 0 : (i + 1);
+			mesh->add_face(oneRing[i], vh, oneRing[j]);
+		}
+		return;
+	}
+	//create new points by translating parent points in the direction of the vector
+	float d = -(position[0]*lineVector[0] + position[1]*lineVector[1] + position[2]*lineVector[2]);
+	vector<MyMesh::Point> points;
+	for (int i = 0; i < oneRing.size(); i++) {
+		MyMesh::Point P = mesh->point(oneRing[i]);
+		//OpenMesh::Vec3f u = (position - parentBNPNode->getPosition()).norm() * directionVector;
+		float dist = fabsf(lineVector[0]*P[0] + lineVector[1]*P[1] + lineVector[2]*P[2] + d);
+		OpenMesh::Vec3f u = lineVector * dist;
+		MyMesh::Point Q = P + u;
+		points.push_back(Q);
+	}
+	//map new points to node sphere
+	for (int i = 0; i < points.size(); i++) {
+		MyMesh::Point P = points[i];
+		OpenMesh::Vec3f u(P[0], P[1], P[2]);
+		u = (u - position).normalize();
+		OpenMesh::Vec3f v = nodeRadius*u + position;
+		MyMesh::Point Q(v[0], v[1], v[2]);
+		points[i] = Q;
+	}
+	//insert new points into mesh
+	vector<MyMesh::VertexHandle> newOneRing;
+	for (int i = 0; i < points.size(); i++) {
+		MyMesh::VHandle vhandle = mesh->add_vertex(points[i]);
+		newOneRing.push_back(vhandle);
+		meshVhandlesToRotate.push_back(vhandle);
+	}
+	//create new faces for the points
+	for (int i = 0; i < newOneRing.size(); i++) {
+		int j = 0;
+		if (i + 1 < newOneRing.size()) {
+			j = i + 1;
+		}
+		mesh->add_face(oneRing[i], newOneRing[i], newOneRing[j], oneRing[j]);
+	}
+	//remember inseted points
+	meshIntersectionVHandles = newOneRing;
+	//continue on worm
+	if (nodes.size() > 0)
+		nodes[0]->wormStep(mesh, newOneRing, lineVector);
 }
 
 void SQMNode::wormFinalVertexPlacement(MyMesh *mesh) {

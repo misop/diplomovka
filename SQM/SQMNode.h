@@ -118,6 +118,7 @@ public:
 	void setRotateY(float value);
 	void setRotateZ(float value);
 	void updateTransformationMatrix();
+	void addVHandleToRotate(MyMesh::VHandle vh);
 #pragma endregion
 
 #pragma region Export
@@ -200,9 +201,9 @@ public:
 #pragma endregion
 
 #pragma region Worm
-	void wormCreate(MyMesh *mesh, int vertices = 4);
+	void wormCreate(MyMesh *mesh, int vertices = 5);
 	void wormStraighten(OpenMesh::Vec3f lineVector);
-	void wormStep(MyMesh *mesh, vector<MyMesh::VHandle> &oneRing);
+	void wormStep(MyMesh *mesh, vector<MyMesh::VHandle> &oneRing, OpenMesh::Vec3f lineVector);
 	void wormFinalVertexPlacement(MyMesh *mesh);
 #pragma endregion
 
