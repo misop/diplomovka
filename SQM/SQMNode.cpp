@@ -1579,6 +1579,9 @@ void SQMNode::wormCreate(MyMesh *mesh, int vertices) {
 	OpenMesh::Vec3f direction = (nodes[0]->getPosition() - position).normalize();
 	//straighten worm
 	nodes[0]->wormStraighten(direction);
+	//first add self
+	MyMesh::VHandle vh_Q = mesh->add_vertex(position);
+	meshVhandlesToRotate.push_back(vh_Q);
 	//create one ring
 	OpenMesh::Vec3f axis = getAxisForCross(direction);
 	OpenMesh::Vec3f normal = cross(direction, axis).normalize();
@@ -1605,8 +1608,6 @@ void SQMNode::wormCreate(MyMesh *mesh, int vertices) {
 	}
 	//extend
 	//first self
-	MyMesh::VHandle vh_Q = mesh->add_vertex(position);
-	meshVhandlesToRotate.push_back(vh_Q);
 	for (int i = 0; i < vertices; i++) {
 		int j = (i == vertices - 1) ? 0 : (i + 1);
 		mesh->add_face(oneRing[j], vh_Q, oneRing[i]);
@@ -1687,8 +1688,7 @@ void SQMNode::wormStep(MyMesh *mesh, vector<MyMesh::VHandle> &oneRing, OpenMesh:
 	//remember inseted points
 	meshIntersectionVHandles = newOneRing;
 	//continue on worm
-	if (nodes.size() > 0)
-		nodes[0]->wormStep(mesh, newOneRing, lineVector);
+	if (nodes.size() > 0) nodes[0]->wormStep(mesh, newOneRing, lineVector);
 }
 
 void SQMNode::wormFinalVertexPlacement(MyMesh *mesh) {

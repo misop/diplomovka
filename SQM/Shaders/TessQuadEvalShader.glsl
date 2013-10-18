@@ -102,8 +102,8 @@ void main()
 		float radius = 0.0;
 		float id0 = float(tcNodeID[0]) / float(MaxID);
 		float id1 = float(tcNodeID[1]) / float(MaxID);
-		float radius1 = texture(RadiusesSampler, vec2(id0, id1)).r;
-		float radius2 = texture(RadiusesSampler, vec2(id1, id0)).r;
+		float radius1 = 10;//texture(RadiusesSampler, vec2(id0, id1)).r;
+		float radius2 = 10;//texture(RadiusesSampler, vec2(id1, id0)).r;
 		//float radius1 = texture(RadiusesSampler, vec2(tcNodeID[0], tcNodeID[1])).r;
 		//float radius2 = texture(RadiusesSampler, vec2(tcNodeID[1], tcNodeID[0])).r;
 
@@ -178,6 +178,7 @@ void main()
 	
 	//teColor = getNodePosition(tcNodeID[1]);	
 	//teColor = texture(CTS, vec2(2, 1)).rgb;
+	//teColor = vec3(id0, id1, 0);
     tePatchDistance = vec4(u, v, 1-u, 1-v);
 	
 	float d01 = length(gl_in[0].gl_Position - gl_in[1].gl_Position);
