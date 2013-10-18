@@ -209,6 +209,7 @@ void SQMAlgorithm::fixWorm() {
 			node->addDescendant(temp);
 			temp->setParent(node);
 			second->setParent(temp);
+			numOfNodes++;
 		}
 	} else {//node has 2 childs
 		SQMNode *parent = (*node->getNodes())[0];
@@ -261,7 +262,7 @@ void SQMAlgorithm::straightenSkeleton() {
 			if (mesh) delete mesh;
 			mesh = new MyMesh();
 			root->wormCreate(mesh);
-			sqmState = SQMJoinBNPs;
+			sqmState = SQMFinalPlacement;
 			return;
 		} else {
 			swapRoot(node);
