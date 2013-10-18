@@ -1615,6 +1615,7 @@ void SQMNode::wormCreate(MyMesh *mesh, int vertices) {
 	//then others
 	(*nodes[0]->getNodes())[0]->wormStep(mesh, oneRing, direction);
 	//rotate worm back
+	wormFinalVertexPlacement(mesh);
 }
 
 void SQMNode::wormStraighten(OpenMesh::Vec3f lineVector) {
@@ -1692,6 +1693,39 @@ void SQMNode::wormStep(MyMesh *mesh, vector<MyMesh::VHandle> &oneRing, OpenMesh:
 }
 
 void SQMNode::wormFinalVertexPlacement(MyMesh *mesh) {
+	//start with sons
+	for (int i = 0; i < nodes.size(); i++) {
+		nodes[i]->rotateBack(mesh);
+	}
+	//rotate
+	if (parent != NULL) {
+		OpenMesh::Vec3f parentPosition = parent->getPosition();
+		CVector3 parentPos(parentPosition.values_);
+		for (int i = 0; i < meshVhandlesToRotate.size(); i++) {
+			MyMesh::VHandle vhandle = meshVhandlesToRotate[i];
+			MyMesh::Point P = mesh->point(vhandle);
+			CVector3 v(P.values_);
+			//translate rotate translate
+			v = v - parentPos;
+			v = QuaternionRotateVector(axisAngle, v);
+			v = v + parentPos;
+			P[0] = v.x;
+			P[1] = v.y;
+			P[2] = v.z;
+			mesh->set_point(vhandle, P);
+		}
+	}
+	for (int i = 0; i < meshVhandlesToRotate.size(); i++) {
+		MyMesh::VHandle vhandle = meshVhandlesToRotate[i];
+		MyMesh::Point P = mesh->point(vhandle);
+		glm::vec4 u(P[0], P[1], P[2], 1);
+		u = transformationMatrix * u;
+		P[0] = u.x;
+		P[1] = u.y;
+		P[2] = u.z;
+		mesh->set_point(vhandle, P);
+	}
+	position = oldPosition;
 }
 
 #pragma endregion
