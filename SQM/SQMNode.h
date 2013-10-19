@@ -41,6 +41,7 @@ class SQMNode {
 	float nodeRadius;
 	float tessLevel;
 	OpenMesh::Vec3f position;
+	OpenMesh::Vec3f originalPosition;
 	OpenMesh::Vec3f centerOfMass;
 	OpenMesh::Vec3f oldPosition;
 	Quaternion axisAngle;
@@ -72,6 +73,8 @@ public:
 	bool isBranchNode();
 	bool isLeafNode();
 	OpenMesh::Vec3f getPosition();
+	OpenMesh::Vec3f getOldPosition();
+	OpenMesh::Vec3f getOriginalPosition();
 	glm::vec3 getPosition_glm();
 	vector<SQMNode*>* getNodes();
 	SQMNode* getParent();
@@ -123,6 +126,10 @@ public:
 
 #pragma region Export
 	SkeletonNode* exportToSkeletonNode();
+#pragma endregion
+
+#pragma region SQM Preprocessing
+	void createCapsules(int minSmallCircles = 5);
 #pragma endregion
 
 #pragma region Skeleton Straightening

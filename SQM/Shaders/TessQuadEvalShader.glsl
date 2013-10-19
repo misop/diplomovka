@@ -163,6 +163,8 @@ void main()
 		else
 			radius = easeout(r0, r1, u);
 
+		//radius = mix(mix(radius2, radius1, v), mix(radius2, radius1, v), u);
+
 		//teColor = vec3(r0/max(r0,r1), r1/max(r0,r1), u);
 		//teColor = vec3(r0/max(r0,r1), r1/max(r0,r1), 0);
 		
@@ -174,6 +176,7 @@ void main()
 		vec3 projection = w0 + (dir * projLength);
 		vec3 normal = normalize(position - projection);
 		position = projection + (normal * radius);
+		//position = mix(a, b, v);
 	}
 	
 	//teColor = getNodePosition(tcNodeID[1]);	

@@ -257,7 +257,9 @@ void SQMAlgorithm::straightenSkeleton() {
 		SQMNode *node = findBNPInTree();
 		if (node == NULL) {
 			//handle worm
+			root->createCapsules();
 			fixWorm();
+			numOfNodes = countNodes();
 			refreshIDs();
 			if (mesh) delete mesh;
 			mesh = new MyMesh();
@@ -270,6 +272,9 @@ void SQMAlgorithm::straightenSkeleton() {
 		}
 	}
 
+	root->createCapsules();
+	numOfNodes = countNodes();
+	refreshIDs();
 	fb->open("log.txt", ios::out);
 	(*os) << "Skeleton straightening\n";
 	//root->straightenSkeleton(OpenMesh::Vec3f(0, 0, 0));

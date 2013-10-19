@@ -97,3 +97,9 @@ OpenMesh::Vec3f getAxisForCross(OpenMesh::Vec3f v) {
 }
 
 #pragma endregion
+
+glm::vec2 bezier(glm::vec2 P1, glm::vec2 P2, float t) {
+	glm::vec2 P0(0.0, 0.0);
+	glm::vec2 P3(1.0, 1.0);
+	return (pow(1 - t, 3)*P0 + 3*pow(1 - t, 2)*t*P1 + 3*(1 - t)*pow(t, 2)*P2 + pow(t, 3)*P3);
+}

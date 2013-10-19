@@ -12,6 +12,7 @@
 
 SQMNode::SQMNode(void) {
 	position = OpenMesh::Vec3f(0, 0, 0);
+	originalPosition = position;
 	nodeRadius = 10;
 	id = 0;
 	idStr = "0";
@@ -33,6 +34,7 @@ SQMNode::SQMNode(SkeletonNode &node, SQMNode* newParent) : parent(newParent) {
 	}
 	id = 0;
 	position = OpenMesh::Vec3f(node.point.x, node.point.y, node.point.z);
+	originalPosition = position;
 	//nodeRadius = (float)(rand()%100)/100*10 + 5;
 	nodeRadius = node.radius;
 	tessLevel = 1;
@@ -55,6 +57,7 @@ SQMNode::SQMNode(SQMNode &node) {
 	nodeRadius = node.getNodeRadius();
 	tessLevel = node.getTessLevel();
 	position = node.getPosition();
+	originalPosition = position;
 	axisAngle = node.getAxisAngle();
 	vector<SQMNode *> *childs = node.getNodes();
 	scalev = node.getScalev();
@@ -100,6 +103,14 @@ bool SQMNode::isLeafNode() {
 
 OpenMesh::Vec3f SQMNode::getPosition() {
 	return position;
+}
+
+OpenMesh::Vec3f SQMNode::getOldPosition() {
+	return oldPosition;
+}
+
+OpenMesh::Vec3f SQMNode::getOriginalPosition() {
+	return originalPosition;
 }
 
 glm::vec3 SQMNode::getPosition_glm() {
@@ -212,10 +223,12 @@ void SQMNode::setTessLevel(float newTessLevel) {
 
 void SQMNode::setPosition(OpenMesh::Vec3f newPosition) {
 	position = newPosition;
+	originalPosition = position;
 }
 
 void SQMNode::setPosition(float x, float y, float z) {
 	position = OpenMesh::Vec3f(x, y, z);
+	originalPosition = position;
 }
 
 void SQMNode::addDescendant(SQMNode* node) {
@@ -324,6 +337,44 @@ SkeletonNode* SQMNode::exportToSkeletonNode() {
 
 #pragma endregion
 
+#pragma region SQM Preprocessing
+
+void SQMNode::createCapsules(int minSmallCircles) {
+	if (this->isLeafNode()) {
+		//create vector
+		OpenMesh::Vec3f dir = (position - parent->getPosition()).normalize();
+		//get number
+		int smallCircles = max(nodeRadius, (float)minSmallCircles);
+		SQMNode *current = this;
+		for (int i = 1; i <= smallCircles; i++) {
+			//calculate radius
+			glm::vec2 P1(0.23, 1);
+			glm::vec2 P2(0.32, 1);
+			float t = (float)i/(float)smallCircles;
+			float step = bezier(P1, P2, t).y;
+			float newRadius = sqrtf(pow(nodeRadius, 2) * (1 - pow(step, 2)));
+			if (i == smallCircles) newRadius = 1;
+			//calculate new position
+			OpenMesh::Vec3f newPosition = position + (step*nodeRadius*dir);
+			//insert node with calculated radius
+			SQMNode *newNode = new SQMNode(*current);
+			newNode->setNodeRadius(newRadius);
+			newNode->setPosition(newPosition);
+			newNode->setParent(current);
+			current->addDescendant(newNode);
+
+			current = newNode;
+		}
+	} else {
+		//propagate next
+		for (int i = 0; i < nodes.size(); i++) {
+			nodes[i]->createCapsules();
+		}
+	}
+}
+
+#pragma endregion
+
 #pragma region Skeleton Straightening
 
 void SQMNode::straightenSkeleton(OpenMesh::Vec3f *lineVector) {
@@ -338,7 +389,7 @@ void SQMNode::straightenSkeleton(OpenMesh::Vec3f *lineVector) {
 		OpenMesh::Vec3f newPosition = position - parent->getPosition();
 		CVector3 oldPos(newPosition.values_);
 		//roatate
-		float len = newPosition.length();
+		float len = (originalPosition - parent->getOriginalPosition()).length();
 		newPosition = len*(*lineVector);
 		CVector3 newPos(newPosition.values_);
 		Quaternion quaternion = SQMQuaternionBetweenVectors(newPos, oldPos);
@@ -1578,6 +1629,7 @@ void SQMNode::createScaledIcosahderon(MyMesh* mesh) {
 void SQMNode::wormCreate(MyMesh *mesh, int vertices) {
 	OpenMesh::Vec3f direction = (nodes[0]->getPosition() - position).normalize();
 	//straighten worm
+	oldPosition = position;
 	nodes[0]->wormStraighten(direction);
 	//first add self
 	MyMesh::VHandle vh_Q = mesh->add_vertex(position);
@@ -1626,7 +1678,7 @@ void SQMNode::wormStraighten(OpenMesh::Vec3f lineVector) {
 	OpenMesh::Vec3f newPosition = position - parent->getPosition();
 	CVector3 oldPos(newPosition.values_);
 	//roatate
-	float len = newPosition.length();
+	float len = (originalPosition - parent->getOriginalPosition()).length();
 	newPosition = len*lineVector;
 	CVector3 newPos(newPosition.values_);
 	Quaternion quaternion = SQMQuaternionBetweenVectors(newPos, oldPos);
@@ -1695,7 +1747,7 @@ void SQMNode::wormStep(MyMesh *mesh, vector<MyMesh::VHandle> &oneRing, OpenMesh:
 void SQMNode::wormFinalVertexPlacement(MyMesh *mesh) {
 	//start with sons
 	for (int i = 0; i < nodes.size(); i++) {
-		nodes[i]->rotateBack(mesh);
+		nodes[i]->wormFinalVertexPlacement(mesh);
 	}
 	//rotate
 	if (parent != NULL) {

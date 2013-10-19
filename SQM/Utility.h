@@ -69,3 +69,5 @@ bool rayTriangleIntersection(OpenMesh::Vec3f ray_origin, OpenMesh::Vec3f ray_dir
 #pragma region Vector functions
 OpenMesh::Vec3f getAxisForCross(OpenMesh::Vec3f v);
 #pragma endregion
+
+glm::vec2 bezier(glm::vec2 P1, glm::vec2 P2, float t);
