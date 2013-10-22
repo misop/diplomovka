@@ -1667,7 +1667,7 @@ void SQMNode::wormCreate(MyMesh *mesh, int vertices) {
 	//then others
 	(*nodes[0]->getNodes())[0]->wormStep(mesh, oneRing, direction);
 	//rotate worm back
-	wormFinalVertexPlacement(mesh);
+	//wormFinalVertexPlacement(mesh);
 }
 
 void SQMNode::wormStraighten(OpenMesh::Vec3f lineVector) {

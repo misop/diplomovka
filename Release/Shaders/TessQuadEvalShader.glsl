@@ -83,8 +83,8 @@ void main()
 	int type0 = tcNodeType[0];
 	int type1 = tcNodeType[1];
 
-	//if (!((isBranchNode(type0) && floatEqual(v, 0)) || (isBranchNode(type1) && floatEqual(v, 1)))) {
-	if (!(floatEqual(v, 1) || floatEqual(v, 0))) {
+	if (!((isBranchNode(type0) && floatEqual(v, 0)) || (isBranchNode(type1) && floatEqual(v, 1)))) {
+	//if (!(floatEqual(v, 1) || floatEqual(v, 0))) {
 		//vec3 w0 = getNodePosition(tcNodeID[0]);		
 		float x = texture(CTS, vec2(0, tcNodeID[0])).r;
 		float y = texture(CTS, vec2(1, tcNodeID[0])).r;
@@ -106,22 +106,27 @@ void main()
 		float radius2 = texture(RadiusesSampler, vec2(id1, id0)).r;
 		//float radius1 = texture(RadiusesSampler, vec2(tcNodeID[0], tcNodeID[1])).r;
 		//float radius2 = texture(RadiusesSampler, vec2(tcNodeID[1], tcNodeID[0])).r;
-
+		
 		float r0 = mix(radius2, radius1, v);
 		float r1 = r0;
+		//tube tesselation or leaf tesselation
 		if ((isConnectionNode(type0) || isLeafNode(type0)) && (isConnectionNode(type1) || isLeafNode(type1))) {
 			//radius = mix(radius1, radius2, v);
 			//already set up
 		}
+		//from BNP to tube or leaf
 		if (isBranchNode(type0) && (isConnectionNode(type1) || isLeafNode(type1))) {
-			teColor = vec3(abs(dot(face_normal, tcVertexNormal[0])), abs(dot(face_normal, tcVertexNormal[3])), 0);
-			if (abs(dot(d, tcVertexNormal[0])) >= Threshold) {
-				r0 = easein(radius1 / 2.0, radius2, v);
-			}
-			if (abs(dot(d, tcVertexNormal[3])) >= Threshold) {
-				r1 = easein(radius1 / 2.0, radius2, v);
+			if (!floatEqual(v, 1)) {//we smooth all the tesselated vertices except the last so we can better join tubes
+				teColor = vec3(abs(dot(face_normal, tcVertexNormal[0])), abs(dot(face_normal, tcVertexNormal[3])), 0);
+				if (abs(dot(d, tcVertexNormal[0])) >= Threshold) {
+					r0 = easein(radius1 / 2.0, radius2, v);
+				}
+				if (abs(dot(d, tcVertexNormal[3])) >= Threshold) {
+					r1 = easein(radius1 / 2.0, radius2, v);
+				}
 			}
 		}
+		//from tube or leaf to BNP
 		if (isBranchNode(type1) && (isConnectionNode(type0) || isLeafNode(type0))) {
 			//radius = easeout(radius1, radius2 / 2.0, v);
 			teColor = vec3(abs(dot(face_normal, tcVertexNormal[1])), abs(dot(face_normal, tcVertexNormal[2])), 0);
@@ -132,6 +137,7 @@ void main()
 				r1 = easeout(radius1, radius2 / 2.0, v);
 			}
 		}
+		//from BNP to BNP
 		if (isBranchNode(type0) && isBranchNode(type1)) {
 			float t = Threshold - 0.5;
 			bool b0 = abs(dot(d, tcVertexNormal[0])) >= t;
@@ -158,10 +164,12 @@ void main()
 		}
 		
 		radius = mix(r0, r1, u);
-		if (r0 < r1)
+		/*if (r0 < r1)
 			radius = easein(r0, r1, u);
 		else
-			radius = easeout(r0, r1, u);
+			radius = easeout(r0, r1, u);*/
+
+		//radius = mix(mix(radius2, radius1, v), mix(radius2, radius1, v), u);
 
 		//teColor = vec3(r0/max(r0,r1), r1/max(r0,r1), u);
 		//teColor = vec3(r0/max(r0,r1), r1/max(r0,r1), 0);
@@ -174,10 +182,12 @@ void main()
 		vec3 projection = w0 + (dir * projLength);
 		vec3 normal = normalize(position - projection);
 		position = projection + (normal * radius);
+		//position = mix(a, b, v);
 	}
 	
 	//teColor = getNodePosition(tcNodeID[1]);	
 	//teColor = texture(CTS, vec2(2, 1)).rgb;
+	//teColor = vec3(id0, id1, 0);
     tePatchDistance = vec4(u, v, 1-u, 1-v);
 	
 	float d01 = length(gl_in[0].gl_Position - gl_in[1].gl_Position);
