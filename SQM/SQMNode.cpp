@@ -44,8 +44,8 @@ SQMNode::SQMNode(SkeletonNode &node, SQMNode* newParent) : parent(newParent) {
 		nodes.push_back(newNode);
 	}
 	polyhedron = NULL;
-	scalev = glm::vec3(1, 1, 1);
-	rotatev = glm::vec3();
+	scalev = glm::vec3(node.scale.x, node.scale.y, node.scale.z);
+	rotatev = glm::vec3(node.rotate.x, node.rotate.y, node.rotate.z);
 	transformationMatrix = glm::mat4();
 }
 
@@ -345,6 +345,8 @@ SkeletonNode* SQMNode::exportToSkeletonNode() {
 	node->tessLevel = tessLevel;
 	node->id = id;
 	node->capsule = (sqmNodeType == SQMCapsule);
+	node->scale = CVector3(scalev.x, scalev.y, scalev.z);
+	node->rotate = CVector3(rotatev.x, rotatev.y, rotatev.z);
 	for (int i = 0; i < nodes.size(); i++) {
 		node->addChild(nodes[i]->exportToSkeletonNode());
 	}

@@ -10,6 +10,8 @@ class SkeletonNode
 	friend class boost::serialization::access;
 public:
 	CVector3 point;
+	CVector3 scale;
+	CVector3 rotate;
 	float radius;
 	float tessLevel;
 	int id;
@@ -38,6 +40,8 @@ protected:
 		if (version > 1) {
 			ar & BOOST_SERIALIZATION_NVP(capsule);
 			ar & BOOST_SERIALIZATION_NVP(tessLevel);
+			ar & BOOST_SERIALIZATION_NVP(scale);
+			ar & BOOST_SERIALIZATION_NVP(rotate);
 		}
 		ar & BOOST_SERIALIZATION_NVP(nodes);
 	}
