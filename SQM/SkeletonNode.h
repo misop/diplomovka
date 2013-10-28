@@ -11,6 +11,7 @@ class SkeletonNode
 public:
 	CVector3 point;
 	float radius;
+	float tessLevel;
 	int id;
 	bool cyclic;
 	bool capsule;
@@ -36,6 +37,7 @@ protected:
 		}
 		if (version > 1) {
 			ar & BOOST_SERIALIZATION_NVP(capsule);
+			ar & BOOST_SERIALIZATION_NVP(tessLevel);
 		}
 		ar & BOOST_SERIALIZATION_NVP(nodes);
 	}

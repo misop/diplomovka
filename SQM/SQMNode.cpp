@@ -36,11 +36,9 @@ SQMNode::SQMNode(SkeletonNode &node, SQMNode* newParent) : parent(newParent) {
 	id = 0;
 	position = OpenMesh::Vec3f(node.point.x, node.point.y, node.point.z);
 	originalPosition = position;
-	//nodeRadius = (float)(rand()%100)/100*10 + 5;
 	nodeRadius = node.radius;
-	tessLevel = 1;
-	//sqmNodeType = node.capsule ? SQMCapsule : SQMNone;
-	sqmNodeType = SQMCapsule;
+	tessLevel = node.tessLevel;
+	sqmNodeType = node.capsule ? SQMCapsule : SQMNone;
 	for (int i = 0; i < node.nodes.size(); i++) {
 		SQMNode *newNode = new SQMNode(*node.nodes[i], this);
 		nodes.push_back(newNode);
@@ -50,7 +48,6 @@ SQMNode::SQMNode(SkeletonNode &node, SQMNode* newParent) : parent(newParent) {
 	rotatev = glm::vec3();
 	transformationMatrix = glm::mat4();
 }
-
 
 SQMNode::SQMNode(SQMNode &node) {
 	parent = NULL;
@@ -345,6 +342,9 @@ void SQMNode::addVHandleToRotate(MyMesh::VHandle vh) {
 
 SkeletonNode* SQMNode::exportToSkeletonNode() {
 	SkeletonNode* node = new SkeletonNode(position[0], position[1], position[2], nodeRadius);
+	node->tessLevel = tessLevel;
+	node->id = id;
+	node->capsule = (sqmNodeType == SQMCapsule);
 	for (int i = 0; i < nodes.size(); i++) {
 		node->addChild(nodes[i]->exportToSkeletonNode());
 	}
