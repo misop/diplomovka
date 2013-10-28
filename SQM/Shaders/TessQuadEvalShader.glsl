@@ -10,6 +10,7 @@ flat in int tcNodeID[];
 out vec4 tePatchDistance;
 out vec4 tePatchDistanceCtrl;
 out vec3 teColor;
+out vec3 tePos;
 
 uniform mat4 MVPmatrix;
 layout(binding=0) uniform sampler2D RadiusesSampler;
@@ -83,7 +84,7 @@ void main()
 	int type0 = tcNodeType[0];
 	int type1 = tcNodeType[1];
 
-	if (!((isBranchNode(type0) && floatEqual(v, 0)) || (isBranchNode(type1) && floatEqual(v, 1)))) {
+	if (!((isBranchNode(type0) && floatEqual(v, 0)) || (isBranchNode(type1) && floatEqual(v, 1)) || (isLeafNode(type1) && floatEqual(v, 1)))) {
 	//if (!(floatEqual(v, 1) || floatEqual(v, 0))) {
 		//vec3 w0 = getNodePosition(tcNodeID[0]);		
 		float x = texture(CTS, vec2(0, tcNodeID[0])).r;
@@ -195,6 +196,7 @@ void main()
 	float d23 = length(gl_in[2].gl_Position - gl_in[3].gl_Position);
 	float d30 = length(gl_in[3].gl_Position - gl_in[0].gl_Position);
 	tePatchDistanceCtrl = vec4(d01, d12, d23, d30);
-
+	
 	gl_Position = MVPmatrix * vec4(position, 1);
+	tePos = position;
 }

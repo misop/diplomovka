@@ -277,12 +277,12 @@ namespace OpenGLForm
 
 		bool InitGL(GLvoid)										// All setup for opengl goes here
 		{
-			glShadeModel(GL_SMOOTH);							// Enable smooth shading
+			//glShadeModel(GL_SMOOTH);							// Enable smooth shading
 			glClearColor(0.0f, 0.0f, 0.0f, 0.5f);				// Black background
 			glClearDepth(1.0f);									// Depth buffer setup
 			glEnable(GL_DEPTH_TEST);							// Enables depth testing
 			glDepthFunc(GL_LEQUAL);								// The type of depth testing to do
-			glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST);	// Really nice perspective calculations
+			//glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST);	// Really nice perspective calculations
 			glEnable(GL_PROGRAM_POINT_SIZE);
 			sqmControler->generateTextures();
 			InitShaders();
@@ -526,20 +526,20 @@ namespace OpenGLForm
 
 			glViewport(0,0,width,height);						// Reset The Current Viewport
 
-			glMatrixMode(GL_PROJECTION);						// Select The Projection Matrix
-			glLoadIdentity();									// Reset The Projection Matrix
+			//glMatrixMode(GL_PROJECTION);						// Select The Projection Matrix
+			//glLoadIdentity();									// Reset The Projection Matrix
 
 			// Calculate The Aspect Ratio Of The Window
 			//gluPerspective(45.0f,(GLfloat)width/(GLfloat)height,0.1f,100.0f);
-			gluPerspective(45.0f,(GLfloat)width/(GLfloat)height, 1.0f, INFINITE);
+			//gluPerspective(45.0f,(GLfloat)width/(GLfloat)height, 1.0f, INFINITE);
 			glCamera->projection = glm::perspective<float>(45.0f, (GLfloat)width/(GLfloat)height, 1.0f, INFINITE);
 			glCamera->fovy = 45.0;
 			glCamera->aspect = (float)width/(float)height;
 			glCamera->setWidth(width);
 			glCamera->setHeight(height);
 
-			glMatrixMode(GL_MODELVIEW);							// Select The Modelview Matrix
-			glLoadIdentity();									// Reset The Modelview Matrix
+			//glMatrixMode(GL_MODELVIEW);							// Select The Modelview Matrix
+			//glLoadIdentity();									// Reset The Modelview Matrix
 		}
 
 #pragma region My Functions
@@ -563,11 +563,11 @@ namespace OpenGLForm
 				left *= aspect;
 				right *= aspect;
 				}*/
-				glMatrixMode(GL_PROJECTION);
-				glLoadIdentity();
-				glOrtho(left, right, bottom, top, zNear, zFar);
-				glMatrixMode(GL_MODELVIEW);
-				glLoadIdentity();
+				//glMatrixMode(GL_PROJECTION);
+				//glLoadIdentity();
+				//glOrtho(left, right, bottom, top, zNear, zFar);
+				//glMatrixMode(GL_MODELVIEW);
+				//glLoadIdentity();
 			}
 		}
 

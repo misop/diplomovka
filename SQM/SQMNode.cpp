@@ -22,6 +22,7 @@ SQMNode::SQMNode(void) {
 	scalev = glm::vec3(1, 1, 1);
 	rotatev = glm::vec3();
 	transformationMatrix = glm::mat4();
+	sqmNodeType = SQMNone;
 }
 
 SQMNode::SQMNode(SkeletonNode &node, SQMNode* newParent) : parent(newParent) {
@@ -38,6 +39,8 @@ SQMNode::SQMNode(SkeletonNode &node, SQMNode* newParent) : parent(newParent) {
 	//nodeRadius = (float)(rand()%100)/100*10 + 5;
 	nodeRadius = node.radius;
 	tessLevel = 1;
+	//sqmNodeType = node.capsule ? SQMCapsule : SQMNone;
+	sqmNodeType = SQMCapsule;
 	for (int i = 0; i < node.nodes.size(); i++) {
 		SQMNode *newNode = new SQMNode(*node.nodes[i], this);
 		nodes.push_back(newNode);
@@ -54,6 +57,7 @@ SQMNode::SQMNode(SQMNode &node) {
 	polyhedron = NULL;
 	id = node.getId();
 	idStr = node.getIdStr();
+	sqmNodeType = node.getSQMNodeType();
 	nodeRadius = node.getNodeRadius();
 	tessLevel = node.getTessLevel();
 	position = node.getPosition();
@@ -88,6 +92,10 @@ unsigned int SQMNode::getId() {
 
 string SQMNode::getIdStr() {
 	return idStr;
+}
+
+SQMNodeType SQMNode::getSQMNodeType() {
+	return sqmNodeType;
 }
 
 bool SQMNode::isBranchNode() {
@@ -226,6 +234,10 @@ void SQMNode::setPosition(OpenMesh::Vec3f newPosition) {
 	originalPosition = position;
 }
 
+void SQMNode::setSQMNodeType(SQMNodeType newType) {
+	sqmNodeType = newType;
+}
+
 void SQMNode::setPosition(float x, float y, float z) {
 	position = OpenMesh::Vec3f(x, y, z);
 	originalPosition = position;
@@ -243,6 +255,10 @@ void SQMNode::removeDescendant(SQMNode* node) {
 			return;
 		}
 	}
+}
+
+void SQMNode::removeDescendants() {
+	nodes.clear();
 }
 
 void SQMNode::rotatePosition(Quaternion q, CVector3 offset) {
@@ -340,9 +356,15 @@ SkeletonNode* SQMNode::exportToSkeletonNode() {
 #pragma region SQM Preprocessing
 
 void SQMNode::createCapsules(int minSmallCircles) {
-	if (this->isLeafNode()) {
+	if (this->isLeafNode() && (sqmNodeType == SQMCapsule)) {
+		bool nullParent = (parent == NULL);
 		//create vector
-		OpenMesh::Vec3f dir = (position - parent->getPosition()).normalize();
+		OpenMesh::Vec3f dir;
+		if (nullParent) {
+			dir = (position - nodes[0]->getPosition()).normalize();
+		} else {
+			dir = (position - parent->getPosition()).normalize();
+		}
 		//get number
 		int smallCircles = max(nodeRadius, (float)minSmallCircles);
 		SQMNode *current = this;
@@ -360,16 +382,21 @@ void SQMNode::createCapsules(int minSmallCircles) {
 			SQMNode *newNode = new SQMNode(*current);
 			newNode->setNodeRadius(newRadius);
 			newNode->setPosition(newPosition);
-			newNode->setParent(current);
-			current->addDescendant(newNode);
+			newNode->setSQMNodeType(SQMNone);
+			if (nullParent) {
+				newNode->removeDescendants();
+				newNode->addDescendant(current);
+				current->setParent(newNode);
+			} else {
+				newNode->setParent(current);
+				current->addDescendant(newNode);
+			}
 
 			current = newNode;
 		}
-	} else {
-		//propagate next
-		for (int i = 0; i < nodes.size(); i++) {
-			nodes[i]->createCapsules();
-		}
+	}
+	for (int i = 0; i < nodes.size(); i++) {
+		nodes[i]->createCapsules();
 	}
 }
 
@@ -1475,6 +1502,9 @@ void SQMNode::getMeshTessDatai(vector<float> &tessLevels, vector<float> &nodePos
 	int type = 0;
 	if (this->isBranchNode()) type = 1;
 	else if (this->isLeafNode()) type = 2;
+	if (type == 0 && nodes[0]->isLeafNode()) {
+		type = 2;
+	}
 
 	for (int i = 0; i < meshVhandlesToRotate.size(); i++) {
 		MyMesh::VHandle vh = meshVhandlesToRotate[i];

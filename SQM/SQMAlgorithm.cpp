@@ -198,6 +198,14 @@ void SQMAlgorithm::swapRoot(SQMNode *node) {
 void SQMAlgorithm::fixWorm() {
 	SQMNode *node = root;
 	if (node->getNodes()->size() == 1) {
+		//if we got son and parent we need to change root
+		if (node->getParent() != NULL) {
+			while (node->getParent() != NULL) {
+				node = node->getParent();
+				root = node;
+			}
+			return;
+		}
 		//if next is leaf we need to add extra node
 		if ((*node->getNodes())[0]->isLeafNode()) {
 			//add extra node

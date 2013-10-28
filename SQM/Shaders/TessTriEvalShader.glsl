@@ -1,9 +1,10 @@
-#version 410
+#version 420
 
 layout(triangles, equal_spacing, cw) in;
 
 out vec4 tePatchDistance;
 out vec4 tePatchDistanceCtrl;
+out vec3 tePos;
 
 uniform mat4 MVPmatrix;
 
@@ -25,4 +26,5 @@ void main()
 	
 	//gl_Position = MVPmatrix * vec4(gl_TessCoord, 1);
 	gl_Position = MVPmatrix * vec4(position, 1);
+	tePos = position;
 }

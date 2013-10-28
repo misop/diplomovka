@@ -30,6 +30,13 @@ typedef enum {
 	SQMOneRingLaplacianSmoothing
 } SQMSmoothingAlgorithm;
 
+typedef enum {
+	SQMNone = 0,
+	SQMPoint,
+	SQMCapsule,
+	SQMCycle
+} SQMNodeType;
+
 #pragma endregion
 
 class SQMNode {
@@ -40,6 +47,7 @@ class SQMNode {
 	SQMNode* parent;
 	float nodeRadius;
 	float tessLevel;
+	SQMNodeType sqmNodeType;
 	OpenMesh::Vec3f position;
 	OpenMesh::Vec3f originalPosition;
 	OpenMesh::Vec3f centerOfMass;
@@ -76,6 +84,7 @@ public:
 	OpenMesh::Vec3f getOldPosition();
 	OpenMesh::Vec3f getOriginalPosition();
 	glm::vec3 getPosition_glm();
+	SQMNodeType getSQMNodeType();
 	vector<SQMNode*>* getNodes();
 	SQMNode* getParent();
 	MyTriMesh* getPolyhedron();
@@ -106,10 +115,12 @@ public:
 	void setTessLevel(float newTessLevel);
 	void setPosition(OpenMesh::Vec3f newPosition);
 	void setPosition(float x, float y, float z);
+	void setSQMNodeType(SQMNodeType newType);
 	void addDescendant(SQMNode* node);
 	void rotatePosition(Quaternion q, CVector3 offset);
 	void addDescendant(float x, float y, float z);
 	void removeDescendant(SQMNode* node);
+	void removeDescendants();
 	void setX(float newX);
 	void setY(float newY);
 	void setZ(float newZ);

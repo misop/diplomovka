@@ -13,6 +13,7 @@ public:
 	float radius;
 	int id;
 	bool cyclic;
+	bool capsule;
 	vector<SkeletonNode*> nodes;
 public:
 	SkeletonNode();
@@ -33,8 +34,11 @@ protected:
 		if (version > 0) {
 			ar & BOOST_SERIALIZATION_NVP(radius);
 		}
+		if (version > 1) {
+			ar & BOOST_SERIALIZATION_NVP(capsule);
+		}
 		ar & BOOST_SERIALIZATION_NVP(nodes);
 	}
 };
 
-BOOST_CLASS_VERSION(SkeletonNode, 1)
+BOOST_CLASS_VERSION(SkeletonNode, 2)
