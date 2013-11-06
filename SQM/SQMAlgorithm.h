@@ -22,6 +22,7 @@ class SQMAlgorithm {
 	ostream *os;
 	int numOfNodes;
 	SQMSmoothingAlgorithm smoothingAlgorithm;
+	SkinSkeleton *skeleton;
 	
 	SQMNode* findBNPInTree();
 	void swapRoot(SQMNode *node);

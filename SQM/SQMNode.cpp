@@ -353,6 +353,20 @@ SkeletonNode* SQMNode::exportToSkeletonNode() {
 	return node;
 }
 
+SkinSkeleton* SQMNode::exportToSkinSkeleton(SkinSkeleton *parent) {
+	//if this is worms head
+	if (sqmNodeType == SQMCreatedCapsule && nodes.size() > 0) return nodes[0]->exportToSkinSkeleton(parent);
+
+	SkinSkeleton *node = new SkinSkeleton(parent, position[0], position[1], position[2]);
+	//if next is only capsule the matrix would be the same
+	if (sqmNodeType == SQMFormerCapsule) return node;
+
+	for (int i = 0; i < nodes.size(); i++) {
+		node->nodes.push_back(nodes[i]->exportToSkinSkeleton(node));
+	}
+	return node;
+}
+
 #pragma endregion
 
 #pragma region SQM Preprocessing
@@ -384,7 +398,7 @@ void SQMNode::createCapsules(int minSmallCircles) {
 			SQMNode *newNode = new SQMNode(*current);
 			newNode->setNodeRadius(newRadius);
 			newNode->setPosition(newPosition);
-			newNode->setSQMNodeType(SQMNone);
+			newNode->setSQMNodeType(SQMCreatedCapsule);
 			if (nullParent) {
 				newNode->removeDescendants();
 				newNode->addDescendant(current);
@@ -396,6 +410,7 @@ void SQMNode::createCapsules(int minSmallCircles) {
 
 			current = newNode;
 		}
+		sqmNodeType = SQMFormerCapsule;
 	}
 	for (int i = 0; i < nodes.size(); i++) {
 		nodes[i]->createCapsules();
@@ -665,7 +680,7 @@ void SQMNode::openMeshFromIdexedFace(vector<OpenMesh::Vec3f> vertices, vector<Op
 		OpenMesh::Vec3i face = faces[i];
 		polyhedron->add_face(polyhedronPoints[face.values_[0]], polyhedronPoints[face.values_[1]], polyhedronPoints[face.values_[2]]);
 	}
-	writeTriMesh(polyhedron);
+	//writeTriMesh(polyhedron);
 }
 
 //-----------------------TEST------------------------

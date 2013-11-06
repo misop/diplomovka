@@ -114,6 +114,9 @@
     <ClCompile Include="SQMBasicController.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="SkinSkeleton.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Form1.h">
@@ -198,6 +201,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="SQMBasicController.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="SkinSkeleton.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

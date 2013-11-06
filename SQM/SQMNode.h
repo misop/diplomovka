@@ -11,6 +11,7 @@
 #include <GL\glew.h>
 #include "LIENeedEntry.h"
 #include "Utility.h"
+#include "SkinSkeleton.h"
 
 #pragma region Structs & Enums
 
@@ -34,7 +35,9 @@ typedef enum {
 	SQMNone = 0,
 	SQMPoint,
 	SQMCapsule,
-	SQMCycle
+	SQMCycle,
+	SQMFormerCapsule,
+	SQMCreatedCapsule
 } SQMNodeType;
 
 #pragma endregion
@@ -137,6 +140,7 @@ public:
 
 #pragma region Export
 	SkeletonNode* exportToSkeletonNode();
+	SkinSkeleton* exportToSkinSkeleton(SkinSkeleton *parent);
 #pragma endregion
 
 #pragma region SQM Preprocessing

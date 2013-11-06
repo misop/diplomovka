@@ -1,6 +1,7 @@
 #include "stdafx.h"
 #include "SQMAlgorithm.h"
 #include <OpenMesh\Core\System\mostream.hh>
+#include <time.h>
 
 SQMAlgorithm::SQMAlgorithm(void) : root(NULL)
 {
@@ -14,6 +15,7 @@ SQMAlgorithm::SQMAlgorithm(void) : root(NULL)
 	resetRoot = NULL;
 	numOfNodes = 1;
 	smoothingAlgorithm = SQMAvaragingSmoothing;
+	skeleton = NULL;
 }
 
 SQMAlgorithm::~SQMAlgorithm(void)
@@ -25,6 +27,7 @@ SQMAlgorithm::~SQMAlgorithm(void)
 		fb->close();
 	if (root) delete root;
 	if (resetRoot) delete resetRoot;
+	if (skeleton) delete skeleton;
 	delete fb;
 	delete os;
 }
@@ -253,45 +256,80 @@ void SQMAlgorithm::restart() {
 void SQMAlgorithm::straightenSkeleton() {
 	updateResetRoot();
 	refreshIDs();
+	fb->open("log.txt", ios::app);
+	(*os) << "Skeleton straightening\n";
+	clock_t ts, te;
+	if (skeleton) delete skeleton;
+	SkinSkeleton *skeleton1;
+	SkinSkeleton *skeleton2;
+
 	if (root->getNodes()->size() == 0) {
 		//handle just root
 		if (mesh) delete mesh;
 		mesh = new MyMesh();
+		ts = clock();
 		root->createScaledIcosahderon(mesh);
+		te = clock();
 		sqmState = SQMFinalPlacement;
-		return;
-	}
-	if (root->getNodes()->size() <= 2) {
+		(*os) << "\tIt took " << te - ts << " clicks (" << (((float)(te - ts)) / CLOCKS_PER_SEC) << " seconds)\n";
+	} else if (root->getNodes()->size() <= 2) {
 		SQMNode *node = findBNPInTree();
 		if (node == NULL) {
 			//handle worm
+			ts = clock();
 			root->createCapsules();
 			fixWorm();
 			numOfNodes = countNodes();
 			refreshIDs();
+			te = clock();
+			(*os) << "\tPreprocess took " << te - ts << " clicks (" << (((float)(te - ts)) / CLOCKS_PER_SEC) << " seconds)\n";
 			if (mesh) delete mesh;
 			mesh = new MyMesh();
+			skeleton1 = root->exportToSkinSkeleton(NULL);
+			ts = clock();
 			root->wormCreate(mesh);
+			te = clock();
+			skeleton2 = root->exportToSkinSkeleton(NULL);
+			(*os) << "\tIt took " << te - ts << " clicks (" << (((float)(te - ts)) / CLOCKS_PER_SEC) << " seconds)\n";
 			sqmState = SQMFinalPlacement;
-			return;
 		} else {
+			ts = clock();
 			swapRoot(node);
 			refreshIDs();
+			te = clock();
+			(*os) << "\tPreprocess took " << te - ts << " clicks (" << (((float)(te - ts)) / CLOCKS_PER_SEC) << " seconds)\n";
 		}
 	}
+	if (root->getNodes()->size() >= 3) {
+		ts = clock();
+		root->createCapsules();
+		numOfNodes = countNodes();
+		refreshIDs();
+		te = clock();
+		(*os) << "\tPreprocess took " << te - ts << " clicks (" << (((float)(te - ts)) / CLOCKS_PER_SEC) << " seconds)\n";
+		//root->straightenSkeleton(OpenMesh::Vec3f(0, 0, 0));
+		skeleton1 = root->exportToSkinSkeleton(NULL);
+		ts = clock();
+		root->straightenSkeleton(NULL);
+		te = clock();
+		skeleton2 = root->exportToSkinSkeleton(NULL);
+		(*os) << "\tIt took " << te - ts << " clicks (" << (((float)(te - ts)) / CLOCKS_PER_SEC) << " seconds)\n";
+		sqmState = SQMStraighten;
+	}
 
-	root->createCapsules();
-	numOfNodes = countNodes();
-	refreshIDs();
-	fb->open("log.txt", ios::out);
-	(*os) << "Skeleton straightening\n";
-	//root->straightenSkeleton(OpenMesh::Vec3f(0, 0, 0));
-	root->straightenSkeleton(NULL);
-	sqmState = SQMStraighten;
+	
+	(*os) << "\n";
+	fb->close();
+	delete skeleton1;
+	delete skeleton2;
 }
 
 void SQMAlgorithm::computeConvexHull() {
+	fb->open("log.txt", ios::app);
 	(*os) << "Convex hull computation\n";
+	clock_t ts, te;
+	
+	ts = clock();
 	vector<SQMNode*> stack;
 	stack.push_back(root);
 	while (!stack.empty()) {
@@ -301,14 +339,28 @@ void SQMAlgorithm::computeConvexHull() {
 			node->calculateConvexHull();
 		stack.insert(stack.end(), node->getNodes()->begin(), node->getNodes()->end());
 	}
+	te = clock();
+	(*os) << "\tIt took " << te - ts << " clicks (" << (((float)(te - ts)) / CLOCKS_PER_SEC) << " seconds)\n";
 	drawingMode = 2;
 	sqmState = SQMComputeConvexHull;
+	
+	(*os) << "\n";
+	fb->close();
 }
 
 void SQMAlgorithm::subdivideConvexHull() {
+	fb->open("log.txt", ios::app);
 	(*os) << "Convex hull subdivision\n";
+	clock_t ts, te;
+	
+	ts = clock();
 	root->subdividePolyhedra(NULL, 0, smoothingAlgorithm);
+	te = clock();
+	(*os) << "\tIt took " << te - ts << " clicks (" << (((float)(te - ts)) / CLOCKS_PER_SEC) << " seconds)\n";
 	sqmState = SQMSubdivideConvexHull;
+	
+	(*os) << "\n";
+	fb->close();
 }
 
 void SQMAlgorithm::joinBNPs() {
@@ -317,25 +369,39 @@ void SQMAlgorithm::joinBNPs() {
 	//filebuf fb;
 	//fb.open ("test.txt", ios::out);
 	//ostream os(&fb);
+	fb->open("log.txt", ios::app);
 	(*os) << "BNP joining\n";
+	clock_t ts, te;
 	//omerr().connect(os);
 
 	if (mesh != NULL) {
 		delete mesh;
 	}
 	mesh = new MyMesh();
+	ts = clock();
 	vector<MyMesh::VertexHandle> vector;
 	root->joinBNPs(mesh, NULL, vector, OpenMesh::Vec3f(0, 0, 0));
+	te = clock();
+	(*os) << "\tIt took " << te - ts << " clicks (" << (((float)(te - ts)) / CLOCKS_PER_SEC) << " seconds)\n";
 	drawingMode = 3;
 	sqmState = SQMJoinBNPs;
-
+	
+	(*os) << "\n";
 	fb->close();
 }
 
 void SQMAlgorithm::finalVertexPlacement() {
+	fb->open("log.txt", ios::app);
 	(*os) << "Final vertex placement\n";
+	clock_t ts, te;
+	ts = clock();
 	root->rotateBack(mesh);
+	te = clock();
+	(*os) << "\tIt took " << te - ts << " clicks (" << (((float)(te - ts)) / CLOCKS_PER_SEC) << " seconds)\n";
 	sqmState = SQMFinalPlacement;
+
+	(*os) << "\n";
+	fb->close();
 }
 
 void SQMAlgorithm::executeSQMAlgorithm() {

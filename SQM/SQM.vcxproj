@@ -116,6 +116,7 @@
     <ClCompile Include="OpenMeshVecOperations.cpp" />
     <ClCompile Include="ShaderUtility.cpp" />
     <ClCompile Include="SkeletonNode.cpp" />
+    <ClCompile Include="SkinSkeleton.cpp" />
     <ClCompile Include="SphereDelaunay.cpp" />
     <ClCompile Include="SQM.cpp" />
     <ClCompile Include="SQMAlgorithm.cpp" />
@@ -151,6 +152,7 @@
     <ClInclude Include="resource.h" />
     <ClInclude Include="ShaderUtility.h" />
     <ClInclude Include="SkeletonNode.h" />
+    <ClInclude Include="SkinSkeleton.h" />
     <ClInclude Include="SphereDelaunay.h" />
     <ClInclude Include="SQMAlgorithm.h" />
     <ClInclude Include="SQMBasicController.h" />
