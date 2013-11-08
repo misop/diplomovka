@@ -10,6 +10,7 @@ in vec3 tePosition[3];
 in vec4 tePatchDistance[3];
 in vec4 tePatchDistanceCtrl[3];
 in vec3 teColor[3];
+in vec3 tePos[3];
 
 out vec4 gPatchDistance;
 out vec4 gPatchDistanceCtrl;
@@ -21,9 +22,13 @@ out vec3 gColor;
 
 void main()
 {    
-	vec3 p0 = vec3(gl_in[0].gl_Position);
+	/*vec3 p0 = vec3(gl_in[0].gl_Position);
 	vec3 p1 = vec3(gl_in[1].gl_Position);
-	vec3 p2 = vec3(gl_in[2].gl_Position);
+	vec3 p2 = vec3(gl_in[2].gl_Position);*/
+	
+	vec3 p0 = vec3(tePos[0]);
+	vec3 p1 = vec3(tePos[1]);
+	vec3 p2 = vec3(tePos[2]);
 	
 	float d01 = length(p1 - p0);
 	float d02 = length(p2 - p0);

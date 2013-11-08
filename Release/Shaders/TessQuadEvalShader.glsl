@@ -10,6 +10,7 @@ flat in int tcNodeID[];
 out vec4 tePatchDistance;
 out vec4 tePatchDistanceCtrl;
 out vec3 teColor;
+out vec3 tePos;
 
 uniform mat4 MVPmatrix;
 layout(binding=0) uniform sampler2D RadiusesSampler;
@@ -83,25 +84,27 @@ void main()
 	int type0 = tcNodeType[0];
 	int type1 = tcNodeType[1];
 
-	if (!((isBranchNode(type0) && floatEqual(v, 0)) || (isBranchNode(type1) && floatEqual(v, 1)))) {
-	//if (!(floatEqual(v, 1) || floatEqual(v, 0))) {
-		//vec3 w0 = getNodePosition(tcNodeID[0]);		
-		float x = texture(CTS, vec2(0, tcNodeID[0])).r;
-		float y = texture(CTS, vec2(1, tcNodeID[0])).r;
-		float z = texture(CTS, vec2(2, tcNodeID[0])).r;
+	//if (!((isBranchNode(type0) && floatEqual(v, 0)) || (isBranchNode(type1) && floatEqual(v, 1)) || (isLeafNode(type1) && floatEqual(v, 1)))) {
+	if (!(floatEqual(v, 1) || floatEqual(v, 0))) {
+		//vec3 w0 = getNodePosition(tcNodeID[0]);	
+		int i0 = tcNodeID[0], i1 = tcNodeID[1];
+		float id0 = float(i0) / float(MaxID);
+		float id1 = float(i1) / float(MaxID);
+
+		float x = texture(CTS, vec2(1.0f/3.0f, id0)).r;
+		float y = texture(CTS, vec2(2.0f/3.0f, id0)).r;
+		float z = texture(CTS, vec2(3.0f/3.0f, id0)).r;
 		//vec3 w0 = vec3(x, y, z);
 		vec3 w0 = tcNodePosition[0];
 		
-		x = texture(CTS, vec2(0, tcNodeID[1])).r;
-		y = texture(CTS, vec2(1, tcNodeID[1])).r;
-		z = texture(CTS, vec2(2, tcNodeID[1])).r;
+		x = texture(CTS, vec2(1.0f/3.0f, id1)).r;
+		y = texture(CTS, vec2(2.0f/3.0f, id1)).r;
+		z = texture(CTS, vec2(3.0f/3.0f, id1)).r;
 		//vec3 w1 = vec3(x, y, z);
 		vec3 w1 = tcNodePosition[1];
 		vec3 d = normalize(w1 - w0);
 		//float radius = mix(tcNodeRadius[0], tcNodeRadius[1], v);
 		float radius = 0.0;
-		float id0 = float(tcNodeID[0]) / float(MaxID);
-		float id1 = float(tcNodeID[1]) / float(MaxID);
 		float radius1 = texture(RadiusesSampler, vec2(id0, id1)).r;
 		float radius2 = texture(RadiusesSampler, vec2(id1, id0)).r;
 		//float radius1 = texture(RadiusesSampler, vec2(tcNodeID[0], tcNodeID[1])).r;
@@ -195,6 +198,7 @@ void main()
 	float d23 = length(gl_in[2].gl_Position - gl_in[3].gl_Position);
 	float d30 = length(gl_in[3].gl_Position - gl_in[0].gl_Position);
 	tePatchDistanceCtrl = vec4(d01, d12, d23, d30);
-
+	
 	gl_Position = MVPmatrix * vec4(position, 1);
+	tePos = position;
 }
