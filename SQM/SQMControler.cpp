@@ -31,6 +31,8 @@ SQMControler::SQMControler(void)
 	nodeCenters = NULL;
 	shouldRender = true;
 	threshold = 0.85;
+	skinningMatrices = NULL;
+	transformMatrices = NULL;
 }
 
 
@@ -42,6 +44,8 @@ SQMControler::~SQMControler(void)
 	if (buffer2) delete buffer2;
 	if (nodeRadiuses) delete nodeRadiuses;
 	if (nodeCenters) delete nodeCenters;
+	if (skinningMatrices) delete skinningMatrices;
+	if (transformMatrices) delete transformMatrices;
 }
 
 void SQMControler::generateTextures() {
@@ -213,6 +217,11 @@ void SQMControler::setShouldDrawNormals(bool newShouldDrawNormals) {
 
 bool SQMControler::getShouldDrawNormals() {
 	return shouldDrawNormals;
+}
+
+int SQMControler::getNumOfSkinningMatrices() {
+	//can not be less than 1
+	return max(sqmALgorithm->getNumberOfSkinningMatrices(), 1);
 }
 
 void SQMControler::setGlobalTesselation(float newGlobalTesselation) {
@@ -445,6 +454,7 @@ void SQMControler::drawMeshForTesselation(OpenGLPrograms *programs, GLCamera *ca
 	nodeRadiuses->Bind();
 	glActiveTexture(GL_TEXTURE1);
 	nodeCenters->Bind();
+	int skinningMatricesCount = sqmALgorithm->getNumberOfSkinningMatrices();
 
 	//show camera
 	programs->SklNodes->Use();
@@ -465,6 +475,10 @@ void SQMControler::drawMeshForTesselation(OpenGLPrograms *programs, GLCamera *ca
 	glUniform4f(programs->TriMeshTess->getUniformLocation(AMBIENT_COLOR_STR), 0.0, 0.75, 0.75, 0.1);
 	glUniform3f(programs->TriMeshTess->getUniformLocation(DIFFUSE_COLOR_STR), 0.0, 0.75, 0.75);
 	glUniform1i(programs->TriMeshTess->getUniformLocation(WIREFRAME_STR), wireframe ? 1 : 0);
+	if (skinningMatricesCount > 0) {
+		glUniformMatrix4fv(programs->TriMeshTess->getUniformLocation(SKINNING_MATRICES_STR), skinningMatricesCount, GL_FALSE, skinningMatrices);
+		glUniformMatrix4fv(programs->TriMeshTess->getUniformLocation(TRANSFORM_MATRICES_STR), skinningMatricesCount, GL_FALSE, transformMatrices);
+	}
 	buffer1->DrawElement(0, GL_PATCHES);
 	//draw quad patches
 	programs->QuadMeshTess->Use();
@@ -480,6 +494,10 @@ void SQMControler::drawMeshForTesselation(OpenGLPrograms *programs, GLCamera *ca
 	glUniform1f(programs->QuadMeshTess->getUniformLocation(THRESHOLD_STR), threshold);
 	glUniform1i(programs->QuadMeshTess->getUniformLocation(WIREFRAME_STR), wireframe ? 1 : 0);
 	glUniform1i(programs->QuadMeshTess->getUniformLocation(MAX_ID_STR), sqmALgorithm->getNumberOfNodes() - 1);
+	if (skinningMatricesCount > 0) {
+		glUniformMatrix4fv(programs->QuadMeshTess->getUniformLocation(SKINNING_MATRICES_STR), skinningMatricesCount, GL_FALSE, skinningMatrices);
+		glUniformMatrix4fv(programs->QuadMeshTess->getUniformLocation(TRANSFORM_MATRICES_STR), skinningMatricesCount, GL_FALSE, transformMatrices);
+	}
 	//glUniform1i(programs->QuadMeshTess->getUniformLocation(RADIUS_TEXTURE_STR), 0);
 	//glUniform1i(programs->QuadMeshTess->getUniformLocation("ZCTS"), 1);
 	//glUniform1i(8, 1);
@@ -524,6 +542,8 @@ void SQMControler::drawSkeleton() {
 
 void SQMControler::drawMeshForTesselation() {
 	if (buffer1) delete buffer1;
+	if (skinningMatrices) delete skinningMatrices;
+	if (transformMatrices) delete transformMatrices;
 	vector<float> points;
 	vector<float> vertex_normals;
 	vector<int> triIndices;
@@ -531,10 +551,18 @@ void SQMControler::drawMeshForTesselation() {
 	vector<float> tessLevels;
 	vector<float> nodePositions;
 	//vector<float> data;
+	vector<int> skinningData;
 	vector<int> data;
+	
+	int skinningMatricesCount = sqmALgorithm->getNumberOfSkinningMatrices();
+	skinningMatrices = new float[skinningMatricesCount*16];
+	sqmALgorithm->getSkinningMatrices(skinningMatrices);
+	transformMatrices = new float[skinningMatricesCount*16];
+	sqmALgorithm->getTransformMatrices(transformMatrices);
+
 
 	convertMeshToArray(sqmALgorithm->getMesh(), points, vertex_normals, triIndices, quadIndices);
-	sqmALgorithm->getRoot()->getMeshTessDatai(tessLevels, nodePositions, data);
+	sqmALgorithm->getRoot()->getMeshTessDatai(tessLevels, nodePositions, skinningData, data);
 
 	buffer1 = new GLArrayBuffer();
 	buffer1->Bind();
@@ -542,6 +570,7 @@ void SQMControler::drawMeshForTesselation() {
 	buffer1->BindBufferDataf(vertex_normals, 3, GL_STATIC_DRAW);
 	buffer1->BindBufferDataf(tessLevels, 1, GL_STATIC_DRAW);
 	buffer1->BindBufferDataf(nodePositions, 3, GL_STATIC_DRAW);
+	buffer1->BindBufferDatai(skinningData, 2, GL_STATIC_DRAW);
 	buffer1->BindBufferDatai(data, 2, GL_STATIC_DRAW);
 
 	buffer1->BindElement(triIndices, GL_STATIC_DRAW);

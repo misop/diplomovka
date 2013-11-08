@@ -56,6 +56,7 @@ class SQMNode {
 	OpenMesh::Vec3f centerOfMass;
 	OpenMesh::Vec3f oldPosition;
 	Quaternion axisAngle;
+	glm::ivec2 skinningIDs;
 	vector<SQMNode*> nodes;
 	vector<OpenMesh::Vec3f> intersections;
 	MyTriMesh *polyhedron;
@@ -209,10 +210,14 @@ public:
 	void rotateWithSkeleton(MyMesh *mesh, SkinSkeleton *skeleton);
 #pragma endregion
 
+#pragma region Skinning Matrix Setup
+	void setupSkinningMatrixIDs(SkinSkeleton *skeleton);
+#pragma endregion
+
 #pragma region BNP Tesselation
 	void getMeshTessLevel(std::vector<float> &tessLevels);
 	void getMeshTessDataf(std::vector<float> &tessLevels, std::vector<float> &nodePositions, std::vector<float> &data);
-	void getMeshTessDatai(std::vector<float> &tessLevels, std::vector<float> &nodePositions, std::vector<int> &data);
+	void getMeshTessDatai(std::vector<float> &tessLevels, std::vector<float> &nodePositions, std::vector<int> &skinMatrices, std::vector<int> &data);
 	void calculateOneRingRadiusAndMap(std::vector<float> &oneRingRadius, std::map<int, std::vector<int> > &intersectionMap);
 	void fillRadiusTable(float *table, int width);
 	void fillCentersTable(float *table);

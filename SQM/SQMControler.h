@@ -25,6 +25,8 @@ private:
 	GLTexture *nodeCenters;
 	bool shouldRender;
 	float threshold;
+	float *skinningMatrices;
+	float *transformMatrices;
 public:
 	SQMNode *selected;
 
@@ -55,6 +57,7 @@ public:
 	void setShouldDrawNormals(bool newShouldDrawNormals);
 	bool getShouldDrawNormals();
 	void setGlobalTesselation(float newGlobalTesselation);
+	int getNumOfSkinningMatrices();
 
 	void insertNode(float x, float y, float z);
 	void setSelectedPosition(OpenMesh::Vec3f pos);

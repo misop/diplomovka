@@ -1,7 +1,7 @@
 #include "stdafx.h"
 #include "SQMAlgorithm.h"
 #include <OpenMesh\Core\System\mostream.hh>
-#include <time.h>
+#include <gtc\type_ptr.hpp>
 
 SQMAlgorithm::SQMAlgorithm(void) : root(NULL)
 {
@@ -16,6 +16,7 @@ SQMAlgorithm::SQMAlgorithm(void) : root(NULL)
 	numOfNodes = 1;
 	smoothingAlgorithm = SQMAvaragingSmoothing;
 	skeleton = NULL;
+	numOfSkinMatrices = 0;
 }
 
 SQMAlgorithm::~SQMAlgorithm(void)
@@ -70,6 +71,10 @@ MyMesh* SQMAlgorithm::getMesh() {
 
 int SQMAlgorithm::getNumberOfNodes() {
 	return numOfNodes;
+}
+
+int SQMAlgorithm::getNumberOfSkinningMatrices() {
+	return numOfSkinMatrices;
 }
 
 #pragma endregion
@@ -127,6 +132,63 @@ void SQMAlgorithm::calculateSkinSkeletonIDs() {
 		id++;
 		for (int i = 0; i < node->nodes.size(); i++) {
 			queue.push_back(node->nodes[i]);
+		}
+	}
+
+	numOfSkinMatrices = id;
+}
+
+void SQMAlgorithm::getSkinningMatrices(float* matrix) {
+	if (skeleton == NULL) return;
+
+	deque<SkinSkeleton *> queue;
+	queue.push_back(skeleton);
+	while (!queue.empty()) {
+		SkinSkeleton *node = queue.front();
+		queue.pop_front();
+		int id = node->id * 16;
+		float *matPtr = glm::value_ptr(node->matrix);
+		for (int i = 0; i < 16; i++) {
+			matrix[id + i] = matPtr[i];
+		}
+
+		for (int i = 0; i < node->nodes.size(); i++) {
+			queue.push_back(node->nodes[i]);
+		}
+	}
+}
+
+void SQMAlgorithm::getTransformMatrices(float* matrix) {
+	//add transformation matrix for each node forming skin skeleton
+	SQMNode *start = root;
+	while (root->getSQMNodeType() == SQMCreatedCapsule) {
+		//this is worms head should move to original node
+		start = (*start->getNodes())[0];
+	}
+	
+	deque<SkinSkeleton*> queue;
+	deque<SQMNode*> shadowQueue;
+
+	queue.push_back(skeleton);
+	shadowQueue.push_back(start);
+
+	while (!queue.empty()) {
+		SkinSkeleton *skin = queue.front();
+		SQMNode *node = shadowQueue.front();
+		queue.pop_front();
+		shadowQueue.pop_front();
+
+		int id = skin->id * 16;
+		glm::mat4 mat = node->getTransformationMatrix();
+		float *matPtr = glm::value_ptr(mat);
+		for (int i = 0; i < 16; i++) {
+			matrix[id + i] = matPtr[i];
+		}
+
+		vector<SQMNode*> *childs = node->getNodes();
+		for (int i = 0; i < skin->nodes.size(); i++) {
+			queue.push_back(skin->nodes[i]);
+			shadowQueue.push_back((*childs)[i]);
 		}
 	}
 }
@@ -268,6 +330,7 @@ void SQMAlgorithm::restart() {
 	if (root) delete root;
 	root = new SQMNode(*resetRoot);
 	sqmState = SQMStart;
+	numOfSkinMatrices = 0;
 }
 
 void SQMAlgorithm::straightenSkeleton() {
@@ -279,6 +342,8 @@ void SQMAlgorithm::straightenSkeleton() {
 	if (skeleton) delete skeleton;
 	SkinSkeleton *skeletonB = NULL;
 	SkinSkeleton *skeletonR = NULL;
+	totalClocks = 0;
+	algorithmClocks = 0;
 
 	if (root->getNodes()->size() == 0) {
 		//handle just root
@@ -289,6 +354,9 @@ void SQMAlgorithm::straightenSkeleton() {
 		te = clock();
 		sqmState = SQMFinalPlacement;
 		(*os) << "\tIt took " << te - ts << " clicks (" << (((float)(te - ts)) / CLOCKS_PER_SEC) << " seconds)\n";
+		(*os) << "\n\nPreprocess time " << 0 << " clicks (" << 0 << " seconds)\n";
+		(*os) << "Algorithm time " << te - ts << " clicks (" << (((float)(te - ts)) / CLOCKS_PER_SEC) << " seconds)\n";
+		(*os) << "Total time " << te - ts << " clicks (" << (((float)(te - ts)) / CLOCKS_PER_SEC) << " seconds)\n";
 	} else if (root->getNodes()->size() <= 2) {
 		SQMNode *node = findBNPInTree();
 		if (node == NULL) {
@@ -300,6 +368,7 @@ void SQMAlgorithm::straightenSkeleton() {
 			refreshIDs();
 			te = clock();
 			(*os) << "\tPreprocess took " << te - ts << " clicks (" << (((float)(te - ts)) / CLOCKS_PER_SEC) << " seconds)\n";
+			totalClocks += (te - ts);
 			if (mesh) delete mesh;
 			mesh = new MyMesh();
 			skeletonR = root->exportToSkinSkeleton(NULL);
@@ -308,6 +377,7 @@ void SQMAlgorithm::straightenSkeleton() {
 			te = clock();
 			skeletonB = root->exportToSkinSkeleton(NULL);
 			(*os) << "\tIt took " << te - ts << " clicks (" << (((float)(te - ts)) / CLOCKS_PER_SEC) << " seconds)\n";
+			algorithmClocks += te - ts;
 			sqmState = SQMJoinBNPs;
 		} else {
 			ts = clock();
@@ -315,6 +385,7 @@ void SQMAlgorithm::straightenSkeleton() {
 			refreshIDs();
 			te = clock();
 			(*os) << "\tPreprocess took " << te - ts << " clicks (" << (((float)(te - ts)) / CLOCKS_PER_SEC) << " seconds)\n";
+			totalClocks += te - ts;
 		}
 	}
 	if (root->getNodes()->size() >= 3) {
@@ -324,6 +395,7 @@ void SQMAlgorithm::straightenSkeleton() {
 		refreshIDs();
 		te = clock();
 		(*os) << "\tPreprocess took " << te - ts << " clicks (" << (((float)(te - ts)) / CLOCKS_PER_SEC) << " seconds)\n";
+		totalClocks += te - ts;
 		//root->straightenSkeleton(OpenMesh::Vec3f(0, 0, 0));
 		skeletonR = root->exportToSkinSkeleton(NULL);
 		ts = clock();
@@ -331,6 +403,7 @@ void SQMAlgorithm::straightenSkeleton() {
 		te = clock();
 		skeletonB = root->exportToSkinSkeleton(NULL);
 		(*os) << "\tIt took " << te - ts << " clicks (" << (((float)(te - ts)) / CLOCKS_PER_SEC) << " seconds)\n";
+		algorithmClocks += te - ts;
 		sqmState = SQMStraighten;
 	}
 	ts = clock();
@@ -342,6 +415,7 @@ void SQMAlgorithm::straightenSkeleton() {
 	}
 	te = clock();
 	(*os) << "\tSkinning computation took " << te - ts << " clicks (" << (((float)(te - ts)) / CLOCKS_PER_SEC) << " seconds)\n";
+	totalClocks += te - ts;
 	
 	(*os) << "\n";
 	fb->close();
@@ -365,6 +439,7 @@ void SQMAlgorithm::computeConvexHull() {
 	}
 	te = clock();
 	(*os) << "\tIt took " << te - ts << " clicks (" << (((float)(te - ts)) / CLOCKS_PER_SEC) << " seconds)\n";
+	algorithmClocks += te - ts;
 	drawingMode = 2;
 	sqmState = SQMComputeConvexHull;
 	
@@ -381,6 +456,7 @@ void SQMAlgorithm::subdivideConvexHull() {
 	root->subdividePolyhedra(NULL, 0, smoothingAlgorithm);
 	te = clock();
 	(*os) << "\tIt took " << te - ts << " clicks (" << (((float)(te - ts)) / CLOCKS_PER_SEC) << " seconds)\n";
+	algorithmClocks += te - ts;
 	sqmState = SQMSubdivideConvexHull;
 	
 	(*os) << "\n";
@@ -407,6 +483,7 @@ void SQMAlgorithm::joinBNPs() {
 	root->joinBNPs(mesh, NULL, vector, OpenMesh::Vec3f(0, 0, 0));
 	te = clock();
 	(*os) << "\tIt took " << te - ts << " clicks (" << (((float)(te - ts)) / CLOCKS_PER_SEC) << " seconds)\n";
+	algorithmClocks += te - ts;
 	drawingMode = 3;
 	sqmState = SQMJoinBNPs;
 	
@@ -421,16 +498,22 @@ void SQMAlgorithm::finalVertexPlacement() {
 
 	ts = clock();
 	calculateSkinSkeletonIDs();
+	root->setupSkinningMatrixIDs(skeleton);
 	te = clock();
 	(*os) << "\tPreprocessing took " << te - ts << " clicks (" << (((float)(te - ts)) / CLOCKS_PER_SEC) << " seconds)\n";
+	totalClocks += te - ts;
 
 	ts = clock();
-	//root->rotateBack(mesh);
-	root->rotateWithSkeleton(mesh, skeleton);
+	//root->rotateWithSkeleton(mesh, skeleton);
 	te = clock();
 	(*os) << "\tIt took " << te - ts << " clicks (" << (((float)(te - ts)) / CLOCKS_PER_SEC) << " seconds)\n";
+	algorithmClocks += te - ts;
 	sqmState = SQMFinalPlacement;
-
+	
+	(*os) << "\n\nPreprocess time " << totalClocks << " clicks (" << (((float)(totalClocks)) / CLOCKS_PER_SEC) << " seconds)\n";
+	(*os) << "Algorithm time " << algorithmClocks << " clicks (" << (((float)(algorithmClocks)) / CLOCKS_PER_SEC) << " seconds)\n";
+	totalClocks += algorithmClocks;
+	(*os) << "Total time " << totalClocks << " clicks (" << (((float)(totalClocks)) / CLOCKS_PER_SEC) << " seconds)\n";
 	(*os) << "\n";
 	fb->close();
 }

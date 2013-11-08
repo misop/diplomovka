@@ -2,6 +2,7 @@
 #include "SQMNode.h"
 #include <fstream>
 #include <ostream>
+#include <time.h>
 
 typedef enum {
 	SQMStart = 0,
@@ -21,8 +22,11 @@ class SQMAlgorithm {
 	filebuf *fb;
 	ostream *os;
 	int numOfNodes;
+	int numOfSkinMatrices;
 	SQMSmoothingAlgorithm smoothingAlgorithm;
 	SkinSkeleton *skeleton;
+	clock_t totalClocks;
+	clock_t algorithmClocks;
 	
 	SQMNode* findBNPInTree();
 	void swapRoot(SQMNode *node);
@@ -39,6 +43,9 @@ public:
 	SQMState getState();
 	MyMesh* getMesh();
 	int getNumberOfNodes();
+	int getNumberOfSkinningMatrices();
+	void getSkinningMatrices(float* matrix);
+	void getTransformMatrices(float* matrix);
 
 	void straightenSkeleton();
 

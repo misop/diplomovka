@@ -40,6 +40,7 @@ Class OpenGLForm.COpenGL: AutoLayout, AnsiClass, Class, Public, BeforeFieldInit
     Render(): PrivateScope, Public, HideBySig
     SwapOpenGLBuffers(): PrivateScope, Public, HideBySig
     ReloadShaders(): PrivateScope, Public, HideBySig
+    ReloadTesselationVertShaders(): PrivateScope, Public, HideBySig
     getSQMController(): PrivateScope, Public, HideBySig
     resize(Int32, Int32): PrivateScope, Public, HideBySig
     setupView(): PrivateScope, Public, HideBySig

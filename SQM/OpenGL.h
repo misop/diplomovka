@@ -311,8 +311,47 @@ namespace OpenGLForm
 
 			shouldRender = true;
 		}
+		void ReloadTesselationVertShaders() {
+			std::map<std::string, std::string> replaceMap;
+			std::string matrices = ToStringT(sqmControler->getNumOfSkinningMatrices());
+			replaceMap.insert(std::pair<std::string, std::string>("fill_in_skinnig_matrices_number", matrices));
+
+			delete programs->TriMeshTess;
+			delete programs->QuadMeshTess;
+			delete triTessShaders->vert;
+			delete quadTessShaders->vert;
+
+			triTessShaders->vert = new GLShader(GL_VERTEX_SHADER);
+			triTessShaders->vert->Load("Shaders/TessVertShader.vert", replaceMap);
+			triTessShaders->vert->Compile();
+			
+			programs->TriMeshTess = new GLProgram("TriMeshTess");
+			programs->TriMeshTess->AttachShader(triTessShaders->vert);
+			programs->TriMeshTess->AttachShader(triTessShaders->ctrl);
+			programs->TriMeshTess->AttachShader(triTessShaders->eval);
+			programs->TriMeshTess->AttachShader(triTessShaders->geom);
+			programs->TriMeshTess->AttachShader(triTessShaders->frag);
+			programs->TriMeshTess->Link();
+			programs->TriMeshTess->SaveProgramLog();
+			
+			quadTessShaders->vert = new GLShader(GL_VERTEX_SHADER);
+			quadTessShaders->vert->Load("Shaders/TessVertShader.vert", replaceMap);
+			quadTessShaders->vert->Compile();
+
+			programs->QuadMeshTess = new GLProgram("QuadMeshTess");
+			programs->QuadMeshTess->AttachShader(quadTessShaders->vert);
+			programs->QuadMeshTess->AttachShader(quadTessShaders->ctrl);
+			programs->QuadMeshTess->AttachShader(quadTessShaders->eval);
+			programs->QuadMeshTess->AttachShader(quadTessShaders->geom);
+			programs->QuadMeshTess->AttachShader(quadTessShaders->frag);
+			programs->QuadMeshTess->Link();
+			programs->QuadMeshTess->SaveProgramLog();
+		}
 	protected:
 		bool InitShaders() {
+			std::map<std::string, std::string> replaceMap;
+			std::string matrices = ToStringT(sqmControler->getNumOfSkinningMatrices());
+			replaceMap.insert(std::pair<std::string, std::string>("fill_in_skinnig_matrices_number", matrices));
 			//skeleton node drawing
 			sklTessShaders->vert = new GLShader(GL_VERTEX_SHADER);
 			sklTessShaders->vert->Load("Shaders/SklTessVertShader.vert");
@@ -373,7 +412,7 @@ namespace OpenGLForm
 
 			//tri mesh tesselation
 			triTessShaders->vert = new GLShader(GL_VERTEX_SHADER);
-			triTessShaders->vert->Load("Shaders/TessVertShader.vert");
+			triTessShaders->vert->Load("Shaders/TessVertShader.vert", replaceMap);
 			triTessShaders->vert->Compile();
 
 			triTessShaders->ctrl = new GLShader(GL_TESS_CONTROL_SHADER);
@@ -402,7 +441,8 @@ namespace OpenGLForm
 			programs->TriMeshTess->SaveProgramLog();
 			//quad mesh tesselation
 			quadTessShaders->vert = new GLShader(GL_VERTEX_SHADER);
-			quadTessShaders->vert->Load("Shaders/TessVertShader.vert");
+			quadTessShaders->vert->Load("Shaders/TessVertShader.vert", replaceMap);
+			//quadTessShaders->vert->Load("Shaders/TessVertShader.vert");
 			quadTessShaders->vert->Compile();
 
 			quadTessShaders->ctrl = new GLShader(GL_TESS_CONTROL_SHADER);
@@ -707,6 +747,9 @@ namespace OpenGLForm
 		}
 		void executeSQMAlgorithm(SQMState state) {
 			sqmControler->executeSQMAlgorithm(state);
+			if (state == SQMFinalPlacement) {
+				ReloadTesselationVertShaders();
+			}
 		}
 	};
 

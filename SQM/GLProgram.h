@@ -5,6 +5,8 @@
 #define MODEL_MATRIX_STR "ModelMatrix"
 #define MODEL_VIEW_MATRIX_STR "ModelViewMatrix"
 #define NORMAL_MATRIX_STR "NormalMatrix"
+#define SKINNING_MATRICES_STR "SkinningMatrices"
+#define TRANSFORM_MATRICES_STR "TransformMatrices"
 
 #define TESS_LEVEL_INNER_STR "TessLevelInner"
 #define TESS_LEVEL_OUTER_STR "TessLevelOuter"

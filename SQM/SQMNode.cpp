@@ -23,6 +23,7 @@ SQMNode::SQMNode(void) {
 	rotatev = glm::vec3();
 	transformationMatrix = glm::mat4();
 	sqmNodeType = SQMNone;
+	skinningIDs = glm::ivec2(-1, -1);
 }
 
 SQMNode::SQMNode(SkeletonNode &node, SQMNode* newParent) : parent(newParent) {
@@ -47,6 +48,7 @@ SQMNode::SQMNode(SkeletonNode &node, SQMNode* newParent) : parent(newParent) {
 	scalev = glm::vec3(node.scale.x, node.scale.y, node.scale.z);
 	rotatev = glm::vec3(node.rotate.x, node.rotate.y, node.rotate.z);
 	transformationMatrix = glm::mat4();
+	skinningIDs = glm::ivec2(-1, -1);
 }
 
 SQMNode::SQMNode(SQMNode &node) {
@@ -1526,6 +1528,29 @@ void SQMNode::rotateWithSkeleton(MyMesh *mesh, SkinSkeleton *skeleton) {
 
 #pragma endregion
 
+#pragma region Skinning Matrix Setup
+
+void SQMNode::setupSkinningMatrixIDs(SkinSkeleton *skeleton) {
+	int id1 = skeleton->id, id2 = -1;
+	if (this->isConnectionNode() && (sqmNodeType != SQMFormerCapsule && sqmNodeType != SQMCreatedCapsule)) {
+		id2 = skeleton->nodes[0]->id;
+	}
+	skinningIDs = glm::ivec2(id1, id2);
+	
+	for (int i = 0; i < nodes.size(); i++) {
+		SkinSkeleton *next = skeleton;
+		if (sqmNodeType != SQMFormerCapsule && sqmNodeType != SQMCreatedCapsule) {
+			next = skeleton->nodes[i];
+		}
+		if (parent != NULL && parent->getSQMNodeType() == SQMCreatedCapsule && sqmNodeType == SQMFormerCapsule) {
+			next = skeleton->nodes[i];
+		}
+		nodes[i]->setupSkinningMatrixIDs(next);
+	}
+}
+
+#pragma endregion
+
 #pragma region BNP Tesselation
 
 void SQMNode::getMeshTessLevel(std::vector<float> &tessLevels) {
@@ -1557,7 +1582,7 @@ void SQMNode::getMeshTessDataf(std::vector<float> &tessLevels, std::vector<float
 	}
 }
 
-void SQMNode::getMeshTessDatai(vector<float> &tessLevels, vector<float> &nodePositions, vector<int> &data) {
+void SQMNode::getMeshTessDatai(vector<float> &tessLevels, vector<float> &nodePositions, std::vector<int> &skinMatrices, vector<int> &data) {
 	int type = 0;
 	if (this->isBranchNode()) type = 1;
 	else if (this->isLeafNode()) type = 2;
@@ -1574,12 +1599,15 @@ void SQMNode::getMeshTessDatai(vector<float> &tessLevels, vector<float> &nodePos
 		nodePositions.push_back(position[0]);
 		nodePositions.push_back(position[1]);
 		nodePositions.push_back(position[2]);
+		
+		skinMatrices.push_back(skinningIDs.x);
+		skinMatrices.push_back(skinningIDs.y);
 
 		data.push_back(type);
 		data.push_back(id);
 	}
 	for (int i = 0; i < nodes.size(); i++) {
-		nodes[i]->getMeshTessDatai(tessLevels, nodePositions, data);
+		nodes[i]->getMeshTessDatai(tessLevels, nodePositions, skinMatrices, data);
 	}
 }
 

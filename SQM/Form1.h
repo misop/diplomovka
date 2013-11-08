@@ -935,7 +935,7 @@ namespace SQM {
 				 this->Controls->Add(this->menuStrip1);
 				 this->MainMenuStrip = this->menuStrip1;
 				 this->Name = L"Form1";
-				 this->Text = L"Form1";
+				 this->Text = L"Skeleton To Quad Dominant Mesh";
 				 this->MouseWheel += gcnew System::Windows::Forms::MouseEventHandler(this, &Form1::Panel1_MouseWheel);
 				 this->toolStrip1->ResumeLayout(false);
 				 this->toolStrip1->PerformLayout();
@@ -1387,6 +1387,6 @@ namespace SQM {
 					 OpenGL->getSQMController()->setSelectedRotateZ(value);
 				 }
 			 }
-	};
+};
 }
 
