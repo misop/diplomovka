@@ -256,12 +256,12 @@ void SQMAlgorithm::restart() {
 void SQMAlgorithm::straightenSkeleton() {
 	updateResetRoot();
 	refreshIDs();
-	fb->open("log.txt", ios::app);
+	fb->open("logs/log.txt", ios::out);
 	(*os) << "Skeleton straightening\n";
 	clock_t ts, te;
 	if (skeleton) delete skeleton;
-	SkinSkeleton *skeleton1;
-	SkinSkeleton *skeleton2;
+	SkinSkeleton *skeletonB = NULL;
+	SkinSkeleton *skeletonR = NULL;
 
 	if (root->getNodes()->size() == 0) {
 		//handle just root
@@ -285,11 +285,11 @@ void SQMAlgorithm::straightenSkeleton() {
 			(*os) << "\tPreprocess took " << te - ts << " clicks (" << (((float)(te - ts)) / CLOCKS_PER_SEC) << " seconds)\n";
 			if (mesh) delete mesh;
 			mesh = new MyMesh();
-			skeleton1 = root->exportToSkinSkeleton(NULL);
+			skeletonR = root->exportToSkinSkeleton(NULL);
 			ts = clock();
 			root->wormCreate(mesh);
 			te = clock();
-			skeleton2 = root->exportToSkinSkeleton(NULL);
+			skeletonB = root->exportToSkinSkeleton(NULL);
 			(*os) << "\tIt took " << te - ts << " clicks (" << (((float)(te - ts)) / CLOCKS_PER_SEC) << " seconds)\n";
 			sqmState = SQMFinalPlacement;
 		} else {
@@ -308,24 +308,31 @@ void SQMAlgorithm::straightenSkeleton() {
 		te = clock();
 		(*os) << "\tPreprocess took " << te - ts << " clicks (" << (((float)(te - ts)) / CLOCKS_PER_SEC) << " seconds)\n";
 		//root->straightenSkeleton(OpenMesh::Vec3f(0, 0, 0));
-		skeleton1 = root->exportToSkinSkeleton(NULL);
+		skeletonR = root->exportToSkinSkeleton(NULL);
 		ts = clock();
 		root->straightenSkeleton(NULL);
 		te = clock();
-		skeleton2 = root->exportToSkinSkeleton(NULL);
+		skeletonB = root->exportToSkinSkeleton(NULL);
 		(*os) << "\tIt took " << te - ts << " clicks (" << (((float)(te - ts)) / CLOCKS_PER_SEC) << " seconds)\n";
 		sqmState = SQMStraighten;
 	}
-
+	ts = clock();
+	if (skeletonB != NULL) {
+		skeletonR->CalculateCorrespondingDoF(skeletonB);
+		skeletonR->ComputeSkinningMatrices();
+		//skeletonR->ComputeCompoundRotation();
+		skeleton = skeletonR;
+	}
+	te = clock();
+	(*os) << "\tSkinning computation took " << te - ts << " clicks (" << (((float)(te - ts)) / CLOCKS_PER_SEC) << " seconds)\n";
 	
 	(*os) << "\n";
 	fb->close();
-	delete skeleton1;
-	delete skeleton2;
+	delete skeletonB;
 }
 
 void SQMAlgorithm::computeConvexHull() {
-	fb->open("log.txt", ios::app);
+	fb->open("logs/log.txt", ios::app);
 	(*os) << "Convex hull computation\n";
 	clock_t ts, te;
 	
@@ -349,7 +356,7 @@ void SQMAlgorithm::computeConvexHull() {
 }
 
 void SQMAlgorithm::subdivideConvexHull() {
-	fb->open("log.txt", ios::app);
+	fb->open("logs/log.txt", ios::app);
 	(*os) << "Convex hull subdivision\n";
 	clock_t ts, te;
 	
@@ -369,7 +376,7 @@ void SQMAlgorithm::joinBNPs() {
 	//filebuf fb;
 	//fb.open ("test.txt", ios::out);
 	//ostream os(&fb);
-	fb->open("log.txt", ios::app);
+	fb->open("logs/log.txt", ios::app);
 	(*os) << "BNP joining\n";
 	clock_t ts, te;
 	//omerr().connect(os);
@@ -391,11 +398,12 @@ void SQMAlgorithm::joinBNPs() {
 }
 
 void SQMAlgorithm::finalVertexPlacement() {
-	fb->open("log.txt", ios::app);
+	fb->open("logs/log.txt", ios::app);
 	(*os) << "Final vertex placement\n";
 	clock_t ts, te;
 	ts = clock();
-	root->rotateBack(mesh);
+	//root->rotateBack(mesh);
+	root->rotateWithSkeleton(mesh, skeleton);
 	te = clock();
 	(*os) << "\tIt took " << te - ts << " clicks (" << (((float)(te - ts)) / CLOCKS_PER_SEC) << " seconds)\n";
 	sqmState = SQMFinalPlacement;

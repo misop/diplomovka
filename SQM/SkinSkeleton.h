@@ -5,6 +5,7 @@
 struct SkinSkeleton {
 	CVector3 position;
 	Quaternion axisAngle;
+	Quaternion quaternion;
 	SkinSkeleton *parent;
 	glm::mat4 matrix;
 
@@ -17,9 +18,13 @@ struct SkinSkeleton {
 	SkinSkeleton(CVector3 pos, Quaternion axis_Angle);
 	~SkinSkeleton();
 
+	bool isBNP();
+
 	void CalculateCorrespondingDoF(SkinSkeleton *another);
 	glm::mat4 ComputeLocalMatrix();
 	void ComputeSkinningMatrices();
 	void InvertMatrices();
 	void PrecomputeFinalSkinningMatrices(SkinSkeleton *another);
+
+	void ComputeCompoundRotation();
 };

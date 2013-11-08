@@ -38,7 +38,7 @@ SQMNode::SQMNode(SkeletonNode &node, SQMNode* newParent) : parent(newParent) {
 	originalPosition = position;
 	nodeRadius = node.radius;
 	tessLevel = node.tessLevel;
-	sqmNodeType = node.capsule ? SQMCapsule : SQMNone;
+	sqmNodeType = node.capsule ? SQMCapsule :SQMNone;
 	for (int i = 0; i < node.nodes.size(); i++) {
 		SQMNode *newNode = new SQMNode(*node.nodes[i], this);
 		nodes.push_back(newNode);
@@ -100,6 +100,10 @@ bool SQMNode::isBranchNode() {
 	if (parent) requiredConections--; //parent counts as one conection
 
 	return nodes.size() >= requiredConections;
+}
+
+bool SQMNode::isConnectionNode() {
+	return (parent != NULL && nodes.size() == 1);
 }
 
 bool SQMNode::isLeafNode() {
@@ -1480,6 +1484,38 @@ void SQMNode::rotateBack(MyMesh *mesh) {
 		mesh->set_point(vhandle, P);
 	}
 	position = oldPosition;
+}
+
+void SQMNode::rotateWithSkeleton(MyMesh *mesh, SkinSkeleton *skeleton) {
+	//rotate position
+	glm::vec4 newPos(position[0], position[1], position[2], 1.0f);
+	newPos = skeleton->matrix * newPos;
+	position = OpenMesh::Vec3f(newPos.x, newPos.y, newPos.z);
+	//rotate mesh vertices
+	for (int i = 0; i  < meshVhandlesToRotate.size(); i ++) {
+		MyMesh::VHandle vhandle = meshVhandlesToRotate[i];
+		MyMesh::Point P = mesh->point(vhandle);
+		glm::vec4 pos = glm::vec4(P[0], P[1], P[2], 1.0f);
+		pos = skeleton->matrix * pos;
+
+		if (this->isConnectionNode() && (sqmNodeType != SQMFormerCapsule && sqmNodeType != SQMCreatedCapsule)) {
+			//is a connection node we should combine two matrices
+			glm::vec4 pos2(P[0], P[1], P[2], 1.0f);
+			pos2 = skeleton->nodes[0]->matrix * pos2;
+			pos = 0.5f*pos + 0.5f*pos2;
+		}
+
+		P = OpenMesh::Vec3f(pos.x, pos.y, pos.z);
+		mesh->set_point(vhandle, P);
+	}
+	//rotate next
+	for (int i = 0; i < nodes.size(); i++) {
+		SkinSkeleton *next = skeleton;
+		if (sqmNodeType != SQMFormerCapsule && sqmNodeType != SQMCreatedCapsule) {
+			next = skeleton->nodes[i];
+		}
+		nodes[i]->rotateWithSkeleton(mesh, next);
+	}
 }
 
 #pragma endregion

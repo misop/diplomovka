@@ -1,6 +1,7 @@
 #include "stdafx.h"
 #include "SkinSkeleton.h"
 #include <gtc\type_ptr.hpp>
+#include <gtc\matrix_transform.hpp>
 
 SkinSkeleton::SkinSkeleton() : parent(NULL), position(CVector3()), axisAngle(Quaternion()) {
 }
@@ -23,35 +24,62 @@ SkinSkeleton::~SkinSkeleton() {
 	}
 }
 
-void SkinSkeleton::CalculateCorrespondingDoF(SkinSkeleton *another) {
+bool SkinSkeleton::isBNP() {
+	int minus = (parent == NULL) ? 0 : 1;
+	return (nodes.size() >= 3 - minus);
+}
+
+void SkinSkeleton::CalculateCorrespondingDoF(SkinSkeleton *bind) {
 	//have to be the same skeleton just posed diferently
 	//this is in bind position
+	axisAngle = CVector4(0, 0, 0, 1);
 	if (parent != NULL) {
-		CVector3 u = Normalize(position - parent->position);
-		CVector3 v = Normalize(another->position - another->parent->position);
-
-		Quaternion q = SQMQuaternionBetweenVectors(u, v);
-		axisAngle = QuaternionToAxisAngle(q);
-		another->axisAngle = axisAngle;
-		axisAngle.s = 0;
+		if (parent->isBNP()) {
+			//no need to rotate save identity
+			quaternion = Quaternion();
+			axisAngle = CVector4(0, 0, 0, 1);
+		} else {
+			CVector3 u;
+			CVector3 v;
+			if (parent->parent == NULL) {
+				u = Normalize(bind->position - bind->parent->position);
+				v = Normalize(position - parent->position);
+			} else {
+				u = Normalize(parent->position - parent->parent->position);
+				v = Normalize(position - parent->position);
+			}
+			Quaternion q = SQMQuaternionBetweenVectors(u, v);
+			axisAngle = QuaternionToAxisAngle(q);
+			axisAngle.s = axisAngle.s*180.0f/M_PI;
+			quaternion = q;
+		}
 	}
 
 	for (int i = 0; i < nodes.size(); i++) {
-		nodes[i]->CalculateCorrespondingDoF(another->nodes[i]);
+		nodes[i]->CalculateCorrespondingDoF(bind->nodes[i]);
 	}
 }
 
 glm::mat4 SkinSkeleton::ComputeLocalMatrix() {
-	//transform axis angle to matrix
-	CVector3 t = (position - parent->position);
-	float c0 = cos(axisAngle.s);
-	float s0 = sin(axisAngle.s);
-	CVector3 a = Normalize(CVector3(axisAngle.i, axisAngle.j, axisAngle.k));
-	float local[16] = {a.x*a.x + c0*(1-a.x*a.x)  ,  a.x*a.y*(1-c0)+a.z*s0        ,  a.x*a.z*(1-c0) - a.y*s0   ,   t.x,
-					   a.x*a.y*(1-c0) - a.z*s0   ,  a.y*a.y + c0*(1 - a.y*a.y)   ,  a.y*a.z*(1-c0) - a.x*s0   ,   t.y,
-					   a.x*a.z*(1-c0) + a.y*s0   ,  a.y*a.z*(1-c0) - a.x*s0      ,  a.z*a.z + c0*(1-a.z*a.z)  ,   t.z,
-					   0                         ,  0                            ,  0                         ,   1};
-	glm::mat4 result = glm::make_mat4(local);
+	//should have parent
+	CVector3 parentPos = parent->position;
+	//translate to parent, rotate, translate back
+	float angle = axisAngle.s;//*180.0f/M_PI;
+	glm::vec3 pos = glm::vec3(parentPos.x, parentPos.y, parentPos.z);
+	glm::vec3 axis = glm::vec3(axisAngle.i, axisAngle.j, axisAngle.k);
+	//translate parent to origin
+	glm::mat4 translate = glm::translate(glm::mat4(1), -pos);
+	glm::mat4 rotate;
+	glm::mat4 translateBack = glm::translate(glm::mat4(1), pos);
+	//rotate by axis angle
+	if (glm::length(axis) != 0) {
+		//result = glm::rotate(result, angle, axis);
+		rotate =  glm::rotate(glm::mat4(1), angle, axis);
+	}
+	//translate back to parent
+	//result = glm::translate(result, pos);
+	glm::mat4 result = translateBack * rotate * translate;
+
 	return result;
 }
 
@@ -60,7 +88,7 @@ void SkinSkeleton::ComputeSkinningMatrices() {
 		matrix = glm::mat4();
 	} else {
 		glm::mat4 local = ComputeLocalMatrix();
-		matrix = parent->matrix * local;
+		matrix = local * parent->matrix;
 	}
 
 	for (int i = 0; i < nodes.size(); i++) {
@@ -78,9 +106,19 @@ void SkinSkeleton::InvertMatrices() {
 
 void SkinSkeleton::PrecomputeFinalSkinningMatrices(SkinSkeleton *another) {
 	//another is in Bind position
-	matrix = matrix * another->matrix;
+	matrix = another->matrix * matrix;
 
 	for (int i = 0; i < nodes.size(); i++) {
 		nodes[i]->PrecomputeFinalSkinningMatrices(another->nodes[i]);
+	}
+}
+
+void SkinSkeleton::ComputeCompoundRotation() {
+	if (parent != NULL) {
+		quaternion = parent->quaternion * quaternion;
+	}
+
+	for (int i = 0; i < nodes.size(); i++) {
+		nodes[i]->ComputeCompoundRotation();
 	}
 }

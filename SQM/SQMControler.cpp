@@ -9,6 +9,7 @@
 #include <iostream>
 #include <fstream>
 #include <gtc\type_ptr.hpp>
+#include <iomanip>
 #include "FloatArithmetic.h"
 
 #define TESSELATION_LEVEL 15.0
@@ -718,12 +719,18 @@ void SQMControler::fillCentersTable() {
 
 	ofstream f;
 	f.open ("log_centers.txt");
-	for (int i = 0; i < nodes; i++) {
+	for (int i = 0; i < nodes * 3; i++) {
+		f << std::fixed << std::setw( 5 ) << std::setprecision( 2 ) 
+		  << std::setfill( '0' ) << table[i] << " ";
+		if (i % 3 == 2) f << endl;
+	}
+	/*for (int i = 0; i < nodes; i++) {
 		for (int j = 0; j < 3; j++) {
-			f << table[i*nodes + j] << " ";
+			f << std::fixed << std::setw( 5 ) << std::setprecision( 2 ) 
+			  << std::setfill( '0' ) << table[i*nodes + j] << " ";
 		}
 		f << endl;
-	}
+	}*/
 	f.close();
 
 	delete [] table;

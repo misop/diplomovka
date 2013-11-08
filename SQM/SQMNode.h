@@ -82,6 +82,7 @@ public:
 	unsigned int getId();
 	string getIdStr();
 	bool isBranchNode();
+	bool isConnectionNode();
 	bool isLeafNode();
 	OpenMesh::Vec3f getPosition();
 	OpenMesh::Vec3f getOldPosition();
@@ -205,6 +206,7 @@ public:
 
 #pragma region Final Vertex Placement
 	void rotateBack(MyMesh *mesh);
+	void rotateWithSkeleton(MyMesh *mesh, SkinSkeleton *skeleton);
 #pragma endregion
 
 #pragma region BNP Tesselation
