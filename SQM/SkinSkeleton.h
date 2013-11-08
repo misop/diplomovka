@@ -3,6 +3,7 @@
 #include "m_math.h"
 
 struct SkinSkeleton {
+	int id;
 	CVector3 position;
 	Quaternion axisAngle;
 	Quaternion quaternion;

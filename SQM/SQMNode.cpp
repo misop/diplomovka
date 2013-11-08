@@ -38,7 +38,7 @@ SQMNode::SQMNode(SkeletonNode &node, SQMNode* newParent) : parent(newParent) {
 	originalPosition = position;
 	nodeRadius = node.radius;
 	tessLevel = node.tessLevel;
-	sqmNodeType = node.capsule ? SQMCapsule :SQMNone;
+	sqmNodeType = node.capsule ? SQMCapsule : SQMNone;
 	for (int i = 0; i < node.nodes.size(); i++) {
 		SQMNode *newNode = new SQMNode(*node.nodes[i], this);
 		nodes.push_back(newNode);
@@ -357,13 +357,13 @@ SkeletonNode* SQMNode::exportToSkeletonNode() {
 	return node;
 }
 
-SkinSkeleton* SQMNode::exportToSkinSkeleton(SkinSkeleton *parent) {
+SkinSkeleton* SQMNode::exportToSkinSkeleton(SkinSkeleton *parentSkin) {
 	//if this is worms head
-	if (sqmNodeType == SQMCreatedCapsule && nodes.size() > 0) return nodes[0]->exportToSkinSkeleton(parent);
+	if (sqmNodeType == SQMCreatedCapsule && nodes.size() > 0) return nodes[0]->exportToSkinSkeleton(parentSkin);
 
-	SkinSkeleton *node = new SkinSkeleton(parent, position[0], position[1], position[2]);
+	SkinSkeleton *node = new SkinSkeleton(parentSkin, position[0], position[1], position[2]);
 	//if next is only capsule the matrix would be the same
-	if (sqmNodeType == SQMFormerCapsule) return node;
+	if (sqmNodeType == SQMFormerCapsule && !(parent != NULL && parent->getSQMNodeType() == SQMCreatedCapsule)) return node;
 
 	for (int i = 0; i < nodes.size(); i++) {
 		node->nodes.push_back(nodes[i]->exportToSkinSkeleton(node));
@@ -1505,6 +1505,9 @@ void SQMNode::rotateWithSkeleton(MyMesh *mesh, SkinSkeleton *skeleton) {
 			pos = 0.5f*pos + 0.5f*pos2;
 		}
 
+		//csutom transformations
+		pos = transformationMatrix * pos;
+
 		P = OpenMesh::Vec3f(pos.x, pos.y, pos.z);
 		mesh->set_point(vhandle, P);
 	}
@@ -1512,6 +1515,9 @@ void SQMNode::rotateWithSkeleton(MyMesh *mesh, SkinSkeleton *skeleton) {
 	for (int i = 0; i < nodes.size(); i++) {
 		SkinSkeleton *next = skeleton;
 		if (sqmNodeType != SQMFormerCapsule && sqmNodeType != SQMCreatedCapsule) {
+			next = skeleton->nodes[i];
+		}
+		if (parent != NULL && parent->getSQMNodeType() == SQMCreatedCapsule && sqmNodeType == SQMFormerCapsule) {
 			next = skeleton->nodes[i];
 		}
 		nodes[i]->rotateWithSkeleton(mesh, next);

@@ -1,17 +1,18 @@
 Skeleton straightening
-	Preprocess took 5 clicks (0.005 seconds)
-	It took 10 clicks (0.01 seconds)
-	Skinning computation took 2 clicks (0.002 seconds)
+	Preprocess took 0 clicks (0 seconds)
+	It took 1 clicks (0.001 seconds)
+	Skinning computation took 0 clicks (0 seconds)
 
 Convex hull computation
-	It took 172 clicks (0.172 seconds)
+	It took 3 clicks (0.003 seconds)
 
 Convex hull subdivision
-	It took 62 clicks (0.062 seconds)
+	It took 1 clicks (0.001 seconds)
 
 BNP joining
-	It took 76 clicks (0.076 seconds)
+	It took 12 clicks (0.012 seconds)
 
 Final vertex placement
-	It took 1 clicks (0.001 seconds)
+	Preprocessing took 1 clicks (0.001 seconds)
+	It took 0 clicks (0 seconds)
 

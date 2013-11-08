@@ -114,6 +114,23 @@ void SQMAlgorithm::refreshIDs() {
 	}
 }
 
+void SQMAlgorithm::calculateSkinSkeletonIDs() {
+	if (skeleton == NULL) return;
+
+	int id = 0;
+	deque<SkinSkeleton *> queue;
+	queue.push_back(skeleton);
+	while (!queue.empty()) {
+		SkinSkeleton *node = queue.front();
+		queue.pop_front();
+		node->id = id;
+		id++;
+		for (int i = 0; i < node->nodes.size(); i++) {
+			queue.push_back(node->nodes[i]);
+		}
+	}
+}
+
 #pragma endregion
 
 void SQMAlgorithm::getBoundingSphere(float &x, float &y, float &z, float &d) {
@@ -291,7 +308,7 @@ void SQMAlgorithm::straightenSkeleton() {
 			te = clock();
 			skeletonB = root->exportToSkinSkeleton(NULL);
 			(*os) << "\tIt took " << te - ts << " clicks (" << (((float)(te - ts)) / CLOCKS_PER_SEC) << " seconds)\n";
-			sqmState = SQMFinalPlacement;
+			sqmState = SQMJoinBNPs;
 		} else {
 			ts = clock();
 			swapRoot(node);
@@ -401,6 +418,12 @@ void SQMAlgorithm::finalVertexPlacement() {
 	fb->open("logs/log.txt", ios::app);
 	(*os) << "Final vertex placement\n";
 	clock_t ts, te;
+
+	ts = clock();
+	calculateSkinSkeletonIDs();
+	te = clock();
+	(*os) << "\tPreprocessing took " << te - ts << " clicks (" << (((float)(te - ts)) / CLOCKS_PER_SEC) << " seconds)\n";
+
 	ts = clock();
 	//root->rotateBack(mesh);
 	root->rotateWithSkeleton(mesh, skeleton);

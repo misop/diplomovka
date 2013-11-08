@@ -141,7 +141,7 @@ public:
 
 #pragma region Export
 	SkeletonNode* exportToSkeletonNode();
-	SkinSkeleton* exportToSkinSkeleton(SkinSkeleton *parent);
+	SkinSkeleton* exportToSkinSkeleton(SkinSkeleton *parentSkin);
 #pragma endregion
 
 #pragma region SQM Preprocessing
