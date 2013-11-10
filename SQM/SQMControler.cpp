@@ -560,7 +560,6 @@ void SQMControler::drawMeshForTesselation() {
 	transformMatrices = new float[skinningMatricesCount*16];
 	sqmALgorithm->getTransformMatrices(transformMatrices);
 
-
 	convertMeshToArray(sqmALgorithm->getMesh(), points, vertex_normals, triIndices, quadIndices);
 	sqmALgorithm->getRoot()->getMeshTessDatai(tessLevels, nodePositions, skinningData, data);
 

@@ -1,11 +1,14 @@
 #version 420
 
+#define SKINNING_MATRICES fill_in_skinnig_matrices_number
+
 layout(quads) in;
 
 in vec3 tcVertexNormal[];
 in vec3 tcNodePosition[];
 flat in int tcNodeType[];
 flat in int tcNodeID[];
+flat in ivec2 tcSkinningIDs[];
 
 out vec4 tePatchDistance;
 out vec4 tePatchDistanceCtrl;
@@ -17,6 +20,9 @@ layout(binding=0) uniform sampler2D RadiusesSampler;
 layout(binding=1) uniform sampler2D CTS;
 uniform float Threshold;
 uniform int MaxID;
+
+uniform mat4 SkinningMatrices[SKINNING_MATRICES];
+uniform mat4 TransformMatrices[SKINNING_MATRICES];
 
 const float EPSILON = 0.00001;
 const float threshold = 0.85;
@@ -66,6 +72,93 @@ bool isBranchNode(in int type) {
 
 bool isLeafNode(in int type) {
 	return (type == 2);
+}
+
+vec3 skinning(in vec3 position, in float v, in ivec2 tcSkinningID0, in ivec2 tcSkinningID1, in mat4 SkinningMatrices[SKINNING_MATRICES], in mat4 TransformMatrices[SKINNING_MATRICES]) {
+	float w0 = (1-v), w1 = v;
+	vec4 pos = vec4(position, 1.0f);
+	vec4 pos0 = pos, pos1 = pos;
+	ivec2 ids = ivec2(tcSkinningID0.x, tcSkinningID1.x);
+	vec4 result = pos;
+	//just forward
+	/*if (floatEqual(v, 0)) {
+		w0 = 1;
+		w1 = 0;
+		ids = tcSkinningID0;
+		if (ids.x != -1) {
+			pos0 = SkinningMatrices[ids.x] * pos;
+		}
+		if (ids.y != -1) {
+			w0 = 0.5;
+			w1 = 0.5;
+			pos1 = SkinningMatrices[ids.y] * pos;
+		}
+		result = w0*pos0 + w1*pos1;
+	} else if (floatEqual(v, 1)) {
+		w0 = 1;
+		w1 = 0;
+		ids = tcSkinningID1;
+		if (ids.x != -1) {
+			pos0 = SkinningMatrices[ids.x] * pos;
+		}
+		if (ids.y != -1) {
+			w0 = 0.5;
+			w1 = 0.5;
+			pos1 = SkinningMatrices[ids.y] * pos;
+		}
+		result = w0*pos0 + w1*pos1;
+	} else {
+		ids = tcSkinningID1;
+		if (ids.x != -1) {
+			result = SkinningMatrices[ids.x] * pos;
+		}
+	}*/
+	//foraward back combination
+	/*if (floatEqual(v, 0) || floatEqual(v, 1)) {
+		if (floatEqual(v, 0)) {
+			ids = tcSkinningID0;
+		} else {
+			ids = tcSkinningID1;
+		}
+		if (ids.y != -1) {
+			w0 = 0.5;
+			w1 = 0.5;
+		}
+	}
+
+	if (ids.x != -1) {
+		pos0 = SkinningMatrices[ids.x] * pos;
+	}
+	if (ids.y != -1) {
+		pos1 = SkinningMatrices[ids.y] * pos;
+	}
+	result = w0*pos0 + w1*pos1;*/
+	//all avarage
+	w0 = 1; w1 = 0;
+	if (tcSkinningID0.x != -1) {
+		pos0 = SkinningMatrices[tcSkinningID0.x] * pos;
+	}
+	if (tcSkinningID0.y != -1) {
+		w0 = 0.5;
+		w1 = 0.5;
+		pos1 = SkinningMatrices[tcSkinningID0.y] * pos;
+	}
+	vec4 t1 = w0*pos0 + w1*pos1;
+
+	w0 = 1; w1 = 0;
+	if (tcSkinningID1.x != -1) {
+		pos0 = SkinningMatrices[tcSkinningID1.x] * pos;
+	}
+	if (tcSkinningID1.y != -1) {
+		w0 = 0.5;
+		w1 = 0.5;
+		pos1 = SkinningMatrices[tcSkinningID1.y] * pos;
+	}
+	vec4 t2 = w0*pos0 + w1*pos1;
+
+	result = (1-v)*t1 + (v)*t2;
+
+	return vec3(result);
 }
 
 void main()
@@ -187,6 +280,8 @@ void main()
 		position = projection + (normal * radius);
 		//position = mix(a, b, v);
 	}
+
+	//position = skinning(position, v, tcSkinningIDs[0], tcSkinningIDs[1], SkinningMatrices, TransformMatrices);
 	
 	//teColor = getNodePosition(tcNodeID[1]);	
 	//teColor = texture(CTS, vec2(2, 1)).rgb;

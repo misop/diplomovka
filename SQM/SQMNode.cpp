@@ -430,6 +430,7 @@ void SQMNode::createCapsules(int minSmallCircles) {
 void SQMNode::straightenSkeleton(OpenMesh::Vec3f *lineVector) {
 	axisAngle = Quaternion();
 	oldPosition = position;
+	skinningIDs = glm::ivec2(-1, -1);
 	if (lineVector != NULL && !parent->isBranchNode()) {//straighten self
 		SQMNode *ancestor = getAncestorBranchNode(this);
 		if (ancestor != NULL) {

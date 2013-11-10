@@ -17,22 +17,22 @@ out float vTessLevel;
 out vec3 vNodePosition;
 flat out int vNodeType;
 flat out int vNodeID;
+flat out ivec2 vSkinningIDs;
  
 void main(void)
 {
-	//vVertexNormal = VertexNormal;
 	vTessLevel = TessLevel;
-	//vNodePosition = SQMNode;
 	vNodeType = Data.x;
 	vNodeID = Data.y;
+	vSkinningIDs = SkinningIDs;
+	vec4 nodePosition = vec4(SQMNode, 1.0);
+	vec4 normal = vec4(VertexNormal, 0.0);
+	vec4 position = vec4(Position, 1.0);
 	float w0 = 1, w1 = 0;
 	if (SkinningIDs.y != -1) {
 		w0 = 0.5;
 		w1 = 0.5;
 	}
-	vec4 position = vec4(Position, 1.0);
-	vec4 nodePosition = vec4(SQMNode, 1.0);
-	vec4 normal = vec4(VertexNormal, 0.0);
 	vec4 pos = position;
 	vec4 npos = nodePosition;
 	vec4 n = normal;

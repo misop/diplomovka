@@ -320,6 +320,7 @@ namespace OpenGLForm
 			delete programs->QuadMeshTess;
 			delete triTessShaders->vert;
 			delete quadTessShaders->vert;
+			delete quadTessShaders->eval;
 
 			triTessShaders->vert = new GLShader(GL_VERTEX_SHADER);
 			triTessShaders->vert->Load("Shaders/TessVertShader.vert", replaceMap);
@@ -337,6 +338,10 @@ namespace OpenGLForm
 			quadTessShaders->vert = new GLShader(GL_VERTEX_SHADER);
 			quadTessShaders->vert->Load("Shaders/TessVertShader.vert", replaceMap);
 			quadTessShaders->vert->Compile();
+			quadTessShaders->eval = new GLShader(GL_TESS_EVALUATION_SHADER);
+			quadTessShaders->eval->Load("Shaders/TessQuadEvalShader.glsl", replaceMap);
+			quadTessShaders->eval->Compile();
+
 
 			programs->QuadMeshTess = new GLProgram("QuadMeshTess");
 			programs->QuadMeshTess->AttachShader(quadTessShaders->vert);
@@ -450,7 +455,7 @@ namespace OpenGLForm
 			quadTessShaders->ctrl->Compile();
 
 			quadTessShaders->eval = new GLShader(GL_TESS_EVALUATION_SHADER);
-			quadTessShaders->eval->Load("Shaders/TessQuadEvalShader.glsl");
+			quadTessShaders->eval->Load("Shaders/TessQuadEvalShader.glsl", replaceMap);
 			quadTessShaders->eval->Compile();
 
 			quadTessShaders->geom = new GLShader(GL_GEOMETRY_SHADER);
