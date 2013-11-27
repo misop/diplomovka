@@ -1603,6 +1603,9 @@ void SQMNode::getMeshTessDatai(vector<float> &tessLevels, vector<float> &nodePos
 	if (type == 0 && nodes[0]->isLeafNode()) {
 		type = 2;
 	}
+	if (sqmNodeType == SQMCreatedCapsule || sqmNodeType == SQMFormerCapsule) {
+		type += 10;
+	}
 
 	for (int i = 0; i < meshVhandlesToRotate.size(); i++) {
 		MyMesh::VHandle vh = meshVhandlesToRotate[i];

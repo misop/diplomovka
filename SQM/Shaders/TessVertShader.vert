@@ -40,7 +40,7 @@ void main(void)
 		vec4 n = normal;
 		if (SkinningIDs.x != -1) {
 			pos = w0 * SkinningMatrices[SkinningIDs.x] * position;
-			npos = w0 * SkinningMatrices[SkinningIDs.x] * nodePosition;
+			npos = SkinningMatrices[SkinningIDs.x] * nodePosition;
 			n = w0 * SkinningMatrices[SkinningIDs.x] * normal;
 		}
 		if (SkinningIDs.y != -1) {

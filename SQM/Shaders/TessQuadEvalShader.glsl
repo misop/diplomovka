@@ -181,12 +181,27 @@ void main()
 	teColor = vec3(0, 0, u);
 	int type0 = tcNodeType[0];
 	int type1 = tcNodeType[1];
+	bool capsule0 = false;
+	bool capsule1 = false;
+	if (type0 > 5) {
+		type0 -= 10;
+		capsule0 = true;
+	}
+	if (type1 > 5) {
+		type1 -= 10;
+		capsule1 = true;
+	}
 
 	bool test = !(floatEqual(v, 1) || floatEqual(v, 0));
 	if (SkinningType >= 2)
 		test = !((isBranchNode(type0) && floatEqual(v, 0)) || (isBranchNode(type1) && floatEqual(v, 1)) || (isLeafNode(type1) && floatEqual(v, 1)));
-	if (SkinningType < 2)
-		test = false;
+	if (SkinningType <= 2) {//check for capsules
+		test = !(floatEqual(v, 1) || floatEqual(v, 0));
+		//move capsules to perimeter
+		if ((floatEqual(v, 0) && capsule0) || (floatEqual(v, 1) && capsule1)) {
+			test = true;
+		}
+	}
 
 	if (test) {
 		//vec3 w0 = getNodePosition(tcNodeID[0]);	
