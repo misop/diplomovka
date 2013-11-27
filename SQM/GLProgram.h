@@ -23,6 +23,8 @@
 #define RADIUS_TEXTURE_STR "RadiusesSampler"
 #define CENTERS_TEXTURE_STR "CenterSampler"
 
+#define SKINNING_TYPE_STR "SkinningType" 
+
 class GLProgram
 {
 private:

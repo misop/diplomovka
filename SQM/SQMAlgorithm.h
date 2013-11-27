@@ -27,6 +27,8 @@ class SQMAlgorithm {
 	SkinSkeleton *skeleton;
 	clock_t totalClocks;
 	clock_t algorithmClocks;
+	bool useCapsules;
+	bool useCPUSkinning;
 	
 	SQMNode* findBNPInTree();
 	void swapRoot(SQMNode *node);
@@ -38,6 +40,8 @@ public:
 	void setRoot(SQMNode *newRoot);
 	void setNumberOfNodes(int newNumberOfNodes);
 	void setSmoothingAlgorithm(SQMSmoothingAlgorithm sqmSmoothingAlgorithm);
+	void setUseCapsules(bool newUseCapsules);
+	void setUseCPUSkinning(bool newUseCPUSkinning);
 
 	SQMNode* getRoot();
 	SQMState getState();

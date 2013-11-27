@@ -111,6 +111,7 @@ public:
 	float getRotateX();
 	float getRotateY();
 	float getRotateZ();
+	bool getIsCapsule();
 #pragma endregion
 
 #pragma region Setters
@@ -138,6 +139,7 @@ public:
 	void setRotateZ(float value);
 	void updateTransformationMatrix();
 	void addVHandleToRotate(MyMesh::VHandle vh);
+	void setIsCapsule(bool isCapsule);
 #pragma endregion
 
 #pragma region Export

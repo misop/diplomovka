@@ -33,6 +33,7 @@ SQMControler::SQMControler(void)
 	threshold = 0.85;
 	skinningMatrices = NULL;
 	transformMatrices = NULL;
+	skinningType = GPUVertex;
 }
 
 
@@ -187,6 +188,10 @@ SQMNode* SQMControler::getSelected() {
 	return NULL;
 }
 
+SQMState SQMControler::getState() {
+	return sqmALgorithm->getState();
+}
+
 #pragma endregion
 
 void SQMControler::straightenSkeleton() {
@@ -301,6 +306,21 @@ void SQMControler::setSelectedRotateY(float value) {
 void SQMControler::setSelectedRotateZ(float value) {
 	selected->setRotateZ(value);
 	drawSkeleton();
+}
+
+void SQMControler::setUseCapsules(bool useCapsules) {
+	sqmALgorithm->setUseCapsules(useCapsules);
+}
+
+bool SQMControler::setSkinningType(SkinningType newSkinningType) {
+	bool shouldRecalculate = (skinningType == 0 && newSkinningType > 0) || (skinningType > 0 && newSkinningType == 0);
+	skinningType = newSkinningType;
+	if (skinningType == CPU) {
+		sqmALgorithm->setUseCPUSkinning(true);
+	} else {
+		sqmALgorithm->setUseCPUSkinning(false);
+	}
+	return shouldRecalculate;
 }
 
 #pragma region drawing
@@ -475,6 +495,7 @@ void SQMControler::drawMeshForTesselation(OpenGLPrograms *programs, GLCamera *ca
 	glUniform4f(programs->TriMeshTess->getUniformLocation(AMBIENT_COLOR_STR), 0.0, 0.75, 0.75, 0.1);
 	glUniform3f(programs->TriMeshTess->getUniformLocation(DIFFUSE_COLOR_STR), 0.0, 0.75, 0.75);
 	glUniform1i(programs->TriMeshTess->getUniformLocation(WIREFRAME_STR), wireframe ? 1 : 0);
+	glUniform1i(programs->TriMeshTess->getUniformLocation(SKINNING_TYPE_STR), skinningType);
 	if (skinningMatricesCount > 0) {
 		glUniformMatrix4fv(programs->TriMeshTess->getUniformLocation(SKINNING_MATRICES_STR), skinningMatricesCount, GL_FALSE, skinningMatrices);
 		glUniformMatrix4fv(programs->TriMeshTess->getUniformLocation(TRANSFORM_MATRICES_STR), skinningMatricesCount, GL_FALSE, transformMatrices);
@@ -494,6 +515,7 @@ void SQMControler::drawMeshForTesselation(OpenGLPrograms *programs, GLCamera *ca
 	glUniform1f(programs->QuadMeshTess->getUniformLocation(THRESHOLD_STR), threshold);
 	glUniform1i(programs->QuadMeshTess->getUniformLocation(WIREFRAME_STR), wireframe ? 1 : 0);
 	glUniform1i(programs->QuadMeshTess->getUniformLocation(MAX_ID_STR), sqmALgorithm->getNumberOfNodes() - 1);
+	glUniform1i(programs->QuadMeshTess->getUniformLocation(SKINNING_TYPE_STR), skinningType);
 	if (skinningMatricesCount > 0) {
 		glUniformMatrix4fv(programs->QuadMeshTess->getUniformLocation(SKINNING_MATRICES_STR), skinningMatricesCount, GL_FALSE, skinningMatrices);
 		glUniformMatrix4fv(programs->QuadMeshTess->getUniformLocation(TRANSFORM_MATRICES_STR), skinningMatricesCount, GL_FALSE, transformMatrices);
@@ -503,7 +525,7 @@ void SQMControler::drawMeshForTesselation(OpenGLPrograms *programs, GLCamera *ca
 	//glUniform1i(8, 1);
 	buffer1->DrawElement(1, GL_PATCHES);
 	//draw normals
-	if (shouldDrawNormals) {
+	if (shouldDrawNormals && sqmALgorithm->getState() == SQMJoinBNPs) {
 		programs->SklLines->Use();
 		camera->lookFromCamera(programs->SklLines->getUniformLocation(MVP_MATRIX_STR));
 		glUniform3f(programs->SklLines->getUniformLocation(DIFFUSE_COLOR_STR), 1.0, 0.0, 0.0);

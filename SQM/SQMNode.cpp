@@ -24,6 +24,7 @@ SQMNode::SQMNode(void) {
 	transformationMatrix = glm::mat4();
 	sqmNodeType = SQMNone;
 	skinningIDs = glm::ivec2(-1, -1);
+	sqmNodeType = SQMCapsule;
 }
 
 SQMNode::SQMNode(SkeletonNode &node, SQMNode* newParent) : parent(newParent) {
@@ -212,6 +213,10 @@ float SQMNode::getRotateZ() {
 	return rotatev.z;
 }
 
+bool SQMNode::getIsCapsule() {
+	return (sqmNodeType == SQMCapsule);
+}
+
 #pragma endregion
 
 #pragma region Setters
@@ -340,6 +345,14 @@ void SQMNode::updateTransformationMatrix() {
 
 void SQMNode::addVHandleToRotate(MyMesh::VHandle vh) {
 	meshVhandlesToRotate.push_back(vh);
+}
+
+void SQMNode::setIsCapsule(bool isCapsule) {
+	if (isCapsule == true) {
+		sqmNodeType = SQMCapsule;
+	} else {
+		sqmNodeType = SQMNone;
+	}
 }
 
 #pragma endregion

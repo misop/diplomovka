@@ -7,17 +7,16 @@ Convex hull computation
 	It took 3 clicks (0.003 seconds)
 
 Convex hull subdivision
-	It took 2 clicks (0.002 seconds)
+	It took 9 clicks (0.009 seconds)
 
 BNP joining
-	It took 16 clicks (0.016 seconds)
+	It took 83 clicks (0.083 seconds)
 
 Final vertex placement
-	Preprocessing took 0 clicks (0 seconds)
-	It took 0 clicks (0 seconds)
+	Preprocessing took 9 clicks (0.009 seconds)
 
 
-Preprocess time 1 clicks (0.001 seconds)
-Algorithm time 21 clicks (0.021 seconds)
-Total time 22 clicks (0.022 seconds)
+Preprocess time 10 clicks (0.01 seconds)
+Algorithm time 95 clicks (0.095 seconds)
+Total time 105 clicks (0.105 seconds)
 

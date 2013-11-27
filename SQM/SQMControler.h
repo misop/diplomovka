@@ -9,6 +9,13 @@
 
 using namespace std;
 
+typedef enum {
+	CPU = 0,
+	GPUVertex,
+	GPUTessLast,
+	GPUTessAvarage
+} SkinningType;
+
 class SQMControler
 {
 private:
@@ -27,6 +34,7 @@ private:
 	float threshold;
 	float *skinningMatrices;
 	float *transformMatrices;
+	SkinningType skinningType;
 public:
 	SQMNode *selected;
 
@@ -57,7 +65,9 @@ public:
 	void setShouldDrawNormals(bool newShouldDrawNormals);
 	bool getShouldDrawNormals();
 	void setGlobalTesselation(float newGlobalTesselation);
+	bool setSkinningType(SkinningType newSkinningType);
 	int getNumOfSkinningMatrices();
+	SQMState getState();
 
 	void insertNode(float x, float y, float z);
 	void setSelectedPosition(OpenMesh::Vec3f pos);
@@ -76,6 +86,7 @@ public:
 	void setSelectedRotateX(float value);
 	void setSelectedRotateY(float value);
 	void setSelectedRotateZ(float value);
+	void setUseCapsules(bool useCapsules);
 	SQMNode* getSelected();
 	
 	void drawTriNormals();

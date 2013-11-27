@@ -144,6 +144,14 @@ namespace SQM {
 	private: System::Windows::Forms::NumericUpDown^  numericUpDown12;
 	private: System::Windows::Forms::NumericUpDown^  numericUpDown11;
 	private: System::Windows::Forms::Label^  label12;
+	private: System::Windows::Forms::ToolStripMenuItem^  settingsToolStripMenuItem;
+	private: System::Windows::Forms::ToolStripMenuItem^  skinningToolStripMenuItem;
+	private: System::Windows::Forms::ToolStripMenuItem^  cPUSkinningNoTesselationToolStripMenuItem;
+	private: System::Windows::Forms::ToolStripMenuItem^  gPUVertexSkinningnoTesselationToolStripMenuItem;
+	private: System::Windows::Forms::ToolStripMenuItem^  gPUTessSkinningLastOnlyToolStripMenuItem;
+	private: System::Windows::Forms::ToolStripMenuItem^  gPUTessSkinningAllAvarageToolStripMenuItem;
+	private: System::Windows::Forms::CheckBox^  checkBox1;
+	private: System::Windows::Forms::CheckBox^  checkBox2;
 
 
 
@@ -196,9 +204,16 @@ namespace SQM {
 				 this->normalsToolStripMenuItem = (gcnew System::Windows::Forms::ToolStripMenuItem());
 				 this->shadersToolStripMenuItem = (gcnew System::Windows::Forms::ToolStripMenuItem());
 				 this->reloadShadersToolStripMenuItem = (gcnew System::Windows::Forms::ToolStripMenuItem());
+				 this->settingsToolStripMenuItem = (gcnew System::Windows::Forms::ToolStripMenuItem());
+				 this->skinningToolStripMenuItem = (gcnew System::Windows::Forms::ToolStripMenuItem());
+				 this->cPUSkinningNoTesselationToolStripMenuItem = (gcnew System::Windows::Forms::ToolStripMenuItem());
+				 this->gPUVertexSkinningnoTesselationToolStripMenuItem = (gcnew System::Windows::Forms::ToolStripMenuItem());
+				 this->gPUTessSkinningLastOnlyToolStripMenuItem = (gcnew System::Windows::Forms::ToolStripMenuItem());
+				 this->gPUTessSkinningAllAvarageToolStripMenuItem = (gcnew System::Windows::Forms::ToolStripMenuItem());
 				 this->panel2 = (gcnew System::Windows::Forms::Panel());
 				 this->tabControl1 = (gcnew System::Windows::Forms::TabControl());
 				 this->tabPage1 = (gcnew System::Windows::Forms::TabPage());
+				 this->checkBox2 = (gcnew System::Windows::Forms::CheckBox());
 				 this->tabControl2 = (gcnew System::Windows::Forms::TabControl());
 				 this->tabPage3 = (gcnew System::Windows::Forms::TabPage());
 				 this->numericUpDown10 = (gcnew System::Windows::Forms::NumericUpDown());
@@ -227,6 +242,7 @@ namespace SQM {
 				 this->numericUpDown3 = (gcnew System::Windows::Forms::NumericUpDown());
 				 this->label5 = (gcnew System::Windows::Forms::Label());
 				 this->tabPage2 = (gcnew System::Windows::Forms::TabPage());
+				 this->checkBox1 = (gcnew System::Windows::Forms::CheckBox());
 				 this->numericUpDown7 = (gcnew System::Windows::Forms::NumericUpDown());
 				 this->label1 = (gcnew System::Windows::Forms::Label());
 				 this->numericUpDown6 = (gcnew System::Windows::Forms::NumericUpDown());
@@ -311,8 +327,8 @@ namespace SQM {
 				 // 
 				 // menuStrip1
 				 // 
-				 this->menuStrip1->Items->AddRange(gcnew cli::array< System::Windows::Forms::ToolStripItem^  >(4) {this->fileToolStripMenuItem, 
-					 this->sQMToolStripMenuItem, this->showToolStripMenuItem, this->shadersToolStripMenuItem});
+				 this->menuStrip1->Items->AddRange(gcnew cli::array< System::Windows::Forms::ToolStripItem^  >(5) {this->fileToolStripMenuItem, 
+					 this->sQMToolStripMenuItem, this->showToolStripMenuItem, this->shadersToolStripMenuItem, this->settingsToolStripMenuItem});
 				 this->menuStrip1->Location = System::Drawing::Point(0, 0);
 				 this->menuStrip1->Name = L"menuStrip1";
 				 this->menuStrip1->Size = System::Drawing::Size(744, 24);
@@ -435,8 +451,6 @@ namespace SQM {
 				 // 
 				 // avaragingToolStripMenuItem
 				 // 
-				 this->avaragingToolStripMenuItem->Checked = true;
-				 this->avaragingToolStripMenuItem->CheckState = System::Windows::Forms::CheckState::Checked;
 				 this->avaragingToolStripMenuItem->Name = L"avaragingToolStripMenuItem";
 				 this->avaragingToolStripMenuItem->Size = System::Drawing::Size(257, 22);
 				 this->avaragingToolStripMenuItem->Text = L"Avaraging";
@@ -444,6 +458,8 @@ namespace SQM {
 				 // 
 				 // quaternionToolStripMenuItem
 				 // 
+				 this->quaternionToolStripMenuItem->Checked = true;
+				 this->quaternionToolStripMenuItem->CheckState = System::Windows::Forms::CheckState::Checked;
 				 this->quaternionToolStripMenuItem->Name = L"quaternionToolStripMenuItem";
 				 this->quaternionToolStripMenuItem->Size = System::Drawing::Size(257, 22);
 				 this->quaternionToolStripMenuItem->Text = L"Quaternion";
@@ -491,7 +507,7 @@ namespace SQM {
 				 this->wireframeToolStripMenuItem->CheckOnClick = true;
 				 this->wireframeToolStripMenuItem->CheckState = System::Windows::Forms::CheckState::Checked;
 				 this->wireframeToolStripMenuItem->Name = L"wireframeToolStripMenuItem";
-				 this->wireframeToolStripMenuItem->Size = System::Drawing::Size(129, 22);
+				 this->wireframeToolStripMenuItem->Size = System::Drawing::Size(152, 22);
 				 this->wireframeToolStripMenuItem->Text = L"Wireframe";
 				 this->wireframeToolStripMenuItem->Click += gcnew System::EventHandler(this, &Form1::wireframeToolStripMenuItem_Click);
 				 // 
@@ -499,7 +515,7 @@ namespace SQM {
 				 // 
 				 this->normalsToolStripMenuItem->CheckOnClick = true;
 				 this->normalsToolStripMenuItem->Name = L"normalsToolStripMenuItem";
-				 this->normalsToolStripMenuItem->Size = System::Drawing::Size(129, 22);
+				 this->normalsToolStripMenuItem->Size = System::Drawing::Size(152, 22);
 				 this->normalsToolStripMenuItem->Text = L"Normals";
 				 this->normalsToolStripMenuItem->Click += gcnew System::EventHandler(this, &Form1::normalsToolStripMenuItem_Click);
 				 // 
@@ -516,6 +532,53 @@ namespace SQM {
 				 this->reloadShadersToolStripMenuItem->Size = System::Drawing::Size(154, 22);
 				 this->reloadShadersToolStripMenuItem->Text = L"Reload Shaders";
 				 this->reloadShadersToolStripMenuItem->Click += gcnew System::EventHandler(this, &Form1::reloadShadersToolStripMenuItem_Click);
+				 // 
+				 // settingsToolStripMenuItem
+				 // 
+				 this->settingsToolStripMenuItem->DropDownItems->AddRange(gcnew cli::array< System::Windows::Forms::ToolStripItem^  >(1) {this->skinningToolStripMenuItem});
+				 this->settingsToolStripMenuItem->Name = L"settingsToolStripMenuItem";
+				 this->settingsToolStripMenuItem->Size = System::Drawing::Size(61, 20);
+				 this->settingsToolStripMenuItem->Text = L"S&ettings";
+				 // 
+				 // skinningToolStripMenuItem
+				 // 
+				 this->skinningToolStripMenuItem->DropDownItems->AddRange(gcnew cli::array< System::Windows::Forms::ToolStripItem^  >(4) {this->cPUSkinningNoTesselationToolStripMenuItem, 
+					 this->gPUVertexSkinningnoTesselationToolStripMenuItem, this->gPUTessSkinningLastOnlyToolStripMenuItem, this->gPUTessSkinningAllAvarageToolStripMenuItem});
+				 this->skinningToolStripMenuItem->Name = L"skinningToolStripMenuItem";
+				 this->skinningToolStripMenuItem->Size = System::Drawing::Size(120, 22);
+				 this->skinningToolStripMenuItem->Text = L"Skinning";
+				 // 
+				 // cPUSkinningNoTesselationToolStripMenuItem
+				 // 
+				 this->cPUSkinningNoTesselationToolStripMenuItem->Name = L"cPUSkinningNoTesselationToolStripMenuItem";
+				 this->cPUSkinningNoTesselationToolStripMenuItem->Size = System::Drawing::Size(230, 22);
+				 this->cPUSkinningNoTesselationToolStripMenuItem->Text = L"CPU skinning";
+				 this->cPUSkinningNoTesselationToolStripMenuItem->ToolTipText = L"No Tesselation";
+				 this->cPUSkinningNoTesselationToolStripMenuItem->Click += gcnew System::EventHandler(this, &Form1::cPUSkinningNoTesselationToolStripMenuItem_Click);
+				 // 
+				 // gPUVertexSkinningnoTesselationToolStripMenuItem
+				 // 
+				 this->gPUVertexSkinningnoTesselationToolStripMenuItem->Checked = true;
+				 this->gPUVertexSkinningnoTesselationToolStripMenuItem->CheckState = System::Windows::Forms::CheckState::Checked;
+				 this->gPUVertexSkinningnoTesselationToolStripMenuItem->Name = L"gPUVertexSkinningnoTesselationToolStripMenuItem";
+				 this->gPUVertexSkinningnoTesselationToolStripMenuItem->Size = System::Drawing::Size(230, 22);
+				 this->gPUVertexSkinningnoTesselationToolStripMenuItem->Text = L"GPU Vertex skinning";
+				 this->gPUVertexSkinningnoTesselationToolStripMenuItem->ToolTipText = L"No Tesselation";
+				 this->gPUVertexSkinningnoTesselationToolStripMenuItem->Click += gcnew System::EventHandler(this, &Form1::gPUVertexSkinningnoTesselationToolStripMenuItem_Click);
+				 // 
+				 // gPUTessSkinningLastOnlyToolStripMenuItem
+				 // 
+				 this->gPUTessSkinningLastOnlyToolStripMenuItem->Name = L"gPUTessSkinningLastOnlyToolStripMenuItem";
+				 this->gPUTessSkinningLastOnlyToolStripMenuItem->Size = System::Drawing::Size(230, 22);
+				 this->gPUTessSkinningLastOnlyToolStripMenuItem->Text = L"GPU Tess skinning last only";
+				 this->gPUTessSkinningLastOnlyToolStripMenuItem->Click += gcnew System::EventHandler(this, &Form1::gPUTessSkinningLastOnlyToolStripMenuItem_Click);
+				 // 
+				 // gPUTessSkinningAllAvarageToolStripMenuItem
+				 // 
+				 this->gPUTessSkinningAllAvarageToolStripMenuItem->Name = L"gPUTessSkinningAllAvarageToolStripMenuItem";
+				 this->gPUTessSkinningAllAvarageToolStripMenuItem->Size = System::Drawing::Size(230, 22);
+				 this->gPUTessSkinningAllAvarageToolStripMenuItem->Text = L"GPU Tess skinning all avarage";
+				 this->gPUTessSkinningAllAvarageToolStripMenuItem->Click += gcnew System::EventHandler(this, &Form1::gPUTessSkinningAllAvarageToolStripMenuItem_Click);
 				 // 
 				 // panel2
 				 // 
@@ -542,6 +605,7 @@ namespace SQM {
 				 // tabPage1
 				 // 
 				 this->tabPage1->BackColor = System::Drawing::SystemColors::Control;
+				 this->tabPage1->Controls->Add(this->checkBox2);
 				 this->tabPage1->Controls->Add(this->tabControl2);
 				 this->tabPage1->Controls->Add(this->numericUpDown5);
 				 this->tabPage1->Controls->Add(this->textBox1);
@@ -562,11 +626,24 @@ namespace SQM {
 				 this->tabPage1->TabIndex = 0;
 				 this->tabPage1->Text = L"Node";
 				 // 
+				 // checkBox2
+				 // 
+				 this->checkBox2->AutoSize = true;
+				 this->checkBox2->CheckAlign = System::Drawing::ContentAlignment::MiddleRight;
+				 this->checkBox2->Enabled = false;
+				 this->checkBox2->Location = System::Drawing::Point(9, 162);
+				 this->checkBox2->Name = L"checkBox2";
+				 this->checkBox2->Size = System::Drawing::Size(64, 17);
+				 this->checkBox2->TabIndex = 14;
+				 this->checkBox2->Text = L"Capsule";
+				 this->checkBox2->UseVisualStyleBackColor = true;
+				 this->checkBox2->CheckedChanged += gcnew System::EventHandler(this, &Form1::checkBox2_CheckedChanged);
+				 // 
 				 // tabControl2
 				 // 
 				 this->tabControl2->Controls->Add(this->tabPage3);
 				 this->tabControl2->Controls->Add(this->tabPage4);
-				 this->tabControl2->Location = System::Drawing::Point(9, 162);
+				 this->tabControl2->Location = System::Drawing::Point(9, 185);
 				 this->tabControl2->Name = L"tabControl2";
 				 this->tabControl2->SelectedIndex = 0;
 				 this->tabControl2->Size = System::Drawing::Size(149, 117);
@@ -871,6 +948,7 @@ namespace SQM {
 				 // tabPage2
 				 // 
 				 this->tabPage2->BackColor = System::Drawing::SystemColors::Control;
+				 this->tabPage2->Controls->Add(this->checkBox1);
 				 this->tabPage2->Controls->Add(this->numericUpDown7);
 				 this->tabPage2->Controls->Add(this->label1);
 				 this->tabPage2->Controls->Add(this->numericUpDown6);
@@ -881,6 +959,20 @@ namespace SQM {
 				 this->tabPage2->Size = System::Drawing::Size(164, 423);
 				 this->tabPage2->TabIndex = 1;
 				 this->tabPage2->Text = L"Global";
+				 // 
+				 // checkBox1
+				 // 
+				 this->checkBox1->AutoSize = true;
+				 this->checkBox1->CheckAlign = System::Drawing::ContentAlignment::MiddleRight;
+				 this->checkBox1->Checked = true;
+				 this->checkBox1->CheckState = System::Windows::Forms::CheckState::Checked;
+				 this->checkBox1->Location = System::Drawing::Point(6, 58);
+				 this->checkBox1->Name = L"checkBox1";
+				 this->checkBox1->Size = System::Drawing::Size(133, 17);
+				 this->checkBox1->TabIndex = 18;
+				 this->checkBox1->Text = L"Use Capsules Attribute";
+				 this->checkBox1->UseVisualStyleBackColor = true;
+				 this->checkBox1->CheckedChanged += gcnew System::EventHandler(this, &Form1::checkBox1_CheckedChanged);
 				 // 
 				 // numericUpDown7
 				 // 
@@ -1003,6 +1095,7 @@ namespace SQM {
 				 this->numericUpDown11->Enabled = false;
 				 this->numericUpDown12->Enabled = false;
 				 this->numericUpDown13->Enabled = false;
+				 this->checkBox2->Enabled = false;
 
 				 this->panel1->Focus();
 			 }
@@ -1022,6 +1115,7 @@ namespace SQM {
 					 this->numericUpDown11->Value = System::Decimal(node->getRotateX());
 					 this->numericUpDown12->Value = System::Decimal(node->getRotateY());
 					 this->numericUpDown13->Value = System::Decimal(node->getRotateZ());
+					 this->checkBox2->Checked = node->getIsCapsule();
 				 }
 			 }
 			 void ReEnableNodeGUI() {
@@ -1050,6 +1144,7 @@ namespace SQM {
 					 this->numericUpDown11->Enabled = true;
 					 this->numericUpDown12->Enabled = true;
 					 this->numericUpDown13->Enabled = true;
+					 this->checkBox2->Enabled = true;
 				 } else {
 					 this->textBox1->Text = L"no node selected";
 					 this->numericUpDown1->Value = System::Decimal(0);
@@ -1063,6 +1158,7 @@ namespace SQM {
 					 this->numericUpDown11->Value = System::Decimal(0);
 					 this->numericUpDown12->Value = System::Decimal(0);
 					 this->numericUpDown13->Value = System::Decimal(0);
+					 this->checkBox2->Checked = false;
 				 }
 			 }
 
@@ -1162,6 +1258,26 @@ namespace SQM {
 				 subdivideConvexHullToolStripMenuItem1->Checked = (idx == 3) ? true : false;
 				 joinBranchNodePolyhedronsToolStripMenuItem->Checked = (idx == 4) ? true : false;
 				 straightenMeshToolStripMenuItem->Checked = (idx == 5) ? true : false;
+				 checkBox1->Enabled = (idx == 0) ? true : false;
+				 if (idx != 0) InvalidateNodeGUI();
+			 }
+			 void checkSmoothingMenu(int idx) {
+				 noSmoothingToolStripMenuItem->Checked = (idx == 0) ? true : false;
+				 avaragingToolStripMenuItem->Checked = (idx == 1) ? true : false;
+				 quaternionToolStripMenuItem->Checked = (idx == 2) ? true : false;
+				 valencyWeightedLaplacianToolStripMenuItem->Checked = (idx == 3) ? true : false;
+				 oneRingAreaWeightedLaplacianToolStripMenuItem->Checked = (idx == 4) ? true : false;
+			 }
+			 void checkSkinningMenu(int idx) {
+				 cPUSkinningNoTesselationToolStripMenuItem->Checked = (idx == 0) ? true : false;
+				 gPUVertexSkinningnoTesselationToolStripMenuItem->Checked = (idx == 1) ? true : false;
+				 gPUTessSkinningLastOnlyToolStripMenuItem->Checked = (idx == 2) ? true : false;
+				 gPUTessSkinningAllAvarageToolStripMenuItem->Checked = (idx == 3) ? true : false;
+			 }
+			 void Recalculate() {
+				 SQMState state = OpenGL->getSQMController()->getState();
+				 OpenGL->restartSQMAlgorithm();
+				 OpenGL->executeSQMAlgorithm(state);
 			 }
 	private: System::Void newToolStripMenuItem_Click(System::Object^  sender, System::EventArgs^  e) {
 				 OpenGL->newFile();
@@ -1202,6 +1318,13 @@ namespace SQM {
 	private: System::Void straightenToolStripMenuItem1_Click(System::Object^  sender, System::EventArgs^  e) {
 				 OpenGL->executeSQMAlgorithm(SQMStraighten);
 				 checkSQMMenu(1);
+				 SQMState state = OpenGL->getSQMController()->getState();
+				 if (state == SQMJoinBNPs) {
+					 checkSQMMenu(4);
+				 }
+				 if (state == SQMFinalPlacement) {
+					 checkSQMMenu(5);
+				 }
 
 				 turnOffGlobal();
 			 }
@@ -1289,53 +1412,33 @@ namespace SQM {
 	private: System::Void exitToolStripMenuItem_Click(System::Object^  sender, System::EventArgs^  e) {
 				 Application::Exit();
 			 }
-	private: System::Void quaternionToolStripMenuItem_Click(System::Object^  sender, System::EventArgs^  e) {
-				 noSmoothingToolStripMenuItem->Checked = false;
-				 avaragingToolStripMenuItem->Checked = false;
-				 quaternionToolStripMenuItem->Checked = true;
-				 valencyWeightedLaplacianToolStripMenuItem->Checked = false;
-				 oneRingAreaWeightedLaplacianToolStripMenuItem->Checked = false;
-
-				 OpenGL->setQuaternionSmoothing();
-			 }
-	private: System::Void valencyWeightedLaplacianToolStripMenuItem_Click(System::Object^  sender, System::EventArgs^  e) {
-				 noSmoothingToolStripMenuItem->Checked = false;
-				 avaragingToolStripMenuItem->Checked = false;
-				 quaternionToolStripMenuItem->Checked = false;
-				 valencyWeightedLaplacianToolStripMenuItem->Checked = true;
-				 oneRingAreaWeightedLaplacianToolStripMenuItem->Checked = false;
-
-				 OpenGL->setValencyWeightedLaplacian();
-			 }
-	private: System::Void oneRingAreaWeightedLaplacianToolStripMenuItem_Click(System::Object^  sender, System::EventArgs^  e) {
-				 noSmoothingToolStripMenuItem->Checked = false;
-				 avaragingToolStripMenuItem->Checked = false;
-				 quaternionToolStripMenuItem->Checked = false;
-				 valencyWeightedLaplacianToolStripMenuItem->Checked = false;
-				 oneRingAreaWeightedLaplacianToolStripMenuItem->Checked = true;
-
-				 OpenGL->setOneRingWeightedLaplacian();
-			 }
 	private: System::Void noSmoothingToolStripMenuItem_Click(System::Object^  sender, System::EventArgs^  e) {
-				 noSmoothingToolStripMenuItem->Checked = true;
-				 avaragingToolStripMenuItem->Checked = false;
-				 quaternionToolStripMenuItem->Checked = false;
-				 valencyWeightedLaplacianToolStripMenuItem->Checked = false;
-				 oneRingAreaWeightedLaplacianToolStripMenuItem->Checked = false;
+				 checkSmoothingMenu(0);
 
 				 OpenGL->setSmoothingOff();
 			 }
 	private: System::Void avaragingToolStripMenuItem_Click(System::Object^  sender, System::EventArgs^  e) {
-				 noSmoothingToolStripMenuItem->Checked = false;
-				 avaragingToolStripMenuItem->Checked = true;
-				 quaternionToolStripMenuItem->Checked = false;
-				 valencyWeightedLaplacianToolStripMenuItem->Checked = false;
-				 oneRingAreaWeightedLaplacianToolStripMenuItem->Checked = false;
+				 checkSmoothingMenu(1);
 
 				 OpenGL->setAvaragingSmoothing();
 			 }
+	private: System::Void quaternionToolStripMenuItem_Click(System::Object^  sender, System::EventArgs^  e) {
+				 checkSmoothingMenu(2);
+
+				 OpenGL->setQuaternionSmoothing();
+			 }
+	private: System::Void valencyWeightedLaplacianToolStripMenuItem_Click(System::Object^  sender, System::EventArgs^  e) {
+				 checkSmoothingMenu(3);
+
+				 OpenGL->setValencyWeightedLaplacian();
+			 }
+	private: System::Void oneRingAreaWeightedLaplacianToolStripMenuItem_Click(System::Object^  sender, System::EventArgs^  e) {
+				 checkSmoothingMenu(4);
+
+				 OpenGL->setOneRingWeightedLaplacian();
+			 }
 	private: System::Void normalsToolStripMenuItem_Click(System::Object^  sender, System::EventArgs^  e) {
-				 OpenGL->alterDrawNormals();
+				OpenGL->alterDrawNormals();
 			 }
 	private: System::Void reloadShadersToolStripMenuItem_Click(System::Object^  sender, System::EventArgs^  e) {
 				 OpenGL->ReloadShaders();
@@ -1387,6 +1490,35 @@ namespace SQM {
 					 OpenGL->getSQMController()->setSelectedRotateZ(value);
 				 }
 			 }
-};
+	private: System::Void checkBox1_CheckedChanged(System::Object^  sender, System::EventArgs^  e) {
+				 OpenGL->setGlobalUseCapsules(checkBox1->Checked);
+			 }
+	private: System::Void checkBox2_CheckedChanged(System::Object^  sender, System::EventArgs^  e) {
+				 SQMNode *node = OpenGL->getSelected();
+				 if (node != NULL) {
+					 node->setIsCapsule(checkBox2->Checked);
+				 }
+			 }
+	private: System::Void cPUSkinningNoTesselationToolStripMenuItem_Click(System::Object^  sender, System::EventArgs^  e) {
+				 bool shouldRecalculate = OpenGL->setSkinningType(CPU);
+				 checkSkinningMenu(0);
+				 if (shouldRecalculate) Recalculate();
+			 }
+	private: System::Void gPUVertexSkinningnoTesselationToolStripMenuItem_Click(System::Object^  sender, System::EventArgs^  e) {
+				 bool shouldRecalculate = OpenGL->setSkinningType(GPUVertex);
+				 checkSkinningMenu(1);
+				 if (shouldRecalculate) Recalculate();
+			 }
+	private: System::Void gPUTessSkinningLastOnlyToolStripMenuItem_Click(System::Object^  sender, System::EventArgs^  e) {
+				 bool shouldRecalculate = OpenGL->setSkinningType(GPUTessLast);
+				 checkSkinningMenu(2);
+				 if (shouldRecalculate) Recalculate();
+			 }
+	private: System::Void gPUTessSkinningAllAvarageToolStripMenuItem_Click(System::Object^  sender, System::EventArgs^  e) {
+				 bool shouldRecalculate = OpenGL->setSkinningType(GPUTessAvarage);
+				 checkSkinningMenu(3);
+				 if (shouldRecalculate) Recalculate();
+			 }
+	};
 }
 

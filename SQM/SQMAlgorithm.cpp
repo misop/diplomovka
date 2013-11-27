@@ -16,9 +16,11 @@ SQMAlgorithm::SQMAlgorithm(void) : root(NULL)
 	root = new SQMNode();
 	resetRoot = NULL;
 	numOfNodes = 1;
-	smoothingAlgorithm = SQMAvaragingSmoothing;
+	smoothingAlgorithm = SQMQuaternionSmoothing;
 	skeleton = NULL;
 	numOfSkinMatrices = 0;
+	useCapsules = true;
+	useCPUSkinning = false;
 }
 
 SQMAlgorithm::~SQMAlgorithm(void)
@@ -53,6 +55,14 @@ void SQMAlgorithm::setNumberOfNodes(int newNumberOfNodes) {
 
 void SQMAlgorithm::setSmoothingAlgorithm(SQMSmoothingAlgorithm sqmSmoothingAlgorithm) {
 	smoothingAlgorithm = sqmSmoothingAlgorithm;
+}
+
+void SQMAlgorithm::setUseCapsules(bool newUseCapsules) {
+	useCapsules = newUseCapsules;
+}
+
+void SQMAlgorithm::setUseCPUSkinning(bool newUseCPUSkinning) {
+	useCPUSkinning = newUseCPUSkinning;
 }
 
 #pragma endregion
@@ -165,7 +175,7 @@ void SQMAlgorithm::getTransformMatrices(float* matrix) {
 	if (skeleton == NULL || numOfSkinMatrices == 0) return;
 
 	SQMNode *start = root;
-	while (root->getSQMNodeType() == SQMCreatedCapsule) {
+	while (start->getSQMNodeType() == SQMCreatedCapsule) {
 		//this is worms head should move to original node
 		start = (*start->getNodes())[0];
 	}
@@ -370,7 +380,7 @@ void SQMAlgorithm::straightenSkeleton() {
 		if (node == NULL) {
 			//handle worm
 			ts = clock();
-			root->createCapsules();
+			if (useCapsules) root->createCapsules();
 			fixWorm();
 			numOfNodes = countNodes();
 			refreshIDs();
@@ -401,7 +411,7 @@ void SQMAlgorithm::straightenSkeleton() {
 	}
 	if (root->getNodes()->size() >= 3) {
 		ts = clock();
-		root->createCapsules();
+		if (useCapsules) root->createCapsules();
 		numOfNodes = countNodes();
 		refreshIDs();
 		te = clock();
@@ -536,12 +546,15 @@ void SQMAlgorithm::finalVertexPlacement() {
 		(*os) << "\tPreprocessing took " << te - ts << " clicks (" << (((float)(te - ts)) / CLOCKS_PER_SEC) << " seconds)\n";
 	totalClocks += te - ts;
 
-	ts = clock();
-	//root->rotateWithSkeleton(mesh, skeleton);
-	te = clock();
-	if (LOG_COMPUTATION_TIME)
-		(*os) << "\tIt took " << te - ts << " clicks (" << (((float)(te - ts)) / CLOCKS_PER_SEC) << " seconds)\n";
-	algorithmClocks += te - ts;
+	if (useCPUSkinning) {
+		ts = clock();
+		root->rotateWithSkeleton(mesh, skeleton);
+		te = clock();
+		if (LOG_COMPUTATION_TIME)
+			(*os) << "\tIt took " << te - ts << " clicks (" << (((float)(te - ts)) / CLOCKS_PER_SEC) << " seconds)\n";
+		algorithmClocks += te - ts;
+	}
+
 	sqmState = SQMFinalPlacement;
 	
 	if (LOG_COMPUTATION_TIME) {

@@ -319,12 +319,16 @@ namespace OpenGLForm
 			delete programs->TriMeshTess;
 			delete programs->QuadMeshTess;
 			delete triTessShaders->vert;
+			delete triTessShaders->eval;
 			delete quadTessShaders->vert;
 			delete quadTessShaders->eval;
 
 			triTessShaders->vert = new GLShader(GL_VERTEX_SHADER);
 			triTessShaders->vert->Load("Shaders/TessVertShader.vert", replaceMap);
 			triTessShaders->vert->Compile();
+			triTessShaders->eval = new GLShader(GL_TESS_EVALUATION_SHADER);
+			triTessShaders->eval->Load("Shaders/TessTriEvalShader.glsl", replaceMap);
+			triTessShaders->eval->Compile();
 			
 			programs->TriMeshTess = new GLProgram("TriMeshTess");
 			programs->TriMeshTess->AttachShader(triTessShaders->vert);
@@ -425,7 +429,7 @@ namespace OpenGLForm
 			triTessShaders->ctrl->Compile();
 
 			triTessShaders->eval = new GLShader(GL_TESS_EVALUATION_SHADER);
-			triTessShaders->eval->Load("Shaders/TessTriEvalShader.glsl");
+			triTessShaders->eval->Load("Shaders/TessTriEvalShader.glsl", replaceMap);
 			triTessShaders->eval->Compile();
 
 			triTessShaders->geom = new GLShader(GL_GEOMETRY_SHADER);
@@ -707,6 +711,12 @@ namespace OpenGLForm
 		}
 		void setGlobalThreshold(float globalThreshold) {
 			sqmControler->setThreshold(globalThreshold);
+		}
+		void setGlobalUseCapsules(bool useCapsules) {
+			sqmControler->setUseCapsules(useCapsules);
+		}
+		bool setSkinningType(SkinningType type) {
+			return sqmControler->setSkinningType(type);
 		}
 		//functions
 		void alterWireframe() {
