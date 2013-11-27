@@ -195,11 +195,14 @@ void main()
 	bool test = !(floatEqual(v, 1) || floatEqual(v, 0));
 	if (SkinningType >= 2)
 		test = !((isBranchNode(type0) && floatEqual(v, 0)) || (isBranchNode(type1) && floatEqual(v, 1)) || (isLeafNode(type1) && floatEqual(v, 1)));
-	if (SkinningType <= 2) {//check for capsules
+	if (SkinningType < 2) {//check for capsules
 		test = !(floatEqual(v, 1) || floatEqual(v, 0));
 		//move capsules to perimeter
 		if ((floatEqual(v, 0) && capsule0) || (floatEqual(v, 1) && capsule1)) {
 			test = true;
+		}
+		if ((isLeafNode(type1) && floatEqual(v, 1))) {
+			test = false;
 		}
 	}
 
