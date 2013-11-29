@@ -1,0 +1,52 @@
+\select@language {slovak}
+\select@language {english}
+\contentsline {chapter}{Acknowledgement}{v}
+\contentsline {chapter}{Abstract}{vi}
+\select@language {slovak}
+\contentsline {chapter}{Abstrakt}{vii}
+\select@language {english}
+\contentsline {chapter}{Preamble}{viii}
+\contentsline {paragraph}{}{viii}
+\contentsline {paragraph}{}{viii}
+\contentsline {paragraph}{}{viii}
+\contentsline {chapter}{Introduction}{1}
+\contentsline {paragraph}{}{1}
+\contentsline {chapter}{\numberline {1}Implementation}{2}
+\contentsline {chapter}{Implementation}{2}
+\contentsline {paragraph}{}{2}
+\contentsline {section}{\numberline {1.1}Skeleton Straightening}{2}
+\contentsline {paragraph}{}{2}
+\contentsline {paragraph}{}{2}
+\contentsline {paragraph}{}{2}
+\contentsline {section}{\numberline {1.2}BNP Generation}{3}
+\contentsline {paragraph}{}{3}
+\contentsline {paragraph}{}{3}
+\contentsline {section}{\numberline {1.3}BNP Refinement}{3}
+\contentsline {paragraph}{}{3}
+\contentsline {paragraph}{}{4}
+\contentsline {paragraph}{}{4}
+\contentsline {paragraph}{}{4}
+\contentsline {paragraph}{}{4}
+\contentsline {subsection}{\numberline {1.3.1}Smoothing algorithms}{5}
+\contentsline {paragraph}{}{5}
+\contentsline {paragraph}{}{5}
+\contentsline {paragraph}{}{5}
+\contentsline {paragraph}{}{5}
+\contentsline {section}{\numberline {1.4}BNP Joining}{6}
+\contentsline {paragraph}{}{6}
+\contentsline {subsection}{\numberline {1.4.1}Point ending}{6}
+\contentsline {paragraph}{}{6}
+\contentsline {subsection}{\numberline {1.4.2}Capsule ending}{6}
+\contentsline {paragraph}{}{6}
+\contentsline {paragraph}{}{6}
+\contentsline {section}{\numberline {1.5}Final vertex placement}{7}
+\contentsline {paragraph}{}{7}
+\contentsline {chapter}{\numberline {2}Example}{8}
+\contentsline {section}{\numberline {2.1}Tables}{8}
+\contentsline {paragraph}{}{8}
+\contentsline {section}{\numberline {2.2}Figures}{8}
+\contentsline {paragraph}{}{8}
+\contentsline {section}{\numberline {2.3}Cross reference}{9}
+\contentsline {paragraph}{}{9}
+\contentsline {section}{\numberline {2.4}Citation}{9}
+\contentsline {chapter}{\numberline {A}\textlatin {T\kern -.1667em\lower .5ex\hbox {E}\kern -.125emX\spacefactor \@m }}{10}

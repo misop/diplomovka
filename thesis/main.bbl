@@ -1,0 +1,15 @@
+\begin{thebibliography}{1}
+
+\bibitem{knuth:tex}
+Donald~E. Knuth.
+\newblock {\em The {\TeX} Book}.
+\newblock Addison-Wesley, Reading, Massachusetts, 1984.
+\newblock Reprinted as Vol. A of {\it Computers \& Typesetting\/}, 1986.
+
+\bibitem{lamport:latex}
+Leslie Lamport.
+\newblock {\em {\LaTeX}: A Document Preparation System. User's Guide and
+  Reference Manual}.
+\newblock Addison-Wesley, Reading, Massachusetts, 1986.
+
+\end{thebibliography}

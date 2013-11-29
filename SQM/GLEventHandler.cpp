@@ -47,6 +47,18 @@ void GLEventHandler::mouseDown(int positionX, int positionY, int mouseFlags) {
 
 		mouse = 0;
 	}
+	/*if (state == NodeEditState && mouse == RIGHT_MOUSE_DOWN && sqmControler->getSelected() != NULL) {
+		GLdouble x = 0, y = 0, z = 0;
+		glCamera->mousePositionTo3D(positionX, positionY, x, y, z);
+		glm::vec3 pos(x, y, z);
+		glm::vec3 dir = glm::normalize(pos - glCamera->getEye());
+		SQMNode *inRay = sqmControler->getNodeInRay(pos, dir);
+		SQMNode *selected = sqmControler->getSelected();
+
+		if (inRay != NULL && inRay != selected && selected->isValidCycleNode()) {
+			sqmControler->createCycle(selected, inRay);
+		}
+	}*/
 }
 
 void GLEventHandler::mouseMoved(int positionX, int positionY) {

@@ -48,6 +48,7 @@ class SQMNode {
 	unsigned int id;
 	string idStr;
 	SQMNode* parent;
+	SQMNode *parent2;
 	float nodeRadius;
 	float tessLevel;
 	SQMNodeType sqmNodeType;
@@ -85,6 +86,8 @@ public:
 	bool isBranchNode();
 	bool isConnectionNode();
 	bool isLeafNode();
+	bool isValidCycleNode();
+	bool isCycleNode();
 	OpenMesh::Vec3f getPosition();
 	OpenMesh::Vec3f getOldPosition();
 	OpenMesh::Vec3f getOriginalPosition();
@@ -92,6 +95,7 @@ public:
 	SQMNodeType getSQMNodeType();
 	vector<SQMNode*>* getNodes();
 	SQMNode* getParent();
+	SQMNode* getParent2();
 	MyTriMesh* getPolyhedron();
 	vector<SQMNode*>* getDescendants();
 	vector<MyTriMesh::VertexHandle>* getIntersectionVHandles();
@@ -142,12 +146,17 @@ public:
 	void setIsCapsule(bool isCapsule);
 #pragma endregion
 
+#pragma region Cycles
+	void createCycle(SQMNode *node);
+#pragma endregion
+
 #pragma region Export
 	SkeletonNode* exportToSkeletonNode();
 	SkinSkeleton* exportToSkinSkeleton(SkinSkeleton *parentSkin);
 #pragma endregion
 
 #pragma region SQM Preprocessing
+	void breakCycles();
 	void createCapsules(int minSmallCircles = 5);
 #pragma endregion
 

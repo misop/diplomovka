@@ -380,6 +380,7 @@ void SQMAlgorithm::straightenSkeleton() {
 		if (node == NULL) {
 			//handle worm
 			ts = clock();
+			root->breakCycles();
 			if (useCapsules) root->createCapsules();
 			fixWorm();
 			numOfNodes = countNodes();
@@ -411,6 +412,7 @@ void SQMAlgorithm::straightenSkeleton() {
 	}
 	if (root->getNodes()->size() >= 3) {
 		ts = clock();
+		root->breakCycles();
 		if (useCapsules) root->createCapsules();
 		numOfNodes = countNodes();
 		refreshIDs();

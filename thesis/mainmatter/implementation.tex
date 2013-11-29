@@ -1,0 +1,68 @@
+\chapter{Implementation}
+\addcontentsline{toc}{chapter}{Implementation}  
+
+
+\paragraph{}
+The main parts of the Skeleton to Quad Dominant Mesh algorithm, were discussed in previous chapter. Now we are going to describe each part in greater detail as well as our enhancements.
+
+\section{Skeleton Straightening}
+\label{sec:skeleton_straightening} 
+
+\paragraph{}
+Skeleton straightening is a preprocessing which serves to simplify the third phase of Skeleton to Quad Dominant Mesh algorithm, that is joining of Branch Node Polyhedrons(BNP). Joining straight lines is easier than joining of arbitrary poly-lines. After this step each node is collinear with its parent node. In practice we rotate child nodes. The angle and axis of rotation are determined from the angle between two vectors \textbf{from} and \textbf{to}. \textbf{From} vector is the vector from parent to child node and \textbf{to} vector is the vector from parents parent to parent node. After the rotation of a BNP node all his child nodes are also rotated. This step serves to preserve the original skeleton structure.
+\paragraph{}
+During this step of preprocessing we also create and store skinning matrices. This matrices are used in last step of the algorithm named final vertex placement. This is an enhancement that allows us to finish the generated mesh in programmable shaders. Using skinning also allows us to prevent undesired mesh deformation that may occur with simple straightening.
+\paragraph{}
+Skinning matrices are computed from the original and straightened skeletons. Straightened skeleton represents the bind pose of the final generated mesh. Degree of freedom (DoF) of each node is calculated as the quaternion that is needed to rotate from bind pose back to original skeleton. When we calculate DoFs in this way bind pose will always have zero values in its DoFs. So skinning matrices of bind pose will be identity matrices and we can omit them in calculation of subsequent skinning matrices.
+
+\section{BNP Generation}
+
+\paragraph{}
+For each BNP we calculate the intersections of its associated sphere with paths that connect the BNP with its childes. We then triangulate the resulting points to create a mesh of the polyhedron. The triangulation is done using Delaunay triangulation in a spherical domain. We adopted the algorithm used in the original article. 
+\paragraph{}
+Each BNP is then tessellated by inserting a vertex in the middle of each face and edge. We create a list of all faces that are not split yet and all edges that are already split. For each face we insert a vertex in its center and check its edges. We also insert a vertex in the middle of each edge that was not split yet. After this insertions the face is not a triangle. Next we connect each point of the face with the newly inserted central vertex so the face is triangulated. Finally we project all newly inserted vertices onto the sphere associated with current node. This serves to increase the volume of each node. Without it some BNPs will have little to no volume. For example BNPs created with only three intersection would be two faces stitched together with zero volume.
+
+\section{BNP Refinement}
+
+\paragraph{}
+During the joining phase of the algorithm we want to join BNPs that are connected via a path. This connection is not possible to consist purely of quadrilaterals if the corresponding vertices have different valency (number of vertices in one-ring neighbourhood). Thus the purpose of BNP refinement is to ensure that each pair of connected vertices has equal valency. Link Intersection Edges (LIEs) is a set of edges which belong to the link of two intersection vertices. We increase the valency by splitting edges in a LIE. This split increases the valency of two intersection vertices simultaneously. We always split a representative edge and the we apply various smoothing schemes to equalize the lengths in a LIE. The smoothing schemes are: quaternion smoothing, neighbour avaraging smoothing, one-ring area weighted Laplacian smoothing and valency weighted Laplacian smoothing.
+\paragraph{}
+The algorithm loops through all BNPs. First we calculate the difference in valencies of each pair of vertices and mark it into a table. Intersection vertex with nodes parent is specially marked to not be subdivided more than is needed. Without this requirement a subdivision in child BNP could cause a need to subdivide parents BNP and thus create a possibly infinite loop.
+\paragraph{}
+Next we generate all LIEs of the BNP. For each LIE we store how many times it was refined, first and last vertex of LIE and quaternion describing the rotation from the first vertex of a LIE to its last vertex. This quaternion will be used to smooth inserted vertices if quaternion smoothing is enabled. We generate LIEs as follows. We loop through all intersection vertices. For each vertex we take an arbitrary vertex from its one-ring neighbourhood. We move backwards around the neighbourhood to find the first vertex of a LIE. For each vertex of one-ring neighbourhood we know its corresponding intersection vertices. If we fix two intersection vertices, then the first vertex of a LIE is the last vertex corresponding to these two intersection vertices while moving backwards. From the other side the last vertex of a LIE is the last vertex corresponding to the two selected intersection edges while moving forward.
+\paragraph{}
+In this fashion we can find the first vertex of the first LIE and after that we can construct all LIEs corresponding to a intersection vertex just by moving forward from the first vertex. When we find the first and last vertex of a LIE we try to construct quaternion representing rotation between them. We represent each of the points as a unit vector from corresponding node position and the vertex position. The axis of rotation is the cross product of these two vectors and the angle is their dot product. A problem may occur if the two vectors are linearly dependent. Then we can not decide the correct axis of rotation. In this case instead of using the first and last vertex of a LIE we use the first two vertices of a LIE to calculate the quaternion rotation. A LIE will always have at least two edges and three vertices due to the subdivision phase.
+\paragraph{}
+Generated LIEs are finally mapped to their corresponding intersection vertices, along with the number of splits required. Next we loop through all the intersection vertices. If the need to split is greater than zero, that is the valency of the intersection vertex is greater that the valency of its pair vertex. We then loop through all the LIEs of the intersection vertex and try to find the best LIE to split. We pick the LIE witch has the biggest need to be split and was least refined. We prefer to pick a LIE that corresponds to a leaf node if there is no need to refine LIEs corresponding to other BNPs to avoid excessive subdivision. Intersection vertex corresponding to parent is picked first for splitting and after that it is forbidden to split it any further. This ensures that we wont force subdivision of parents BNP from its child.
+
+\subsection{Smoothing algorithms}
+\paragraph{}
+Since we only subdivide the first edge of each LIE we need to smooth the resulting polyhedron. We have developed four smoothing methods: quaternion smoothing, neighbour avaraging smoothing, one-ring area weighted Laplacian smoothing and valency weighted Laplacian smoothing. In the end we selected quaternion smoothing as the most appropriate method, due to its speed and quality of output.
+\paragraph{}
+For quaternion smoothing we use the quaternions calculated during LIE generation phase. First and last point of each LIE are fixed so the angle and between them and their axis of rotation are also stable. We first count the number of vertices between first and last vertex of the LIE and then divide the angle by this number. Then we rotate the first point by a quaternion that is formed from the calculated angle and fixed axis of rotation. In the end the points are projected onto the sphere corresponding to current node. This method produces LIEs that lie on small circles of their corresponding sphere. The spacing between vertices is regular and thus is very suitable for our needs.
+\paragraph{}
+Averaging smoothing consists of averaging a vertex with its one-ring neighbourhood. We move from the last vertex of a LIE backwards towards the first vertex. We move each vertex of a LIE (except first and last) to the barycentre of its one-ring neighbourhood. This is a iterative approach that will potentially spread all vertices of a LIE evenly. We have found that one iteration of the algorithm is usually enough.
+\paragraph{}
+Laplacian smoothing consist of calculating standard Laplacian smoothing with different weight settings and then projecting smoothed nodes onto the sphere associated with current node. We used two weight settings. Valency weighted Laplacian used the valency of each vertex as the input weight. One-ring area weighted Laplacian used the one-ring area of each vertex as the input weight. Both of these methods produced similar results.
+
+\section{BNP Joining}
+
+\paragraph{}
+All vertices that are connected via a path now have equal valency. For each intersection vertex we remove all faces of his one-ring neighbourhood. Then we select all the vertices of his one-ring neighbourhood and a ring of vertices that is parallel to them but is offset to the center of the next node. Then we can create quadrilaterals that will represent our mesh. We repeat this process for each node that is not a leaf or BNP node. In BNPs we instead of creating new set of vertices just connect with the vertices already existing in the BNP after we remove the unnecessary triangles. For leaf nodes we need to finish the mesh somehow. Various techniques can be used but the most useful for our purposes seem to be a ending in a point or in a capsule.
+
+\subsection{Point ending}
+\paragraph{}
+Point ending is the simplest way of finishing the mesh. All the vertices of the last ring will simply form triangles with a vertex given by nodes position. Although relatively simple this approach offers the most control over the resulting mesh.
+
+\subsection{Capsule ending}
+\paragraph{}
+Capsule ending means that leaf node will create a hemisphere on leaf nodes. There are various approaches to solve this problem. We could calculate the number of rings needed directly. But the algorithm is capable of creating tubular structures with varying radius. So the best approach seem to be to insert new nodes into the skeleton tree in a pre-process phase and let the algorithm create capsules on its own. This is very useful because we don't need to alter the algorithm itself and generated capsules will also work with tessellation.
+\paragraph{}
+After each capsule node we insert several new nodes into the skeleton. The number of nodes is depends on capsules radius. We have found that it is best that the number of new nodes is equal to the radius of the capsule, but to be at least five nodes. The inserted nodes are collinear with capsule node and its parent. They lie forward (direction from parent to capsule node position) from capsule nodes center. Inserted nodes are distributed according to a bezier curve that approximates the curvature of a unit sphere. for each node its radius is calculated according to formula:
+\\
+$newRadius = \sqrt{nodeRadius^{2} * (1 - step^{2})}$
+
+\section{Final vertex placement}
+
+\paragraph{}
+We now should apply the inverse of the rotation that we used to straighten the mesh to receive mesh in original pose. However a simple rotation could cause self intersections in the mesh and thus create non manifold meshes. In order to avoid this we used skinning to transform the vertices. The extraction of skinning matrices has been described in section \ref{sec:skeleton_straightening}. We use linear matrix combination. This method proves sufficient for our needs but other more sophisticated methods as quaternions or dual quaternions could be used.

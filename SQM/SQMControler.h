@@ -49,6 +49,7 @@ public:
 	void exportMeshToFile(string fileName);
 
 	bool selectNodeInRay(glm::vec3 position, glm::vec3 direction);
+	SQMNode* getNodeInRay(glm::vec3 position, glm::vec3 direction);
 	void fillRadiusTable();
 	void fillCentersTable();
 
@@ -70,6 +71,7 @@ public:
 	SQMState getState();
 
 	void insertNode(float x, float y, float z);
+	void createCycle(SQMNode* from, SQMNode *to);
 	void setSelectedPosition(OpenMesh::Vec3f pos);
 	float getThreshold();
 	void setThreshold(float th);

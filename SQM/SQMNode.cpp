@@ -25,9 +25,10 @@ SQMNode::SQMNode(void) {
 	sqmNodeType = SQMNone;
 	skinningIDs = glm::ivec2(-1, -1);
 	sqmNodeType = SQMCapsule;
+	parent2 = NULL;
 }
 
-SQMNode::SQMNode(SkeletonNode &node, SQMNode* newParent) : parent(newParent) {
+SQMNode::SQMNode(SkeletonNode &node, SQMNode* newParent) : parent(newParent), parent2(NULL) {
 	if (parent == NULL) {
 		idStr = "0";
 	} else {
@@ -54,6 +55,7 @@ SQMNode::SQMNode(SkeletonNode &node, SQMNode* newParent) : parent(newParent) {
 
 SQMNode::SQMNode(SQMNode &node) {
 	parent = NULL;
+	parent2 = NULL;
 	polyhedron = NULL;
 	id = node.getId();
 	idStr = node.getIdStr();
@@ -113,6 +115,14 @@ bool SQMNode::isLeafNode() {
 	return (nodes.size() == 0) || (nodes.size() == 1 && parent == NULL);
 }
 
+bool SQMNode::isValidCycleNode() {
+	return (nodes.size() == 0 && parent != NULL && parent2 == NULL);
+}
+
+bool SQMNode::isCycleNode() {
+	return sqmNodeType == SQMCycle;
+}
+
 OpenMesh::Vec3f SQMNode::getPosition() {
 	return position;
 }
@@ -159,6 +169,10 @@ Quaternion SQMNode::getAxisAngle() {
 
 SQMNode* SQMNode::getParent() {
 	return parent;
+}
+
+SQMNode* SQMNode::getParent2() {
+	return parent2;
 }
 
 int SQMNode::getNumOfChilds() {
@@ -357,6 +371,16 @@ void SQMNode::setIsCapsule(bool isCapsule) {
 
 #pragma endregion
 
+#pragma region Cycles
+
+void SQMNode::createCycle(SQMNode *node) {
+	parent2 = node;
+	sqmNodeType = SQMCycle;
+	parent2->addDescendant(this);
+}
+
+#pragma endregion
+
 #pragma region Export
 
 SkeletonNode* SQMNode::exportToSkeletonNode() {
@@ -389,6 +413,32 @@ SkinSkeleton* SQMNode::exportToSkinSkeleton(SkinSkeleton *parentSkin) {
 #pragma endregion
 
 #pragma region SQM Preprocessing
+
+void SQMNode::breakCycles() {
+	if (parent2 != NULL) {
+		//crate two nodes for each parent
+		sqmNodeType = SQMNone;
+		SQMNode *node1 = new SQMNode(*this);
+		SQMNode *node2 = new SQMNode(*this);
+		SQMNode *node3 = new SQMNode(*this);
+
+		//first finish parent
+		addDescendant(node1);
+		node1->setParent(this);
+		parent2->removeDescendant(this);
+		//and then parent2
+		node2->addDescendant(node3);
+		node3->setParent(node2);
+		node2->setParent(parent2);
+		parent2->addDescendant(node2);
+		
+		parent2 = NULL;
+	}
+
+	for (int i = 0; i < nodes.size(); i++) {
+		nodes[i]->breakCycles();
+	}
+}
 
 void SQMNode::createCapsules(int minSmallCircles) {
 	if (this->isLeafNode() && (sqmNodeType == SQMCapsule)) {
@@ -1761,7 +1811,20 @@ void SQMNode::createScaledIcosahderon(MyMesh* mesh) {
 #pragma region Worm
 
 void SQMNode::wormCreate(MyMesh *mesh, int vertices) {
-	OpenMesh::Vec3f direction = (nodes[0]->getPosition() - position).normalize();
+	OpenMesh::Vec3f direction(1, 0, 0);
+	OpenMesh::Vec3f childPos = nodes[0]->getPosition();
+	OpenMesh::Vec3f pos = position;
+	bool good = true;
+	SQMNode *child = nodes[0];
+	while (equal((childPos - pos).length(), 0)) {
+		if (!child->isLeafNode()) {
+			child = (*child->getDescendants())[0];
+			childPos = child->getPosition();
+		} else {
+			good = false;
+		}
+	}
+	if (good) direction = (childPos - pos).normalize();
 	//straighten worm
 	oldPosition = position;
 	nodes[0]->wormStraighten(direction);

@@ -1,0 +1,14 @@
+V súbore main.tex sú uvedené informácie o škole, fakulte, práci, autorovi, školiteľovi, atď. Do tohto súbora sa vkladajú ostatné časti práce:
+  - úvodná časť (frontmatter.tex)
+  - hlavná textová časť (mainmatter.tex)
+  - prílohy (appendix.tex)
+Súbory pre jednotlivé časti sú v adresároch
+  - frontmatter - obal, titulný list, slovenské a anglické zadanie, poďakovanie, abstrakty, predhovor
+  - mainmatter - úvod a dve ukážkové kapitoly (lipsum.tex a example.tex)
+  - appendix - ukážkový dodatok (tex.tex)
+    
+KOMPILOVANIE
+V adresári so súborom main.tex spustiť príkaz 
+make
+Pre odstránenie dočasných súborov vygenerovaných pri kompilácii použite 
+make clean.

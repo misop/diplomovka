@@ -2,6 +2,7 @@
 #include "SkinSkeleton.h"
 #include <gtc\type_ptr.hpp>
 #include <gtc\matrix_transform.hpp>
+#include "FloatArithmetic.h"
 
 SkinSkeleton::SkinSkeleton() : parent(NULL), position(CVector3()), axisAngle(Quaternion()) {
 }
@@ -39,14 +40,18 @@ void SkinSkeleton::CalculateCorrespondingDoF(SkinSkeleton *bind) {
 			quaternion = Quaternion();
 			axisAngle = CVector4(0, 0, 0, 1);
 		} else {
-			CVector3 u;
-			CVector3 v;
+			CVector3 u = CVector3(1, 0, 0);
+			CVector3 v = CVector3(1, 0, 0);
 			if (parent->parent == NULL) {
-				u = Normalize(bind->position - bind->parent->position);
-				v = Normalize(position - parent->position);
+				if (!equal(Length(bind->position - bind->parent->position), 0) && !equal(Length(position - parent->position), 0)) {
+					u = Normalize(bind->position - bind->parent->position);
+					v = Normalize(position - parent->position);
+				}
 			} else {
-				u = Normalize(parent->position - parent->parent->position);
-				v = Normalize(position - parent->position);
+				if (!equal(Length(parent->position - parent->parent->position), 0) && !equal(Length(position - parent->position), 0)) {
+					u = Normalize(parent->position - parent->parent->position);
+					v = Normalize(position - parent->position);
+				}
 			}
 			Quaternion q = SQMQuaternionBetweenVectors(u, v);
 			axisAngle = QuaternionToAxisAngle(q);

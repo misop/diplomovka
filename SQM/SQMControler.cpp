@@ -153,6 +153,17 @@ void SQMControler::exportMeshToFile(string fileName) {
 #pragma region Node Selection
 
 bool SQMControler::selectNodeInRay(glm::vec3 position, glm::vec3 direction) {
+	SQMNode *inRay = getNodeInRay(position, direction);
+
+	if (selected != inRay) {
+		selected = inRay;
+		drawSkeleton();
+	}
+
+	return selected != NULL;
+}
+
+SQMNode* SQMControler::getNodeInRay(glm::vec3 position, glm::vec3 direction) {
 	vector<SQMNode*> stack;
 	stack.push_back(sqmALgorithm->getRoot());
 	float minDistance = 0;
@@ -173,12 +184,7 @@ bool SQMControler::selectNodeInRay(glm::vec3 position, glm::vec3 direction) {
 		}
 	}
 
-	if (selected != tempClosest) {
-		selected = tempClosest;
-		drawSkeleton();
-	}
-
-	return selected != NULL;
+	return tempClosest;
 }
 
 SQMNode* SQMControler::getSelected() {
@@ -205,6 +211,11 @@ void SQMControler::computeConvexHull() {
 void SQMControler::insertNode(float x, float y, float z) {
 	selected->addDescendant(x, y, z);
 	sqmALgorithm->setNumberOfNodes(sqmALgorithm->getNumberOfNodes() + 1);
+	drawSkeleton();
+}
+
+void SQMControler::createCycle(SQMNode* from, SQMNode *to) {
+	from->createCycle(to);
 	drawSkeleton();
 }
 
