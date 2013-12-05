@@ -331,6 +331,24 @@ void SQMAlgorithm::fixWorm() {
 	}
 }
 
+void SQMAlgorithm::rotateCycleOneRings() {
+	deque<SQMNode*> queue;
+	if (root != NULL) queue.push_back(root);
+
+	while (!queue.empty()) {
+		SQMNode *node = queue.front();
+		queue.pop_front();
+
+		if (node->getSQMNodeType() == SQMCycleLeaf) {
+			node->rotateCycleOneRing();
+		}
+		
+		for (int i = 0; i < node->getNodes()->size(); i++) {
+			queue.push_back((*node->getNodes())[i]);
+		}
+	}
+}
+
 #pragma endregion
 
 #pragma region SQM Algorithm
@@ -360,6 +378,12 @@ void SQMAlgorithm::straightenSkeleton() {
 	SkinSkeleton *skeletonR = NULL;
 	totalClocks = 0;
 	algorithmClocks = 0;
+	
+	ts = clock();
+	root->breakCycles();
+	te = clock();
+	if (LOG_COMPUTATION_TIME)
+		(*os) << "\tCycles preprocess took " << te - ts << " clicks (" << (((float)(te - ts)) / CLOCKS_PER_SEC) << " seconds)\n";
 
 	if (root->getNodes()->size() == 0) {
 		//handle just root
@@ -380,14 +404,14 @@ void SQMAlgorithm::straightenSkeleton() {
 		if (node == NULL) {
 			//handle worm
 			ts = clock();
-			root->breakCycles();
+			//root->breakCycles();
 			if (useCapsules) root->createCapsules();
 			fixWorm();
 			numOfNodes = countNodes();
 			refreshIDs();
 			te = clock();
 			if (LOG_COMPUTATION_TIME)
-				(*os) << "\tPreprocess took " << te - ts << " clicks (" << (((float)(te - ts)) / CLOCKS_PER_SEC) << " seconds)\n";
+				(*os) << "\tCapsule preprocess took " << te - ts << " clicks (" << (((float)(te - ts)) / CLOCKS_PER_SEC) << " seconds)\n";
 			totalClocks += (te - ts);
 			if (mesh) delete mesh;
 			mesh = new MyMesh();
@@ -412,13 +436,13 @@ void SQMAlgorithm::straightenSkeleton() {
 	}
 	if (root->getNodes()->size() >= 3) {
 		ts = clock();
-		root->breakCycles();
+		//root->breakCycles();
 		if (useCapsules) root->createCapsules();
 		numOfNodes = countNodes();
 		refreshIDs();
 		te = clock();
 		if (LOG_COMPUTATION_TIME)
-			(*os) << "\tPreprocess took " << te - ts << " clicks (" << (((float)(te - ts)) / CLOCKS_PER_SEC) << " seconds)\n";
+			(*os) << "\tCapsule preprocess took " << te - ts << " clicks (" << (((float)(te - ts)) / CLOCKS_PER_SEC) << " seconds)\n";
 		totalClocks += te - ts;
 		//root->straightenSkeleton(OpenMesh::Vec3f(0, 0, 0));
 		skeletonR = root->exportToSkinSkeleton(NULL);
@@ -539,6 +563,13 @@ void SQMAlgorithm::finalVertexPlacement() {
 		(*os) << "Final vertex placement\n";
 	}
 	clock_t ts, te;
+	
+	ts = clock();
+	rotateCycleOneRings();
+	//triangulate one-rings
+	te = clock();
+	if (LOG_COMPUTATION_TIME)
+		(*os) << "\tCycle preprocessing took " << te - ts << " clicks (" << (((float)(te - ts)) / CLOCKS_PER_SEC) << " seconds)\n";
 
 	ts = clock();
 	calculateSkinSkeletonIDs();

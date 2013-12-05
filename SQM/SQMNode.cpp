@@ -25,10 +25,10 @@ SQMNode::SQMNode(void) {
 	sqmNodeType = SQMNone;
 	skinningIDs = glm::ivec2(-1, -1);
 	sqmNodeType = SQMCapsule;
-	parent2 = NULL;
+	cycleNode = NULL;
 }
 
-SQMNode::SQMNode(SkeletonNode &node, SQMNode* newParent) : parent(newParent), parent2(NULL) {
+SQMNode::SQMNode(SkeletonNode &node, SQMNode* newParent) : parent(newParent), cycleNode(NULL) {
 	if (parent == NULL) {
 		idStr = "0";
 	} else {
@@ -55,7 +55,7 @@ SQMNode::SQMNode(SkeletonNode &node, SQMNode* newParent) : parent(newParent), pa
 
 SQMNode::SQMNode(SQMNode &node) {
 	parent = NULL;
-	parent2 = NULL;
+	cycleNode = NULL;
 	polyhedron = NULL;
 	id = node.getId();
 	idStr = node.getIdStr();
@@ -75,6 +75,24 @@ SQMNode::SQMNode(SQMNode &node) {
 		child->setParent(this);
 		nodes.push_back(child);
 	}
+}
+
+SQMNode::SQMNode(SQMNode &node, bool shalow) {
+	parent = NULL;
+	cycleNode = NULL;
+	polyhedron = NULL;
+	id = node.getId();
+	idStr = node.getIdStr();
+	sqmNodeType = node.getSQMNodeType();
+	nodeRadius = node.getNodeRadius();
+	tessLevel = node.getTessLevel();
+	position = node.getPosition();
+	originalPosition = position;
+	axisAngle = node.getAxisAngle();
+	vector<SQMNode *> *childs = node.getNodes();
+	scalev = node.getScalev();
+	rotatev = node.getRotatev();
+	transformationMatrix = node.getTransformationMatrix();
 }
 
 SQMNode::~SQMNode(void) {
@@ -116,7 +134,7 @@ bool SQMNode::isLeafNode() {
 }
 
 bool SQMNode::isValidCycleNode() {
-	return (nodes.size() == 0 && parent != NULL && parent2 == NULL);
+	return true;//(nodes.size() == 0 && parent != NULL && parent2 == NULL);
 }
 
 bool SQMNode::isCycleNode() {
@@ -171,8 +189,8 @@ SQMNode* SQMNode::getParent() {
 	return parent;
 }
 
-SQMNode* SQMNode::getParent2() {
-	return parent2;
+SQMNode* SQMNode::getCycleNode() {
+	return cycleNode;
 }
 
 int SQMNode::getNumOfChilds() {
@@ -241,6 +259,10 @@ void SQMNode::setID(unsigned int newID) {
 
 void SQMNode::setParent(SQMNode *node) {
 	parent = node;
+}
+
+void SQMNode::setCycleNode(SQMNode *node) {
+	cycleNode = node;
 }
 
 void SQMNode::setNodeRadius(float newNodeRadius) {
@@ -374,9 +396,12 @@ void SQMNode::setIsCapsule(bool isCapsule) {
 #pragma region Cycles
 
 void SQMNode::createCycle(SQMNode *node) {
-	parent2 = node;
+	cycleParents.push_back(node);
 	sqmNodeType = SQMCycle;
-	parent2->addDescendant(this);
+	node->addDescendant(this);
+	/*parent2 = node;
+	sqmNodeType = SQMCycle;
+	parent2->addDescendant(this);*/
 }
 
 #pragma endregion
@@ -415,25 +440,47 @@ SkinSkeleton* SQMNode::exportToSkinSkeleton(SkinSkeleton *parentSkin) {
 #pragma region SQM Preprocessing
 
 void SQMNode::breakCycles() {
-	if (parent2 != NULL) {
+	while (cycleParents.size() > 0) {
 		//crate two nodes for each parent
+		SQMNode *cycleParent = cycleParents.back();
+		cycleParents.pop_back();
+
 		sqmNodeType = SQMNone;
-		SQMNode *node1 = new SQMNode(*this);
-		SQMNode *node2 = new SQMNode(*this);
-		SQMNode *node3 = new SQMNode(*this);
+		SQMNode *node1 = new SQMNode(*this, true);
+		SQMNode *node2 = new SQMNode(*this, true);
 
 		//first finish parent
 		addDescendant(node1);
 		node1->setParent(this);
-		parent2->removeDescendant(this);
+		node1->setPosition(cycleParent->getPosition());
+		node1->setSQMNodeType(SQMCycleLeaf);
+		node1->setNodeRadius(10);//IMPORTANT will be used later in calculation od triangulation
+		cycleParent->removeDescendant(this);
 		//and then parent2
-		node2->addDescendant(node3);
-		node3->setParent(node2);
-		node2->setParent(parent2);
-		parent2->addDescendant(node2);
-		
-		parent2 = NULL;
+		node2->setParent(cycleParent);
+		node2->setSQMNodeType(SQMCycleLeaf);
+		node2->setNodeRadius(5);
+		cycleParent->addDescendant(node2);
 	}
+	/*if (parent2 != NULL) {
+	//crate two nodes for each parent
+	sqmNodeType = SQMNone;
+	SQMNode *node1 = new SQMNode(*this);
+	SQMNode *node2 = new SQMNode(*this);
+
+	//first finish parent
+	addDescendant(node1);
+	node1->setParent(this);
+	node1->setPosition(parent2->getPosition());
+	node1->setSQMNodeType(SQMCycleLeaf);
+	parent2->removeDescendant(this);
+	//and then parent2
+	node2->setParent(parent2);
+	node2->setSQMNodeType(SQMCycleLeaf);
+	parent2->addDescendant(node2);
+
+	parent2 = NULL;
+	}*/
 
 	for (int i = 0; i < nodes.size(); i++) {
 		nodes[i]->breakCycles();
@@ -1313,7 +1360,10 @@ void SQMNode::smoothLIEByAvaraging(LIE lie) {
 void SQMNode::joinBNPs(MyMesh* mesh, SQMNode* parentBNPNode, vector<MyMesh::VertexHandle> oneRing, OpenMesh::Vec3f directionVector) {
 	if (this->isLeafNode()) {
 		//finish mesh somehow
-		finishLeafeNode(mesh, oneRing);
+		if (sqmNodeType == SQMCycleLeaf)
+			finishLeafeCycleNode(mesh, oneRing, directionVector);
+		else
+			finishLeafeNode(mesh, oneRing);
 		return;
 	}
 	if (this->isBranchNode()) {
@@ -1369,6 +1419,7 @@ void SQMNode::addPolyhedronAndRememberVHandles(MyMesh* mesh, SQMNode* parentBNPN
 		//order newOneRingArray
 		vector<MyMesh::VHandle> oldOneRing = oneRingsOfPolyhedron.back();
 		//flip one ring if it has different orientation
+		//ERROR CHECVK ORIENTATION MAY CAUSE PROBLEMS
 		bool shouldFlip = sameOneRingOrientation(mesh, oldOneRing, oneRing, position, parentBNPNode->getPosition(), directionVector);
 		if (shouldFlip) {
 			vector<MyMesh::VHandle> flipped;
@@ -1412,21 +1463,26 @@ void SQMNode::addPolyhedronAndRememberVHandles(MyMesh* mesh, SQMNode* parentBNPN
 				index = i;
 			}
 		}
-		/*//dot product approach
-		OpenMesh::Vec3f vv = -directionVector.normalized();
+		//dot product approach
+		/*OpenMesh::Vec3f vv = -directionVector.normalized();
+		float maxDot = 0;
 		for (int i = 0; i < oldOneRing.size(); i++) {
 		int k = i;
 		float dist = 0;
+		MyMesh::Point A = mesh->point(oldOneRing[i]);
 		for (int j = 0; j < oneRing.size(); j++) {
 		if (k >= oldOneRing.size()) k = 0;
-		MyMesh::Point A = mesh->point(oneRing[j]);
-		MyMesh::Point B = mesh->point(oldOneRing[k]);
-		dist += dot((A - B).normalized(), vv);
-		k++;
-		}
-		if (i == 0 || dist > minDist) {
-		minDist = dist;
+		//MyMesh::Point A = mesh->point(oneRing[j]);
+		//MyMesh::Point B = mesh->point(oldOneRing[k]);
+		//dist += dot((A - B).normalized(), vv);
+		//k++;
+		MyMesh::Point B = mesh->point(oneRing[j]);
+		OpenMesh::Vec3f u = (B - A).normalized();
+		float dotProd = fabs(dot(vv, u));
+		if (i == 0 || dotProd > maxDot) {
+		maxDot = dotProd;
 		index = i;
+		}
 		}
 		}*/
 		//reorder array
@@ -1450,25 +1506,8 @@ void SQMNode::addPolyhedronAndRememberVHandles(MyMesh* mesh, SQMNode* parentBNPN
 
 void SQMNode::extendMesh(MyMesh* mesh, SQMNode* parentBNPNode, vector<MyMesh::VertexHandle>& oneRing, OpenMesh::Vec3f& directionVector) {
 	//create new points by translating parent points in the direction of the vector
-	float d = -(position[0]*directionVector[0] + position[1]*directionVector[1] + position[2]*directionVector[2]);
 	vector<MyMesh::Point> points;
-	for (int i = 0; i < oneRing.size(); i++) {
-		MyMesh::Point P = mesh->point(oneRing[i]);
-		//OpenMesh::Vec3f u = (position - parentBNPNode->getPosition()).norm() * directionVector;
-		float dist = fabsf(directionVector[0]*P[0] + directionVector[1]*P[1] + directionVector[2]*P[2] + d);
-		OpenMesh::Vec3f u = directionVector * dist;
-		MyMesh::Point Q = P + u;
-		points.push_back(Q);
-	}
-	//map new points to node sphere
-	for (int i = 0; i < points.size(); i++) {
-		MyMesh::Point P = points[i];
-		OpenMesh::Vec3f u(P[0], P[1], P[2]);
-		u = (u - position).normalize();
-		OpenMesh::Vec3f v = nodeRadius*u + position;
-		MyMesh::Point Q(v[0], v[1], v[2]);
-		points[i] = Q;
-	}
+	translateAndScalePointsToSphere(mesh, oneRing, directionVector, points);
 	//insert new points into mesh
 	vector<MyMesh::VertexHandle> newOneRing;
 	for (int i = 0; i < points.size(); i++) {
@@ -1503,6 +1542,20 @@ void SQMNode::finishLeafeNode(MyMesh* mesh, vector<MyMesh::VertexHandle>& oneRin
 		}
 		mesh->add_face(oneRing[i], vhandle, oneRing[j]);
 	}
+}
+
+void SQMNode::finishLeafeCycleNode(MyMesh* mesh, vector<MyMesh::VertexHandle>& oneRing, OpenMesh::Vec3f directionVector) {
+	vector<MyMesh::Point> points;
+	translateAndScalePointsToSphere(mesh, oneRing, directionVector, points);
+	
+	for (int i = 0; i < oneRing.size(); i++) {
+		MyMesh::Point P = mesh->point(oneRing[i]);
+		glm::vec3 Q(P[0], P[1], P[2]);
+		cyclePoints.push_back(Q);
+	}
+
+	glm::vec3 dir(directionVector[0], directionVector[1], directionVector[2]);
+	cyclePoints.push_back(dir);
 }
 
 #pragma endregion
@@ -1600,7 +1653,7 @@ void SQMNode::setupSkinningMatrixIDs(SkinSkeleton *skeleton) {
 		id2 = skeleton->nodes[0]->id;
 	}
 	skinningIDs = glm::ivec2(id1, id2);
-	
+
 	for (int i = 0; i < nodes.size(); i++) {
 		SkinSkeleton *next = skeleton;
 		if (sqmNodeType != SQMFormerCapsule && sqmNodeType != SQMCreatedCapsule) {
@@ -1666,7 +1719,7 @@ void SQMNode::getMeshTessDatai(vector<float> &tessLevels, vector<float> &nodePos
 		nodePositions.push_back(position[0]);
 		nodePositions.push_back(position[1]);
 		nodePositions.push_back(position[2]);
-		
+
 		skinMatrices.push_back(skinningIDs.x);
 		skinMatrices.push_back(skinningIDs.y);
 
@@ -1901,25 +1954,8 @@ void SQMNode::wormStep(MyMesh *mesh, vector<MyMesh::VHandle> &oneRing, OpenMesh:
 		return;
 	}
 	//create new points by translating parent points in the direction of the vector
-	float d = -(position[0]*lineVector[0] + position[1]*lineVector[1] + position[2]*lineVector[2]);
 	vector<MyMesh::Point> points;
-	for (int i = 0; i < oneRing.size(); i++) {
-		MyMesh::Point P = mesh->point(oneRing[i]);
-		//OpenMesh::Vec3f u = (position - parentBNPNode->getPosition()).norm() * directionVector;
-		float dist = fabsf(lineVector[0]*P[0] + lineVector[1]*P[1] + lineVector[2]*P[2] + d);
-		OpenMesh::Vec3f u = lineVector * dist;
-		MyMesh::Point Q = P + u;
-		points.push_back(Q);
-	}
-	//map new points to node sphere
-	for (int i = 0; i < points.size(); i++) {
-		MyMesh::Point P = points[i];
-		OpenMesh::Vec3f u(P[0], P[1], P[2]);
-		u = (u - position).normalize();
-		OpenMesh::Vec3f v = nodeRadius*u + position;
-		MyMesh::Point Q(v[0], v[1], v[2]);
-		points[i] = Q;
-	}
+	translateAndScalePointsToSphere(mesh, oneRing, lineVector, points);
 	//insert new points into mesh
 	vector<MyMesh::VertexHandle> newOneRing;
 	for (int i = 0; i < points.size(); i++) {
@@ -2040,6 +2076,53 @@ MyTriMesh::VHandle SQMNode::oppositeVHandle(MyTriMesh::HalfedgeHandle heh) {
 	return polyhedron->to_vertex_handle(polyhedron->next_halfedge_handle(polyhedron->opposite_halfedge_handle(heh)));
 }
 
+void SQMNode::translateAndScalePointsToSphere(MyMesh* mesh, vector<MyMesh::VertexHandle>& oneRing, OpenMesh::Vec3f& directionVector, vector<MyMesh::Point>& points) {
+	float d = -(position[0]*directionVector[0] + position[1]*directionVector[1] + position[2]*directionVector[2]);
+	for (int i = 0; i < oneRing.size(); i++) {
+		MyMesh::Point P = mesh->point(oneRing[i]);
+		//OpenMesh::Vec3f u = (position - parentBNPNode->getPosition()).norm() * directionVector;
+		float dist = fabsf(directionVector[0]*P[0] + directionVector[1]*P[1] + directionVector[2]*P[2] + d);
+		OpenMesh::Vec3f u = directionVector * dist;
+		MyMesh::Point Q = P + u;
+		points.push_back(Q);
+	}
+	//map new points to node sphere
+	for (int i = 0; i < points.size(); i++) {
+		MyMesh::Point P = points[i];
+		OpenMesh::Vec3f u(P[0], P[1], P[2]);
+		u = (u - position).normalize();
+		OpenMesh::Vec3f v = nodeRadius*u + position;
+		MyMesh::Point Q(v[0], v[1], v[2]);
+		points[i] = Q;
+	}
+}
+
+void SQMNode::rotateCycleOneRing() {
+	//first get rotation from one-rings facing to Y axis
+	glm::vec3 u(0, 0, 1);
+	glm::vec3 v = cyclePoints.back();
+	cyclePoints.pop_back();
+	CVector3 from(v.x, v.y, v.z);
+	CVector3 to(u.x, u.y, u.z);
+	Quaternion q = SQMQuaternionBetweenVectors(from, to);
+	Quaternion axisAngle = QuaternionToAxisAngle(q);
+	axisAngle.s = axisAngle.s*180.0f/M_PI;
+	glm::vec3 axis = glm::vec3(axisAngle.i, axisAngle.j, axisAngle.k);
+	//next get center of one-ring
+	glm::vec3 center(0, 0, 0);
+	for (int i = 0; i < cyclePoints.size(); i++) {
+		center += cyclePoints[i];
+	}
+	center /= cyclePoints.size();
+	//create transformation matrices
+	glm::mat4 translate = glm::translate(glm::mat4(), -center);
+	glm::mat4 rotate = glm::length(axis) != 0 ? glm::rotate(glm::mat4(), axisAngle.s, axis) : glm::mat4();
+	glm::mat4 M = rotate * translate;
+	//translate all points
+	for (int i = 0; i < cyclePoints.size(); i++) {
+		cyclePoints[i] = glm::vec3(M * glm::vec4(cyclePoints[i], 1));
+	}
+}
 
 #pragma endregion
 

@@ -56,6 +56,7 @@ public:
 	int countNodes();
 	void refreshIDs();
 	void calculateSkinSkeletonIDs();
+	void rotateCycleOneRings();
 
 	void getBoundingSphere(float &x, float &y, float &z, float &d);
 	void updateResetRoot();

@@ -36,6 +36,7 @@ typedef enum {
 	SQMPoint,
 	SQMCapsule,
 	SQMCycle,
+	SQMCycleLeaf,
 	SQMFormerCapsule,
 	SQMCreatedCapsule
 } SQMNodeType;
@@ -48,7 +49,8 @@ class SQMNode {
 	unsigned int id;
 	string idStr;
 	SQMNode* parent;
-	SQMNode *parent2;
+	SQMNode *cycleNode;
+	vector<SQMNode*> cycleParents;
 	float nodeRadius;
 	float tessLevel;
 	SQMNodeType sqmNodeType;
@@ -68,6 +70,7 @@ class SQMNode {
 	vector<MyTriMesh::VertexHandle> intersectionVHandles;
 	vector<MyTriMesh::VertexHandle> meshIntersectionVHandles;
 	vector<MyMesh::VertexHandle> meshVhandlesToRotate;
+	vector<glm::vec3> cyclePoints;
 
 	vector<OpenMesh::Vec3f> normals2;
 	vector<OpenMesh::Vec3f> centers2;
@@ -77,6 +80,7 @@ public:
 	SQMNode(void);
 	SQMNode(SkeletonNode &node, SQMNode* newParent);
 	SQMNode(SQMNode &node);
+	SQMNode(SQMNode &node, bool shalow);
 	~SQMNode(void);	
 #pragma endregion
 
@@ -95,7 +99,7 @@ public:
 	SQMNodeType getSQMNodeType();
 	vector<SQMNode*>* getNodes();
 	SQMNode* getParent();
-	SQMNode* getParent2();
+	SQMNode* getCycleNode();
 	MyTriMesh* getPolyhedron();
 	vector<SQMNode*>* getDescendants();
 	vector<MyTriMesh::VertexHandle>* getIntersectionVHandles();
@@ -121,6 +125,7 @@ public:
 #pragma region Setters
 	void setID(unsigned int newID);
 	void setParent(SQMNode *node);
+	void setCycleNode(SQMNode *node);
 	void setNodeRadius(float newNodeRadius);
 	void setTessLevel(float newTessLevel);
 	void setPosition(OpenMesh::Vec3f newPosition);
@@ -214,6 +219,7 @@ public:
 	void addPolyhedronAndRememberVHandles(MyMesh* mesh, SQMNode* parentBNPNode, vector<MyMesh::VertexHandle>& oneRing, vector<vector<MyMesh::VHandle> >& oneRingsOfPolyhedron, OpenMesh::Vec3f& directionVector);
 	void extendMesh(MyMesh* mesh, SQMNode* parentBNPNode, vector<MyMesh::VertexHandle>& oneRing, OpenMesh::Vec3f& directionVector);
 	void finishLeafeNode(MyMesh* mesh, vector<MyMesh::VertexHandle>& oneRing);
+	void finishLeafeCycleNode(MyMesh* mesh, vector<MyMesh::VertexHandle>& oneRing, OpenMesh::Vec3f directionVector);
 #pragma endregion
 
 #pragma region Final Vertex Placement
@@ -258,6 +264,8 @@ public:
 	MyTriMesh::HalfedgeHandle nextLink(MyTriMesh::HalfedgeHandle heh);
 	MyTriMesh::HalfedgeHandle prevLink(MyTriMesh::HalfedgeHandle heh);
 	MyTriMesh::VHandle oppositeVHandle(MyTriMesh::HalfedgeHandle heh);
+	void translateAndScalePointsToSphere(MyMesh* mesh, vector<MyMesh::VertexHandle>& oneRing, OpenMesh::Vec3f& directionVector, vector<MyMesh::Point>& points);
+	void rotateCycleOneRing();
 #pragma endregion
 
 protected:
