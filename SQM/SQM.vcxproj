@@ -100,6 +100,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="AssemblyInfo.cpp" />
+    <ClCompile Include="Delaunay.cpp" />
     <ClCompile Include="EdgeLength.cpp" />
     <ClCompile Include="FloatArithmetic.cpp" />
     <ClCompile Include="GLArrayBuffer.cpp" />
@@ -130,6 +131,7 @@
     <ClCompile Include="Utility.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Delaunay.h" />
     <ClInclude Include="EdgeLength.h" />
     <ClInclude Include="FloatArithmetic.h" />
     <ClInclude Include="Form1.h">

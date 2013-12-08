@@ -2,6 +2,7 @@
 #include "SQMAlgorithm.h"
 #include <OpenMesh\Core\System\mostream.hh>
 #include <gtc\type_ptr.hpp>
+#include "Delaunay.h"
 
 #define LOG_COMPUTATION_TIME true
 
@@ -12,7 +13,7 @@ SQMAlgorithm::SQMAlgorithm(void) : root(NULL)
 	mesh = NULL;
 	fb = new filebuf();
 	os = new ostream(fb);
-	omerr().connect(*os);
+	//omerr().connect(*os);
 	root = new SQMNode();
 	resetRoot = NULL;
 	numOfNodes = 1;
@@ -20,7 +21,7 @@ SQMAlgorithm::SQMAlgorithm(void) : root(NULL)
 	skeleton = NULL;
 	numOfSkinMatrices = 0;
 	useCapsules = true;
-	useCPUSkinning = false;
+	useCPUSkinning = true;
 }
 
 SQMAlgorithm::~SQMAlgorithm(void)
@@ -349,6 +350,91 @@ void SQMAlgorithm::rotateCycleOneRings() {
 	}
 }
 
+void SQMAlgorithm::triangulateOneRings() {
+	deque<SQMNode*> queue;
+	if (root != NULL) queue.push_back(root);
+
+	while (!queue.empty()) {
+		SQMNode *node = queue.front();
+		SQMNode *cycleNode = node->getCycleNode();
+		queue.pop_front();
+
+		if (node->getSQMNodeType() == SQMCycleLeaf && cycleNode != NULL) {
+			vector<glm::vec3> *nodePoints = node->getCyclePoints();
+			vector<glm::vec3> *cyclePoints = cycleNode->getCyclePoints();
+			vector<glm::vec3> points;
+			points.insert(points.end(), (*nodePoints).begin(), (*nodePoints).end());
+			points.insert(points.end(), (*cyclePoints).begin(), (*cyclePoints).end());
+			vector<glm::ivec3> triangles;
+			Triangulate(points, triangles);
+			addTrianglesToMesh(node, cycleNode, triangles, (*nodePoints).size());
+		}
+		
+		for (int i = 0; i < node->getNodes()->size(); i++) {
+			queue.push_back((*node->getNodes())[i]);
+		}
+	}
+}
+
+void SQMAlgorithm::addTrianglesToMesh(SQMNode* node, SQMNode* cycleNode, std::vector<glm::ivec3> &triangles, int split) {
+	vector<MyMesh::VHandle> *nodeVHandles = node->getCycleVHandles();
+	vector<MyMesh::VHandle> *cycleVHandles = cycleNode->getCycleVHandles();
+
+	for (int i = 0; i < triangles.size(); i++) {
+		glm::ivec3 triangle = triangles[i];
+		bool smallerX = triangle.x < split;
+		bool smallerY = triangle.y < split;
+		bool smallerZ = triangle.z < split;
+		//only tow out of three can be from the same interval
+		if (!((smallerX && smallerY && smallerZ) || (!smallerX && !smallerY && !smallerZ))) {
+			int idx1 = smallerX ? triangle.x : triangle.x - split;
+			int idx2 = smallerY ? triangle.y : triangle.y - split;
+			int idx3 = smallerZ ? triangle.z : triangle.z - split;
+			MyMesh::VHandle vh1 = smallerX ? (*nodeVHandles)[idx1] : (*cycleVHandles)[idx1];
+			MyMesh::VHandle vh2 = smallerY ? (*nodeVHandles)[idx2] : (*cycleVHandles)[idx2];
+			MyMesh::VHandle vh3 = smallerZ ? (*nodeVHandles)[idx3] : (*cycleVHandles)[idx3];
+			if (mesh->add_face(vh3, vh2, vh1).idx() == -1) {
+				if (mesh->add_face(vh1, vh2, vh3).idx() == -1) {
+					//fuck
+				}
+			}
+		}
+	}
+}
+
+void SQMAlgorithm::triangulateOneRings2() {
+	deque<SQMNode*> queue;
+	if (root != NULL) queue.push_back(root);
+
+	while (!queue.empty()) {
+		SQMNode *node = queue.front();
+		SQMNode *cycleNode = node->getCycleNode();
+		queue.pop_front();
+
+		if (node->getSQMNodeType() == SQMCycleLeaf && cycleNode != NULL) {
+			//project stuff
+			glm::vec3 normal = glm::normalize(cycleNode->getPosition_glm() - node->getPosition_glm());
+			glm::vec3 origin = (cycleNode->getPosition_glm() + node->getPosition_glm())* 0.5f;
+			node->projectOnPlaneRotateAndScale(mesh, origin, normal);
+			cycleNode->projectOnPlaneRotateAndScale(mesh, origin, normal);
+			//triangulate stuff
+			vector<glm::vec3> *nodePoints = node->getCyclePoints();
+			vector<glm::vec3> *cyclePoints = cycleNode->getCyclePoints();
+			vector<glm::vec3> points;
+			points.insert(points.end(), (*nodePoints).begin(), (*nodePoints).end());
+			points.insert(points.end(), (*cyclePoints).begin(), (*cyclePoints).end());
+			vector<glm::ivec3> triangles;
+			Triangulate(points, triangles);
+			//add triangles to mesh
+			addTrianglesToMesh(node, cycleNode, triangles, (*nodePoints).size());
+		}
+		
+		for (int i = 0; i < node->getNodes()->size(); i++) {
+			queue.push_back((*node->getNodes())[i]);
+		}
+	}
+}
+
 #pragma endregion
 
 #pragma region SQM Algorithm
@@ -565,11 +651,12 @@ void SQMAlgorithm::finalVertexPlacement() {
 	clock_t ts, te;
 	
 	ts = clock();
-	rotateCycleOneRings();
-	//triangulate one-rings
+	//rotateCycleOneRings();
+	//triangulateOneRings();
 	te = clock();
 	if (LOG_COMPUTATION_TIME)
 		(*os) << "\tCycle preprocessing took " << te - ts << " clicks (" << (((float)(te - ts)) / CLOCKS_PER_SEC) << " seconds)\n";
+	totalClocks += te - ts;
 
 	ts = clock();
 	calculateSkinSkeletonIDs();
@@ -586,6 +673,7 @@ void SQMAlgorithm::finalVertexPlacement() {
 		if (LOG_COMPUTATION_TIME)
 			(*os) << "\tIt took " << te - ts << " clicks (" << (((float)(te - ts)) / CLOCKS_PER_SEC) << " seconds)\n";
 		algorithmClocks += te - ts;
+		triangulateOneRings2();
 	}
 
 	sqmState = SQMFinalPlacement;

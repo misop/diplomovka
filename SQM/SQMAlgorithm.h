@@ -57,6 +57,9 @@ public:
 	void refreshIDs();
 	void calculateSkinSkeletonIDs();
 	void rotateCycleOneRings();
+	void triangulateOneRings();
+	void triangulateOneRings2();
+	void addTrianglesToMesh(SQMNode* node, SQMNode* cycleNode, std::vector<glm::ivec3> &triangles, int split);
 
 	void getBoundingSphere(float &x, float &y, float &z, float &d);
 	void updateResetRoot();

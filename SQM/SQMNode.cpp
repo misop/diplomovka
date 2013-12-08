@@ -173,6 +173,14 @@ vector<MyTriMesh::VertexHandle>* SQMNode::getIntersectionVHandles() {
 	return &intersectionVHandles;
 }
 
+vector<MyMesh::VertexHandle>* SQMNode::getCycleVHandles() {
+	return &cycleVHandles;
+}
+
+vector<glm::vec3>* SQMNode::getCyclePoints() {
+	return &cyclePoints;
+}
+
 float SQMNode::getNodeRadius() {
 	return nodeRadius;
 }
@@ -404,6 +412,84 @@ void SQMNode::createCycle(SQMNode *node) {
 	parent2->addDescendant(this);*/
 }
 
+void SQMNode::rotateCycleOneRing() {
+	//first get rotation from one-rings facing to Y axis
+	glm::vec3 u(0, 0, 1);
+	glm::vec3 v = cyclePoints.back();
+	if (cycleNode != NULL)
+		v = -v;
+	cyclePoints.pop_back();
+	CVector3 from(v.x, v.y, v.z);
+	CVector3 to(u.x, u.y, u.z);
+	Quaternion q = SQMQuaternionBetweenVectors(from, to);
+	Quaternion axisAngle = QuaternionToAxisAngle(q);
+	axisAngle.s = axisAngle.s*180.0f/M_PI;
+	glm::vec3 axis = glm::normalize(glm::vec3(axisAngle.i, axisAngle.j, axisAngle.k));
+	//next get center of one-ring
+	glm::vec3 center(position[0], position[1], position[2]);
+	//create transformation matrices
+	glm::mat4 translate = glm::translate(glm::mat4(1), -center);
+	glm::mat4 rotate = glm::length(axis) != 0 ? glm::rotate(glm::mat4(1), axisAngle.s, axis) : glm::mat4(1);
+	glm::mat4 scale = cycleNode != NULL ? glm::scale(glm::mat4(1), glm::vec3(2, 2, 2)) : glm::mat4(1);
+	glm::mat4 M = rotate * translate;
+	//translate all points
+	for (int i = 0; i < cyclePoints.size(); i++) {
+		glm::vec3 P = cyclePoints[i];
+		P = glm::vec3(translate * glm::vec4(P, 1));
+		P = glm::normalize(P);
+		P = glm::vec3(rotate * glm::vec4(P, 0));
+		cyclePoints[i] = glm::vec3(scale * glm::vec4(P, 0));
+		//cyclePoints[i] = glm::vec3(M * glm::vec4(cyclePoints[i], 1));
+	}
+}
+
+void SQMNode::projectOnPlaneRotateAndScale(MyMesh *mesh, glm::vec3 origin, glm::vec3 normal) {
+	//get points from mesh
+	vector<MyMesh::Point> points;
+	if (parent->isBranchNode()) {
+		//we need to transform points to ensure they lie on a cicle
+		OpenMesh::Vec3f norm(normal.x, normal.y, normal.z);
+		parent->translateAndScalePointsToSphere(mesh, cycleVHandles, norm, points); 
+	} else {
+		//just take points from mesh
+		for (int i = 0; i < cycleVHandles.size(); i++) {
+			points.push_back(mesh->point(cycleVHandles[i]));
+		}
+	}
+	for (int i = 0; i < points.size(); i++) {
+		MyMesh::Point P = points[i];
+		glm::vec3 Q(P[0], P[1], P[2]);
+		cyclePoints.push_back(Q);
+	}
+	//project them onto plane and translate to O(0, 0, 0)
+	for (int i = 0; i < cyclePoints.size(); i++) {
+		//make a vector from your orig point to the point of interest
+		glm::vec3 v = cyclePoints[i] - origin;
+		//take the dot product of that vector with the normal vector n
+		float dist = glm::dot(normal, v);
+		//multiply the normal vector by the distance, and subtract that vector from your point
+		cyclePoints[i] = cyclePoints[i] - dist*normal;
+		//translate point to origin
+		cyclePoints[i] = cyclePoints[i] - origin;
+		//normalize points to unit circle
+		cyclePoints[i] = glm::normalize(cyclePoints[i]);
+	}
+	//rotate points so that the normal faces (0, 0, 1)
+	CVector3 from(normal.x, normal.y, normal.z);
+	CVector3 to(0, 0, 1);
+	Quaternion q = SQMQuaternionBetweenVectors(from, to);
+	Quaternion axisAngle = QuaternionToAxisAngle(q);
+	axisAngle.s = axisAngle.s*180.0f/M_PI;
+	glm::vec3 axis = glm::normalize(glm::vec3(axisAngle.i, axisAngle.j, axisAngle.k));
+	glm::mat4 rotate = glm::length(axis) != 0 ? glm::rotate(glm::mat4(1), axisAngle.s, axis) : glm::mat4(1);
+	glm::mat4 scale = cycleNode != NULL ? glm::scale(glm::mat4(1), glm::vec3(2, 2, 2)) : glm::mat4(1);
+	glm::mat4 M = scale * rotate;
+	//rotate points
+	for (int i = 0; i < cyclePoints.size(); i++) {
+		cyclePoints[i] = glm::vec3(M * glm::vec4(cyclePoints[i], 0));
+	}
+}
+
 #pragma endregion
 
 #pragma region Export
@@ -454,12 +540,13 @@ void SQMNode::breakCycles() {
 		node1->setParent(this);
 		node1->setPosition(cycleParent->getPosition());
 		node1->setSQMNodeType(SQMCycleLeaf);
+		node1->setCycleNode(node2);
 		node1->setNodeRadius(10);//IMPORTANT will be used later in calculation od triangulation
 		cycleParent->removeDescendant(this);
 		//and then parent2
 		node2->setParent(cycleParent);
 		node2->setSQMNodeType(SQMCycleLeaf);
-		node2->setNodeRadius(5);
+		node2->setNodeRadius(1);
 		cycleParent->addDescendant(node2);
 	}
 	/*if (parent2 != NULL) {
@@ -1547,15 +1634,16 @@ void SQMNode::finishLeafeNode(MyMesh* mesh, vector<MyMesh::VertexHandle>& oneRin
 void SQMNode::finishLeafeCycleNode(MyMesh* mesh, vector<MyMesh::VertexHandle>& oneRing, OpenMesh::Vec3f directionVector) {
 	vector<MyMesh::Point> points;
 	translateAndScalePointsToSphere(mesh, oneRing, directionVector, points);
-	
-	for (int i = 0; i < oneRing.size(); i++) {
+
+	/*for (int i = 0; i < oneRing.size(); i++) {
 		MyMesh::Point P = mesh->point(oneRing[i]);
 		glm::vec3 Q(P[0], P[1], P[2]);
 		cyclePoints.push_back(Q);
-	}
+	}*/
+	cycleVHandles.insert(cycleVHandles.end(), oneRing.begin(), oneRing.end());
 
 	glm::vec3 dir(directionVector[0], directionVector[1], directionVector[2]);
-	cyclePoints.push_back(dir);
+	//cyclePoints.push_back(dir);
 }
 
 #pragma endregion
@@ -2094,33 +2182,6 @@ void SQMNode::translateAndScalePointsToSphere(MyMesh* mesh, vector<MyMesh::Verte
 		OpenMesh::Vec3f v = nodeRadius*u + position;
 		MyMesh::Point Q(v[0], v[1], v[2]);
 		points[i] = Q;
-	}
-}
-
-void SQMNode::rotateCycleOneRing() {
-	//first get rotation from one-rings facing to Y axis
-	glm::vec3 u(0, 0, 1);
-	glm::vec3 v = cyclePoints.back();
-	cyclePoints.pop_back();
-	CVector3 from(v.x, v.y, v.z);
-	CVector3 to(u.x, u.y, u.z);
-	Quaternion q = SQMQuaternionBetweenVectors(from, to);
-	Quaternion axisAngle = QuaternionToAxisAngle(q);
-	axisAngle.s = axisAngle.s*180.0f/M_PI;
-	glm::vec3 axis = glm::vec3(axisAngle.i, axisAngle.j, axisAngle.k);
-	//next get center of one-ring
-	glm::vec3 center(0, 0, 0);
-	for (int i = 0; i < cyclePoints.size(); i++) {
-		center += cyclePoints[i];
-	}
-	center /= cyclePoints.size();
-	//create transformation matrices
-	glm::mat4 translate = glm::translate(glm::mat4(), -center);
-	glm::mat4 rotate = glm::length(axis) != 0 ? glm::rotate(glm::mat4(), axisAngle.s, axis) : glm::mat4();
-	glm::mat4 M = rotate * translate;
-	//translate all points
-	for (int i = 0; i < cyclePoints.size(); i++) {
-		cyclePoints[i] = glm::vec3(M * glm::vec4(cyclePoints[i], 1));
 	}
 }
 

@@ -33,7 +33,7 @@ SQMControler::SQMControler(void)
 	threshold = 0.85;
 	skinningMatrices = NULL;
 	transformMatrices = NULL;
-	skinningType = GPUVertex;
+	skinningType = CPU;
 }
 
 

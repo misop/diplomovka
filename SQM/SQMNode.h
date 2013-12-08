@@ -71,6 +71,7 @@ class SQMNode {
 	vector<MyTriMesh::VertexHandle> meshIntersectionVHandles;
 	vector<MyMesh::VertexHandle> meshVhandlesToRotate;
 	vector<glm::vec3> cyclePoints;
+	vector<MyMesh::VertexHandle> cycleVHandles;
 
 	vector<OpenMesh::Vec3f> normals2;
 	vector<OpenMesh::Vec3f> centers2;
@@ -103,6 +104,8 @@ public:
 	MyTriMesh* getPolyhedron();
 	vector<SQMNode*>* getDescendants();
 	vector<MyTriMesh::VertexHandle>* getIntersectionVHandles();
+	vector<MyMesh::VertexHandle>* getCycleVHandles();
+	vector<glm::vec3>* getCyclePoints();
 	float getNodeRadius();
 	float getTessLevel();
 	Quaternion getAxisAngle();
@@ -153,6 +156,8 @@ public:
 
 #pragma region Cycles
 	void createCycle(SQMNode *node);
+	void rotateCycleOneRing();
+	void projectOnPlaneRotateAndScale(MyMesh *mesh, glm::vec3 origin, glm::vec3 normal);
 #pragma endregion
 
 #pragma region Export
@@ -265,7 +270,6 @@ public:
 	MyTriMesh::HalfedgeHandle prevLink(MyTriMesh::HalfedgeHandle heh);
 	MyTriMesh::VHandle oppositeVHandle(MyTriMesh::HalfedgeHandle heh);
 	void translateAndScalePointsToSphere(MyMesh* mesh, vector<MyMesh::VertexHandle>& oneRing, OpenMesh::Vec3f& directionVector, vector<MyMesh::Point>& points);
-	void rotateCycleOneRing();
 #pragma endregion
 
 protected:
