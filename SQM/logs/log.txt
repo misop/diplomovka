@@ -16,10 +16,10 @@ BNP joining
 Final vertex placement
 	Cycle preprocessing took 0 clicks (0 seconds)
 	Preprocessing took 0 clicks (0 seconds)
-	It took 1 clicks (0.001 seconds)
+	It took 0 clicks (0 seconds)
 
 
 Preprocess time 1 clicks (0.001 seconds)
-Algorithm time 24 clicks (0.024 seconds)
-Total time 25 clicks (0.025 seconds)
+Algorithm time 23 clicks (0.023 seconds)
+Total time 24 clicks (0.024 seconds)
 

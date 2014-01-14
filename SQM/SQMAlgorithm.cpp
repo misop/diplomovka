@@ -17,7 +17,7 @@ SQMAlgorithm::SQMAlgorithm(void) : root(NULL)
 	root = new SQMNode();
 	resetRoot = NULL;
 	numOfNodes = 1;
-	smoothingAlgorithm = SQMQuaternionSmoothing;
+	smoothingAlgorithm = SQMAvaragingSmoothing;
 	skeleton = NULL;
 	numOfSkinMatrices = 0;
 	useCapsules = true;

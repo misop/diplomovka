@@ -446,7 +446,7 @@ void SQMNode::rotateCycleOneRing() {
 void SQMNode::projectOnPlaneRotateAndScale(MyMesh *mesh, glm::vec3 origin, glm::vec3 normal) {
 	//get points from mesh
 	vector<MyMesh::Point> points;
-	if (parent->isBranchNode()) {
+	if (parent != NULL && parent->isBranchNode()) {
 		//we need to transform points to ensure they lie on a cicle
 		OpenMesh::Vec3f norm(normal.x, normal.y, normal.z);
 		parent->translateAndScalePointsToSphere(mesh, cycleVHandles, norm, points); 
@@ -463,12 +463,8 @@ void SQMNode::projectOnPlaneRotateAndScale(MyMesh *mesh, glm::vec3 origin, glm::
 	}
 	//project them onto plane and translate to O(0, 0, 0)
 	for (int i = 0; i < cyclePoints.size(); i++) {
-		//make a vector from your orig point to the point of interest
-		glm::vec3 v = cyclePoints[i] - origin;
-		//take the dot product of that vector with the normal vector n
-		float dist = glm::dot(normal, v);
-		//multiply the normal vector by the distance, and subtract that vector from your point
-		cyclePoints[i] = cyclePoints[i] - dist*normal;
+		//project point onto plane
+		cyclePoints[i] = projectPointOntoPlane(cyclePoints[i], origin, normal);
 		//translate point to origin
 		cyclePoints[i] = cyclePoints[i] - origin;
 		//normalize points to unit circle
@@ -541,12 +537,10 @@ void SQMNode::breakCycles() {
 		node1->setPosition(cycleParent->getPosition());
 		node1->setSQMNodeType(SQMCycleLeaf);
 		node1->setCycleNode(node2);
-		node1->setNodeRadius(10);//IMPORTANT will be used later in calculation od triangulation
 		cycleParent->removeDescendant(this);
 		//and then parent2
 		node2->setParent(cycleParent);
 		node2->setSQMNodeType(SQMCycleLeaf);
-		node2->setNodeRadius(1);
 		cycleParent->addDescendant(node2);
 	}
 	/*if (parent2 != NULL) {
@@ -756,7 +750,7 @@ void SQMNode::createPolyhedra(vector<OpenMesh::Vec3i> triangles) {
 		OpenMesh::Vec3f v1 = intersections[triangle[0]];
 		OpenMesh::Vec3f v2 = intersections[triangle[1]];
 		OpenMesh::Vec3f v3 = intersections[triangle[2]];
-
+		
 		if (v1Index == -1) {
 			v1Index = vertices.size();
 			vertices.push_back(v1);
@@ -772,8 +766,16 @@ void SQMNode::createPolyhedra(vector<OpenMesh::Vec3i> triangles) {
 			vertices.push_back(v3);
 			visited.push_back(OpenMesh::Vec2i(triangle[2], triangle[2]));
 		}
+		
+		OpenMesh::Vec3f u12;
+		if (u12Index != -1) u12 = vertices[u12Index];
+		OpenMesh::Vec3f u23;
+		if (u23Index != -1) u23 = vertices[u23Index];
+		OpenMesh::Vec3f u31;
+		if (u31Index != -1) u31 = vertices[u31Index];
+
 		if (u12Index == -1) {
-			OpenMesh::Vec3f u12 = 0.5*v1 + 0.5*v2;
+			/*OpenMesh::Vec3f*/ u12 = 0.5*v1 + 0.5*v2;
 			//translate point
 			vector<int> u12NormalIndexis = getNormalIndexis(edgeFaceIndexMap[OpenMesh::Vec2i(triangle.values_[0], triangle.values_[1])], i);
 			int i1 = u12NormalIndexis[0];
@@ -785,7 +787,7 @@ void SQMNode::createPolyhedra(vector<OpenMesh::Vec3i> triangles) {
 			visited.push_back(e1);
 		}
 		if (u23Index == -1) {
-			OpenMesh::Vec3f u23 = 0.5*v2 + 0.5*v3;
+			/*OpenMesh::Vec3f*/ u23 = 0.5*v2 + 0.5*v3;
 			//translate point
 			vector<int> u23NormalIndexis = getNormalIndexis(edgeFaceIndexMap[OpenMesh::Vec2i(triangle.values_[1], triangle.values_[2])], i);
 			int i1 = u23NormalIndexis[0];
@@ -797,7 +799,7 @@ void SQMNode::createPolyhedra(vector<OpenMesh::Vec3i> triangles) {
 			visited.push_back(e2);
 		}
 		if (u31Index == -1) {
-			OpenMesh::Vec3f u31 = 0.5*v3 + 0.5*v1;
+			/*OpenMesh::Vec3f*/ u31 = 0.5*v3 + 0.5*v1;
 			//translate point
 			vector<int> u31NormalIndexis = getNormalIndexis(edgeFaceIndexMap[OpenMesh::Vec2i(triangle.values_[2], triangle.values_[0])], i);
 			int i1 = u31NormalIndexis[0];
@@ -807,9 +809,18 @@ void SQMNode::createPolyhedra(vector<OpenMesh::Vec3i> triangles) {
 			u31Index = vertices.size();
 			vertices.push_back(u31);
 			visited.push_back(e3);
-		}		
+		}	
+		bool isObtuse = isObtuseTriangle(v1, v2, v3);
+		
 		OpenMesh::Vec3f center = centers[i];
-		center = translatedPointToSphereWithFaceNormals(center, normals[i], normals[i], center, center);
+		if (isObtuse) {
+			center = (v1 + v2 +v3 + u12 + u23 + u31)/6.0;
+			OpenMesh::Vec3f nn = cross(u23 - u12, u31 - u12).normalized();
+			center = translatedPointToSphereWithFaceNormals(center, nn, nn, center, center);
+		} else {
+			center = centers[i];
+			center = translatedPointToSphereWithFaceNormals(center, normals[i], normals[i], center, center);
+		}
 		//need something to hold the same size
 		int centerIndex = vertices.size();
 		visited.push_back(OpenMesh::Vec2i(-1, -1));
@@ -832,6 +843,22 @@ OpenMesh::Vec3f SQMNode::translatedPointToSphereWithFaceNormals(OpenMesh::Vec3f 
 	if (u.norm() < FLOAT_ZERO) {
 		OpenMesh::Vec3f center = 0.5*center1 + 0.5*center2;
 		u = (p - center).normalize();
+	} else {
+		u = u.normalize();
+	}
+	float t;
+	if (raySphereIntersection(p, u, position, nodeRadius, t)) {
+		return p + (t*u);
+	} else {
+		return p;
+	}
+}
+
+OpenMesh::Vec3f SQMNode::translatedPointToSphereWithCenterOfMass(OpenMesh::Vec3f p) {
+	//leading vector
+	OpenMesh::Vec3f u = p - centerOfMass;
+	if (u.norm() == 0) {
+		return p;
 	} else {
 		u = u.normalize();
 	}
@@ -1506,8 +1533,8 @@ void SQMNode::addPolyhedronAndRememberVHandles(MyMesh* mesh, SQMNode* parentBNPN
 		//order newOneRingArray
 		vector<MyMesh::VHandle> oldOneRing = oneRingsOfPolyhedron.back();
 		//flip one ring if it has different orientation
-		//ERROR CHECVK ORIENTATION MAY CAUSE PROBLEMS
-		bool shouldFlip = sameOneRingOrientation(mesh, oldOneRing, oneRing, position, parentBNPNode->getPosition(), directionVector);
+		//ERROR CHECK ORIENTATION MAY CAUSE PROBLEMS
+		bool shouldFlip = sameOneRingOrientation(mesh, oldOneRing, oneRing, position, parent->getPosition(), directionVector);
 		if (shouldFlip) {
 			vector<MyMesh::VHandle> flipped;
 			flipVector(oldOneRing, flipped);
@@ -1636,9 +1663,9 @@ void SQMNode::finishLeafeCycleNode(MyMesh* mesh, vector<MyMesh::VertexHandle>& o
 	translateAndScalePointsToSphere(mesh, oneRing, directionVector, points);
 
 	/*for (int i = 0; i < oneRing.size(); i++) {
-		MyMesh::Point P = mesh->point(oneRing[i]);
-		glm::vec3 Q(P[0], P[1], P[2]);
-		cyclePoints.push_back(Q);
+	MyMesh::Point P = mesh->point(oneRing[i]);
+	glm::vec3 Q(P[0], P[1], P[2]);
+	cyclePoints.push_back(Q);
 	}*/
 	cycleVHandles.insert(cycleVHandles.end(), oneRing.begin(), oneRing.end());
 
@@ -2276,32 +2303,41 @@ OpenMesh::Vec3i flipVec3i(OpenMesh::Vec3i& v) {
 
 bool sameOneRingOrientation(MyMesh* mesh, vector<MyMesh::VHandle>& oneRing, vector<MyMesh::VHandle>& oneRing2, OpenMesh::Vec3f& center1, OpenMesh::Vec3f& center2, OpenMesh::Vec3f& direction) {
 	if (oneRing.size() > 1 && oneRing2.size() > 1) {
-		//offset the position so we got vectors from O(0,0,0)
-		MyMesh::Point P0 = mesh->point(oneRing[0]) - center1;
-		MyMesh::Point P1 = mesh->point(oneRing[1]) - center1;
-		MyMesh::Point Q0 = mesh->point(oneRing2[0]) - center2;
-		MyMesh::Point Q1 = mesh->point(oneRing2[1]) - center2;
-		CVector3 d(direction.values_);
-		CVector3 A0(P0.values_);
-		//projecting vectors onto the plane given by directionVector
-		//it is enough to substract the projection of A0 onto d sience that is the distance between A0 and the plane
-		A0 = A0 - d*Dot(A0, d);
-		CVector3 A1(P1.values_);
-		A1 = A1 - d*Dot(A1, d);
-		CVector3 B0(Q0.values_);
-		B0 = B0 - d*Dot(B0, d);
-		CVector3 B1(Q1.values_);
-		B1 = B1 - d*Dot(B1, d);
-		//calculate base with cross product
-		CVector3 u = Cross(A0, A1);
-		CVector3 v = Cross(B0, B1);
-		//project base onto direction vector
-		float d1 = Dot(u, d);
-		float d2 = Dot(v, d);
-		//if both have same sign both have same direction 
-		return (d1 >= 0 && d2 < 0) || (d1 < 0 && d2 >= 0);
+		int orientation = 0;
+		for (int i = 0; i < oneRing.size() - 1; i++) {
+			//project points onto planes, offset them to center and normalize
+			MyMesh::Point P0 =preparePointForOrientationCheck(mesh->point(oneRing[i]), center1, direction);
+			MyMesh::Point P1 =preparePointForOrientationCheck(mesh->point(oneRing[i+1]), center1, direction);
+			MyMesh::Point Q0 =preparePointForOrientationCheck(mesh->point(oneRing2[i]), center2, direction);
+			MyMesh::Point Q1 =preparePointForOrientationCheck(mesh->point(oneRing2[i+1]), center2, direction);
+			//check orientation and remember
+			if (equalOrientation(P0, P1, Q0, Q1, direction)) {
+				orientation++;
+			} else {
+				orientation--;
+			}
+		}
+		return orientation > 0 ? true : false;
 	}
 	return false;
+}
+
+MyMesh::Point preparePointForOrientationCheck(MyMesh::Point P, OpenMesh::Vec3f& center, OpenMesh::Vec3f& direction) {
+	//project point onto planes, offset it to center and normalize
+	MyMesh::Point R = P;
+	R = projectPointOntoPlane(R, center, direction);
+	R = R - center;
+	R = R.normalized();
+	return R;
+}
+
+bool equalOrientation(MyMesh::Point P0, MyMesh::Point P1, MyMesh::Point Q0, MyMesh::Point Q1, OpenMesh::Vec3f& direction) {
+	//calculate base with cross product
+	OpenMesh::Vec3f u = cross(P0, P1).normalized();;
+	OpenMesh::Vec3f v = cross(Q0, Q1).normalized();
+	float d1 = dot(u, direction);
+	float d2 = dot(v, direction);
+	return (d1 >= 0 && d2 < 0) || (d1 < 0 && d2 >= 0);
 }
 
 int inLIEs(std::vector<LIE>& LIEs, MyTriMesh::VHandle vh1, MyTriMesh::VHandle vh2) {
@@ -2352,6 +2388,38 @@ SQMNode* lastBranchNodeInChain(SQMNode* node) {
 	}
 	//continiu until you find branch node
 	return lastBranchNodeInChain(node->getParent());
+}
+
+#pragma endregion
+
+#pragma region Helper Functions
+
+glm::vec3 projectPointOntoPlane(glm::vec3 point, glm::vec3 origin, glm::vec3 normal) {
+	//make a vector from your orig point to the point of interest
+	glm::vec3 v = point - origin;
+	float dot = glm::dot(normal, v);
+	if (dot == 0) return point;//angle is 90 degrees -> point already lies on plane
+	glm::vec3 n = dot > 0 ? normal : -normal;//we pick normal facing toward our point
+	//take the dot product of vector v with the normal vector n
+	float dist = glm::dot(n, v);
+	//multiply the normal vector by the distance, and subtract that vector from your point
+	return point - dist*n;
+}
+
+OpenMesh::Vec3f projectPointOntoPlane(OpenMesh::Vec3f point, OpenMesh::Vec3f origin, OpenMesh::Vec3f normal) {
+	glm::vec3 P(point[0], point[1], point[2]);
+	glm::vec3 O(origin[0], origin[1], origin[2]);
+	glm::vec3 n(normal[0], normal[1], normal[2]);
+	glm::vec3 result = projectPointOntoPlane(P, O, n);
+	return OpenMesh::Vec3f(result.x, result.y, result.z);
+}
+
+bool isObtuseTriangle(OpenMesh::Vec3f v1, OpenMesh::Vec3f v2, OpenMesh::Vec3f v3) {	
+	float dot1 = dot((v2-v1).normalized(), (v3-v1).normalized());
+	float dot2 = dot((v1-v2).normalized(), (v3-v2).normalized());
+	float dot3 = dot((v2-v3).normalized(), (v1-v3).normalized());
+
+	return (dot1 < 0 || dot2 < 0 || dot3 < 0);
 }
 
 #pragma endregion

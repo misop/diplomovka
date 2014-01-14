@@ -1,15 +1,19 @@
 \begin{thebibliography}{1}
 
-\bibitem{knuth:tex}
-Donald~E. Knuth.
-\newblock {\em The {\TeX} Book}.
-\newblock Addison-Wesley, Reading, Massachusetts, 1984.
-\newblock Reprinted as Vol. A of {\it Computers \& Typesetting\/}, 1986.
+\bibitem{sqm_phd}
+Michael~Mc Donnell.
+\newblock {\em Skeleton-based and Interactive 3D Modeling}.
+\newblock PhD thesis, Technical University of Denmark, 2012.
 
-\bibitem{lamport:latex}
-Leslie Lamport.
-\newblock {\em {\LaTeX}: A Document Preparation System. User's Guide and
-  Reference Manual}.
-\newblock Addison-Wesley, Reading, Massachusetts, 1986.
+\bibitem{ji_bm}
+Zhongping Ji~Ligang Liu and Yigang Wang.
+\newblock B-mesh: A fast modeling system for base meshes of 3d articulated
+  shapes.
+\newblock {\em ComputGraphForum}, 29(7):2169–77, 2010.
+
+\bibitem{sqm}
+J.~A. Bærentzen M.~K. Misztal and K.~Welnicka.
+\newblock Converting skeletal structures to quad dominant meshes.
+\newblock {\em Computers \& Graphics}, 36(5):555--561, 2012.
 
 \end{thebibliography}

@@ -178,6 +178,7 @@ public:
 	void calculateConvexHull();
 	void createPolyhedra(vector<OpenMesh::Vec3i> triangles);
 	OpenMesh::Vec3f translatedPointToSphereWithFaceNormals(OpenMesh::Vec3f p, OpenMesh::Vec3f n1, OpenMesh::Vec3f n2, OpenMesh::Vec3f center1, OpenMesh::Vec3f center2);
+	OpenMesh::Vec3f translatedPointToSphereWithCenterOfMass(OpenMesh::Vec3f p);
 	vector<int> getNormalIndexis(vector<int> indexis, int index);
 	void openMeshFromIdexedFace(vector<OpenMesh::Vec3f> vertices, vector<OpenMesh::Vec3i> faces);
 
@@ -305,12 +306,20 @@ bool lesser(MyMesh::FaceHandle& a, MyMesh::FaceHandle& b);
 bool validTriFace(vector<MyMesh::VHandle>& faceVHandles);
 OpenMesh::Vec3i flipVec3i(OpenMesh::Vec3i& v);
 bool sameOneRingOrientation(MyMesh* mesh, vector<MyMesh::VHandle>& oneRing, vector<MyMesh::VHandle>& oneRing2, OpenMesh::Vec3f& center1, OpenMesh::Vec3f& center2, OpenMesh::Vec3f& direction);
+bool equalOrientation(MyMesh::Point P0, MyMesh::Point P1, MyMesh::Point Q0, MyMesh::Point Q1, OpenMesh::Vec3f& direction);
+MyMesh::Point preparePointForOrientationCheck(MyMesh::Point P, OpenMesh::Vec3f& center, OpenMesh::Vec3f& direction);
 int inLIEs(std::vector<LIE>& LIEs, MyTriMesh::VHandle vh1, MyTriMesh::VHandle vh2);
 #pragma endregion
 
 #pragma region SQMNode Functions
 int verticeDifferenceFatherSon(SQMNode* father, SQMNode* son, MyTriMesh::VHandle vhandle);
 SQMNode* lastBranchNodeInChain(SQMNode* node);
+#pragma endregion
+
+#pragma region Helper Functions
+glm::vec3 projectPointOntoPlane(glm::vec3 point, glm::vec3 origin, glm::vec3 normal);
+OpenMesh::Vec3f projectPointOntoPlane(OpenMesh::Vec3f point, OpenMesh::Vec3f origin, OpenMesh::Vec3f normal);
+bool isObtuseTriangle(OpenMesh::Vec3f v1, OpenMesh::Vec3f v2, OpenMesh::Vec3f v3);
 #pragma endregion
 
 #pragma endregion
