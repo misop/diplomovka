@@ -353,7 +353,7 @@ void SQMControler::draw(OpenGLPrograms *programs, GLCamera *camera) {
 void SQMControler::drawSkeleton(OpenGLPrograms *programs, GLCamera *camera) {
 	programs->SklLines->Use();
 	camera->lookFromCamera(programs->SklLines->getUniformLocation(MVP_MATRIX_STR));
-	glUniform3f(programs->SklLines->getUniformLocation(DIFFUSE_COLOR_STR), 0.0, 1.0, 0.0);
+	glUniform3f(programs->SklLines->getUniformLocation(DIFFUSE_COLOR_STR), 0.19, 0.47, 0.92);
 	if (buffer1) buffer1->DrawElement(0, GL_LINES);
 
 	programs->SklNodes->Use();
@@ -367,7 +367,11 @@ void SQMControler::drawSkeleton(OpenGLPrograms *programs, GLCamera *camera) {
 	glPatchParameteri(GL_PATCH_VERTICES, 3);
 	for (int i = 0; i < modelMatrices.size(); i++) {
 		glUniformMatrix4fv(programs->SklNodes->getUniformLocation(MODEL_MATRIX_STR), 1, GL_FALSE, glm::value_ptr(modelMatrices[i]));
-		glUniform3f(programs->SklNodes->getUniformLocation(DIFFUSE_COLOR_STR), 1.0, (selectedIndex == i) ? 1.0 : 0.0, 0.0);
+		if (selectedIndex == i) {
+			glUniform3f(programs->SklNodes->getUniformLocation(DIFFUSE_COLOR_STR), 0.91, 0.67, 0.1);
+		} else {
+			glUniform3f(programs->SklNodes->getUniformLocation(DIFFUSE_COLOR_STR), 0.76, 0.22, 0.22);
+		}
 		icosahedron->DrawElement(0, GL_PATCHES);
 	}
 }

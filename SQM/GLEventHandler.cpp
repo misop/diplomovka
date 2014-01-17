@@ -54,7 +54,8 @@ void GLEventHandler::mouseDown(int positionX, int positionY, int mouseFlags) {
 		glm::vec3 dir = glm::normalize(pos - glCamera->getEye());
 		SQMNode *inRay = sqmControler->getNodeInRay(pos, dir);
 		SQMNode *selected = sqmControler->getSelected();
-
+		
+		//selected->getParent()->removeDescendant(selected);
 		if (inRay != NULL && inRay != selected && selected->isValidCycleNode()) {
 			sqmControler->createCycle(selected, inRay);
 		}

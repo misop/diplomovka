@@ -177,6 +177,8 @@
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
+    <None Include="..\..\..\..\..\Public\Desktop\Kingdoms of Amalur Reckoning.lnk" />
+    <None Include="..\..\..\..\..\Public\Desktop\StarCraft II.lnk" />
     <None Include="Shaders\BNPFragShader.frag" />
     <None Include="Shaders\BNPGeomShader.geom" />
     <None Include="Shaders\BNPVertShader.vert" />

@@ -278,7 +278,8 @@ namespace OpenGLForm
 		bool InitGL(GLvoid)										// All setup for opengl goes here
 		{
 			//glShadeModel(GL_SMOOTH);							// Enable smooth shading
-			glClearColor(0.0f, 0.0f, 0.0f, 0.5f);				// Black background
+			//glClearColor(0.0f, 0.0f, 0.0f, 0.5f);				// Black background
+			glClearColor(1.0f, 1.0f, 1.0f, 0.5f);				// White background
 			glClearDepth(1.0f);									// Depth buffer setup
 			glEnable(GL_DEPTH_TEST);							// Enables depth testing
 			glDepthFunc(GL_LEQUAL);								// The type of depth testing to do
@@ -287,6 +288,7 @@ namespace OpenGLForm
 			sqmControler->generateTextures();
 			InitShaders();
 			SetData();
+			glLineWidth(5);
 			return true;										// Initialisation went ok
 		}
 	public:

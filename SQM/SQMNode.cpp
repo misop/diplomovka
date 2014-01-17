@@ -399,6 +399,10 @@ void SQMNode::setIsCapsule(bool isCapsule) {
 	}
 }
 
+void SQMNode::addIntersection(OpenMesh::Vec3f intersection) {
+	intersections.push_back(intersection);
+}
+
 #pragma endregion
 
 #pragma region Cycles
@@ -618,13 +622,63 @@ void SQMNode::createCapsules(int minSmallCircles) {
 
 #pragma region Skeleton Straightening
 
+void SQMNode::straightenSkl() {
+	for (int i = 0; i < nodes.size(); i++) {
+		nodes[i]->straightenSkl(glm::vec4(0), glm::mat4(1));
+	}
+}
+
+void SQMNode::straightenSkl(glm::vec4 odir, glm::mat4 M) {
+	glm::vec4 P(position[0], position[1], position[2], 1);
+	OpenMesh::Vec3f parentPos = parent->getPosition();
+	glm::vec4 Q(parentPos[0], parentPos[1], parentPos[2], 1);
+	//float length = (originalPosition - parent->getOriginalPosition()).norm();
+	//rotate P like parent
+	P = M * P;
+	//adjust dir if parent is branch node
+	glm::vec4 dir;
+	if (parent->isBranchNode()) {
+		glm::vec3 newDir = glm::vec3(P) - glm::vec3(Q);
+		newDir = glm::normalize(newDir);
+		dir = glm::vec4(newDir, 0);
+	} else {
+		dir = odir;
+	}
+	//get new position for this node
+	float length = glm::length(P - Q);
+	glm::vec4 A = Q + length * dir;
+	//update position
+	position[0] = A.x;
+	position[1] = A.y;
+	position[2] = A.z;
+	//add intersection to parent if it is a branch node
+	if (parent->isBranchNode()) {
+		OpenMesh::Vec3f idir(dir.x, dir.y, dir.z);
+		parent->addIntersection(parentPos + parent->getNodeRadius() * idir);
+	}
+	//get rotation
+	glm::mat4 R = matrixRotationBetweenVectors(P, A, Q);
+	//add rotation to matrix
+	M = R * M;
+	//straighten descendants
+	for (int i = 0; i < nodes.size(); i++) {
+		nodes[i]->straightenSkl(dir, M);
+	}
+	//if this is branch node add intersection from parent
+	//doing it now beacouse parent intersection should be last and all sons are now finished
+	if (this->isBranchNode()) {
+		OpenMesh::Vec3f idir(dir.x, dir.y, dir.z);
+		intersections.push_back(position - nodeRadius * idir);
+	}
+}
+
 void SQMNode::straightenSkeleton(OpenMesh::Vec3f *lineVector) {
 	axisAngle = Quaternion();
 	oldPosition = position;
 	skinningIDs = glm::ivec2(-1, -1);
-	if (lineVector != NULL && !parent->isBranchNode()) {//straighten self
+	if (lineVector != NULL/* && !parent->isBranchNode()*/) {//straighten self
 		SQMNode *ancestor = getAncestorBranchNode(this);
-		if (ancestor != NULL) {
+		if (ancestor != NULL && ancestor->getParent() != NULL) {
 			rotatePosition(QuaternionOpposite(ancestor->getAxisAngle()), CVector3(ancestor->getParent()->getPosition().values_));
 		}
 		//translate parent to 0,0,0
@@ -2420,6 +2474,27 @@ bool isObtuseTriangle(OpenMesh::Vec3f v1, OpenMesh::Vec3f v2, OpenMesh::Vec3f v3
 	float dot3 = dot((v2-v3).normalized(), (v1-v3).normalized());
 
 	return (dot1 < 0 || dot2 < 0 || dot3 < 0);
+}
+
+glm::mat4 matrixRotationBetweenVectors(glm::vec4 A, glm::vec4 B, glm::vec4 C) {
+	glm::vec4 u = A - C;
+	glm::vec4 v = B - C;
+	
+	CVector3 from(u.x, u.y, u.z);
+	CVector3 to(v.x, v.y, v.z);
+	Quaternion q = SQMQuaternionBetweenVectors(from, to);
+	CVector4 axisAngle = QuaternionToAxisAngle(q);
+	axisAngle.s = axisAngle.s*180.0f/M_PI;
+	float angle = axisAngle.s;
+	glm::vec3 axis = glm::vec3(axisAngle.i, axisAngle.j, axisAngle.k);
+
+	glm::mat4 translate = glm::translate(glm::mat4(1), -glm::vec3(C));
+	glm::mat4 rotate = glm::mat4(1);
+	glm::mat4 translateBack = glm::translate(glm::mat4(1), glm::vec3(C));
+	if (glm::length(axis) != 0) {
+		rotate =  glm::rotate(glm::mat4(1), angle, axis);
+	}
+	return (translateBack * rotate * translate);
 }
 
 #pragma endregion

@@ -533,7 +533,8 @@ void SQMAlgorithm::straightenSkeleton() {
 		//root->straightenSkeleton(OpenMesh::Vec3f(0, 0, 0));
 		skeletonR = root->exportToSkinSkeleton(NULL);
 		ts = clock();
-		root->straightenSkeleton(NULL);
+		//root->straightenSkeleton(NULL);
+		root->straightenSkl();
 		te = clock();
 		skeletonB = root->exportToSkinSkeleton(NULL);
 		(*os) << "\tIt took " << te - ts << " clicks (" << (((float)(te - ts)) / CLOCKS_PER_SEC) << " seconds)\n";

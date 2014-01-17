@@ -277,5 +277,11 @@
     <None Include="Shaders\TessQuadEvalShader.glsl">
       <Filter>Shaders\TessMesh\QuadMesh</Filter>
     </None>
+    <None Include="..\..\..\..\..\Public\Desktop\StarCraft II.lnk">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="..\..\..\..\..\Public\Desktop\Kingdoms of Amalur Reckoning.lnk">
+      <Filter>Shaders</Filter>
+    </None>
   </ItemGroup>
 </Project>

@@ -17,7 +17,7 @@ uniform mat4 MVPmatrix;
 uniform mat4 ModelViewMatrix;
 uniform int Wireframe;
 
-const vec3 WireframeColor = vec3(1, 1, 1);
+const vec3 WireframeColor = vec3(0, 0, 0);
 const float add = 0.02;
 
 const float lengthThreshold4 = 50;
@@ -80,7 +80,8 @@ void main()
 		//float d2 = min(min(min(gPatchDistance.x, gPatchDistance.y), gPatchDistance.z), gPatchDistance.w);
 		d1 = 1 - amplify(d1, 50, -0.5);
 		d2 = amplify(d2, 50, -0.5);
-		color = d2 * color + d1 * d2 * WireframeColor;
+		//color = d2 * color + d1 * d2 * WireframeColor;
+		color = d2 * color * 1.3 + (1 - d2) * WireframeColor;
 	}
 	
 	//color = gColor;

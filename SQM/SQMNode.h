@@ -152,6 +152,7 @@ public:
 	void updateTransformationMatrix();
 	void addVHandleToRotate(MyMesh::VHandle vh);
 	void setIsCapsule(bool isCapsule);
+	void addIntersection(OpenMesh::Vec3f intersection);
 #pragma endregion
 
 #pragma region Cycles
@@ -172,6 +173,8 @@ public:
 
 #pragma region Skeleton Straightening
 	void straightenSkeleton(OpenMesh::Vec3f *lineVector);
+	void straightenSkl();
+	void straightenSkl(glm::vec4 odir, glm::mat4 M);
 #pragma endregion
 
 #pragma region BNP Generation
@@ -320,6 +323,7 @@ SQMNode* lastBranchNodeInChain(SQMNode* node);
 glm::vec3 projectPointOntoPlane(glm::vec3 point, glm::vec3 origin, glm::vec3 normal);
 OpenMesh::Vec3f projectPointOntoPlane(OpenMesh::Vec3f point, OpenMesh::Vec3f origin, OpenMesh::Vec3f normal);
 bool isObtuseTriangle(OpenMesh::Vec3f v1, OpenMesh::Vec3f v2, OpenMesh::Vec3f v3);
+glm::mat4 matrixRotationBetweenVectors(glm::vec4 A, glm::vec4 B, glm::vec4 C);
 #pragma endregion
 
 #pragma endregion
