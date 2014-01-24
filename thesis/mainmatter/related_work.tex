@@ -1,0 +1,54 @@
+\chapter{Related Work}
+\paragraph{}
+Generating base meshes from skeletons aids in modelling and rigging of more complex meshes. The most notable algorithms are B-Mesh\cite{ji_bm} by Ji et al. and Skeleton to Quad Dominant Mesh\cite{sqm_phd} (SQM) by J. A. Bærentzen et al. This algorithms are capable of generating quad-dominant manifold meshes with good edge flow. Generated meshes are convenient because thanks to quad dominance and good edge flow they are easily skinned. Since the mesh is generated from skeleton we also implicitly know how much each bone affects vertices of the mesh during animation.
+\paragraph{}
+B-Mesh algorithm and SQM algorithm present two different approaches to generation of base meshes from skeletons. B-Mesh algorithm firstly generates mesh for the limbs of the skeletons. These limb meshes are later joined together. On the other SQM algorithm firstly creates polyhedrons for branch nodes of the input skeleton. These polyhedrons are later joined with tubes consisting solely from quadrilaterals.
+\paragraph{}
+In this chapter we will describe both algorithms with their advantages and disadvantages. This serves to show why we have based our implementation of base mesh generation of a particular algorithm rather than the other.
+\pagebreak
+
+\section{B-Mesh algorithm}
+\paragraph{Input}
+B-Mesh algorithm takes as input a skeleton with a set of spheres or ellipsoids. Each node of the input skeleton has assigned a sphere or ellipsoid that represents its local geometry. Auxiliary spheres can be added to more precisely affect the resulting geometry of generated base mesh.
+\paragraph{}
+The algorithm consist of five steps:
+\begin{enumerate}[\bfseries {Step} 1{:}]
+	\itemsep-0.25em 
+	\item Sphere generation - new spheres are generated along the bones of the skeleton.
+	\item Sweeping - generation of mesh for skeletons limbs.
+	\item Stitching - joining of limb meshes at branch nodes.
+	\item B-Mesh evolution - subdivision and smoothing of generated mesh.
+	\item B-Mesh fairing - fairing to improve edges flow.
+\end{enumerate}
+\begin{figure}[h]
+    \centering
+    \includegraphics{images/b_mesh_ilu.png}
+    \label{fig:b_mesh_stitch}
+    \caption{B-Mesh sweeping and stitching illustration. (a) local coordinates of a bone; (b) sweeping step; (c) stitching step; (d) after stitching simplification; Source \cite{ji_bm}}
+\end{figure}
+
+%\subsection{Sphere generation}
+%\paragraph{}
+\paragraph{Sphere generation}
+Additional spheres are generated along the bones of the input skeleton. The distance between two spheres is defined by sampling step and the radius of each sphere is interpolated from radius's corresponding to the bones nodes. These generated spheres are used to refine the generated mesh and to calculate scalar field need in B-Mesh fairing step.
+
+%\subsection{Sweeping}
+%\paragraph{}
+\paragraph{Sweeping}
+For each bone its local coordinate system is generated as can be seen in figure \ref{fig:b_mesh_stitch} (a). Limb mesh generation starts at branch nodes. For each new limb a rectangle aligned with limbs corresponding bones local axis is generated. Its points are then translated along the bones forming said limb and rotated around the connection nodes. After each translation the new points are connected with previos set of points in order to form a tube consisting of quadrilaterals. The resulting tubes can be seen in figure \ref{fig:b_mesh_stitch} (b).
+
+%\subsection{Stitching}
+%\paragraph{}
+\paragraph{Stitching}
+Limb meshes generated in sweeping step are now stitched together. This is done by generating a convex hull from all the points corresponding to each branch nodes. These points are the beginning of each limb mesh tube. The result can be seen in figure \ref{fig:b_mesh_stitch} (c). Generated convex hull is composed from triangles. To simplify them into quadrilaterals a score between each pair of triangles is computed. The score measures how close to a plane is each pair of triangles. The results of stitching simplification are shown in figure \ref{fig:b_mesh_stitch} (d).
+
+\paragraph{B-Mesh evolution}
+Catmull-Clark subdivision is used to smooth the stitched mesh. However after smoothing the mesh shrinks and deviates from the spheres. A scalar field is generated and used to evolve the mesh. Each vertex of the stitched mesh is translated according to the scalar field and its evolution speed. This means the further away is the vertex from its corresponding sphere the more it is attracted to it. In this phase the auxiliary spheres are used to manipulate the scalar field and thus the final shape of the mesh. This step can be repeated multiple times to further smooth the mesh.
+
+\paragraph{B-Mesh fairing}
+After the evolution step certain edges may not be aligned with their principal directions. New vertex positions are calculated by iterative minimization of a function.
+
+\paragraph{Conclusion}
+The biggest problem with B-Mesh algorithm for our use is its iterative nature. The number of iterations is an input parameter and we wanted to avoid input parameters, so that the base mesh generation is as automatic as possible. B-Mesh algorithm is also running slower and produces more triangles than SQM according to \cite{SQM}. The auxiliary spheres and ellipsoid nodes are interesting additions that were not present in SQM. But we wanted to modify the generated base mesh geometry directly on GPU during rendering so they are not advantageous to our intended use.
+
+\section{Skeleton to Quad Dominant Mesh algorithm}
