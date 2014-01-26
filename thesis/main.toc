@@ -24,51 +24,54 @@
 \contentsline {paragraph}{B-Mesh evolution}{4}
 \contentsline {paragraph}{B-Mesh fairing}{4}
 \contentsline {paragraph}{Conclusion}{4}
+\contentsline {paragraph}{}{5}
 \contentsline {section}{\numberline {1.2}Skeleton to Quad Dominant Mesh algorithm}{5}
 \contentsline {paragraph}{Input}{5}
 \contentsline {paragraph}{}{5}
-\contentsline {paragraph}{Skeleton straightening}{6}
+\contentsline {paragraph}{Skeleton straightening}{5}
 \contentsline {paragraph}{BNP generation}{6}
 \contentsline {paragraph}{BNP refinement}{6}
 \contentsline {paragraph}{Creating the tubular structure}{6}
-\contentsline {paragraph}{Vertex placement}{6}
-\contentsline {paragraph}{Conclusion}{6}
-\contentsline {chapter}{\numberline {2}Implementation}{7}
-\contentsline {chapter}{Implementation}{7}
+\contentsline {paragraph}{Vertex placement}{7}
+\contentsline {paragraph}{Conclusion}{7}
 \contentsline {paragraph}{}{7}
-\contentsline {section}{\numberline {2.1}Skeleton Straightening}{7}
-\contentsline {paragraph}{}{7}
-\contentsline {paragraph}{}{7}
-\contentsline {paragraph}{}{7}
-\contentsline {section}{\numberline {2.2}BNP Generation}{8}
+\contentsline {section}{\numberline {1.3}Skeleton-based and interactive 3D modelling}{7}
+\contentsline {chapter}{\numberline {2}Implementation}{8}
+\contentsline {chapter}{Implementation}{8}
+\contentsline {paragraph}{}{8}
+\contentsline {section}{\numberline {2.1}Skeleton Straightening}{8}
 \contentsline {paragraph}{}{8}
 \contentsline {paragraph}{}{8}
-\contentsline {section}{\numberline {2.3}BNP Refinement}{8}
 \contentsline {paragraph}{}{8}
+\contentsline {section}{\numberline {2.2}BNP Generation}{9}
 \contentsline {paragraph}{}{9}
 \contentsline {paragraph}{}{9}
+\contentsline {section}{\numberline {2.3}BNP Refinement}{9}
 \contentsline {paragraph}{}{9}
-\contentsline {paragraph}{}{9}
-\contentsline {subsection}{\numberline {2.3.1}Smoothing algorithms}{10}
 \contentsline {paragraph}{}{10}
 \contentsline {paragraph}{}{10}
 \contentsline {paragraph}{}{10}
 \contentsline {paragraph}{}{10}
-\contentsline {section}{\numberline {2.4}BNP Joining}{11}
-\contentsline {paragraph}{}{11}
-\contentsline {subsection}{\numberline {2.4.1}Point ending}{11}
-\contentsline {paragraph}{}{11}
-\contentsline {subsection}{\numberline {2.4.2}Capsule ending}{11}
+\contentsline {subsection}{\numberline {2.3.1}Smoothing algorithms}{11}
 \contentsline {paragraph}{}{11}
 \contentsline {paragraph}{}{11}
-\contentsline {section}{\numberline {2.5}Final vertex placement}{12}
+\contentsline {paragraph}{}{11}
+\contentsline {paragraph}{}{11}
+\contentsline {section}{\numberline {2.4}BNP Joining}{12}
 \contentsline {paragraph}{}{12}
-\contentsline {chapter}{\numberline {3}Example}{13}
-\contentsline {section}{\numberline {3.1}Tables}{13}
+\contentsline {subsection}{\numberline {2.4.1}Point ending}{12}
+\contentsline {paragraph}{}{12}
+\contentsline {subsection}{\numberline {2.4.2}Capsule ending}{12}
+\contentsline {paragraph}{}{12}
+\contentsline {paragraph}{}{12}
+\contentsline {section}{\numberline {2.5}Final vertex placement}{13}
 \contentsline {paragraph}{}{13}
-\contentsline {section}{\numberline {3.2}Figures}{13}
-\contentsline {paragraph}{}{13}
-\contentsline {section}{\numberline {3.3}Cross reference}{14}
+\contentsline {chapter}{\numberline {3}Example}{14}
+\contentsline {section}{\numberline {3.1}Tables}{14}
 \contentsline {paragraph}{}{14}
-\contentsline {section}{\numberline {3.4}Citation}{14}
-\contentsline {chapter}{\numberline {A}\textlatin {T\kern -.1667em\lower .5ex\hbox {E}\kern -.125emX\spacefactor \@m }}{15}
+\contentsline {section}{\numberline {3.2}Figures}{14}
+\contentsline {paragraph}{}{14}
+\contentsline {section}{\numberline {3.3}Cross reference}{15}
+\contentsline {paragraph}{}{15}
+\contentsline {section}{\numberline {3.4}Citation}{15}
+\contentsline {chapter}{\numberline {A}\textlatin {T\kern -.1667em\lower .5ex\hbox {E}\kern -.125emX\spacefactor \@m }}{16}
