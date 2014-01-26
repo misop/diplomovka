@@ -7,8 +7,9 @@
 \select@language {english}
 \addvspace {10\p@ }
 \addvspace {10\p@ }
-\contentsline {figure}{\numberline {1.1}{\ignorespaces B-Mesh sweeping and stitching illustration. (a) local coordinates of a bone; (b) sweeping step; (c) stitching step; (d) after stitching simplification; Source \cite {ji_bm}}}{3}
+\contentsline {figure}{\numberline {1.1}{\ignorespaces B-Mesh sweeping and stitching illustration}}{3}
+\contentsline {figure}{\numberline {1.2}{\ignorespaces Steps of SQM algorithm}}{5}
 \addvspace {10\p@ }
 \addvspace {10\p@ }
-\contentsline {figure}{\numberline {3.1}{\ignorespaces Johann Amos Comenius}}{13}
+\contentsline {figure}{\numberline {3.1}{\ignorespaces Johann Amos Comenius}}{14}
 \addvspace {10\p@ }

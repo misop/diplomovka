@@ -1,11 +1,5 @@
 This is BibTeX, Version 0.99dThe top-level auxiliary file: main.aux
 A level-1 auxiliary file: frontmatter/cover.aux
 A level-1 auxiliary file: frontmatter/title.aux
-Case mismatch error between cite keys sqm and SQM
----line 109 of file main.aux
- : \citation{sqm
- :              }
-I'm skipping whatever remains of this command
 The style file: plain.bst
 Database file #1: bibliography.bib
-(There was 1 error message)

@@ -36,10 +36,10 @@
 \@writefile{toc}{\contentsline {paragraph}{}{viii}}
 \@writefile{toc}{\contentsline {paragraph}{}{viii}}
 \@writefile{toc}{\contentsline {paragraph}{}{viii}}
-\citation{ji_bm}
 \@writefile{toc}{\contentsline {chapter}{Introduction}{1}}
 \@writefile{toc}{\contentsline {paragraph}{}{1}}
 \citation{ji_bm}
+\citation{sqm}
 \citation{sqm_phd}
 \@writefile{toc}{\contentsline {chapter}{\numberline {1}Related Work}{2}}
 \@writefile{lof}{\addvspace {10\p@ }}
@@ -53,72 +53,84 @@
 \@writefile{toc}{\contentsline {paragraph}{Input}{3}}
 \@writefile{toc}{\contentsline {paragraph}{}{3}}
 \newlabel{fig:b_mesh_stitch}{{1.1}{3}}
-\@writefile{lof}{\contentsline {figure}{\numberline {1.1}{\ignorespaces B-Mesh sweeping and stitching illustration. (a) local coordinates of a bone; (b) sweeping step; (c) stitching step; (d) after stitching simplification; Source \cite  {ji_bm}}}{3}}
-\citation{SQM}
+\@writefile{lof}{\contentsline {figure}{\numberline {1.1}{\ignorespaces B-Mesh sweeping and stitching illustration}}{3}}
+\citation{sqm}
 \@writefile{toc}{\contentsline {paragraph}{Sphere generation}{4}}
 \@writefile{toc}{\contentsline {paragraph}{Sweeping}{4}}
 \@writefile{toc}{\contentsline {paragraph}{Stitching}{4}}
 \@writefile{toc}{\contentsline {paragraph}{B-Mesh evolution}{4}}
 \@writefile{toc}{\contentsline {paragraph}{B-Mesh fairing}{4}}
 \@writefile{toc}{\contentsline {paragraph}{Conclusion}{4}}
+\citation{sqm}
+\citation{sqm}
 \@writefile{toc}{\contentsline {section}{\numberline {1.2}Skeleton to Quad Dominant Mesh algorithm}{5}}
-\@writefile{toc}{\contentsline {chapter}{\numberline {2}Implementation}{6}}
+\@writefile{toc}{\contentsline {paragraph}{Input}{5}}
+\@writefile{toc}{\contentsline {paragraph}{}{5}}
+\newlabel{fig:sqm_algorithm_steps}{{1.2}{5}}
+\@writefile{lof}{\contentsline {figure}{\numberline {1.2}{\ignorespaces Steps of SQM algorithm}}{5}}
+\@writefile{toc}{\contentsline {paragraph}{Skeleton straightening}{6}}
+\@writefile{toc}{\contentsline {paragraph}{BNP generation}{6}}
+\@writefile{toc}{\contentsline {paragraph}{BNP refinement}{6}}
+\@writefile{toc}{\contentsline {paragraph}{Creating the tubular structure}{6}}
+\@writefile{toc}{\contentsline {paragraph}{Vertex placement}{6}}
+\@writefile{toc}{\contentsline {paragraph}{Conclusion}{6}}
+\@writefile{toc}{\contentsline {chapter}{\numberline {2}Implementation}{7}}
 \@writefile{lof}{\addvspace {10\p@ }}
 \@writefile{lot}{\addvspace {10\p@ }}
-\@writefile{toc}{\contentsline {chapter}{Implementation}{6}}
-\@writefile{toc}{\contentsline {paragraph}{}{6}}
-\@writefile{toc}{\contentsline {section}{\numberline {2.1}Skeleton Straightening}{6}}
-\newlabel{sec:skeleton_straightening}{{2.1}{6}}
-\@writefile{toc}{\contentsline {paragraph}{}{6}}
-\@writefile{toc}{\contentsline {paragraph}{}{6}}
-\@writefile{toc}{\contentsline {paragraph}{}{6}}
-\@writefile{toc}{\contentsline {section}{\numberline {2.2}BNP Generation}{7}}
+\@writefile{toc}{\contentsline {chapter}{Implementation}{7}}
+\@writefile{toc}{\contentsline {paragraph}{}{7}}
+\@writefile{toc}{\contentsline {section}{\numberline {2.1}Skeleton Straightening}{7}}
+\newlabel{sec:skeleton_straightening}{{2.1}{7}}
 \@writefile{toc}{\contentsline {paragraph}{}{7}}
 \@writefile{toc}{\contentsline {paragraph}{}{7}}
-\@writefile{toc}{\contentsline {section}{\numberline {2.3}BNP Refinement}{7}}
 \@writefile{toc}{\contentsline {paragraph}{}{7}}
+\@writefile{toc}{\contentsline {section}{\numberline {2.2}BNP Generation}{8}}
 \@writefile{toc}{\contentsline {paragraph}{}{8}}
 \@writefile{toc}{\contentsline {paragraph}{}{8}}
+\@writefile{toc}{\contentsline {section}{\numberline {2.3}BNP Refinement}{8}}
 \@writefile{toc}{\contentsline {paragraph}{}{8}}
-\@writefile{toc}{\contentsline {paragraph}{}{8}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {2.3.1}Smoothing algorithms}{9}}
 \@writefile{toc}{\contentsline {paragraph}{}{9}}
 \@writefile{toc}{\contentsline {paragraph}{}{9}}
 \@writefile{toc}{\contentsline {paragraph}{}{9}}
 \@writefile{toc}{\contentsline {paragraph}{}{9}}
-\@writefile{toc}{\contentsline {section}{\numberline {2.4}BNP Joining}{10}}
-\@writefile{toc}{\contentsline {paragraph}{}{10}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {2.4.1}Point ending}{10}}
-\@writefile{toc}{\contentsline {paragraph}{}{10}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {2.4.2}Capsule ending}{10}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {2.3.1}Smoothing algorithms}{10}}
 \@writefile{toc}{\contentsline {paragraph}{}{10}}
 \@writefile{toc}{\contentsline {paragraph}{}{10}}
-\@writefile{toc}{\contentsline {section}{\numberline {2.5}Final vertex placement}{11}}
+\@writefile{toc}{\contentsline {paragraph}{}{10}}
+\@writefile{toc}{\contentsline {paragraph}{}{10}}
+\@writefile{toc}{\contentsline {section}{\numberline {2.4}BNP Joining}{11}}
 \@writefile{toc}{\contentsline {paragraph}{}{11}}
-\@writefile{toc}{\contentsline {chapter}{\numberline {3}Example}{12}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {2.4.1}Point ending}{11}}
+\@writefile{toc}{\contentsline {paragraph}{}{11}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {2.4.2}Capsule ending}{11}}
+\@writefile{toc}{\contentsline {paragraph}{}{11}}
+\@writefile{toc}{\contentsline {paragraph}{}{11}}
+\@writefile{toc}{\contentsline {section}{\numberline {2.5}Final vertex placement}{12}}
+\@writefile{toc}{\contentsline {paragraph}{}{12}}
+\@writefile{toc}{\contentsline {chapter}{\numberline {3}Example}{13}}
 \@writefile{lof}{\addvspace {10\p@ }}
 \@writefile{lot}{\addvspace {10\p@ }}
-\@writefile{toc}{\contentsline {section}{\numberline {3.1}Tables}{12}}
-\@writefile{toc}{\contentsline {paragraph}{}{12}}
-\@writefile{lot}{\contentsline {table}{\numberline {3.1}{\ignorespaces Numbers}}{12}}
-\newlabel{tab:numbers}{{3.1}{12}}
-\@writefile{lot}{\contentsline {table}{\numberline {3.2}{\ignorespaces Letters}}{12}}
-\newlabel{tab:letters}{{3.2}{12}}
-\@writefile{toc}{\contentsline {section}{\numberline {3.2}Figures}{12}}
-\@writefile{toc}{\contentsline {paragraph}{}{12}}
+\@writefile{toc}{\contentsline {section}{\numberline {3.1}Tables}{13}}
+\@writefile{toc}{\contentsline {paragraph}{}{13}}
+\@writefile{lot}{\contentsline {table}{\numberline {3.1}{\ignorespaces Numbers}}{13}}
+\newlabel{tab:numbers}{{3.1}{13}}
+\@writefile{lot}{\contentsline {table}{\numberline {3.2}{\ignorespaces Letters}}{13}}
+\newlabel{tab:letters}{{3.2}{13}}
+\@writefile{toc}{\contentsline {section}{\numberline {3.2}Figures}{13}}
+\@writefile{toc}{\contentsline {paragraph}{}{13}}
 \citation{sqm}
 \citation{sqm_phd}
 \citation{ji_bm}
-\@writefile{lof}{\contentsline {figure}{\numberline {3.1}{\ignorespaces Johann Amos Comenius}}{13}}
-\newlabel{fig:comenius}{{3.1}{13}}
-\@writefile{toc}{\contentsline {section}{\numberline {3.3}Cross reference}{13}}
-\@writefile{toc}{\contentsline {paragraph}{}{13}}
-\@writefile{toc}{\contentsline {section}{\numberline {3.4}Citation}{13}}
+\@writefile{lof}{\contentsline {figure}{\numberline {3.1}{\ignorespaces Johann Amos Comenius}}{14}}
+\newlabel{fig:comenius}{{3.1}{14}}
+\@writefile{toc}{\contentsline {section}{\numberline {3.3}Cross reference}{14}}
+\@writefile{toc}{\contentsline {paragraph}{}{14}}
+\@writefile{toc}{\contentsline {section}{\numberline {3.4}Citation}{14}}
 \bibstyle{plain}
 \bibdata{bibliography}
-\@writefile{toc}{\contentsline {chapter}{\numberline {A}\textlatin  {T\kern -.1667em\lower .5ex\hbox {E}\kern -.125emX\spacefactor \@m }}{14}}
+\@writefile{toc}{\contentsline {chapter}{\numberline {A}\textlatin  {T\kern -.1667em\lower .5ex\hbox {E}\kern -.125emX\spacefactor \@m }}{15}}
 \@writefile{lof}{\addvspace {10\p@ }}
 \@writefile{lot}{\addvspace {10\p@ }}
 \bibcite{sqm_phd}{1}
 \bibcite{ji_bm}{2}
-\bibcite{SQM}{3}
+\bibcite{sqm}{3}
