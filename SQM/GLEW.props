@@ -3,8 +3,8 @@
   <ImportGroup Label="PropertySheets" />
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup>
-    <IncludePath>C:\glew-1.9.0\include;$(IncludePath)</IncludePath>
-    <LibraryPath>C:\glew-1.9.0\lib;$(LibraryPath)</LibraryPath>
+    <IncludePath>$(SolutionDir)\Lib\include;$(IncludePath)</IncludePath>
+    <LibraryPath>$(SolutionDir)\Lib\lib;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup>
     <Link>

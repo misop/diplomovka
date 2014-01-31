@@ -3,8 +3,8 @@
   <ImportGroup Label="PropertySheets" />
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup>
-    <IncludePath>C:\Boost\include\boost-1_51;$(IncludePath)</IncludePath>
-    <LibraryPath>C:\Boost\lib\i386;$(LibraryPath)</LibraryPath>
+    <IncludePath>$(SolutionDir)\Lib\include;$(IncludePath)</IncludePath>
+    <LibraryPath>$(SolutionDir)\Lib\lib\release;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup>
     <Link>

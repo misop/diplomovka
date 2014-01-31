@@ -52,6 +52,8 @@ Class OpenGLForm.COpenGL: AutoLayout, AnsiClass, Class, Public, BeforeFieldInit
     setValencyWeightedLaplacian(): PrivateScope, Public, HideBySig
     setGlobalTesselation(Single): PrivateScope, Public, HideBySig
     setGlobalThreshold(Single): PrivateScope, Public, HideBySig
+    setGlobalUseCapsules(Boolean(HasFieldMarshal)): PrivateScope, Public, HideBySig
+    setSkinningType(SkinningType): PrivateScope, Public, HideBySig
     alterWireframe(): PrivateScope, Public, HideBySig
     alterDrawNormals(): PrivateScope, Public, HideBySig
     newFile(): PrivateScope, Public, HideBySig

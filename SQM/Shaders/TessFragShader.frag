@@ -61,8 +61,9 @@ vec4 adjust(vec4 vals, vec4 sizes) {
 void main()
 {
     vec3 color = AmbientColor.w * vec3(AmbientColor);
-
+	
 	vec3 light = normalize(vec3(ModelViewMatrix * vec4(LightPosition, 1)) - gVertex);
+	//vec3 light = normalize(vec3(ModelViewMatrix * vec4(vec3(0, 0, -2), 1)) - gVertex);
 	//float diffuseFactor = max(dot(gNormal, light), 0);
 	float diffuseFactor = abs(dot(gNormal, light));
 	color += diffuseFactor * DiffuseColor;

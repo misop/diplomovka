@@ -3,7 +3,7 @@
   <ImportGroup Label="PropertySheets" />
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup>
-    <IncludePath>C:\glm-0.9.4.4\glm;$(IncludePath)</IncludePath>
+    <IncludePath>$(SolutionDir)\Lib\include\glm;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <ItemDefinitionGroup />
   <ItemGroup />

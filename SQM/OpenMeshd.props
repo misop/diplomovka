@@ -4,8 +4,8 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup>
     <_PropertySheetDisplayName>OpenMeshd</_PropertySheetDisplayName>
-    <LibraryPath>C:\Program Files %28x86%29\OpenMesh 2.2\lib;$(LibraryPath)</LibraryPath>
-    <IncludePath>C:\Program Files %28x86%29\OpenMesh 2.2\include;$(IncludePath)</IncludePath>
+    <LibraryPath>$(SolutionDir)\Lib\lib\debug;$(LibraryPath)</LibraryPath>
+    <IncludePath>$(SolutionDir)\Lib\include;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <ItemDefinitionGroup>
     <Link>
