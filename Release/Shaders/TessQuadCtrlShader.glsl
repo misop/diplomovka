@@ -7,6 +7,7 @@ in float vTessLevel[];
 in vec3 vNodePosition[];
 flat in int vNodeType[];
 flat in int vNodeID[];
+flat in ivec2 vSkinningIDs[];
 
 uniform float TessLevelInner;
 
@@ -14,6 +15,7 @@ out vec3 tcVertexNormal[];
 out vec3 tcNodePosition[];
 flat out int tcNodeType[];
 flat out int tcNodeID[];
+flat out ivec2 tcSkinningIDs[];
 
 void main()
 {
@@ -32,6 +34,7 @@ void main()
 	tcNodePosition[gl_InvocationID] = vNodePosition[gl_InvocationID];
 	tcNodeType[gl_InvocationID] = vNodeType[gl_InvocationID];
 	tcNodeID[gl_InvocationID] = vNodeID[gl_InvocationID];
+	tcSkinningIDs[gl_InvocationID] = vSkinningIDs[gl_InvocationID];
 
 	gl_out[gl_InvocationID].gl_Position = gl_in[gl_InvocationID].gl_Position;
 }

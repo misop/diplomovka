@@ -1,0 +1,304 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<!DOCTYPE boost_serialization>
+<boost_serialization signature="serialization::archive" version="9">
+<node class_id="0" tracking_level="1" version="0" object_id="_0">
+	<id>0</id>
+	<cyclic>0</cyclic>
+	<point class_id="1" tracking_level="0" version="0">
+		<x>0</x>
+		<y>0</y>
+		<z>0</z>
+	</point>
+	<nodes class_id="2" tracking_level="0" version="0">
+		<count>3</count>
+		<item_version>0</item_version>
+		<item class_id_reference="0" object_id="_1">
+			<id>0</id>
+			<cyclic>0</cyclic>
+			<point>
+				<x>0</x>
+				<y>150</y>
+				<z>0</z>
+			</point>
+			<nodes>
+				<count>3</count>
+				<item_version>0</item_version>
+				<item class_id_reference="0" object_id="_2">
+					<id>0</id>
+					<cyclic>0</cyclic>
+					<point>
+						<x>0</x>
+						<y>200</y>
+						<z>0</z>
+					</point>
+					<nodes>
+						<count>0</count>
+						<item_version>0</item_version>
+					</nodes>
+				</item>
+				<item class_id_reference="0" object_id="_3">
+					<id>0</id>
+					<cyclic>0</cyclic>
+					<point>
+						<x>-25</x>
+						<y>125</y>
+						<z>0</z>
+					</point>
+					<nodes>
+						<count>1</count>
+						<item_version>0</item_version>
+						<item class_id_reference="0" object_id="_4">
+							<id>0</id>
+							<cyclic>0</cyclic>
+							<point>
+								<x>-86.399963</x>
+								<y>124.6</y>
+								<z>0</z>
+							</point>
+							<nodes>
+								<count>3</count>
+								<item_version>0</item_version>
+								<item class_id_reference="0" object_id="_5">
+									<id>0</id>
+									<cyclic>0</cyclic>
+									<point>
+										<x>-154.4167</x>
+										<y>126.014</y>
+										<z>-30.78944</z>
+									</point>
+									<nodes>
+										<count>0</count>
+										<item_version>0</item_version>
+									</nodes>
+								</item>
+								<item class_id_reference="0" object_id="_6">
+									<id>0</id>
+									<cyclic>0</cyclic>
+									<point>
+										<x>-152.84129</x>
+										<y>121.814</y>
+										<z>29.389919</z>
+									</point>
+									<nodes>
+										<count>0</count>
+										<item_version>0</item_version>
+									</nodes>
+								</item>
+								<item class_id_reference="0" object_id="_7">
+									<id>0</id>
+									<cyclic>0</cyclic>
+									<point>
+										<x>-151.40582</x>
+										<y>126.04902</y>
+										<z>0</z>
+									</point>
+									<nodes>
+										<count>0</count>
+										<item_version>0</item_version>
+									</nodes>
+								</item>
+							</nodes>
+						</item>
+					</nodes>
+				</item>
+				<item class_id_reference="0" object_id="_8">
+					<id>0</id>
+					<cyclic>0</cyclic>
+					<point>
+						<x>25</x>
+						<y>125</y>
+						<z>0</z>
+					</point>
+					<nodes>
+						<count>1</count>
+						<item_version>0</item_version>
+						<item class_id_reference="0" object_id="_9">
+							<id>0</id>
+							<cyclic>0</cyclic>
+							<point>
+								<x>91.29998</x>
+								<y>123.9</y>
+								<z>0</z>
+							</point>
+							<nodes>
+								<count>3</count>
+								<item_version>0</item_version>
+								<item class_id_reference="0" object_id="_10">
+									<id>0</id>
+									<cyclic>0</cyclic>
+									<point>
+										<x>159.49059</x>
+										<y>128.98894</y>
+										<z>0</z>
+									</point>
+									<nodes>
+										<count>0</count>
+										<item_version>0</item_version>
+									</nodes>
+								</item>
+								<item class_id_reference="0" object_id="_11">
+									<id>0</id>
+									<cyclic>0</cyclic>
+									<point>
+										<x>158.6106</x>
+										<y>121.9889</y>
+										<z>27.98613</z>
+									</point>
+									<nodes>
+										<count>0</count>
+										<item_version>0</item_version>
+									</nodes>
+								</item>
+								<item class_id_reference="0" object_id="_12">
+									<id>0</id>
+									<cyclic>0</cyclic>
+									<point>
+										<x>160.5022</x>
+										<y>128.98891</y>
+										<z>-32.184101</z>
+									</point>
+									<nodes>
+										<count>0</count>
+										<item_version>0</item_version>
+									</nodes>
+								</item>
+							</nodes>
+						</item>
+					</nodes>
+				</item>
+			</nodes>
+		</item>
+		<item class_id_reference="0" object_id="_13">
+			<id>0</id>
+			<cyclic>0</cyclic>
+			<point>
+				<x>-50</x>
+				<y>-50</y>
+				<z>0</z>
+			</point>
+			<nodes>
+				<count>1</count>
+				<item_version>0</item_version>
+				<item class_id_reference="0" object_id="_14">
+					<id>0</id>
+					<cyclic>0</cyclic>
+					<point>
+						<x>-49.5</x>
+						<y>-100.7</y>
+						<z>0</z>
+					</point>
+					<nodes>
+						<count>3</count>
+						<item_version>0</item_version>
+						<item class_id_reference="0" object_id="_15">
+							<id>0</id>
+							<cyclic>0</cyclic>
+							<point>
+								<x>-152.14081</x>
+								<y>-101.79469</y>
+								<z>0</z>
+							</point>
+							<nodes>
+								<count>0</count>
+								<item_version>0</item_version>
+							</nodes>
+						</item>
+						<item class_id_reference="0" object_id="_16">
+							<id>0</id>
+							<cyclic>0</cyclic>
+							<point>
+								<x>-153.57671</x>
+								<y>-97.594727</y>
+								<z>-34.269989</z>
+							</point>
+							<nodes>
+								<count>0</count>
+								<item_version>0</item_version>
+							</nodes>
+						</item>
+						<item class_id_reference="0" object_id="_17">
+							<id>0</id>
+							<cyclic>0</cyclic>
+							<point>
+								<x>-150.7636</x>
+								<y>-101.0947</y>
+								<z>32.871262</z>
+							</point>
+							<nodes>
+								<count>0</count>
+								<item_version>0</item_version>
+							</nodes>
+						</item>
+					</nodes>
+				</item>
+			</nodes>
+		</item>
+		<item class_id_reference="0" object_id="_18">
+			<id>0</id>
+			<cyclic>0</cyclic>
+			<point>
+				<x>50</x>
+				<y>-50</y>
+				<z>0</z>
+			</point>
+			<nodes>
+				<count>1</count>
+				<item_version>0</item_version>
+				<item class_id_reference="0" object_id="_19">
+					<id>0</id>
+					<cyclic>0</cyclic>
+					<point>
+						<x>50.200001</x>
+						<y>-100.7</y>
+						<z>0</z>
+					</point>
+					<nodes>
+						<count>3</count>
+						<item_version>0</item_version>
+						<item class_id_reference="0" object_id="_20">
+							<id>0</id>
+							<cyclic>0</cyclic>
+							<point>
+								<x>121.27164</x>
+								<y>-98.119781</y>
+								<z>0</z>
+							</point>
+							<nodes>
+								<count>0</count>
+								<item_version>0</item_version>
+							</nodes>
+						</item>
+						<item class_id_reference="0" object_id="_21">
+							<id>0</id>
+							<cyclic>0</cyclic>
+							<point>
+								<x>120.7546</x>
+								<y>-91.819794</y>
+								<z>32.895901</z>
+							</point>
+							<nodes>
+								<count>0</count>
+								<item_version>0</item_version>
+							</nodes>
+						</item>
+						<item class_id_reference="0" object_id="_22">
+							<id>0</id>
+							<cyclic>0</cyclic>
+							<point>
+								<x>121.8656</x>
+								<y>-94.619797</y>
+								<z>-37.795261</z>
+							</point>
+							<nodes>
+								<count>0</count>
+								<item_version>0</item_version>
+							</nodes>
+						</item>
+					</nodes>
+				</item>
+			</nodes>
+		</item>
+	</nodes>
+</node>
+</boost_serialization>
+

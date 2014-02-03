@@ -123,6 +123,7 @@ public:
 	float getRotateY();
 	float getRotateZ();
 	bool getIsCapsule();
+	bool isAncestor(SQMNode* node);
 #pragma endregion
 
 #pragma region Setters

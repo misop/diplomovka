@@ -96,10 +96,10 @@ SQMNode::SQMNode(SQMNode &node, bool shalow) {
 }
 
 SQMNode::~SQMNode(void) {
+	if (polyhedron != NULL) delete polyhedron;
 	for (int i = 0; i < nodes.size(); i++) {
 		delete nodes[i];
 	}
-	if (polyhedron != NULL) delete polyhedron;
 }
 
 #pragma endregion
@@ -255,6 +255,13 @@ float SQMNode::getRotateZ() {
 
 bool SQMNode::getIsCapsule() {
 	return (sqmNodeType == SQMCapsule);
+}
+
+bool SQMNode::isAncestor(SQMNode* node) {
+	if (parent == NULL) return false;
+	if (parent == node) return true;
+
+	return parent->isAncestor(node);
 }
 
 #pragma endregion

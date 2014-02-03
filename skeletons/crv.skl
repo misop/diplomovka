@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<!DOCTYPE boost_serialization>
+<boost_serialization signature="serialization::archive" version="9">
+<node class_id="0" tracking_level="1" version="1" object_id="_0">
+	<id>0</id>
+	<cyclic>0</cyclic>
+	<point class_id="1" tracking_level="0" version="0">
+		<x>0</x>
+		<y>0</y>
+		<z>0</z>
+	</point>
+	<radius>10</radius>
+	<nodes class_id="2" tracking_level="0" version="0">
+		<count>2</count>
+		<item_version>0</item_version>
+		<item class_id_reference="0" object_id="_1">
+			<id>0</id>
+			<cyclic>0</cyclic>
+			<point>
+				<x>-40.692196</x>
+				<y>-35.007248</y>
+				<z>0</z>
+			</point>
+			<radius>10</radius>
+			<nodes>
+				<count>0</count>
+				<item_version>0</item_version>
+			</nodes>
+		</item>
+		<item class_id_reference="0" object_id="_2">
+			<id>0</id>
+			<cyclic>0</cyclic>
+			<point>
+				<x>65.825569</x>
+				<y>-5.0865211</y>
+				<z>0</z>
+			</point>
+			<radius>10</radius>
+			<nodes>
+				<count>1</count>
+				<item_version>0</item_version>
+				<item class_id_reference="0" object_id="_3">
+					<id>0</id>
+					<cyclic>0</cyclic>
+					<point>
+						<x>78.392303</x>
+						<y>55.951748</y>
+						<z>0</z>
+					</point>
+					<radius>10</radius>
+					<nodes>
+						<count>0</count>
+						<item_version>0</item_version>
+					</nodes>
+				</item>
+			</nodes>
+		</item>
+	</nodes>
+</node>
+</boost_serialization>
+

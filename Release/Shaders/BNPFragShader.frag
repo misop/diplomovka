@@ -7,7 +7,7 @@ in vec3 gTriDistanceCtrl;
 
 uniform vec3 DiffuseColor;
 
-const vec3 WireframeColor = vec3(1, 1, 1);
+const vec3 WireframeColor = vec3(0, 0, 0);
 const float add = 0.02;
 const float threshold = 0.0025;
 
@@ -37,12 +37,21 @@ void main(void)
 	vec3 color = DiffuseColor;
 
 	int i;
-	vec3 adjusted = adjust(gTriDistance, gTriDistanceCtrl);
+	/*vec3 adjusted = adjust(gTriDistance, gTriDistanceCtrl);
 	float d = min(adjusted.x, min(adjusted.y, adjusted.z));
 	float scale = 30;
 
 	d = amplify(d, scale, -0.5);
-	color = d * color + (1 - d) * WireframeColor;
+	color = d * color + (1 - d) * WireframeColor;*/
+	
+	vec3 adjusted = adjust(gTriDistance, gTriDistanceCtrl);
+	float d = min(adjusted.x, min(adjusted.y, adjusted.z));
+	float scale = 30;
+	
+	float d1 = 1 - amplify(d, scale, -0.5);
+	float d2 = amplify(d, 50, -0.5);
+	//color = d2 * color + d1 * d2 * WireframeColor;
+	color = d2 * color * 1.3 + (1 - d2) * WireframeColor;
 
     fColor = vec4(color, 1.0);
 }

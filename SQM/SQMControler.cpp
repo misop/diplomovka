@@ -215,7 +215,11 @@ void SQMControler::insertNode(float x, float y, float z) {
 }
 
 void SQMControler::createCycle(SQMNode* from, SQMNode *to) {
-	from->createCycle(to);
+	if (to->isAncestor(from)) {
+		to->createCycle(from);
+	} else {
+		from->createCycle(to);
+	}
 	drawSkeleton();
 }
 
