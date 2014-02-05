@@ -50,7 +50,7 @@ After the evolution step certain edges may not be aligned with their principal d
 
 \paragraph{Conclusion}
 The biggest problem with B-Mesh algorithm for our use is its iterative nature. The number of iterations is an input parameter and we wanted to avoid input parameters, so that the base mesh generation is as automatic as possible. Without the evolution step B-Mesh approximates input geometry worse than SQM. This is caused by the stitching phase which creates rectangular geometry at branch nodes, instead of the input spherical or elliptical geometry. Because of this evolution phase can not be avoided if we want to approximate the input as much as possible.
-\paragraph{}
+%\paragraph{}
 B-Mesh algorithm is also running slower and produces more triangles than SQM according to \cite{sqm}. The auxiliary spheres and ellipsoid nodes are interesting additions that were not present in SQM. But we wanted to modify the generated base mesh geometry directly on GPU during rendering so they are not advantageous to our intended use. B-mesh algorithm can generate capsules but it needs several evolution steps to precisely match capsules geometry. The algorithm looks like it can be naturally extended to support cyclic skeletons. Sweeping steps occurs only on limb paths and stitching occurs directly at branch nodes. Evolution and fairing moves vertices directly so it is independent from cycles in the input skeleton.
 
 \section{Skeleton to Quad Dominant Mesh algorithm}
@@ -90,10 +90,7 @@ After previous step of the algorithm connected BNPs can be joined by a tube form
 The base mesh is now finished. All that remains is to reverse the rotations used to straighten the input skeleton. After final vertex placement the resulting mesh is smoothed using with three iterations of Laplacian smoothing and attraction scheme.
 
 \paragraph{Conclusion}
-Each of SQMs steps are one pass algorithms except the final smoothing and attraction scheme application. But since SQM generates branch node geometry by generating a polyhedron it better resembles the geometry of the input skeleton even without smoothing. Cyclic meshes can be problematic to implement, because in the refinement step of the algorithm a cyclic mesh may cause an infinite loop of refining.
-
-\paragraph{}
-In the end we have picked SQM as the base for our algorithm. The main factors in this decision were that SQM is faster, produces smaller number of triangles and even without smoothing the generated mesh better resembles the input skeleton. Also by avoiding the smoothing phase we don not need any input parameters to generate base mesh from an input skeleton.
+Each of SQMs steps are one pass algorithms except the final smoothing and attraction scheme application. But since SQM generates branch node geometry by generating a polyhedron it better resembles the geometry of the input skeleton even without smoothing. Cyclic meshes can be problematic to implement, because in the refinement step of the algorithm a cyclic mesh may cause an infinite loop of refining. SQM produces smaller number of triangles because in the joining phase all triangles corresponding to branch nodes are removed and their former vertices are used to generate connecting tubes. On the other hand during the stitching phase B-Mesh introduces triangles into the mesh. SQM algorithm was also capable of generating cycles from two symmetric leaf node,s that were close to each other. However these cycles can not be created explicitly. Another limitation is that cycles have to lie on input skeletons axis of symmetry.
 
 \section{Skeleton-based and interactive 3D modelling} 
 \paragraph{}

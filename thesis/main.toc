@@ -24,7 +24,6 @@
 \contentsline {paragraph}{B-Mesh evolution}{4}
 \contentsline {paragraph}{B-Mesh fairing}{4}
 \contentsline {paragraph}{Conclusion}{4}
-\contentsline {paragraph}{}{5}
 \contentsline {section}{\numberline {1.2}Skeleton to Quad Dominant Mesh algorithm}{5}
 \contentsline {paragraph}{Input}{5}
 \contentsline {paragraph}{}{5}
@@ -34,50 +33,55 @@
 \contentsline {paragraph}{Creating the tubular structure}{6}
 \contentsline {paragraph}{Vertex placement}{7}
 \contentsline {paragraph}{Conclusion}{7}
-\contentsline {paragraph}{}{7}
 \contentsline {section}{\numberline {1.3}Skeleton-based and interactive 3D modelling}{7}
 \contentsline {paragraph}{}{7}
 \contentsline {paragraph}{Spherical leaf node}{7}
 \contentsline {paragraph}{Conclusion}{8}
 \contentsline {paragraph}{Root branch node requirement}{8}
 \contentsline {paragraph}{Conclusion}{8}
-\contentsline {chapter}{\numberline {2}Proposed solution}{10}
-\contentsline {chapter}{\numberline {3}Implementation}{11}
-\contentsline {chapter}{Implementation}{11}
-\contentsline {paragraph}{}{11}
-\contentsline {section}{\numberline {3.1}Skeleton Straightening}{11}
-\contentsline {paragraph}{}{11}
-\contentsline {paragraph}{}{11}
-\contentsline {paragraph}{}{11}
-\contentsline {section}{\numberline {3.2}BNP Generation}{12}
+\contentsline {chapter}{\numberline {2}Proposed solution}{9}
+\contentsline {paragraph}{}{9}
+\contentsline {section}{\numberline {2.1}Skeleton straightening}{9}
+\contentsline {paragraph}{}{9}
+\contentsline {subsection}{\numberline {2.1.1}Skinning matrices}{10}
+\contentsline {paragraph}{}{10}
+\contentsline {paragraph}{}{10}
+\contentsline {chapter}{\numberline {3}Implementation}{12}
+\contentsline {chapter}{Implementation}{12}
+\contentsline {paragraph}{}{12}
+\contentsline {section}{\numberline {3.1}Skeleton Straightening}{12}
 \contentsline {paragraph}{}{12}
 \contentsline {paragraph}{}{12}
-\contentsline {section}{\numberline {3.3}BNP Refinement}{12}
 \contentsline {paragraph}{}{12}
+\contentsline {section}{\numberline {3.2}BNP Generation}{13}
 \contentsline {paragraph}{}{13}
 \contentsline {paragraph}{}{13}
+\contentsline {section}{\numberline {3.3}BNP Refinement}{13}
 \contentsline {paragraph}{}{13}
-\contentsline {paragraph}{}{13}
-\contentsline {subsection}{\numberline {3.3.1}Smoothing algorithms}{14}
 \contentsline {paragraph}{}{14}
 \contentsline {paragraph}{}{14}
 \contentsline {paragraph}{}{14}
 \contentsline {paragraph}{}{14}
-\contentsline {section}{\numberline {3.4}BNP Joining}{15}
-\contentsline {paragraph}{}{15}
-\contentsline {subsection}{\numberline {3.4.1}Point ending}{15}
-\contentsline {paragraph}{}{15}
-\contentsline {subsection}{\numberline {3.4.2}Capsule ending}{15}
+\contentsline {subsection}{\numberline {3.3.1}Smoothing algorithms}{15}
 \contentsline {paragraph}{}{15}
 \contentsline {paragraph}{}{15}
-\contentsline {section}{\numberline {3.5}Final vertex placement}{16}
+\contentsline {paragraph}{}{15}
+\contentsline {paragraph}{}{15}
+\contentsline {section}{\numberline {3.4}BNP Joining}{16}
 \contentsline {paragraph}{}{16}
-\contentsline {chapter}{\numberline {4}Example}{17}
-\contentsline {section}{\numberline {4.1}Tables}{17}
+\contentsline {subsection}{\numberline {3.4.1}Point ending}{16}
+\contentsline {paragraph}{}{16}
+\contentsline {subsection}{\numberline {3.4.2}Capsule ending}{16}
+\contentsline {paragraph}{}{16}
+\contentsline {paragraph}{}{16}
+\contentsline {section}{\numberline {3.5}Final vertex placement}{17}
 \contentsline {paragraph}{}{17}
-\contentsline {section}{\numberline {4.2}Figures}{17}
-\contentsline {paragraph}{}{17}
-\contentsline {section}{\numberline {4.3}Cross reference}{18}
+\contentsline {chapter}{\numberline {4}Example}{18}
+\contentsline {section}{\numberline {4.1}Tables}{18}
 \contentsline {paragraph}{}{18}
-\contentsline {section}{\numberline {4.4}Citation}{18}
-\contentsline {chapter}{\numberline {A}\textlatin {T\kern -.1667em\lower .5ex\hbox {E}\kern -.125emX\spacefactor \@m }}{19}
+\contentsline {section}{\numberline {4.2}Figures}{18}
+\contentsline {paragraph}{}{18}
+\contentsline {section}{\numberline {4.3}Cross reference}{19}
+\contentsline {paragraph}{}{19}
+\contentsline {section}{\numberline {4.4}Citation}{19}
+\contentsline {chapter}{\numberline {A}\textlatin {T\kern -.1667em\lower .5ex\hbox {E}\kern -.125emX\spacefactor \@m }}{20}
