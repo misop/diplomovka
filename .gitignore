@@ -3,6 +3,13 @@
 *.lo
 *.o
 
+# Latex aux stuff
+#*.aux
+#*.lof
+#*.lot
+#*.gz
+#*.toc
+
 # Compiled Dynamic libraries
 *.so
 *.dylib
