@@ -47,3 +47,54 @@ Triangulation of intersection vertices can sometimes create obtuse triangles. Th
     \label{fig:obtus_tri_ilu}
     \caption[Obtuse triangle problem]{Obtuse triangle problem. Left: polyhedron with obtuse triangle. Red arrow marks vertex expected position and yellow lines mark expected edges; Right: polyhedron after applying our fix;}
 \end{figure}
+
+\section{BNP refinement}
+\paragraph{}
+During the penultimate step of the algorithm, BNP joining, we want to connect two BNPs, with tube consisting solely from quadrilaterals. To ensure that we can use quadrilaterals only, we want intersection vertices connected via a path, to have the same number of nodes in their one-ring neighbourhood. We take the notion of Link Intersection Edge (LIE) from \cite{sqm}. A LIE is a set of edges that are between vertices of two intersection vertices one-ring neighbourhoods, as can be seen in Figure \ref{fig:refinement_ilu} (a). One LIE is represented with yellow colored edges and second LIE is represented with red colored edges. The refining of one BNP is a one-pass procedure.
+
+\paragraph{Preprocessing}
+We start the refining of a BNP by creating a map of LIEs corresponding to each intersection vertex. For each intersection vertex we store its corresponding LIEs, as well as the number of splits required by that vertex, to have the same valency as its corresponding intersection vertex. An intersection vertex can be connected with three types of vertices. Each type defines how much we can split LIEs corresponding to that intersection vertex.
+\begin{itemize}
+	\itemsep-0.25em 
+	\item \textbf{Parents intersection vertex} - the number of splits is fixed. That is after spiting the valency of these two vertices must be exactly the same. This is necessary otherwise splits in child BNP could cause splits in parents BNP, which could result in infinite loops.
+	\item \textbf{Branch node intersection vertex} - difference between valencies of the two vertices is calculated. If the number is negative, that is corresponding vertex has smaller valency, we prefer not to split LIEs corresponding the vertex any more. If the number is positive, that is corresponding vertex has higher valency, we split LIEs corresponding to the vertex so that the vertex has at least the same valency as its corresponding vertex.
+	\item \textbf{Leaf node} - corresponding LIEs can be split as much has needed.
+\end{itemize}
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=\textwidth]{images/refinement_ilu.png}
+    \label{fig:refinement_ilu}
+    \caption[BNP refinement]{BNP refinement. Yellow edges represent Link Intersection Edge (LIE) corresponding to second intersection edge of the BNP. Red edges represent LIE corresponding to third intersection edge. Yellow circle marks the first intersection vertex. BNP before subdivision (a); BNP after one subdivision and one smoothing step (b); Final BNP after two subdivisions and two smoothing steps (c);}
+\end{figure}
+
+\paragraph{Subdivision}
+We loop through all intersection vertices, starting with the intersection vertex connected with parents BNP and continuing with the rest. In each cycle, we split LIEs corresponding to current intersection vertex, until the valency of the intersection vertex is equal to its required number of splits. Every time we want to split a LIE we heuristically select the best, based on two filters. The first filter is the splitting required by the other intersection vertex belonging to the same LIE. If two or more LIEs require the same number of splits, we use a second filter. This filter picks the LIE that was split the least. When we are splitting a LIE, we always split a representative edge, which is the first edge of the LIE. Because of that we need to apply a smoothing scheme to roughly equalize the lengths of edges in a LIE. 
+
+\paragraph{}
+The whole process can be seen in Figure \ref{fig:refinement_ilu}. In Figure \ref{fig:refinement_ilu} (a) the yellow circle marks an intersection vertex that needs to be split twice. Yellow edges represent a LIE corresponding to second intersection vertex and red edges represent a LIE corresponding to third intersection vertex. Both LIEs have the same need to be split and non of them was split previously. For the first split the yellow LIE is selected, subdivided once and smoothed. The result of the first split is shown in Figure \ref{fig:refinement_ilu} (b). For the second split the need of both LIEs is still the same. But yellow LIE was already split, so this time the red LIE is selected, subdivided and smoothed. Final refined BNP is shown in Figure \ref{fig:refinement_ilu} (c).
+
+\subsection{Smoothing}
+\paragraph{}
+Since we always split only one representative edge of a LIE, we are applying a smoothing scheme, to equalize the length of edges in a subdivided LIE. The smoothing is very important because directly on it depends the quality of the generated mesh. Ideally the length of each edge in a smoothed LIE would be equal. However since smoothing is applied after every subdivision, the smoothing algorithm should to be reasonably fast. We propose four smoothing schemes. These smoothing schemes are illustrated in Figure \ref{fig:smoothing_ilu}, where the polyhedron from Figure \ref{fig:refinement_ilu} is subdivided twice and then smoothed with various smoothing schemes.
+
+\paragraph{Averaging smoothing}
+New position for each vertex in a LIE is calculated by averaging one-ring neighbourhood corresponding to the vertex. We start with the last vertex of a LIE, that is the vertex on the last edge of a LIE and move towards the first vertex. We move each vertex, except the first and the last vertices, to the barycentre of its one-ring neighbourhood and project them back onto the sphere corresponding to BNPs node. The resulting smoothed polyhedron is shown in Figure \ref{fig:smoothing_ilu} (a). This approach is iterative and would need several iteration to achieve global optimum, however we have found that one iteration is enough for our needs.
+
+\paragraph{Quaternion smoothing}
+For each LIE we calculate a quaternion representing the rotation from the first vertex of the LIE to the last vertex of the LIE. From each quaternion we extract its corresponding axis of rotation and angle of rotation. We smooth only points between the first and the last vertex, so the calculated axis of rotation and angle are constant. During each smoothing step, we first count the number of vertices in a LIE. Then we divide the angle of rotation by that number and form a new quaternion from already calculated axis of rotation and the newly calculated angle. For each vertex in a LIE between first and last we apply the rotation stored in the quaternion and update its position. This method produces LIEs, that lie on small circles of their corresponding sphere. The spacing between vertices is regular and thus its very suitable for our needs. The result of quaternion smoothing is shown in Figure \ref{fig:smoothing_ilu} (b).
+
+\paragraph{Area weighted Laplacian}
+For Laplacian smoothing we have adapted the algorithm described in \cite{laplac_phd}. The weights used for smoothing are based on the one-ring area of each vertex. We use one iteration of Laplacian smoothing and then project the new vertices back onto their corresponding sphere. The result is shown in Figure \ref{fig:smoothing_ilu} (c). The result is usable, since the edges have better distributed length, than without smoothing. But averaging and quaternion smoothing produce results of better quality.
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=\textwidth]{images/smoothing_ilu.png}
+    \label{fig:smoothing_ilu}
+    \caption[LIE smoothing schemes]{LIE smoothing schemes. Shows results after applying averaging smoothing (a); Quaternion smoothing (b); Area weighted Laplacian smoothing (c); and Valency weighted Laplacian smoothing (d);}
+\end{figure}
+
+\paragraph{Valency weighted Laplacian}
+We use the same algorithm as for area weighted Laplacian, but we use different weights for vertices. The weights depend on the valency of each vertex. After Laplacian smoothing vertices are projected back onto their corresponding sphere. The result of this smoothing is very similar to area weighted Laplacian and is shown in Figure \ref{fig:smoothing_ilu} (d).
+
+\section{BNP joining}
