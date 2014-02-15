@@ -1638,8 +1638,10 @@ void SQMNode::addPolyhedronAndRememberVHandles(MyMesh* mesh, SQMNode* parentBNPN
 				index = i;
 			}
 		}
-		//dot product approach
-		/*OpenMesh::Vec3f vv = -directionVector.normalized();
+		//dot product approach		
+		/*vector<MyMesh::VertexHandle> newOneRing;
+		int index = 0;
+		OpenMesh::Vec3f vv = -directionVector.normalized();
 		float maxDot = 0;
 		for (int i = 0; i < oldOneRing.size(); i++) {
 		int k = i;
