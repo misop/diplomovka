@@ -5,8 +5,8 @@
 	<id>0</id>
 	<cyclic>0</cyclic>
 	<point class_id="1" tracking_level="0" version="0">
-		<x>0</x>
-		<y>0</y>
+		<x>-1.4</x>
+		<y>2.0999999</y>
 		<z>0</z>
 	</point>
 	<radius>10</radius>
@@ -29,12 +29,12 @@
 			<id>0</id>
 			<cyclic>0</cyclic>
 			<point>
-				<x>-82.485626</x>
-				<y>-4.9991241</y>
+				<x>-54.45573</x>
+				<y>-52.361259</y>
 				<z>0</z>
 			</point>
 			<radius>10</radius>
-			<capsule>0</capsule>
+			<capsule>1</capsule>
 			<tessLevel>1</tessLevel>
 			<scale>
 				<x>1</x>
@@ -47,42 +47,42 @@
 				<z>0</z>
 			</rotate>
 			<nodes>
-				<count>0</count>
+				<count>1</count>
 				<item_version>0</item_version>
-			</nodes>
-		</item>
-		<item class_id_reference="0" object_id="_2">
-			<id>0</id>
-			<cyclic>0</cyclic>
-			<point>
-				<x>-14.99739</x>
-				<y>-73.73716</y>
-				<z>0</z>
-			</point>
-			<radius>10</radius>
-			<capsule>0</capsule>
-			<tessLevel>1</tessLevel>
-			<scale>
-				<x>1</x>
-				<y>1</y>
-				<z>1</z>
-			</scale>
-			<rotate>
-				<x>0</x>
-				<y>0</y>
-				<z>0</z>
-			</rotate>
-			<nodes>
-				<count>0</count>
-				<item_version>0</item_version>
+				<item class_id_reference="0" object_id="_2">
+					<id>0</id>
+					<cyclic>0</cyclic>
+					<point>
+						<x>-105.9194</x>
+						<y>-97.242348</y>
+						<z>0</z>
+					</point>
+					<radius>10</radius>
+					<capsule>0</capsule>
+					<tessLevel>1</tessLevel>
+					<scale>
+						<x>1</x>
+						<y>1</y>
+						<z>1</z>
+					</scale>
+					<rotate>
+						<x>0</x>
+						<y>0</y>
+						<z>0</z>
+					</rotate>
+					<nodes>
+						<count>0</count>
+						<item_version>0</item_version>
+					</nodes>
+				</item>
 			</nodes>
 		</item>
 		<item class_id_reference="0" object_id="_3">
 			<id>0</id>
 			<cyclic>0</cyclic>
 			<point>
-				<x>54.440639</x>
-				<y>53.040642</y>
+				<x>42.4874</x>
+				<y>-53.761261</y>
 				<z>0</z>
 			</point>
 			<radius>10</radius>
@@ -105,8 +105,60 @@
 					<id>0</id>
 					<cyclic>0</cyclic>
 					<point>
-						<x>108.7311</x>
-						<y>101.2324</y>
+						<x>79.635307</x>
+						<y>-99.918602</y>
+						<z>0</z>
+					</point>
+					<radius>10</radius>
+					<capsule>0</capsule>
+					<tessLevel>1</tessLevel>
+					<scale>
+						<x>1</x>
+						<y>1</y>
+						<z>1</z>
+					</scale>
+					<rotate>
+						<x>0</x>
+						<y>0</y>
+						<z>0</z>
+					</rotate>
+					<nodes>
+						<count>0</count>
+						<item_version>0</item_version>
+					</nodes>
+				</item>
+			</nodes>
+		</item>
+		<item class_id_reference="0" object_id="_5">
+			<id>0</id>
+			<cyclic>0</cyclic>
+			<point>
+				<x>0.59840369</x>
+				<y>75.699417</y>
+				<z>0</z>
+			</point>
+			<radius>10</radius>
+			<capsule>1</capsule>
+			<tessLevel>1</tessLevel>
+			<scale>
+				<x>1</x>
+				<y>1</y>
+				<z>1</z>
+			</scale>
+			<rotate>
+				<x>0</x>
+				<y>0</y>
+				<z>0</z>
+			</rotate>
+			<nodes>
+				<count>1</count>
+				<item_version>0</item_version>
+				<item class_id_reference="0" object_id="_6">
+					<id>0</id>
+					<cyclic>0</cyclic>
+					<point>
+						<x>1.298404</x>
+						<y>136.63609</y>
 						<z>0</z>
 					</point>
 					<radius>10</radius>
