@@ -13,7 +13,7 @@ public:
 	OpenMesh::Vec3f dir;
 	
 	glm::mat4 projection;
-	glm::mat4 modelview;
+	glm::mat4 view;
 	glm::vec4 viewport;
 	glm::mat3 normalMatrix;
 
@@ -47,8 +47,10 @@ public:
 
 	void update();
 	void calculateMatrices();
-
+	
 	void lookFromCamera(GLint mvpLoc);
+	void getCameraMatrices(GLint pLoc, GLint vLoc);
+	void setupNormalMatrix(glm::mat4 &model, GLint nmLoc);
 	void setupModelViewMatrix(GLint mvLoc);
 	void setupNormalMatrix(GLint nmLoc);
 	glm::mat4 cameraModelMatrix();

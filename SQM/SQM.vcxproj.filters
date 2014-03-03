@@ -34,6 +34,9 @@
     <Filter Include="Shaders\TessMesh\TriMesh">
       <UniqueIdentifier>{16db22aa-7578-425e-9350-edb431f59098}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Shaders\Phong">
+      <UniqueIdentifier>{dec6bf33-29bc-461b-b2e9-161e5017b2ad}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <Text Include="ReadMe.txt" />
@@ -118,6 +121,12 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Delaunay.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="AnimationSkeleton.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="AnimationController.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -212,6 +221,18 @@
     <ClInclude Include="Delaunay.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="AnimationSkeleton.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="AnimationController.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Uniforms.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="AnimationCounter.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="app.rc">
@@ -282,6 +303,12 @@
     </None>
     <None Include="..\..\..\..\..\Public\Desktop\Kingdoms of Amalur Reckoning.lnk">
       <Filter>Shaders</Filter>
+    </None>
+    <None Include="Shaders\phong.frag">
+      <Filter>Shaders\Phong</Filter>
+    </None>
+    <None Include="Shaders\phong.vert">
+      <Filter>Shaders\Phong</Filter>
     </None>
   </ItemGroup>
 </Project>

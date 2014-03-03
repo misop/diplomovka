@@ -31,6 +31,14 @@ void GLProgram::AttachShader(GLShader *shader) {
 	glAttachShader(program, shader->GetShader());
 }
 
+void GLProgram::AttachShaders(OpenGLShaders *shaders) {
+	if (shaders->vert) glAttachShader(program, shaders->vert->GetShader());
+	if (shaders->ctrl) glAttachShader(program, shaders->ctrl->GetShader());
+	if (shaders->eval) glAttachShader(program, shaders->eval->GetShader());
+	if (shaders->geom) glAttachShader(program, shaders->geom->GetShader());
+	if (shaders->frag) glAttachShader(program, shaders->frag->GetShader());
+}
+
 bool GLProgram::Link() {
 	glLinkProgram(program);
 

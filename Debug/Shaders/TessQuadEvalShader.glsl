@@ -212,15 +212,15 @@ void main()
 		float id0 = float(i0) / float(MaxID);
 		float id1 = float(i1) / float(MaxID);
 
-		float x = texture(CTS, vec2(1.0f/3.0f, id0)).r;
-		float y = texture(CTS, vec2(2.0f/3.0f, id0)).r;
-		float z = texture(CTS, vec2(3.0f/3.0f, id0)).r;
+		//float x = texture(CTS, vec2(1.0f/3.0f, id0)).r;
+		//float y = texture(CTS, vec2(2.0f/3.0f, id0)).r;
+		//float z = texture(CTS, vec2(3.0f/3.0f, id0)).r;
 		//vec3 w0 = vec3(x, y, z);
 		vec3 w0 = tcNodePosition[0];
 		
-		x = texture(CTS, vec2(1.0f/3.0f, id1)).r;
-		y = texture(CTS, vec2(2.0f/3.0f, id1)).r;
-		z = texture(CTS, vec2(3.0f/3.0f, id1)).r;
+		//x = texture(CTS, vec2(1.0f/3.0f, id1)).r;
+		//y = texture(CTS, vec2(2.0f/3.0f, id1)).r;
+		//z = texture(CTS, vec2(3.0f/3.0f, id1)).r;
 		//vec3 w1 = vec3(x, y, z);
 		vec3 w1 = tcNodePosition[1];
 		vec3 d = normalize(w1 - w0);

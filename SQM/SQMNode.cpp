@@ -8,6 +8,8 @@
 
 #define BIAS 0.1
 
+//TODO FIX ELLIPSOIDS ON CAPSULES
+
 #pragma region Init
 
 SQMNode::SQMNode(void) {
@@ -26,6 +28,7 @@ SQMNode::SQMNode(void) {
 	skinningIDs = glm::ivec2(-1, -1);
 	sqmNodeType = SQMCapsule;
 	cycleNode = NULL;
+	isCyclic = false;
 }
 
 SQMNode::SQMNode(SkeletonNode &node, SQMNode* newParent) : parent(newParent), cycleNode(NULL) {
@@ -51,6 +54,7 @@ SQMNode::SQMNode(SkeletonNode &node, SQMNode* newParent) : parent(newParent), cy
 	rotatev = glm::vec3(node.rotate.x, node.rotate.y, node.rotate.z);
 	transformationMatrix = glm::mat4();
 	skinningIDs = glm::ivec2(-1, -1);
+	isCyclic = false;
 }
 
 SQMNode::SQMNode(SQMNode &node) {
@@ -68,7 +72,9 @@ SQMNode::SQMNode(SQMNode &node) {
 	vector<SQMNode *> *childs = node.getNodes();
 	scalev = node.getScalev();
 	rotatev = node.getRotatev();
-	transformationMatrix = node.getTransformationMatrix();
+	updateTransformationMatrix();
+	isCyclic = node.getIsCyclic();
+	//transformationMatrix = node.getTransformationMatrix();
 	for (int i = 0; i < childs->size(); i++) {
 		SQMNode *childRef = (*childs)[i];
 		SQMNode *child = new SQMNode(*childRef);
@@ -92,7 +98,9 @@ SQMNode::SQMNode(SQMNode &node, bool shalow) {
 	vector<SQMNode *> *childs = node.getNodes();
 	scalev = node.getScalev();
 	rotatev = node.getRotatev();
-	transformationMatrix = node.getTransformationMatrix();
+	updateTransformationMatrix();
+	isCyclic = node.getIsCyclic();
+	//transformationMatrix = node.getTransformationMatrix();
 }
 
 SQMNode::~SQMNode(void) {
@@ -264,6 +272,10 @@ bool SQMNode::isAncestor(SQMNode* node) {
 	return parent->isAncestor(node);
 }
 
+bool SQMNode::getIsCyclic() {
+	return isCyclic;
+}
+
 #pragma endregion
 
 #pragma region Setters
@@ -291,6 +303,21 @@ void SQMNode::setTessLevel(float newTessLevel) {
 void SQMNode::setPosition(OpenMesh::Vec3f newPosition) {
 	position = newPosition;
 	originalPosition = position;
+}
+
+void SQMNode::setPositionAndAdjustDescendants(OpenMesh::Vec3f newPosition) {
+	OpenMesh::Vec3f offset = newPosition - position;
+	position = newPosition;
+	for (int i = 0; i < nodes.size(); i++) {
+		nodes[i]->movePositionAndAdjustDescendants(offset);
+	}
+}
+
+void SQMNode::movePositionAndAdjustDescendants(OpenMesh::Vec3f offset) {
+	position = position + offset;
+	for (int i = 0; i < nodes.size(); i++) {
+		nodes[i]->movePositionAndAdjustDescendants(offset);
+	}
 }
 
 void SQMNode::setSQMNodeType(SQMNodeType newType) {
@@ -326,6 +353,24 @@ void SQMNode::rotatePosition(Quaternion q, CVector3 offset) {
 	pos = QuaternionRotateVector(q, pos);
 	pos = pos + offset;
 	position = OpenMesh::Vec3f(pos.x, pos.y, pos.z);
+}
+
+void SQMNode::rotateDescendants(Quaternion q) {
+	CVector3 offset(position.values_);
+	for (int i = 0; i < nodes.size(); i++) {
+		nodes[i]->rotateDescendants(q, offset);
+	}
+}
+
+void SQMNode::rotateDescendants(Quaternion q, CVector3 offset) {
+	CVector3 pos(position.values_);
+	pos = pos - offset;
+	pos = QuaternionRotateVector(q, pos);
+	pos = pos + offset;
+	position = OpenMesh::Vec3f(pos.x, pos.y, pos.z);
+	for (int i = 0; i < nodes.size(); i++) {
+		nodes[i]->rotateDescendants(q, offset);
+	}
 }
 
 void SQMNode::addDescendant(float x, float y, float z) {
@@ -408,6 +453,10 @@ void SQMNode::setIsCapsule(bool isCapsule) {
 
 void SQMNode::addIntersection(OpenMesh::Vec3f intersection) {
 	intersections.push_back(intersection);
+}
+
+void SQMNode::setIsCyclic(bool cyclic) {
+	isCyclic = cyclic;
 }
 
 #pragma endregion
@@ -528,6 +577,20 @@ SkinSkeleton* SQMNode::exportToSkinSkeleton(SkinSkeleton *parentSkin) {
 	return node;
 }
 
+AnimationSkeleton* SQMNode::exportToAnimationSkeleton(AnimationSkeleton *parentSkin) {
+	//if this is worms head
+	if (sqmNodeType == SQMCreatedCapsule && nodes.size() > 0) return nodes[0]->exportToAnimationSkeleton(parentSkin);
+
+	AnimationSkeleton *node = new AnimationSkeleton(parentSkin, position[0], position[1], position[2]);
+	//if next is only capsule the matrix would be the same
+	if (sqmNodeType == SQMFormerCapsule && !(parent != NULL && parent->getSQMNodeType() == SQMCreatedCapsule)) return node;
+
+	for (int i = 0; i < nodes.size(); i++) {
+		node->nodes.push_back(nodes[i]->exportToAnimationSkeleton(node));
+	}
+	return node;
+}
+
 #pragma endregion
 
 #pragma region SQM Preprocessing
@@ -636,6 +699,7 @@ void SQMNode::straightenSkl() {
 }
 
 void SQMNode::straightenSkl(glm::vec4 odir, glm::mat4 M) {
+	isCyclic = parent->getIsCyclic();
 	glm::vec4 P(position[0], position[1], position[2], 1);
 	OpenMesh::Vec3f parentPos = parent->getPosition();
 	glm::vec4 Q(parentPos[0], parentPos[1], parentPos[2], 1);
@@ -811,7 +875,7 @@ void SQMNode::createPolyhedra(vector<OpenMesh::Vec3i> triangles) {
 		OpenMesh::Vec3f v1 = intersections[triangle[0]];
 		OpenMesh::Vec3f v2 = intersections[triangle[1]];
 		OpenMesh::Vec3f v3 = intersections[triangle[2]];
-		
+
 		if (v1Index == -1) {
 			v1Index = vertices.size();
 			vertices.push_back(v1);
@@ -827,7 +891,7 @@ void SQMNode::createPolyhedra(vector<OpenMesh::Vec3i> triangles) {
 			vertices.push_back(v3);
 			visited.push_back(OpenMesh::Vec2i(triangle[2], triangle[2]));
 		}
-		
+
 		OpenMesh::Vec3f u12;
 		if (u12Index != -1) u12 = vertices[u12Index];
 		OpenMesh::Vec3f u23;
@@ -872,9 +936,9 @@ void SQMNode::createPolyhedra(vector<OpenMesh::Vec3i> triangles) {
 			visited.push_back(e3);
 		}	
 		bool isObtuse = isObtuseTriangle(v1, v2, v3);
-		
+
 		OpenMesh::Vec3f center = centers[i];
-		if (isObtuse) {
+		if (isCyclic && isObtuse) {
 			center = (v1 + v2 +v3 + u12 + u23 + u31)/6.0;
 			OpenMesh::Vec3f nn = cross(u23 - u12, u31 - u12).normalized();
 			center = translatedPointToSphereWithFaceNormals(center, nn, nn, center, center);
@@ -1802,7 +1866,7 @@ void SQMNode::rotateWithSkeleton(MyMesh *mesh, SkinSkeleton *skeleton) {
 			pos = 0.5f*pos + 0.5f*pos2;
 		}
 
-		//csutom transformations
+		//custom transformations
 		pos = transformationMatrix * pos;
 
 		P = OpenMesh::Vec3f(pos.x, pos.y, pos.z);
@@ -1906,6 +1970,38 @@ void SQMNode::getMeshTessDatai(vector<float> &tessLevels, vector<float> &nodePos
 	}
 	for (int i = 0; i < nodes.size(); i++) {
 		nodes[i]->getMeshTessDatai(tessLevels, nodePositions, skinMatrices, data);
+	}
+}
+
+void SQMNode::getMeshData(std::vector<int> &skinMatrices, std::vector<float> &skinWeights) {
+	int type = 0;
+	if (this->isBranchNode()) type = 1;
+	else if (this->isLeafNode()) type = 2;
+	if (type == 0 && nodes[0]->isLeafNode()) {
+		type = 2;
+	}
+	if (sqmNodeType == SQMCreatedCapsule || sqmNodeType == SQMFormerCapsule) {
+		type += 10;
+	}
+
+	for (int i = 0; i < meshVhandlesToRotate.size(); i++) {
+		int div = 1;
+		if (skinningIDs.y != -1) div = 2;
+
+		skinMatrices.push_back(skinningIDs.x == -1 ? 0 : skinningIDs.x);
+		skinMatrices.push_back(skinningIDs.y == -1 ? 0 : skinningIDs.y);
+		//skinMatrices.push_back(skinningIDs.x);
+		//skinMatrices.push_back(skinningIDs.y);
+		skinMatrices.push_back(0);
+		skinMatrices.push_back(0);
+
+		skinWeights.push_back(skinningIDs.x == -1 ? 0 : 1.0/(float)div);
+		skinWeights.push_back(skinningIDs.y == -1 ? 0 : 1.0/(float)div);
+		skinWeights.push_back(0);
+		skinWeights.push_back(0);
+	}
+	for (int i = 0; i < nodes.size(); i++) {
+		nodes[i]->getMeshData(skinMatrices, skinWeights);
 	}
 }
 
@@ -2488,7 +2584,7 @@ bool isObtuseTriangle(OpenMesh::Vec3f v1, OpenMesh::Vec3f v2, OpenMesh::Vec3f v3
 glm::mat4 matrixRotationBetweenVectors(glm::vec4 A, glm::vec4 B, glm::vec4 C) {
 	glm::vec4 u = A - C;
 	glm::vec4 v = B - C;
-	
+
 	CVector3 from(u.x, u.y, u.z);
 	CVector3 to(v.x, v.y, v.z);
 	Quaternion q = SQMQuaternionBetweenVectors(from, to);

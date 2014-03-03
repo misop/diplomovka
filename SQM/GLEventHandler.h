@@ -8,7 +8,9 @@
 
 typedef enum {
 	CameraMoveState = 0,
-	NodeEditState
+	NodeEditState,
+	NodeEditDescendantsState,
+	NodeRotateState
 } EventState;
 
 class GLEventHandler
@@ -18,6 +20,8 @@ class GLEventHandler
 	int mouse;
 	int lastX;
 	int lastY;
+	int selectedX;
+	int selectedY;
 public:
 	EventState state;
 
@@ -36,11 +40,13 @@ public:
 
 #pragma region Node Edit Event Handling
 	void mouseMovedForNodeEdit(int positionX, int positionY);
+	void mouseMovedForNodeRotate(int positionX, int positionY);
 #pragma endregion
 
 #pragma region Selected Node Editing
 	void moveHorizontal(float dist);
 	void moveVertical(float dist);
+	void rotate(float delta, CVector3 axis);
 #pragma endregion
 };
 

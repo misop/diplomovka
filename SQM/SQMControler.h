@@ -35,6 +35,7 @@ private:
 	float *skinningMatrices;
 	float *transformMatrices;
 	SkinningType skinningType;
+	AnimationSkeleton *animSkl;
 public:
 	SQMNode *selected;
 
@@ -47,6 +48,10 @@ public:
 	void loadSkeletonFromFile(string fileName);
 	void saveSkeletonToFile(string fileName);
 	void exportMeshToFile(string fileName);
+	
+	void setBindPose();
+	void setReferencePose();
+	void saveAnimation(string fileName);
 
 	bool selectNodeInRay(glm::vec3 position, glm::vec3 direction);
 	SQMNode* getNodeInRay(glm::vec3 position, glm::vec3 direction);
@@ -72,10 +77,12 @@ public:
 
 	void insertNode(float x, float y, float z);
 	void createCycle(SQMNode* from, SQMNode *to);
+	void setSelectedPosition(glm::vec3 pos);
 	void setSelectedPosition(OpenMesh::Vec3f pos);
+	void setSelectedAndDescendantsPosition(glm::vec3 pos);
+	void setSelectedAndDescendantsPosition(OpenMesh::Vec3f pos);
 	float getThreshold();
 	void setThreshold(float th);
-	void setSelectedPosition(glm::vec3 pos);
 	void setSelectedX(float x);
 	void setSelectedY(float y);
 	void setSelectedZ(float z);

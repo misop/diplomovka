@@ -5,6 +5,12 @@ Michael~Mc Donnell.
 \newblock Skeleton-based and interactive 3d modeling.
 \newblock Master's thesis, Technical University of Denmark, 2012.
 
+\bibitem{Kavan-07-SDQ}
+Ladislav Kavan, Steven Collins, Jiri Zara, and Carol O'Sullivan.
+\newblock Skinning with dual quaternions.
+\newblock In {\em 2007 ACM SIGGRAPH Symposium on Interactive 3D Graphics and
+  Games}, pages 39--46. ACM Press, April/May 2007.
+
 \bibitem{ji_bm}
 Zhongping Ji~Ligang Liu and Yigang Wang.
 \newblock B-mesh: A fast modeling system for base meshes of 3d articulated
@@ -12,7 +18,7 @@ Zhongping Ji~Ligang Liu and Yigang Wang.
 \newblock {\em ComputGraphForum}, 29(7):2169–77, 2010.
 
 \bibitem{laplac_phd}
-RNDr.~Martin Madaras.
+Martin Madaras.
 \newblock Todo.
 \newblock Master's thesis, Comenius university of Bratislava, TODO.
 

@@ -21,7 +21,7 @@ void GLEventHandler::mouseDown(int positionX, int positionY, int mouseFlags) {
 	mouse = mouseFlags;
 	lastX = positionX;
 	lastY = positionY;
-	if (state == NodeEditState && mouse == LEFT_MOUSE_DOWN) {
+	if (state == NodeRotateState) {
 		GLdouble x = 0, y = 0, z = 0;
 		//bool sucess = mousePositionTo3D(positionX, positionY, x, y, z);
 		glCamera->mousePositionTo3D(positionX, positionY, x, y, z);
@@ -29,6 +29,23 @@ void GLEventHandler::mouseDown(int positionX, int positionY, int mouseFlags) {
 		glm::vec3 dir = glm::normalize(pos - glCamera->getEye());
 
 		sqmControler->selectNodeInRay(glCamera->getEye(), dir);
+		if (sqmControler->selected != NULL) {
+			selectedX = positionX;
+			selectedY = positionY;
+		}
+	}
+	if ((state == NodeEditState || state == NodeEditDescendantsState) && mouse == LEFT_MOUSE_DOWN) {
+		GLdouble x = 0, y = 0, z = 0;
+		//bool sucess = mousePositionTo3D(positionX, positionY, x, y, z);
+		glCamera->mousePositionTo3D(positionX, positionY, x, y, z);
+		glm::vec3 pos(x, y, z);
+		glm::vec3 dir = glm::normalize(pos - glCamera->getEye());
+
+		sqmControler->selectNodeInRay(glCamera->getEye(), dir);
+		if (sqmControler->selected != NULL) {
+			selectedX = positionX;
+			selectedY = positionY;
+		}
 	}
 	if (state == NodeEditState && mouse == MIDDLE_MOUSE_DOWN && sqmControler->getSelected() != NULL) {
 		GLdouble x = 0, y = 0, z = 0;
@@ -63,14 +80,17 @@ void GLEventHandler::mouseDown(int positionX, int positionY, int mouseFlags) {
 }
 
 void GLEventHandler::mouseMoved(int positionX, int positionY) {
-	if (mouse == 0 || mouse == MIDDLE_MOUSE_DOWN)
+	if (mouse == 0)// || mouse == MIDDLE_MOUSE_DOWN)
 		return;
 
 	if (state == CameraMoveState) {
 		mouseMovedForCamera(positionX, positionY);
 	}
-	if (state == NodeEditState) {
+	if (state == NodeEditState || state == NodeEditDescendantsState) {
 		mouseMovedForNodeEdit(positionX, positionY);
+	}
+	if (state == NodeRotateState) {
+		mouseMovedForNodeRotate(positionX, positionY);
 	}
 }
 
@@ -114,8 +134,41 @@ void GLEventHandler::mouseMovedForNodeEdit(int positionX, int positionY) {
 		return;
 	}
 	if (sqmControler->getSelected() != NULL) {
-		moveHorizontal(-dx*0.7);
-		moveVertical(-dy*0.7);
+		if (state == NodeEditState || state == NodeEditDescendantsState) {
+			moveHorizontal(-dx*0.7);
+			moveVertical(-dy*0.7);
+		}
+		sqmControler->drawSkeleton();
+	}
+	lastX = positionX;
+	lastY = positionY;
+}
+
+
+void GLEventHandler::mouseMovedForNodeRotate(int positionX, int positionY) {
+	int dx = positionX - lastX;
+	int dy = positionY - lastY;
+	if (sqmControler->getSelected() == NULL) {
+		mouseMovedForCamera(positionX, positionY);
+		return;
+	}
+	if (sqmControler->getSelected() != NULL) {
+		if (state == NodeRotateState) {
+			float delta = (float)dx*0.1;
+			CVector3 axis(1, 0, 0);
+			//we should rotate dy arround right camera axis and dx arround up camera axis
+			if (mouse == LEFT_MOUSE_DOWN) {
+				axis = CVector3(0, 1, 0);
+			}
+			if (mouse == MIDDLE_MOUSE_DOWN) {
+				axis = CVector3(0, 0, 1);
+			}
+			if (mouse == RIGHT_MOUSE_DOWN) {
+				axis = CVector3(1, 0, 0);
+			}
+			rotate(delta, axis);
+			sqmControler->drawSkeleton();
+		}
 	}
 	lastX = positionX;
 	lastY = positionY;
@@ -129,14 +182,22 @@ void GLEventHandler::moveHorizontal(float dist) {
 	SQMNode *node= sqmControler->getSelected();
 	glm::vec3 pos = node->getPosition_glm();
 	pos = pos + glCamera->getRight()*dist;
-	sqmControler->setSelectedPosition(pos);
+	if (state == NodeEditState) sqmControler->setSelectedPosition(pos);
+	if (state == NodeEditDescendantsState) sqmControler->setSelectedAndDescendantsPosition(pos);
 }
 
 void GLEventHandler::moveVertical(float dist) {
 	SQMNode *node= sqmControler->getSelected();
 	glm::vec3 pos = node->getPosition_glm();
 	pos = pos + glCamera->getUp()*dist;
-	sqmControler->setSelectedPosition(pos);
+	if (state == NodeEditState) sqmControler->setSelectedPosition(pos);
+	if (state == NodeEditDescendantsState) sqmControler->setSelectedAndDescendantsPosition(pos);
+}
+
+void GLEventHandler::rotate(float delta, CVector3 axis) {
+	SQMNode *node= sqmControler->getSelected();
+	CVector4 q = QuaternionFromAngleAxis(delta, axis);
+	node->rotateDescendants(q);
 }
 
 #pragma endregion

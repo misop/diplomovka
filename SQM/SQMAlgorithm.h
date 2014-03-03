@@ -29,6 +29,7 @@ class SQMAlgorithm {
 	clock_t algorithmClocks;
 	bool useCapsules;
 	bool useCPUSkinning;
+	bool hasCycle;
 	
 	SQMNode* findBNPInTree();
 	void swapRoot(SQMNode *node);
@@ -42,6 +43,7 @@ public:
 	void setSmoothingAlgorithm(SQMSmoothingAlgorithm sqmSmoothingAlgorithm);
 	void setUseCapsules(bool newUseCapsules);
 	void setUseCPUSkinning(bool newUseCPUSkinning);
+	void setHasCycle(bool cyclic);
 
 	SQMNode* getRoot();
 	SQMState getState();

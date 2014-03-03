@@ -12,6 +12,7 @@
 #include "LIENeedEntry.h"
 #include "Utility.h"
 #include "SkinSkeleton.h"
+#include "AnimationSkeleton.h"
 
 #pragma region Structs & Enums
 
@@ -72,6 +73,7 @@ class SQMNode {
 	vector<MyMesh::VertexHandle> meshVhandlesToRotate;
 	vector<glm::vec3> cyclePoints;
 	vector<MyMesh::VertexHandle> cycleVHandles;
+	bool isCyclic;
 
 	vector<OpenMesh::Vec3f> normals2;
 	vector<OpenMesh::Vec3f> centers2;
@@ -124,6 +126,7 @@ public:
 	float getRotateZ();
 	bool getIsCapsule();
 	bool isAncestor(SQMNode* node);
+	bool getIsCyclic();
 #pragma endregion
 
 #pragma region Setters
@@ -133,10 +136,14 @@ public:
 	void setNodeRadius(float newNodeRadius);
 	void setTessLevel(float newTessLevel);
 	void setPosition(OpenMesh::Vec3f newPosition);
+	void setPositionAndAdjustDescendants(OpenMesh::Vec3f newPosition);
+	void movePositionAndAdjustDescendants(OpenMesh::Vec3f offset);
 	void setPosition(float x, float y, float z);
 	void setSQMNodeType(SQMNodeType newType);
 	void addDescendant(SQMNode* node);
 	void rotatePosition(Quaternion q, CVector3 offset);
+	void rotateDescendants(Quaternion q);
+	void rotateDescendants(Quaternion q, CVector3 offset);
 	void addDescendant(float x, float y, float z);
 	void removeDescendant(SQMNode* node);
 	void removeDescendants();
@@ -154,6 +161,7 @@ public:
 	void addVHandleToRotate(MyMesh::VHandle vh);
 	void setIsCapsule(bool isCapsule);
 	void addIntersection(OpenMesh::Vec3f intersection);
+	void setIsCyclic(bool cyclic);
 #pragma endregion
 
 #pragma region Cycles
@@ -165,6 +173,7 @@ public:
 #pragma region Export
 	SkeletonNode* exportToSkeletonNode();
 	SkinSkeleton* exportToSkinSkeleton(SkinSkeleton *parentSkin);
+	AnimationSkeleton* exportToAnimationSkeleton(AnimationSkeleton *parentSkin);
 #pragma endregion
 
 #pragma region SQM Preprocessing
@@ -245,6 +254,7 @@ public:
 	void getMeshTessLevel(std::vector<float> &tessLevels);
 	void getMeshTessDataf(std::vector<float> &tessLevels, std::vector<float> &nodePositions, std::vector<float> &data);
 	void getMeshTessDatai(std::vector<float> &tessLevels, std::vector<float> &nodePositions, std::vector<int> &skinMatrices, std::vector<int> &data);
+	void getMeshData(std::vector<int> &skinMatrices, std::vector<float> &skinWeights);
 	void calculateOneRingRadiusAndMap(std::vector<float> &oneRingRadius, std::map<int, std::vector<int> > &intersectionMap);
 	void fillRadiusTable(float *table, int width);
 	void fillCentersTable(float *table);

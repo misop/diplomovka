@@ -99,6 +99,8 @@
     <Text Include="ReadMe.txt" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="AnimationController.cpp" />
+    <ClCompile Include="AnimationSkeleton.cpp" />
     <ClCompile Include="AssemblyInfo.cpp" />
     <ClCompile Include="Delaunay.cpp" />
     <ClCompile Include="EdgeLength.cpp" />
@@ -131,6 +133,9 @@
     <ClCompile Include="Utility.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="AnimationController.h" />
+    <ClInclude Include="AnimationCounter.h" />
+    <ClInclude Include="AnimationSkeleton.h" />
     <ClInclude Include="Delaunay.h" />
     <ClInclude Include="EdgeLength.h" />
     <ClInclude Include="FloatArithmetic.h" />
@@ -161,6 +166,7 @@
     <ClInclude Include="SQMControler.h" />
     <ClInclude Include="SQMNode.h" />
     <ClInclude Include="stdafx.h" />
+    <ClInclude Include="Uniforms.h" />
     <ClInclude Include="Utility.h" />
     <ClInclude Include="Vector3.h" />
   </ItemGroup>
@@ -182,6 +188,8 @@
     <None Include="Shaders\BNPFragShader.frag" />
     <None Include="Shaders\BNPGeomShader.geom" />
     <None Include="Shaders\BNPVertShader.vert" />
+    <None Include="Shaders\phong.frag" />
+    <None Include="Shaders\phong.vert" />
     <None Include="Shaders\SklLineFragShader.frag" />
     <None Include="Shaders\SklLineVertShader.vert" />
     <None Include="Shaders\SklTessCtrlShader.glsl" />

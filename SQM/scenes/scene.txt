@@ -1,0 +1,11 @@
+#save(0/1)_file
+#m_animation(0/1/2)_speed_counter_model
+#model_speed_file
+1
+1 models/strom.skl
+2
+1 animations/strom2.txt
+2 0.01 0 animations/strom.txt
+0
+0 0.05 animations/strom.anm
+animations/strom.txt

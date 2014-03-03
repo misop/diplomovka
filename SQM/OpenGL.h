@@ -15,12 +15,13 @@
 #include "GLShader.h"
 #include "GLArrayBuffer.h"
 #include "Utility.h"
+#include "AnimationController.h"
 
 using namespace std;
 using namespace System::Windows::Forms;
 
 #define GL_MAJOR 4
-#define GL_MINOR 2
+#define GL_MINOR 3
 
 namespace OpenGLForm 
 {
@@ -28,6 +29,7 @@ namespace OpenGLForm
 	{
 	private:
 		SQMControler *sqmControler;
+		AnimationController* animController;
 	public:
 #pragma region Custom Variables
 		float cameraFi;
@@ -45,12 +47,14 @@ namespace OpenGLForm
 		OpenGLShaders *quadTessShaders;
 		GLArrayBuffer *arrayBuffer;
 		bool shouldRender;
+		bool animation;
 #pragma endregion
 
 #pragma region Inits
 		COpenGL(System::Windows::Forms::Panel ^ parentPanel, GLsizei iWidth, GLsizei iHeight)
 		{
 			sqmControler = new SQMControler();
+			animController = new AnimationController();
 			glCamera = new GLCamera();
 			glEventHandler = new GLEventHandler(glCamera, sqmControler);
 			programs = new OpenGLPrograms();
@@ -60,6 +64,7 @@ namespace OpenGLForm
 			triTessShaders = new OpenGLShaders();
 			quadTessShaders = new OpenGLShaders();
 			shouldRender = true;
+			animation = false;
 
 			/*CreateParams^ cp = gcnew CreateParams;
 			// Set the position on the form
@@ -161,7 +166,8 @@ namespace OpenGLForm
 			//arrayBuffer->Draw(GL_TRIANGLES);
 			//arrayBuffer->Draw(GL_POINTS);
 
-			sqmControler->draw(programs, glCamera);
+			if (!animation) sqmControler->draw(programs, glCamera);
+			if (animation) animController->Draw(glCamera);
 
 			glBindVertexArray(0);
 		}
@@ -287,6 +293,7 @@ namespace OpenGLForm
 			glEnable(GL_PROGRAM_POINT_SIZE);
 			sqmControler->generateTextures();
 			InitShaders();
+			animController->InitShaders();
 			SetData();
 			glLineWidth(5);
 			return true;										// Initialisation went ok
@@ -310,6 +317,7 @@ namespace OpenGLForm
 			quadTessShaders = new OpenGLShaders();
 
 			InitShaders();
+			animController->InitShaders();
 
 			shouldRender = true;
 		}
@@ -333,11 +341,7 @@ namespace OpenGLForm
 			triTessShaders->eval->Compile();
 			
 			programs->TriMeshTess = new GLProgram("TriMeshTess");
-			programs->TriMeshTess->AttachShader(triTessShaders->vert);
-			programs->TriMeshTess->AttachShader(triTessShaders->ctrl);
-			programs->TriMeshTess->AttachShader(triTessShaders->eval);
-			programs->TriMeshTess->AttachShader(triTessShaders->geom);
-			programs->TriMeshTess->AttachShader(triTessShaders->frag);
+			programs->TriMeshTess->AttachShaders(triTessShaders);
 			programs->TriMeshTess->Link();
 			programs->TriMeshTess->SaveProgramLog();
 			
@@ -350,11 +354,7 @@ namespace OpenGLForm
 
 
 			programs->QuadMeshTess = new GLProgram("QuadMeshTess");
-			programs->QuadMeshTess->AttachShader(quadTessShaders->vert);
-			programs->QuadMeshTess->AttachShader(quadTessShaders->ctrl);
-			programs->QuadMeshTess->AttachShader(quadTessShaders->eval);
-			programs->QuadMeshTess->AttachShader(quadTessShaders->geom);
-			programs->QuadMeshTess->AttachShader(quadTessShaders->frag);
+			programs->QuadMeshTess->AttachShaders(quadTessShaders);
 			programs->QuadMeshTess->Link();
 			programs->QuadMeshTess->SaveProgramLog();
 		}
@@ -381,10 +381,7 @@ namespace OpenGLForm
 			sklTessShaders->frag->Compile();
 
 			programs->SklNodes = new GLProgram("SklNodes");
-			programs->SklNodes->AttachShader(sklTessShaders->vert);
-			programs->SklNodes->AttachShader(sklTessShaders->ctrl);
-			programs->SklNodes->AttachShader(sklTessShaders->eval);
-			programs->SklNodes->AttachShader(sklTessShaders->frag);
+			programs->SklNodes->AttachShaders(sklTessShaders);
 			programs->SklNodes->Link();
 			programs->SklNodes->SaveProgramLog();
 			//skeleton line drawing
@@ -397,8 +394,7 @@ namespace OpenGLForm
 			sklLineShaders->frag->Compile();
 
 			programs->SklLines = new GLProgram("SklLines");
-			programs->SklLines->AttachShader(sklLineShaders->vert);
-			programs->SklLines->AttachShader(sklLineShaders->frag);
+			programs->SklLines->AttachShaders(sklLineShaders);
 			programs->SklLines->Link();
 			programs->SklLines->SaveProgramLog();
 			//BNP drawing
@@ -415,9 +411,7 @@ namespace OpenGLForm
 			bnpShaders->frag->Compile();
 
 			programs->BNPs = new GLProgram("BNPs");
-			programs->BNPs->AttachShader(bnpShaders->vert);
-			programs->BNPs->AttachShader(bnpShaders->geom);
-			programs->BNPs->AttachShader(bnpShaders->frag);
+			programs->BNPs->AttachShaders(bnpShaders);
 			programs->BNPs->Link();
 			programs->BNPs->SaveProgramLog();
 
@@ -443,11 +437,7 @@ namespace OpenGLForm
 			triTessShaders->frag->Compile();
 
 			programs->TriMeshTess = new GLProgram("TriMeshTess");
-			programs->TriMeshTess->AttachShader(triTessShaders->vert);
-			programs->TriMeshTess->AttachShader(triTessShaders->ctrl);
-			programs->TriMeshTess->AttachShader(triTessShaders->eval);
-			programs->TriMeshTess->AttachShader(triTessShaders->geom);
-			programs->TriMeshTess->AttachShader(triTessShaders->frag);
+			programs->TriMeshTess->AttachShaders(triTessShaders);
 			programs->TriMeshTess->Link();
 			programs->TriMeshTess->SaveProgramLog();
 			//quad mesh tesselation
@@ -473,11 +463,7 @@ namespace OpenGLForm
 			quadTessShaders->frag->Compile();
 
 			programs->QuadMeshTess = new GLProgram("QuadMeshTess");
-			programs->QuadMeshTess->AttachShader(quadTessShaders->vert);
-			programs->QuadMeshTess->AttachShader(quadTessShaders->ctrl);
-			programs->QuadMeshTess->AttachShader(quadTessShaders->eval);
-			programs->QuadMeshTess->AttachShader(quadTessShaders->geom);
-			programs->QuadMeshTess->AttachShader(quadTessShaders->frag);
+			programs->QuadMeshTess->AttachShaders(quadTessShaders);
 			programs->QuadMeshTess->Link();
 			programs->QuadMeshTess->SaveProgramLog();
 
@@ -721,6 +707,24 @@ namespace OpenGLForm
 			return sqmControler->setSkinningType(type);
 		}
 		//functions
+		void StartAnimation() {
+			animation = true;
+			animController->LoadScene();
+		}
+		void StopAnimation() {
+			animation = false;
+			delete animController;
+			animController = new AnimationController();
+		}
+		void setBindPose() {
+			sqmControler->setBindPose();
+		}
+		void setReferencePose() {
+			sqmControler->setReferencePose();
+		}
+		void saveAnimation(string fileName) {
+			sqmControler->saveAnimation(fileName);
+		}
 		void alterWireframe() {
 			sqmControler->setWireframe(!sqmControler->getWireframe());
 		}

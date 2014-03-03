@@ -11,6 +11,7 @@
 #include <gtc\type_ptr.hpp>
 #include <iomanip>
 #include "FloatArithmetic.h"
+#include "Uniforms.h"
 
 #define TESSELATION_LEVEL 15.0
 
@@ -34,6 +35,7 @@ SQMControler::SQMControler(void)
 	skinningMatrices = NULL;
 	transformMatrices = NULL;
 	skinningType = CPU;
+	animSkl = NULL;
 }
 
 
@@ -47,6 +49,7 @@ SQMControler::~SQMControler(void)
 	if (nodeCenters) delete nodeCenters;
 	if (skinningMatrices) delete skinningMatrices;
 	if (transformMatrices) delete transformMatrices;
+	if (animSkl) delete animSkl;
 }
 
 void SQMControler::generateTextures() {
@@ -150,6 +153,39 @@ void SQMControler::exportMeshToFile(string fileName) {
 
 #pragma endregion
 
+#pragma region Aniamtion
+
+void SQMControler::setBindPose() {
+	if (animSkl) delete animSkl;
+	animSkl = sqmALgorithm->getRoot()->exportToAnimationSkeleton(NULL);
+}
+
+void SQMControler::setReferencePose() {
+	if (animSkl == NULL) return;
+
+	AnimationSkeleton *skl = sqmALgorithm->getRoot()->exportToAnimationSkeleton(NULL);
+	animSkl->CalculateCorrespondingDoF(skl);
+	//skl->CalculateCorrespondingDoF(animSkl);
+	delete skl;
+}
+
+void SQMControler::saveAnimation(string fileName) {
+	if (animSkl == NULL) return;
+
+	ofstream errorLog("log.txt");
+	ofstream of(fileName);
+	assert(of.good());
+	boost::archive::xml_oarchive oa(of);
+	try {
+		oa << BOOST_SERIALIZATION_NVP(animSkl);	
+	} catch (boost::archive::archive_exception e) {
+		errorLog << "Exception: " << e.what() << endl;
+		throw e;
+	}
+}
+
+#pragma endregion
+
 #pragma region Node Selection
 
 bool SQMControler::selectNodeInRay(glm::vec3 position, glm::vec3 direction) {
@@ -220,6 +256,7 @@ void SQMControler::createCycle(SQMNode* from, SQMNode *to) {
 	} else {
 		from->createCycle(to);
 	}
+	sqmALgorithm->setHasCycle(true);
 	drawSkeleton();
 }
 
@@ -258,11 +295,20 @@ void SQMControler::setThreshold(float th) {
 
 void SQMControler::setSelectedPosition(OpenMesh::Vec3f pos) {
 	selected->setPosition(pos);
-	drawSkeleton();
+	//drawSkeleton();
+}
+
+void SQMControler::setSelectedAndDescendantsPosition(OpenMesh::Vec3f pos) {
+	selected->setPositionAndAdjustDescendants(pos);
+	//drawSkeleton();
 }
 
 void SQMControler::setSelectedPosition(glm::vec3 pos) {
 	setSelectedPosition(OpenMesh::Vec3f(pos.x, pos.y, pos.z));
+}
+
+void SQMControler::setSelectedAndDescendantsPosition(glm::vec3 pos) {
+	setSelectedAndDescendantsPosition(OpenMesh::Vec3f(pos.x, pos.y, pos.z));
 }
 
 void SQMControler::setSelectedX(float x) {
@@ -759,7 +805,7 @@ void SQMControler::fillRadiusTable() {
 	nodeRadiuses->Bind();
 	nodeRadiuses->FunctionTexture(nodes, nodes, table);
 
-	ofstream f;
+	/*ofstream f;
 	f.open ("log_radiuses.txt");
 	for (int i = 0; i < nodes; i++) {
 		for (int j = 0; j < nodes; j++) {
@@ -767,7 +813,7 @@ void SQMControler::fillRadiusTable() {
 		}
 		f << endl;
 	}
-	f.close();
+	f.close();*/
 
 	delete [] table;
 	shouldRender = true;
@@ -786,7 +832,7 @@ void SQMControler::fillCentersTable() {
 	nodeCenters->Bind();
 	nodeCenters->FunctionTexture(3, nodes, table);
 
-	ofstream f;
+	/*ofstream f;
 	f.open ("log_centers.txt");
 	for (int i = 0; i < nodes * 3; i++) {
 		f << std::fixed << std::setw( 5 ) << std::setprecision( 2 ) 
@@ -799,8 +845,8 @@ void SQMControler::fillCentersTable() {
 			  << std::setfill( '0' ) << table[i*nodes + j] << " ";
 		}
 		f << endl;
-	}*/
-	f.close();
+	}
+	f.close();*/
 
 	delete [] table;
 	shouldRender = true;
@@ -811,6 +857,7 @@ void SQMControler::getBoundingSphere(float &x, float &y, float &z, float &d) {
 }
 
 void SQMControler::restart() {
+	selected = NULL;
 	if (sqmALgorithm->getState() == SQMStart) return;
 	sqmALgorithm->restart();
 	drawSkeleton();
@@ -825,12 +872,19 @@ void SQMControler::joinBNPs() {
 }
 
 void SQMControler::executeSQMAlgorithm() {
+	selected = NULL;
 	sqmALgorithm->executeSQMAlgorithm();
 }
 
 void SQMControler::executeSQMAlgorithm(SQMState state) {
-	sqmALgorithm->executeSQMAlgorithm(state);
+	try {
+		sqmALgorithm->executeSQMAlgorithm(state);
+	} catch (exception e) {
+		saveSkeletonToFile("logs/log.skl");
+		throw e;
+	}
 	state = sqmALgorithm->getState();
+	selected = NULL;
 
 	if (state == SQMJoinBNPs || state == SQMFinalPlacement) {
 		fillRadiusTable();

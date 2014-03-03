@@ -36,6 +36,7 @@ Class OpenGLForm.COpenGL: AutoLayout, AnsiClass, Class, Public, BeforeFieldInit
     OpenGLShaders* quadTessShaders : Public
     GLArrayBuffer* arrayBuffer : Public
     Boolean shouldRender : Public
+    Boolean animation : Public
   Methods:
     Render(): PrivateScope, Public, HideBySig
     SwapOpenGLBuffers(): PrivateScope, Public, HideBySig
@@ -54,6 +55,11 @@ Class OpenGLForm.COpenGL: AutoLayout, AnsiClass, Class, Public, BeforeFieldInit
     setGlobalThreshold(Single): PrivateScope, Public, HideBySig
     setGlobalUseCapsules(Boolean(HasFieldMarshal)): PrivateScope, Public, HideBySig
     setSkinningType(SkinningType): PrivateScope, Public, HideBySig
+    StartAnimation(): PrivateScope, Public, HideBySig
+    StopAnimation(): PrivateScope, Public, HideBySig
+    setBindPose(): PrivateScope, Public, HideBySig
+    setReferencePose(): PrivateScope, Public, HideBySig
+    saveAnimation(basic_string<char\,std::char_traits<char>\,std::allocator<char> >*): PrivateScope, Public, HideBySig
     alterWireframe(): PrivateScope, Public, HideBySig
     alterDrawNormals(): PrivateScope, Public, HideBySig
     newFile(): PrivateScope, Public, HideBySig

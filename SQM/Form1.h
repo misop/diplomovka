@@ -152,6 +152,13 @@ namespace SQM {
 	private: System::Windows::Forms::ToolStripMenuItem^  gPUTessSkinningAllAvarageToolStripMenuItem;
 	private: System::Windows::Forms::CheckBox^  checkBox1;
 	private: System::Windows::Forms::CheckBox^  checkBox2;
+	private: System::Windows::Forms::ToolStripButton^  toolStripButton3;
+	private: System::Windows::Forms::ToolStripMenuItem^  animationToolStripMenuItem;
+	private: System::Windows::Forms::ToolStripMenuItem^  setBindPoseToolStripMenuItem;
+	private: System::Windows::Forms::ToolStripMenuItem^  addReferencePoseToolStripMenuItem;
+	private: System::Windows::Forms::ToolStripMenuItem^  startToolStripMenuItem;
+	private: System::Windows::Forms::ToolStripMenuItem^  stopToolStripMenuItem;
+private: System::Windows::Forms::ToolStripMenuItem^  saveAnimationToolStripMenuItem;
 
 
 
@@ -173,6 +180,7 @@ namespace SQM {
 				 this->timer1 = (gcnew System::Windows::Forms::Timer(this->components));
 				 this->toolStrip1 = (gcnew System::Windows::Forms::ToolStrip());
 				 this->toolStripButton1 = (gcnew System::Windows::Forms::ToolStripButton());
+				 this->toolStripButton3 = (gcnew System::Windows::Forms::ToolStripButton());
 				 this->toolStripButton2 = (gcnew System::Windows::Forms::ToolStripButton());
 				 this->openFileDialog1 = (gcnew System::Windows::Forms::OpenFileDialog());
 				 this->saveFileDialog1 = (gcnew System::Windows::Forms::SaveFileDialog());
@@ -210,6 +218,11 @@ namespace SQM {
 				 this->gPUVertexSkinningnoTesselationToolStripMenuItem = (gcnew System::Windows::Forms::ToolStripMenuItem());
 				 this->gPUTessSkinningLastOnlyToolStripMenuItem = (gcnew System::Windows::Forms::ToolStripMenuItem());
 				 this->gPUTessSkinningAllAvarageToolStripMenuItem = (gcnew System::Windows::Forms::ToolStripMenuItem());
+				 this->animationToolStripMenuItem = (gcnew System::Windows::Forms::ToolStripMenuItem());
+				 this->startToolStripMenuItem = (gcnew System::Windows::Forms::ToolStripMenuItem());
+				 this->stopToolStripMenuItem = (gcnew System::Windows::Forms::ToolStripMenuItem());
+				 this->setBindPoseToolStripMenuItem = (gcnew System::Windows::Forms::ToolStripMenuItem());
+				 this->addReferencePoseToolStripMenuItem = (gcnew System::Windows::Forms::ToolStripMenuItem());
 				 this->panel2 = (gcnew System::Windows::Forms::Panel());
 				 this->tabControl1 = (gcnew System::Windows::Forms::TabControl());
 				 this->tabPage1 = (gcnew System::Windows::Forms::TabPage());
@@ -247,6 +260,7 @@ namespace SQM {
 				 this->label1 = (gcnew System::Windows::Forms::Label());
 				 this->numericUpDown6 = (gcnew System::Windows::Forms::NumericUpDown());
 				 this->label9 = (gcnew System::Windows::Forms::Label());
+				 this->saveAnimationToolStripMenuItem = (gcnew System::Windows::Forms::ToolStripMenuItem());
 				 this->toolStrip1->SuspendLayout();
 				 this->menuStrip1->SuspendLayout();
 				 this->panel2->SuspendLayout();
@@ -279,8 +293,8 @@ namespace SQM {
 				 // 
 				 // toolStrip1
 				 // 
-				 this->toolStrip1->Items->AddRange(gcnew cli::array< System::Windows::Forms::ToolStripItem^  >(2) {this->toolStripButton1, 
-					 this->toolStripButton2});
+				 this->toolStrip1->Items->AddRange(gcnew cli::array< System::Windows::Forms::ToolStripItem^  >(3) {this->toolStripButton1, 
+					 this->toolStripButton3, this->toolStripButton2});
 				 this->toolStrip1->Location = System::Drawing::Point(0, 24);
 				 this->toolStrip1->Name = L"toolStrip1";
 				 this->toolStrip1->Size = System::Drawing::Size(744, 25);
@@ -296,6 +310,16 @@ namespace SQM {
 				 this->toolStripButton1->Size = System::Drawing::Size(23, 22);
 				 this->toolStripButton1->Text = L"toolStripButton1";
 				 this->toolStripButton1->Click += gcnew System::EventHandler(this, &Form1::toolStripButton1_Click);
+				 // 
+				 // toolStripButton3
+				 // 
+				 this->toolStripButton3->DisplayStyle = System::Windows::Forms::ToolStripItemDisplayStyle::Image;
+				 this->toolStripButton3->Image = (cli::safe_cast<System::Drawing::Image^  >(resources->GetObject(L"toolStripButton3.Image")));
+				 this->toolStripButton3->ImageTransparentColor = System::Drawing::Color::Magenta;
+				 this->toolStripButton3->Name = L"toolStripButton3";
+				 this->toolStripButton3->Size = System::Drawing::Size(23, 22);
+				 this->toolStripButton3->Text = L"toolStripButton3";
+				 this->toolStripButton3->Click += gcnew System::EventHandler(this, &Form1::toolStripButton3_Click);
 				 // 
 				 // toolStripButton2
 				 // 
@@ -327,8 +351,8 @@ namespace SQM {
 				 // 
 				 // menuStrip1
 				 // 
-				 this->menuStrip1->Items->AddRange(gcnew cli::array< System::Windows::Forms::ToolStripItem^  >(5) {this->fileToolStripMenuItem, 
-					 this->sQMToolStripMenuItem, this->showToolStripMenuItem, this->shadersToolStripMenuItem, this->settingsToolStripMenuItem});
+				 this->menuStrip1->Items->AddRange(gcnew cli::array< System::Windows::Forms::ToolStripItem^  >(6) {this->fileToolStripMenuItem, 
+					 this->sQMToolStripMenuItem, this->showToolStripMenuItem, this->shadersToolStripMenuItem, this->settingsToolStripMenuItem, this->animationToolStripMenuItem});
 				 this->menuStrip1->Location = System::Drawing::Point(0, 0);
 				 this->menuStrip1->Name = L"menuStrip1";
 				 this->menuStrip1->Size = System::Drawing::Size(744, 24);
@@ -507,7 +531,7 @@ namespace SQM {
 				 this->wireframeToolStripMenuItem->CheckOnClick = true;
 				 this->wireframeToolStripMenuItem->CheckState = System::Windows::Forms::CheckState::Checked;
 				 this->wireframeToolStripMenuItem->Name = L"wireframeToolStripMenuItem";
-				 this->wireframeToolStripMenuItem->Size = System::Drawing::Size(152, 22);
+				 this->wireframeToolStripMenuItem->Size = System::Drawing::Size(129, 22);
 				 this->wireframeToolStripMenuItem->Text = L"Wireframe";
 				 this->wireframeToolStripMenuItem->Click += gcnew System::EventHandler(this, &Form1::wireframeToolStripMenuItem_Click);
 				 // 
@@ -515,7 +539,7 @@ namespace SQM {
 				 // 
 				 this->normalsToolStripMenuItem->CheckOnClick = true;
 				 this->normalsToolStripMenuItem->Name = L"normalsToolStripMenuItem";
-				 this->normalsToolStripMenuItem->Size = System::Drawing::Size(152, 22);
+				 this->normalsToolStripMenuItem->Size = System::Drawing::Size(129, 22);
 				 this->normalsToolStripMenuItem->Text = L"Normals";
 				 this->normalsToolStripMenuItem->Click += gcnew System::EventHandler(this, &Form1::normalsToolStripMenuItem_Click);
 				 // 
@@ -550,6 +574,8 @@ namespace SQM {
 				 // 
 				 // cPUSkinningNoTesselationToolStripMenuItem
 				 // 
+				 this->cPUSkinningNoTesselationToolStripMenuItem->Checked = true;
+				 this->cPUSkinningNoTesselationToolStripMenuItem->CheckState = System::Windows::Forms::CheckState::Checked;
 				 this->cPUSkinningNoTesselationToolStripMenuItem->Name = L"cPUSkinningNoTesselationToolStripMenuItem";
 				 this->cPUSkinningNoTesselationToolStripMenuItem->Size = System::Drawing::Size(230, 22);
 				 this->cPUSkinningNoTesselationToolStripMenuItem->Text = L"CPU skinning";
@@ -558,8 +584,6 @@ namespace SQM {
 				 // 
 				 // gPUVertexSkinningnoTesselationToolStripMenuItem
 				 // 
-				 this->gPUVertexSkinningnoTesselationToolStripMenuItem->Checked = true;
-				 this->gPUVertexSkinningnoTesselationToolStripMenuItem->CheckState = System::Windows::Forms::CheckState::Checked;
 				 this->gPUVertexSkinningnoTesselationToolStripMenuItem->Name = L"gPUVertexSkinningnoTesselationToolStripMenuItem";
 				 this->gPUVertexSkinningnoTesselationToolStripMenuItem->Size = System::Drawing::Size(230, 22);
 				 this->gPUVertexSkinningnoTesselationToolStripMenuItem->Text = L"GPU Vertex skinning";
@@ -579,6 +603,42 @@ namespace SQM {
 				 this->gPUTessSkinningAllAvarageToolStripMenuItem->Size = System::Drawing::Size(230, 22);
 				 this->gPUTessSkinningAllAvarageToolStripMenuItem->Text = L"GPU Tess skinning all avarage";
 				 this->gPUTessSkinningAllAvarageToolStripMenuItem->Click += gcnew System::EventHandler(this, &Form1::gPUTessSkinningAllAvarageToolStripMenuItem_Click);
+				 // 
+				 // animationToolStripMenuItem
+				 // 
+				 this->animationToolStripMenuItem->DropDownItems->AddRange(gcnew cli::array< System::Windows::Forms::ToolStripItem^  >(5) {this->startToolStripMenuItem, 
+					 this->stopToolStripMenuItem, this->setBindPoseToolStripMenuItem, this->addReferencePoseToolStripMenuItem, this->saveAnimationToolStripMenuItem});
+				 this->animationToolStripMenuItem->Name = L"animationToolStripMenuItem";
+				 this->animationToolStripMenuItem->Size = System::Drawing::Size(75, 20);
+				 this->animationToolStripMenuItem->Text = L"Animation";
+				 // 
+				 // startToolStripMenuItem
+				 // 
+				 this->startToolStripMenuItem->Name = L"startToolStripMenuItem";
+				 this->startToolStripMenuItem->Size = System::Drawing::Size(179, 22);
+				 this->startToolStripMenuItem->Text = L"Start";
+				 this->startToolStripMenuItem->Click += gcnew System::EventHandler(this, &Form1::startToolStripMenuItem_Click);
+				 // 
+				 // stopToolStripMenuItem
+				 // 
+				 this->stopToolStripMenuItem->Name = L"stopToolStripMenuItem";
+				 this->stopToolStripMenuItem->Size = System::Drawing::Size(179, 22);
+				 this->stopToolStripMenuItem->Text = L"Stop";
+				 this->stopToolStripMenuItem->Click += gcnew System::EventHandler(this, &Form1::stopToolStripMenuItem_Click);
+				 // 
+				 // setBindPoseToolStripMenuItem
+				 // 
+				 this->setBindPoseToolStripMenuItem->Name = L"setBindPoseToolStripMenuItem";
+				 this->setBindPoseToolStripMenuItem->Size = System::Drawing::Size(179, 22);
+				 this->setBindPoseToolStripMenuItem->Text = L"Set Bind Pose";
+				 this->setBindPoseToolStripMenuItem->Click += gcnew System::EventHandler(this, &Form1::setBindPoseToolStripMenuItem_Click);
+				 // 
+				 // addReferencePoseToolStripMenuItem
+				 // 
+				 this->addReferencePoseToolStripMenuItem->Name = L"addReferencePoseToolStripMenuItem";
+				 this->addReferencePoseToolStripMenuItem->Size = System::Drawing::Size(179, 22);
+				 this->addReferencePoseToolStripMenuItem->Text = L"Add Reference Pose";
+				 this->addReferencePoseToolStripMenuItem->Click += gcnew System::EventHandler(this, &Form1::addReferencePoseToolStripMenuItem_Click);
 				 // 
 				 // panel2
 				 // 
@@ -1016,6 +1076,13 @@ namespace SQM {
 				 this->label9->TabIndex = 15;
 				 this->label9->Text = L"Tess Level:";
 				 // 
+				 // saveAnimationToolStripMenuItem
+				 // 
+				 this->saveAnimationToolStripMenuItem->Name = L"saveAnimationToolStripMenuItem";
+				 this->saveAnimationToolStripMenuItem->Size = System::Drawing::Size(179, 22);
+				 this->saveAnimationToolStripMenuItem->Text = L"Save Animation";
+				 this->saveAnimationToolStripMenuItem->Click += gcnew System::EventHandler(this, &Form1::saveAnimationToolStripMenuItem_Click);
+				 // 
 				 // Form1
 				 // 
 				 this->AutoScaleDimensions = System::Drawing::SizeF(6, 13);
@@ -1353,7 +1420,7 @@ namespace SQM {
 				 turnOnGlobal();
 			 }
 	private: System::Void toolStripButton1_Click(System::Object^  sender, System::EventArgs^  e) {
-				 OpenGL->glEventHandler->state = CameraMoveState;
+				 OpenGL->glEventHandler->state = NodeEditDescendantsState;
 			 }
 	private: System::Void toolStripButton2_Click(System::Object^  sender, System::EventArgs^  e) {
 				 OpenGL->glEventHandler->state = NodeEditState;
@@ -1438,7 +1505,7 @@ namespace SQM {
 				 OpenGL->setOneRingWeightedLaplacian();
 			 }
 	private: System::Void normalsToolStripMenuItem_Click(System::Object^  sender, System::EventArgs^  e) {
-				OpenGL->alterDrawNormals();
+				 OpenGL->alterDrawNormals();
 			 }
 	private: System::Void reloadShadersToolStripMenuItem_Click(System::Object^  sender, System::EventArgs^  e) {
 				 OpenGL->ReloadShaders();
@@ -1519,6 +1586,28 @@ namespace SQM {
 				 checkSkinningMenu(3);
 				 if (shouldRecalculate) Recalculate();
 			 }
-	};
+	private: System::Void toolStripButton3_Click(System::Object^  sender, System::EventArgs^  e) {
+				 OpenGL->glEventHandler->state = NodeRotateState;
+			 }
+	private: System::Void setBindPoseToolStripMenuItem_Click(System::Object^  sender, System::EventArgs^  e) {
+				 OpenGL->setBindPose();
+			 }
+	private: System::Void addReferencePoseToolStripMenuItem_Click(System::Object^  sender, System::EventArgs^  e) {
+				 OpenGL->setReferencePose();
+			 }
+	private: System::Void saveAnimationToolStripMenuItem_Click(System::Object^  sender, System::EventArgs^  e) {
+				 if (this->saveFileDialog1->ShowDialog() == System::Windows::Forms::DialogResult::OK) {
+					 string fileName = "";
+					 MarshalString(this->saveFileDialog1->FileName, fileName);
+					 OpenGL->saveAnimation(fileName);
+				 }
+			 }
+	private: System::Void startToolStripMenuItem_Click(System::Object^  sender, System::EventArgs^  e) {
+				 OpenGL->StartAnimation();
+			 }
+	private: System::Void stopToolStripMenuItem_Click(System::Object^  sender, System::EventArgs^  e) {
+				 OpenGL->StopAnimation();
+			 }
+};
 }
 

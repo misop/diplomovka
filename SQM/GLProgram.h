@@ -1,29 +1,6 @@
 #pragma once
 #include "GLShader.h"
-
-#define MVP_MATRIX_STR "MVPmatrix"
-#define MODEL_MATRIX_STR "ModelMatrix"
-#define MODEL_VIEW_MATRIX_STR "ModelViewMatrix"
-#define NORMAL_MATRIX_STR "NormalMatrix"
-#define SKINNING_MATRICES_STR "SkinningMatrices"
-#define TRANSFORM_MATRICES_STR "TransformMatrices"
-
-#define TESS_LEVEL_INNER_STR "TessLevelInner"
-#define TESS_LEVEL_OUTER_STR "TessLevelOuter"
-
-#define AMBIENT_COLOR_STR "AmbientColor"
-#define DIFFUSE_COLOR_STR "DiffuseColor"
-#define SPECULAR_COLOR_STR "SpecularColor"
-#define LIGHT_POSITION_STR "LightPosition"
-
-#define WIREFRAME_STR "Wireframe"
-#define THRESHOLD_STR "Threshold"
-#define MAX_ID_STR "MaxID"
-
-#define RADIUS_TEXTURE_STR "RadiusesSampler"
-#define CENTERS_TEXTURE_STR "CenterSampler"
-
-#define SKINNING_TYPE_STR "SkinningType" 
+#include "Uniforms.h"
 
 class GLProgram
 {
@@ -38,6 +15,7 @@ public:
 
 	GLuint GetProgram();
 	void AttachShader(GLShader *shader);
+	void AttachShaders(OpenGLShaders *shaders);
 	bool Link();
 	void Use();
 	void BindAttribLocation(GLuint index, std::string name);

@@ -91,18 +91,28 @@ void GLCamera::calculateMatrices() {
 	glm::vec3 eyev(eye[X], eye[Y], eye[Z]);
 	glm::vec3 lookv(look[X], look[Y], look[Z]);
 	glm::vec3 upv(up[X], up[Y], up[Z]);
-	modelview = glm::lookAt(eyev, lookv, upv);
-	normalMatrix = glm::transpose(glm::inverse(glm::mat3(modelview)));
+	view = glm::lookAt(eyev, lookv, upv);
+	//normalMatrix = glm::transpose(glm::inverse(glm::mat3(modelview)));
 }
 
 void GLCamera::lookFromCamera(GLint mvpLoc) {
-	glm::mat4 MVPmatrix = projection*modelview;
+	glm::mat4 MVPmatrix = projection*view;
 	glUniformMatrix4fv(mvpLoc, 1, GL_FALSE, glm::value_ptr(MVPmatrix));
 }
 
+void GLCamera::getCameraMatrices(GLint pLoc, GLint vLoc) {
+	glUniformMatrix4fv(pLoc, 1, GL_FALSE, glm::value_ptr(projection));
+	glUniformMatrix4fv(vLoc, 1, GL_FALSE, glm::value_ptr(view));
+}
 
 void GLCamera::setupModelViewMatrix(GLint mvLoc) {
-	glUniformMatrix4fv(mvLoc, 1, GL_FALSE, glm::value_ptr(modelview));
+	glUniformMatrix4fv(mvLoc, 1, GL_FALSE, glm::value_ptr(view));
+}
+
+void GLCamera::setupNormalMatrix(glm::mat4 &model, GLint nmLoc) {
+	glm::mat3 NM = glm::mat3(view*model);
+	NM = glm::transpose(glm::inverse(NM));
+	glUniformMatrix3fv(nmLoc, 1, GL_FALSE, glm::value_ptr(NM));
 }
 
 void GLCamera::setupNormalMatrix(GLint nmLoc) {
@@ -174,7 +184,7 @@ void GLCamera::mousePositionTo3D(int x_cursor, int y_cursor, GLdouble &x, GLdoub
 	// obtain the world coordinates
 	//GLint sucess = gluUnProject(winX, winY, winZ, modelview, projection, viewport, &x, &y, &z);
 	glm::vec3 window(winX, winY, winZ);
-	glm::vec3 coor = glm::unProject(window, modelview, projection, viewport);
+	glm::vec3 coor = glm::unProject(window, view, projection, viewport);
 	x = coor.x;
 	y = coor.y;
 	z = coor.z;

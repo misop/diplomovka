@@ -22,6 +22,7 @@ SQMAlgorithm::SQMAlgorithm(void) : root(NULL)
 	numOfSkinMatrices = 0;
 	useCapsules = true;
 	useCPUSkinning = true;
+	hasCycle = false;
 }
 
 SQMAlgorithm::~SQMAlgorithm(void)
@@ -64,6 +65,10 @@ void SQMAlgorithm::setUseCapsules(bool newUseCapsules) {
 
 void SQMAlgorithm::setUseCPUSkinning(bool newUseCPUSkinning) {
 	useCPUSkinning = newUseCPUSkinning;
+}
+
+void SQMAlgorithm::setHasCycle(bool cyclic) {
+	hasCycle = cyclic;
 }
 
 #pragma endregion
@@ -521,6 +526,7 @@ void SQMAlgorithm::straightenSkeleton() {
 		}
 	}
 	if (root->getNodes()->size() >= 3) {
+		root->setIsCyclic(hasCycle);
 		ts = clock();
 		//root->breakCycles();
 		if (useCapsules) root->createCapsules();

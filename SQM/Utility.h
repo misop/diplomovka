@@ -9,6 +9,7 @@
 #include <glm.hpp>
 #include "MyMesh.h"
 #include "FloatArithmetic.h"
+#include "Uniforms.h"
 
 struct OpenGLPrograms {
 	GLProgram *SklLines;
@@ -24,23 +25,6 @@ struct OpenGLPrograms {
 		if (BNPs) delete BNPs;
 		if (TriMeshTess) delete TriMeshTess;
 		if (QuadMeshTess) delete QuadMeshTess;
-	}
-};
-
-struct OpenGLShaders {
-	GLShader *vert;
-	GLShader *ctrl;
-	GLShader *eval;
-	GLShader *geom;
-	GLShader *frag;
-
-	OpenGLShaders() : vert(NULL), ctrl(NULL), eval(NULL), geom(NULL), frag(NULL) { }
-	~OpenGLShaders() {
-		if (vert) delete vert;
-		if (ctrl) delete ctrl;
-		if (eval) delete eval;
-		if (geom) delete geom;
-		if (frag) delete frag;
 	}
 };
 
