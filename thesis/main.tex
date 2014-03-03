@@ -10,6 +10,7 @@
 \usepackage{enumerate}
 \usepackage{algorithm}
 \usepackage{algorithmic}
+\usepackage[bookmarksopen, hidelinks]{hyperref}
 \linespread{1.5} %riadkovanie 1.5
 \begin{document}
 
@@ -38,6 +39,9 @@
 \appendix
 \input{appendix}
 
+\newpage% or \cleardoublepage
+% \pdfbookmark[<level>]{<title>}{<dest>}
+\pdfbookmark[0]{Bibliography}{toc}
 \bibliographystyle{plain} %cisla
 %\bibliographystyle{alpha} %autor+rok
 \bibliography{bibliography}

@@ -1,3 +1,11 @@
 \chapter{Abstrakt}
-Lorem Ipsum je fiktívny text, používaný pri návrhu tlačovín a typografie. Lorem Ipsum je štandardným výplňovým textom už od 16. storočia, keď neznámy tlačiar zobral sadzobnicu plnú tlačových znakov a pomiešal ich, aby tak vytvoril vzorkovú knihu. Prežil nielen päť storočí, ale aj skok do elektronickej sadzby, a pritom zostal v podstate nezmenený. Spopularizovaný bol v 60-tych rokoch 20. storočia, vydaním hárkov Letraset, ktoré obsahovali pasáže Lorem Ipsum, a neskôr aj publikačným softvérom ako Aldus PageMaker, ktorý obsahoval verzie Lorem Ipsum.\\ \\
-\textbf{\textsc{Kľúčové slová:}} lorem, ipsum, consectetur
+Implementovali sme algortimus, ktorý generuje základné manifoldné meshe zo vstupnej kostry, založený na algoritme Skeleton to Quad Dominant Mesh (SQM), ktorý konvertuje kostry na meshe zložené prevažne zo štvoruholníkov.
+Každý vrchol kostry má priradenú guľu.
+Algoritmus SQM najprv pre každý vrchol v ktorom sa kostra vetví vygeneruje polyhedrón, aproximujúci guľu príslušného vetviaceho sa vrcholu.
+Neskôr sú tieto polyhedróny spojené štvoruholními, čím sa vytvorí základný mesh.
+Rozšírili sme SQM algoritmus tak, aby generoval základné meshe aj z cyklických kostier.
+Tiež sme zovšeobecnili vstupnú kostru tak, aby bolo možné zadávať elipsoidy namiesto gulí pre každý vrchol.
+Nakoniec sme rozšírili algoritmus tak aby vedel generovat základné meshe aj z lineárnych kostier a z kostier, ktorých koreň nie je vetviaci sa uzol.
+Vygenerovaný základny mesh teselujeme na grafickej karte, aby sme dosiahli lepsie vizuálne výsledky.
+\\ \\
+\textbf{\textsc{Kľúčové slová:}} kostra, konverzia, manifold, zakladný mesh

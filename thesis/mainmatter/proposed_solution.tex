@@ -3,8 +3,7 @@
 We have picked SQM as the base for our algorithm. The main factors in this decision were that SQM is faster, produces smaller number of triangles, has better edge flow and even without smoothing the generated mesh better resembles the input skeleton. By avoiding the smoothing phase we do not need any input parameters to generate base mesh from an input skeleton. In this chapter we will explain each step of our proposed algorithm as well as extensions like elliptical nodes, cycles, etc.
 
 \section{Skeleton straightening}\label{sec:straight}
-\paragraph{}
-Skeleton straightening is a preprocessing step that simplifies bridging of branch node polyhedrons. Straightened skeleton is a skeleton, which nodes in every path between two branch nodes, two leaf nodes, or a branch node and a leaf node are co-linear. Also we have added an extra quality, that angles between branch nodes child nodes should be the same in straightened skeleton, as they are in the input skeleton. To achieve the first condition for each connection node we take the direction of a vector, formed by connection nodes parents position and connection nodes position. The direction vector can be seen in Figure \ref{fig:straightening_ilu} as the green arrow. Then we normalize the direction vector and multiply it by the distance between connection node and its child node. The distance is marked by the black curve in Figure \ref{fig:straightening_ilu}. This vector represents the offset form connection nodes position, at which lies the straightened position of its child node. We then calculate rotation between connection nodes child original position and its new position, in respect to connection nodes position. Finally we rotate all descendants of the connection node. In order to conform to the second condition, at each branch node we do not alter the position of its child nodes.
+Skeleton straightening is a preprocessing step that simplifies bridging of branch node polyhedrons. Straightened skeleton is a skeleton, which nodes in every path between two branch nodes, two leaf nodes, or a branch node and a leaf node are co-linear. Also we have added an extra quality, that angles between child nodes of a branch node should be the same in straightened skeleton, as they are in the input skeleton. To achieve the first condition for each connection node we take the direction of a vector, formed by connection nodes parents position and connection nodes position. The direction vector can be seen in Figure \ref{fig:straightening_ilu} as the green arrow. Then we normalize the direction vector and multiply it by the distance between connection node and its child node. The distance is marked by the black curve in Figure \ref{fig:straightening_ilu}. This vector represents the offset form connection nodes position, at which lies the straightened position of its child node. We then calculate rotation between connection nodes child original position and its new position, in respect to connection nodes position. Finally we rotate all descendants of the connection node. In order to conform to the second condition, at each branch node we do not alter the position of its child nodes.
 
 \begin{figure}[h]
     \centering
@@ -14,10 +13,8 @@ Skeleton straightening is a preprocessing step that simplifies bridging of branc
 \end{figure}
 
 \subsection{Skinning matrices}
-\paragraph{}
 In final vertex placement we need to undo the rotations applied to the input skeleton during straightening. We have decided that the best solution is to use skinning, since it can be implemented on GPU and we wanted to move all post-processing on the GPU. Straightened skeleton represents bind pose for skinning purposes and the input skeleton represents reference pose. Now we can calculate skinning matrices required to transform bind pose to reference pose. Traditionally that would require to find the rotation between two corresponding nodes in respect to they parent. Rotating all child nodes in bind skeleton using the same rotation and propagate the rotation calculation to child nodes. But since we know precisely how bind pose was constructed, we can exploit this knowledge and avoid the rotation of child nodes. In fact we do not even need the bind skeleton itself.
 
-\paragraph{}
 This can be seen in Figure \ref{fig:DoF_estimation_ilu}. We want to calculate the rotation that would transform circle node to reference pose. We know that circle nodes parent square node is already in reference pose. We also know, that bind pose was constructed in such a way that all connection nodes childes are co-linear and preserve the distances between nodes. That means from squares reference pose we can calculate, where would be circle node, if we would apply on it the same transformation matrices as were applied to square node. The distance between square and circle node remains constant in both poses. And the direction at which the circle node would be is the same as the direction from triangle node to square node, which is marked as green arrow in Figure \ref{fig:DoF_estimation_ilu}. Now we only need to store the rotation between calculated circle node position, green circle in Figure \ref{fig:DoF_estimation_ilu} and its actual position red circle, with respect to its parent red square node.
 
 \begin{figure}[h]
@@ -28,7 +25,6 @@ This can be seen in Figure \ref{fig:DoF_estimation_ilu}. We want to calculate th
 \end{figure}
 
 \section{BNP generation}\label{sec:bnp_gen}
-\paragraph{}
 For each branch node we calculate the direction from said branch node to each of its children and to its parent. Then we create rays, with origin in branch nodes position and direction corresponding to the direction calculated previously. These rays can be seen in Figure \ref{fig:bnp_gen_ilu} (a) as blue arrows. We calculate the intersection of each of these rays with a sphere associated with the branch node. We store each intersection in a set of intersection points. Now we triangulate the intersection points. Different algorithms can be used to achieve the same effect, but we have picked Delaunay triangulation in spherical domain, which was also used in the original paper. The algorithm works like standard Delaunay triangulation, but the predicate deciding whatever newly inserted triangle would lie in the circle of an already existing triangle is replaced. The new predicate compares angle between the newly inserted triangles normal with normals of already existing triangles. Result of triangulation is shown in Figure \ref{fig:bnp_gen_ilu} (b) as the blue triangle. The generated polyhedron is now subdivided by inserting a point in the center of each face and in the middle of each edge. The vertex inserted in the center of each face is then connected with all vertices corresponding to the same face. So each triangle is subdivided into six smaller triangles. The newly inserted points are then projected onto the sphere associated with the node. The subdivision and projection is necessary, because otherwise polyhedrons that would be generated with co-planar, or nearly co-planar intersection points would have no volume or very little volume respectively. To project the newly inserted vertices onto the sphere, we once again use a ray-sphere intersectio. The origin of the ray is the position of each newly inserted vertex. The direction of the ray is mean normal of the faces that are connected with the vertex. This means that for the vertices in the center of each face the normal of the subdivided face is used. For vertices inserted in the middle of each edge the mean normal of faces corresponding to that edge is used. Final polyhedron is shown in Figure \ref{fig:bnp_gen_ilu} (c).
 
 \begin{figure}[h]
@@ -38,7 +34,6 @@ For each branch node we calculate the direction from said branch node to each of
     \caption[BNP generation process]{BNP generation process. (a) green is a branch node, blue arrows represent direction vectors of rays, red circles represent child nodes; (b) blue trinagle is the result of triangulation; (c) final subdivided BNP;}
 \end{figure}
 
-\paragraph{}
 Triangulation of intersection vertices can sometimes create obtuse triangles. These are problematic, because when we insert the vertex in the middle of an obtuse triangle the one-rings of intersection vertices are not convex. That is if we would project them onto a plane defined by their principal axis and one of the vertices, the resulting polygon would not be convex. In Figure \ref{fig:obtus_tri_ilu} we can see on the left how a polyhedron looks when it is generated with obtuse triangles. Expected central vertex position is marked by red arrow, also expected edges are marked as yellow lines. This is not desirable, since it would cause problems during cyclic mesh generation. To remedy this situation we calculate the projection of the central vertex in a different manner. The origin of its ray is still vertex position. But we use a new direction vector. This vector is the normal of a triangle formed by the projected points that were inserted in the middle of each edge. The result can be seen in Figure \ref{fig:obtus_tri_ilu} on the right.
 
 \begin{figure}[h]
@@ -49,7 +44,6 @@ Triangulation of intersection vertices can sometimes create obtuse triangles. Th
 \end{figure}
 
 \section{BNP refinement}\label{sec:bnp_sub}
-\paragraph{}
 During the penultimate step of the algorithm, BNP joining, we want to connect two BNPs, with tube consisting solely from quadrilaterals. To ensure that we can use quadrilaterals only, we want intersection vertices connected via a path, to have the same number of nodes in their one-ring neighbourhood. We take the notion of Link Intersection Edge (LIE) from \cite{sqm}. A LIE is a set of edges that are between vertices of two intersection vertices one-ring neighbourhoods, as can be seen in Figure \ref{fig:refinement_ilu} (a). One LIE is represented with yellow colored edges and second LIE is represented with red colored edges. The refining of one BNP is a one-pass procedure.
 
 \paragraph{Preprocessing}
@@ -71,11 +65,9 @@ We start the refining of a BNP by creating a map of LIEs corresponding to each i
 \paragraph{Subdivision}
 We loop through all intersection vertices, starting with the intersection vertex connected with parents BNP and continuing with the rest. In each cycle, we split LIEs corresponding to current intersection vertex, until the valency of the intersection vertex is equal to its required number of splits. Every time we want to split a LIE we heuristically select the best, based on two filters. The first filter is the splitting required by the other intersection vertex belonging to the same LIE. If two or more LIEs require the same number of splits, we use a second filter. This filter picks the LIE that was split the least. When we are splitting a LIE, we always split a representative edge, which is the first edge of the LIE. Because of that we need to apply a smoothing scheme to roughly equalize the lengths of edges in a LIE. 
 
-\paragraph{}
 The whole process can be seen in Figure \ref{fig:refinement_ilu}. In Figure \ref{fig:refinement_ilu} (a) the yellow circle marks an intersection vertex that needs to be split twice. Yellow edges represent a LIE corresponding to second intersection vertex and red edges represent a LIE corresponding to third intersection vertex. Both LIEs have the same need to be split and none of them was split previously. For the first split the yellow LIE is selected, subdivided once and smoothed. The result of the first split is shown in Figure \ref{fig:refinement_ilu} (b). For the second split the need of both LIEs is still the same. But yellow LIE was already split, so this time the red LIE is selected, subdivided and smoothed. Final refined BNP is shown in Figure \ref{fig:refinement_ilu} (c).
 
 \subsection{Smoothing}
-\paragraph{}
 Since we always split only one representative edge of a LIE, we are applying a smoothing scheme, to equalize the length of edges in a subdivided LIE. The smoothing is very important because directly on it depends the quality of the generated mesh. Ideally the length of each edge in a smoothed LIE would be equal. However since smoothing is applied after every subdivision, the smoothing algorithm should to be reasonably fast. We propose four smoothing schemes. These smoothing schemes are illustrated in Figure \ref{fig:smoothing_ilu}, where the polyhedron from Figure \ref{fig:refinement_ilu} is subdivided twice and then smoothed with various smoothing schemes.
 
 \paragraph{Averaging smoothing}
@@ -98,7 +90,6 @@ For Laplacian smoothing we have adapted the algorithm described in \cite{laplac_
 We use the same algorithm as for area weighted Laplacian, but we use different weights for vertices. The weights depend on the valency of each vertex. After Laplacian smoothing vertices are projected back onto their corresponding sphere. The result of this smoothing is very similar to area weighted Laplacian and is shown in Figure \ref{fig:smoothing_ilu} (d).
 
 \section{BNP joining}\label{sec:bnp_join}
-\paragraph{}
 After refinement of BNPs, each intersection vertex has the same valency as its corresponding intersection vertex. Now BNPs can be joined by tubes, consisting from quadrilaterals only. We loop through each branch node in a depth-first search from skeletons root. We process each BNP in the following manner. We start with the whole BNP Figure \ref{fig:joining_process_ilu} (a). We loop through all intersection vertices corresponding to current BNP. We remove each intersection vertex and their corresponding faces and edges from current BNP. In Figure \ref{fig:joining_process_ilu} (b) we can see the removal of third intersection vertex, after first and second intersection vertices were joined. After the removal of an intersection vertex we continue joining all nodes on the path that produced the removed intersection vertex. We take the vertices forming the former one-ring of the removed intersection vertex. For each connection node on the path we duplicate the one-ring vertices, translate them to the nodes position and project them onto the sphere associated with the connection node. For the translation we construct a plane. The origin of the plane is the position of the connection node. The normal is the vector from the branch node to the connection node. Each vertex is translated along the normal until it lies on the plane. The projection is done by normalizing the vector from connection nodes position to each vertex, and multiplying it by the radius of connection nodes corresponding sphere. These new vertices are then connected with previous set of vertices with faces and they are passed as current one-ring vertices for joining. In Figure \ref{fig:joining_process_ilu} (c), we can see the translated connection node vertices, before projection was applied. In Figure \ref{fig:joining_process_ilu} (d), the duplicated one-ring vertices are projected onto their associated sphere. After going through all connection nodes we can end either in a branch node or in a leaf node.
 
 \begin{figure}[h]
@@ -130,13 +121,15 @@ When the pairing of vertices is defined, new edges can be formed between each pa
 As in original paper \cite{sqm}, we have decided to terminate leaf nodes with triangular faces. Each face has two vertices from the current one-ring and one vertex is the position of the leaf node.
 
 \section{Final vertex placement}\label{sec:fvp}
-\paragraph{}
 We use skinning matrices calculated during skeleton straightening to reverse the rotations applied during straightening.
 Various methods can be used to rotate vertices back into their original position, but we have found that Linear Blend Skinning as described in \cite{Kavan-07-SDQ} is enough for our needs.
-We apply skinning transformation directly on GPU in vertex or tessellation shaders.
+Skinning transformation can by applied directly on GPU in vertex or tessellation shaders.
+We have also implemented Linear Blend Skinning on CPU.
+This is advantageous for comparison purposes, as well as when we are generating base meshes from cyclic skeletons.
+Since we are using triangulations on CPU to close generate cyclic skeletons, we need to apply Linear Blend Skinning before the triangulations.
+Skinning could be still calculated on GPU and the resulting geometry could be send back to CPU for processing, however we have found that our generated base meshes are relatively simple and the overhead from transmitting data between CPU and GPU is unnecessary.
 
 \section{Ellipsoid Nodes}
-\paragraph{}
 An ellipsoid can be defined as a sphere with associated transformation matrix.
 We take advantage of this representation of ellipsoids.
 Instead of more complex ray-ellipsoid intersection that would have to be computed at each ellipsoid node, we have decided to split each ellipsoid node into a sphere and a transformation matrix.
@@ -156,7 +149,6 @@ The generated base mesh is shown in Figure \ref{fig:ellipsoid_ilu} (b) and from 
 \end{figure}
 
 \section{Tessellation}
-\paragraph{}
 Tessellation shaders available since OpenGL 4.0 are used to tessellate the generated base mesh.
 Two connected spherical nodes, a parent and a child, implicitly define a truncated cone between them.
 The base of the cone has the radius of parent spherical node and the top of the truncated cone has the radius of child spherical node.
@@ -181,7 +173,6 @@ Currently the smoothing bezier curve is constant, but it could be dynamically ch
 \end{figure}
 
 \section{Capsule Ending}
-\paragraph{}
 Generating of capsules can be approached in two ways.
 The first is to generate a capsule at each leaf node corresponding to its radius.
 The second is inserting additional nodes into the input skeleton, with decreasing radius, that would approximate a capsule.
@@ -205,7 +196,6 @@ newRadius = \sqrt{nodeRadius^{2} * (1 - step^{2})}
 \end{figure}
 
 \section{Linear Skeletons}
-\paragraph{}
 Linear skeletons without branch nodes lack the initial geometry that is generated during BNP generation step described in Section~\ref{sec:bnp_gen}.
 Additional nodes could be inserted into the input skeleton, to form at least one branch node, but we have found that it needlessly disturbs the flow of the output mesh.
 Instead we decided to use a different approach.
@@ -230,15 +220,14 @@ Skinning matrices are used to transform the generated linear skeleton into its i
 \end{figure}
 
 \section{Root That Is Not a Branch Node}
-\paragraph{}
 If the root of the input skeleton is not a branch node and a branch node is present in the skeleton, we can find it with depth first search.
 When we have at least one branch node we can re-root the tree, so that the located branch node would be the root of the tree.
 We apply Algorithm \ref{alg:reroot} to re-root the skeleton.
 We want to make the input node the root of the skeleton.
 For that it has to have no parent node and all other nodes in the skeleton should have a parent node.
-We set the new root to have no parent and store its former parent as $current$ node and the parent of $current$ node as $current_parent$ node.
-In a loop we set $current_parent$ as a child of $current$ node.
-In order to advance along the skeleton, we set $current$ node to the parent of $current$ node and $current_parent$ node to the parent of $current_parent$ node.
+We set the new root to have no parent and store its former parent as $current$ node and the parent of $current$ node as $currentParent$ node.
+In a loop we set $currentParent$ as a child of $current$ node.
+In order to advance along the skeleton, we set $current$ node to the parent of $current$ node and $currentParent$ node to the parent of $currentParent$ node.
 This way we ascend along the skeleton, until we reach the former root node and the algorithm terminates.
 \begin{algorithm}[h]
 \caption{ReRoot}
@@ -246,32 +235,32 @@ This way we ascend along the skeleton, until we reach the former root node and t
 \begin{algorithmic}
 	\STATE{\textbf{Input:} $node$}\COMMENT{the node that should be the new root}
 	\STATE{$current \leftarrow node.parent$}
-	\STATE{$current_parent \leftarrow current.parent$}
+	\STATE{$currentParent \leftarrow current.parent$}
 	\STATE{$node.parent \leftarrow NULL$}
 	\STATE{$current.parent \leftarrow node$}
 	\STATE{$current.removeChild(node)$}
 	\STATE{$node.addChild(current)$}
 
 	\WHILE{$current \neq root$}
-		\STATE{$current.addChild(current_parent)$}
+		\STATE{$current.addChild(currentParent)$}
 		\STATE{$parent.removeChild(current)$}
-		\STATE{$newParent \leftarrow current_parent.parent$}
-		\STATE{$current_parent.parent \leftarrow current$}
-		\STATE{$current \leftarrow current_parent$}
-		\STATE{$current_parent \leftarrow newParent$}
+		\STATE{$newParent \leftarrow currentParent.parent$}
+		\STATE{$currentParent.parent \leftarrow current$}
+		\STATE{$current \leftarrow currentParent$}
+		\STATE{$currentParent \leftarrow newParent$}
 	\ENDWHILE
 	\STATE{$root = node$}
 \end{algorithmic}
 \end{algorithm}
 
 \section{Cyclic Skeletons}
-\paragraph{}
 Our last improvement is generation of base meshes from cyclic skeletons.
 The cycle can be placed anywhere in the input skeleton.
 The base algorithm could not be modified to allow generation of cyclic meshes, because during BNP refinement step of the algorithm a cycle could cause an infinite loop.
 However we can modify the input skeleton in a way, that would allow us to generate cyclic skeletons.
 As the input we have a cyclic skeleton Figure \ref{fig:cycle_ilu} (a).
 Cyclic edge is marked with yellow color and cyclic nodes with green and violet colors.
+
 First, we split the cycle, by removing the yellow cyclic edge.
 To each cyclic node we add an extra child node as shown in Figure \ref{fig:cycle_ilu} (b).
 Light green node for green cyclic node and pink node for violet cyclic node.
@@ -288,14 +277,14 @@ Final cyclic mesh is shown in Figure \ref{fig:cycle_ilu} (d).
 
 \begin{figure}[ht]
     \centering
-    \includegraphics[width=\linewidth]{images/cyclic_skeletons}
-    \caption[Cyclic skeleton generation overview]{Cyclic skeleton base mesh generation. Cyclic skeleton, cyclic edge marked with yellow color, cyclic nodes with green and violet (a); Split cycle with one inserted node for each former cyclic nodes lightgreen for green node and pink for violet node (b); Generated base mesh before the cycle is closed (c); Generated base mesh after the cycle is closed (d);}
-    \label{fig:cycle_ilu}
+    \includegraphics[width=0.7\textwidth]{images/cycle_del}
+    \caption[Delaunnay triangulation closing cyclic mesh]{Delaunnay triangulation of input points (a) used to generate faces between vertices forming the cycle (b); Green points represent vertices corresponding to cycle node 1 and violet represent vertices of cycle node 2 from Figure \ref{fig:cycle_ilu}}
+    \label{fig:del_ilu}
 \end{figure}
 
 \begin{figure}[ht]
     \centering
-    \includegraphics[width=\linewidth]{images/cycle_del}
-    \caption[Delaunnay triangulation closing cyclic mesh]{Delaunnay triangulation of input points (a) used to generate faces between vertices forming the cycle (b); Green points represent vertices corresponding to cycle node 1 and violet represent vertices of cycle node 2 from Figure \ref{fig:cycle_ilu}}
-    \label{fig:del_ilu}
+    \includegraphics[width=\textwidth]{images/cyclic_skeletons}
+    \caption[Cyclic skeleton generation overview]{Cyclic skeleton base mesh generation. Cyclic skeleton, cyclic edge marked with yellow color, cyclic nodes with green and violet (a); Split cycle with one inserted node for each former cyclic nodes lightgreen for green node and pink for violet node (b); Generated base mesh before the cycle is closed (c); Generated base mesh after the cycle is closed (d);}
+    \label{fig:cycle_ilu}
 \end{figure}
