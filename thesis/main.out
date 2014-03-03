@@ -23,11 +23,9 @@
 \BOOKMARK [1][]{section.2.10}{Root That Is Not a Branch Node}{chapter.2}% 23
 \BOOKMARK [1][]{section.2.11}{Cyclic Skeletons}{chapter.2}% 24
 \BOOKMARK [0][]{chapter.3}{Implementation}{}% 25
-\BOOKMARK [1][]{section.3.1}{Used Libraries}{chapter.3}% 26
-\BOOKMARK [0][]{chapter.4}{Example}{}% 27
-\BOOKMARK [1][]{section.4.1}{Tables}{chapter.4}% 28
-\BOOKMARK [1][]{section.4.2}{Figures}{chapter.4}% 29
-\BOOKMARK [1][]{section.4.3}{Cross reference}{chapter.4}% 30
-\BOOKMARK [1][]{section.4.4}{Citation}{chapter.4}% 31
-\BOOKMARK [0][]{appendix.A}{TeX}{}% 32
-\BOOKMARK [0][]{toc.0}{Bibliography}{}% 33
+\BOOKMARK [1][]{section.3.1}{Programming Language, IDE, Tools, and Libraries}{chapter.3}% 26
+\BOOKMARK [1][]{section.3.2}{Model}{chapter.3}% 27
+\BOOKMARK [1][]{section.3.3}{View}{chapter.3}% 28
+\BOOKMARK [1][]{section.3.4}{Controller}{chapter.3}% 29
+\BOOKMARK [0][]{appendix.A}{TeX}{}% 30
+\BOOKMARK [0][]{toc.0}{Bibliography}{}% 31

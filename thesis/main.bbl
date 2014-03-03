@@ -1,9 +1,27 @@
-\begin{thebibliography}{1}
+\begin{thebibliography}{10}
+
+\bibitem{Boost}
+Boost.
+\newblock Boost {C}++ libraries.
+\newblock \url{http://www.boost.org/}, 2014.
+\newblock [Online; accessed 24-February-2014].
 
 \bibitem{sqm_phd}
 Michael~Mc Donnell.
 \newblock Skeleton-based and interactive 3d modeling.
 \newblock Master's thesis, Technical University of Denmark, 2012.
+
+\bibitem{glew}
+GLEW.
+\newblock The {O}pen{GL} extension wrangler library.
+\newblock \url{http://glew.sourceforge.net/}, 2014.
+\newblock [Online; accessed 24-February-2014].
+
+\bibitem{opengl}
+OpenGL~Khronos Group.
+\newblock The industry's foundation for high performance graphics.
+\newblock \url{http://www.opengl.org/}, 2014.
+\newblock [Online; accessed 24-February-2014].
 
 \bibitem{Kavan-07-SDQ}
 Ladislav Kavan, Steven Collins, Jiri Zara, and Carol O'Sullivan.
@@ -22,9 +40,21 @@ Martin Madaras.
 \newblock Todo.
 \newblock Master's thesis, Comenius university of Bratislava, TODO.
 
+\bibitem{glm}
+OpenGL Mathematics.
+\newblock A {C}++ mathematics library for graphics programming.
+\newblock \url{http://glm.g-truc.net/0.9.5/index.html}, 2014.
+\newblock [Online; accessed 24-February-2014].
+
 \bibitem{sqm}
 J.~A. Bærentzen M.~K. Misztal and K.~Welnicka.
 \newblock Converting skeletal structures to quad dominant meshes.
 \newblock {\em Computers \& Graphics}, 36(5):555--561, 2012.
+
+\bibitem{OpenMesh}
+OpenMesh.
+\newblock Open{M}esh open half edge data structure.
+\newblock \url{http://openmesh.org/}, 2014.
+\newblock [Online; accessed 24-February-2014].
 
 \end{thebibliography}

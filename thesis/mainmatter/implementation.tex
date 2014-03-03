@@ -11,9 +11,30 @@ First, is $OpenGL$ window, which displays data provided from controller.
 Second, is a Windows form, that provides Graphical User Interface (GUI) elements, which serve to make input easier.
 
 In this chapter we will describe how we implemented our solution.
-We will start with used libraries.
+We will start with used programming language, Integrated Developer Enviroment (IDE), tools and libraries.
 Next, we will describe each part of model-view-controller pattern in greater detail.
 After that we will show some programmable shaders used in our implementation.
 
-\section{Used Libraries}
+\section{Programming Language, IDE, Tools, and Libraries}
 
+We have selected C++ as programming language.
+The main reasons are that C++ is fast and well established programming language.
+That means that most of the open source libraries are available for C++ and many of them are available exclusively for C++.
+As IDE we are using Visual Studio 2012, which was the newest version of Visual Studio, when we started our work.
+Visual Studio is a powerful and well established IDE for developing on Windows operating systems.
+We have used nVidia nSight for Visual Studio 2012 that is a debugger for graphics cards, which allows to set breakpoints in shaders during execution. We have also used several open source libraries in our project. We will briefly describe the key libraries.
+To program the GPU we use OpenGL Shading Language (GLSL) version 4.3.
+
+\begin{itemize}
+	\item \textbf{Boost \cite{Boost}} Boost is a set of libraries encapsulating various task like basic input output system, smart pointers, serialization, matrices, etc. We use Boost primary for class serialization. Thanks to boost we can serialize classes into XML files, which can be stored and loaded from disk. This XML files can even be shared between different applications, so we can import skeletons from third party programs.
+	\item \textbf{OpenMesh \cite{OpenMesh}} Is an open source half edge data structure library. We use it to store all meshes in our applications. OpenMesh library is capable of storing meshes composed solely from triangles as well as meshes composed of arbitrary polygons. OpenMesh has pre-calculated many convenient iterators for one-ring neighbourhoods, faces and edges adjacent to a vertex, etc. The library is also capable of exporting stored meshes into Wavefront .obj files.
+	\item \textbf{GLEW \cite{glew}} The OpenGL Extension Wrangler Library (GLEW) provides efficient run-time mechanisms for activating OpenGL extensions. We use this library to expose OpenGL 4.3 functionality to our application.
+	\item \textbf{OpenGL \cite{opengl}} Open source cross platform application programming interface. We use it to leverage the computation capability of GPUs to achieve hardware accelerated rendering.
+	\item \textbf{GLM \cite{glm}} OpenGL Mathematics library that provides the same vector and matrix operations as available in GLSL. GLM also provides several function, that are deprecated in newer versions of OpenGL. We use this library to manipulate camera, model matrices, and for general matrix computations.
+\end{itemize}
+
+\section{Model}
+
+\section{View}
+
+\section{Controller}
