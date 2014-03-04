@@ -1,13 +1,13 @@
-#save(0/1)_file
-#m_animation(0/1/2)_speed_counter_model
-#model_speed_file
-2
-1 models/strom.skl
+#model:fileName
+#animations:fileName
+#objects:modelID_animationID_speed_counter_frame_matrixFile
+3
+models/strom.skl
+models/jedla.skl
+models/pes.skl
 1
-2 0.01 0 animations/strom.txt
-1 models/jedla.skl
-1
-1 animations/strom2.txt
-0
-0 0.05 animations/strom.anm
-animations/strom.txt
+animations/pes.anm
+3
+0 0 0.02 0 0 animations/strom2.txt
+1 1 0 0 0 animations/strom.txt
+2 3 0.025 0 0 animations/pes_model.txt

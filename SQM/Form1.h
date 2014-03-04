@@ -223,6 +223,7 @@ private: System::Windows::Forms::ToolStripMenuItem^  saveAnimationToolStripMenuI
 				 this->stopToolStripMenuItem = (gcnew System::Windows::Forms::ToolStripMenuItem());
 				 this->setBindPoseToolStripMenuItem = (gcnew System::Windows::Forms::ToolStripMenuItem());
 				 this->addReferencePoseToolStripMenuItem = (gcnew System::Windows::Forms::ToolStripMenuItem());
+				 this->saveAnimationToolStripMenuItem = (gcnew System::Windows::Forms::ToolStripMenuItem());
 				 this->panel2 = (gcnew System::Windows::Forms::Panel());
 				 this->tabControl1 = (gcnew System::Windows::Forms::TabControl());
 				 this->tabPage1 = (gcnew System::Windows::Forms::TabPage());
@@ -260,7 +261,6 @@ private: System::Windows::Forms::ToolStripMenuItem^  saveAnimationToolStripMenuI
 				 this->label1 = (gcnew System::Windows::Forms::Label());
 				 this->numericUpDown6 = (gcnew System::Windows::Forms::NumericUpDown());
 				 this->label9 = (gcnew System::Windows::Forms::Label());
-				 this->saveAnimationToolStripMenuItem = (gcnew System::Windows::Forms::ToolStripMenuItem());
 				 this->toolStrip1->SuspendLayout();
 				 this->menuStrip1->SuspendLayout();
 				 this->panel2->SuspendLayout();
@@ -639,6 +639,13 @@ private: System::Windows::Forms::ToolStripMenuItem^  saveAnimationToolStripMenuI
 				 this->addReferencePoseToolStripMenuItem->Size = System::Drawing::Size(179, 22);
 				 this->addReferencePoseToolStripMenuItem->Text = L"Add Reference Pose";
 				 this->addReferencePoseToolStripMenuItem->Click += gcnew System::EventHandler(this, &Form1::addReferencePoseToolStripMenuItem_Click);
+				 // 
+				 // saveAnimationToolStripMenuItem
+				 // 
+				 this->saveAnimationToolStripMenuItem->Name = L"saveAnimationToolStripMenuItem";
+				 this->saveAnimationToolStripMenuItem->Size = System::Drawing::Size(179, 22);
+				 this->saveAnimationToolStripMenuItem->Text = L"Save Animation";
+				 this->saveAnimationToolStripMenuItem->Click += gcnew System::EventHandler(this, &Form1::saveAnimationToolStripMenuItem_Click);
 				 // 
 				 // panel2
 				 // 
@@ -1076,13 +1083,6 @@ private: System::Windows::Forms::ToolStripMenuItem^  saveAnimationToolStripMenuI
 				 this->label9->TabIndex = 15;
 				 this->label9->Text = L"Tess Level:";
 				 // 
-				 // saveAnimationToolStripMenuItem
-				 // 
-				 this->saveAnimationToolStripMenuItem->Name = L"saveAnimationToolStripMenuItem";
-				 this->saveAnimationToolStripMenuItem->Size = System::Drawing::Size(179, 22);
-				 this->saveAnimationToolStripMenuItem->Text = L"Save Animation";
-				 this->saveAnimationToolStripMenuItem->Click += gcnew System::EventHandler(this, &Form1::saveAnimationToolStripMenuItem_Click);
-				 // 
 				 // Form1
 				 // 
 				 this->AutoScaleDimensions = System::Drawing::SizeF(6, 13);
@@ -1094,7 +1094,7 @@ private: System::Windows::Forms::ToolStripMenuItem^  saveAnimationToolStripMenuI
 				 this->Controls->Add(this->menuStrip1);
 				 this->MainMenuStrip = this->menuStrip1;
 				 this->Name = L"Form1";
-				 this->Text = L"Skeleton To Quad Dominant Mesh";
+				 this->Text = L"Base Manfild Mesh from Skeleton";
 				 this->MouseWheel += gcnew System::Windows::Forms::MouseEventHandler(this, &Form1::Panel1_MouseWheel);
 				 this->toolStrip1->ResumeLayout(false);
 				 this->toolStrip1->PerformLayout();

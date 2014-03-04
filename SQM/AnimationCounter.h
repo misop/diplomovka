@@ -1,6 +1,7 @@
 #pragma once
 
 struct AnimationCounter {
+	int animationID;
 	float counter;
 	float speed;
 	int frame;
@@ -8,10 +9,10 @@ struct AnimationCounter {
 	int keyframes;
 	bool backwards;
 	bool cyclic;
-	AnimationCounter() : counter(0), speed(0), frame(0), keyframes(1), backwards(false), cyclic(false) {};
-	AnimationCounter(float _speed) : counter(0), speed(_speed), frame(0), nextFrame(0), keyframes(1), backwards(false), cyclic(false) {};
-	AnimationCounter(float _speed, int _frame, int _keyframes) : counter(0), speed(_speed), frame(_frame), keyframes(_keyframes), backwards(false), cyclic(false) {nextFrame = frame + 1; if (nextFrame >= keyframes) nextFrame = 0;};
-	AnimationCounter(float _counter, float _speed, int _frame, int _keyframes) : counter(_counter), speed(_speed), frame(_frame), keyframes(_keyframes), backwards(false), cyclic(false) {nextFrame = frame + 1; if (nextFrame >= keyframes) nextFrame = 0;};
+	AnimationCounter() : animationID(0), counter(0), speed(0), frame(0), keyframes(1), backwards(false), cyclic(false) {};
+	AnimationCounter(int _animationID, float _speed) : animationID(_animationID), counter(0), speed(_speed), frame(0), nextFrame(0), keyframes(1), backwards(false), cyclic(false) {};
+	AnimationCounter(int _animationID, float _speed, int _frame, int _keyframes) : animationID(_animationID), counter(0), speed(_speed), frame(_frame), keyframes(_keyframes), backwards(false), cyclic(false) {nextFrame = frame + 1; if (nextFrame >= keyframes) nextFrame = 0;};
+	AnimationCounter(int _animationID, float _counter, float _speed, int _frame, int _keyframes) : animationID(_animationID), counter(_counter), speed(_speed), frame(_frame), keyframes(_keyframes), backwards(false), cyclic(false) {nextFrame = frame + 1; if (nextFrame >= keyframes) nextFrame = 0;};
 	void Next() {
 		if (counter > 1.0) {
 			counter = 0;

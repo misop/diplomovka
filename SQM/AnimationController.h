@@ -25,11 +25,11 @@ public:
 	~AnimationController(void);
 
 	void LoadScene();
-	void LoadSkeleton(string fileName, vector<int> loadAnimation, vector<float> speed, vector<float> counter, vector<string> modelMatrix);
-	void LoadAnimation(string fileName, float speed);
-	void LoadDefaultAnimation(SQMAlgorithm &sqmAlgorithm, vector<int> loadAnimation, vector<float> speed, vector<float> counter, vector<string> modelMatrix);
+	void LoadSkeleton(string fileName);
+	void LoadAnimation(string fileName);
+	void LoadDefaultAnimation(SQMAlgorithm &sqmAlgorithm);
 	void CreateBuffers(SQMAlgorithm &sqmAlgorithm);
-	void LoadMatrices(float speed);
+	void LoadMatrices();
 	void LoadModelMatrix(string fileName);
 
 	void ClearShaders();
