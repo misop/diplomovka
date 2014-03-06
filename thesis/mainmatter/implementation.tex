@@ -11,8 +11,8 @@ First, is $OpenGL$ window, which displays data provided from controller.
 Second, is a Windows form, that provides Graphical User Interface (GUI) elements, which serve to make input easier.
 
 In this chapter we will describe how we implemented our solution.
-We will start with used programming language, Integrated Developer Enviroment (IDE), tools and libraries.
-Next, we will describe each part of model-view-controller pattern in greater detail.
+We will start with used programming language, Integrated Developer Environment (IDE), tools and libraries.
+Next, we will describe implemented classes, grouped by model-view-controller pattern in greater detail.
 After that we will show some programmable shaders used in our implementation.
 
 \section{Programming Language, IDE, Tools, and Libraries}
@@ -30,13 +30,95 @@ To program the GPU we use OpenGL Shading Language (GLSL) version 4.3.
 	\item \textbf{OpenMesh \cite{OpenMesh}} Is an open source half edge data structure library. We use it to store all meshes in our applications. OpenMesh library is capable of storing meshes composed solely from triangles as well as meshes composed of arbitrary polygons. OpenMesh has pre-calculated many convenient iterators for one-ring neighbourhoods, faces and edges adjacent to a vertex, etc. The library is also capable of exporting stored meshes into Wavefront .obj files.
 	\item \textbf{GLEW \cite{glew}} The OpenGL Extension Wrangler Library (GLEW) provides efficient run-time mechanisms for activating OpenGL extensions. We use this library to expose OpenGL 4.3 functionality to our application.
 	\item \textbf{OpenGL \cite{opengl}} Open source cross platform application programming interface. We use it to leverage the computation capability of GPUs to achieve hardware accelerated rendering.
-	\item \textbf{GLM \cite{glm}} OpenGL Mathematics library that provides the same vector and matrix operations as available in GLSL. GLM also provides several function, that are deprecated in newer versions of OpenGL. We use this library to manipulate camera, model matrices, and for general matrix computations.
+	\item \textbf{GLM \cite{glm}} OpenGL Mathematics library that provides the same vector and matrix operations as available in GLSL. GLM also provides several function, that are deprecated in newer versions of OpenGL. We use this library to manipulate camera, model matrices, and for general matrix computations. GLM library is also capable of quaternion computations that are used during smoothing of BNPs and during computation of skinning matrices.
 \end{itemize}
 
-\section{Model}
+\pagebreak
 
-\section{View}
+\section{Classes}
 
-\section{Controller}
+Each class implements its functionality as interfaces.
+These interfaces encapsulates underlying algorithms.
+This allows us to replace algorithms, without affecting the rest of the code.
+The relationships between the most important classes are shown in Figure \ref{fig:classes}.
+Model provides interface for the controller, which allows to query models data, for visualization.
+The interface provided by model also allows to change its state and attributes of various classes.
+View also provides an interface for the controller, which allows the controller to display models data.
+Views is also capable of receiving users input, received either via mouse or by setting values exactly in inspector panel.
+Controller connects model and view together.
+At constant intervals data from model and input from view are gathered.
+The model is updated according to users input and the data changes are immediately reflected in the view.
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=\textwidth]{images/classes}
+    \label{fig:classes}
+    \caption[Component diagram of classes]{Component diagram of most important classes, forming the model-view-controller pattern.}
+\end{figure}
+
+\subsection{Model}
+
+Model stores the data required for our algorithm, that is the input skeleton.
+Model can be in six different states, five of which mirror the stages of our algorithm.
+The states are: skeleton editing, skeleton straightening, BNP generation, BNP refinement, BNP joining and final vertex placement.
+For the algorithm to work only skeleton editing and final vertex placement states would be adequate.
+The remaining states are useful for visualization of the algorithm.
+The model is designed like a library, that means it is independent from view and controller and base mesh generation can be distributed as a library.
+
+In skeleton editing state, the input skeleton is accessible for editing.
+New nodes can be added to skeletal structure.
+Existing nodes can be moved, their corresponding sphere can be specified, transformation matrices can be set and leaf nodes can be set to capsules or triangle fans.
+Also cyclic edges between two nodes can be specified in this state.
+Outside of this state user can not edit the input skeleton by any means.
+
+After entering skeleton straightening state the preprocessing step skeleton straightening is executed and the resulting straightened skeleton is displayed.
+User can inspect the effect that skeleton straightening has on the input skeleton.
+
+Upon entering BNP generation state the corresponding algorithm stage is executed.
+User can now see branch nodes generated by spherical Delaunnay triangulation.
+User can inspect faces of generated polyhedrons and display their normals.
+
+In BNP refinement state user can see refined and smoothed polyhedrons generated by our algorithm.
+The refinement procedure can be changed, after which the algorithm will be recomputed and polyhedrons smoothed with different smoothing scheme will be shown to the user.
+
+In BNP joining state the equally named step of our algorithm is executed.
+User can see straight base mesh and display normals corresponding to its faces.
+It is also possible to tessellate the straightened base mesh.
+The tessellation factor is global and can be adjusted from GUI.
+Since the last step of the algorithm was not yet executed elliptical nodes would appear as spherical nodes.
+
+After entering final vertex placement state, the last step of the algorithm is executed.
+User can see the final output mesh and adjust tessellation factor.
+Elliptical node have their corresponding transformation applied.
+After executing the whole base mesh algorithm user can return to any previous state and re-execute the algorithm again.
+
+\subsubsection{BMMNode}
+
+BMMNode is main class of the model that holds the input skeleton.
+It is represented as an oriented rooted graph.
+The root of the graphs is stored in BMMAlgorithm class.
+The steps of base mesh algorithm are implemented in BMMNode class as recursive functions.
+The functions first process the root node and then continue, with its child nodes.
+All necessary data for drawing and subsequent algorithm steps are also accessed recursively from skeletons root.
+
+\subsubsection{BMMAlgorithm}
+
+BMMAlgorithm class provides interface that hides the underling oriented graph and implements states discussed previously.
+All queries to BMMAlgorithm are forwarded to the root node, which recursively produces output, that BMMAlgorithm returns.
+This way if we would later decide to change base mesh algorithm in any way basic functionality would still be accessible through BMMALgorithm.
+Furthermore BMM algorithm computes certain pre and post processing that simplifies algorithms in BMMNode.
+BMMAlgorithm implements the re-rooting algorithm, so we do not need to check for invalid parents in recursive functions.
+The rooted oriented graph is stored twice in BMMAlgorithm.
+One copy is used to execute the base mesh algorithm itself and the other copy is used to reset the algorithm, so that it can be re-executed.
+
+\subsection{View}
+
+View consist of Windows form components and an OpenGL view.
+Windows form components are managed by Visual Studio and we are only synchronizing them with the controller.
+Controller updates input forms with models data and if new values are provided through input forms controller updates model accordingly.
+
+%TODO describe OpenGL view and input
+
+\subsection{Controller}
 
 \section{GPU Shaders}

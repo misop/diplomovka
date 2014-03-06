@@ -24,9 +24,10 @@
 \BOOKMARK [1][]{section.2.11}{Cyclic Skeletons}{chapter.2}% 24
 \BOOKMARK [0][]{chapter.3}{Implementation}{}% 25
 \BOOKMARK [1][]{section.3.1}{Programming Language, IDE, Tools, and Libraries}{chapter.3}% 26
-\BOOKMARK [1][]{section.3.2}{Model}{chapter.3}% 27
-\BOOKMARK [1][]{section.3.3}{View}{chapter.3}% 28
-\BOOKMARK [1][]{section.3.4}{Controller}{chapter.3}% 29
-\BOOKMARK [1][]{section.3.5}{GPU Shaders}{chapter.3}% 30
-\BOOKMARK [0][]{appendix.A}{TeX}{}% 31
-\BOOKMARK [0][]{toc.0}{Bibliography}{}% 32
+\BOOKMARK [1][]{section.3.2}{Classes}{chapter.3}% 27
+\BOOKMARK [2][]{subsection.3.2.1}{Model}{section.3.2}% 28
+\BOOKMARK [2][]{subsection.3.2.2}{View}{section.3.2}% 29
+\BOOKMARK [2][]{subsection.3.2.3}{Controller}{section.3.2}% 30
+\BOOKMARK [1][]{section.3.3}{GPU Shaders}{chapter.3}% 31
+\BOOKMARK [0][]{appendix.A}{TeX}{}% 32
+\BOOKMARK [0][]{toc.0}{Bibliography}{}% 33
