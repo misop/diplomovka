@@ -6,6 +6,7 @@
 #include "GLCamera.h"
 #include "AnimationSkeleton.h"
 #include "AnimationCounter.h"
+#include "Interpolation.h"
 
 class AnimationController
 {
@@ -18,6 +19,12 @@ class AnimationController
 	vector<AnimationCounter> counters;
 	vector<vector<vector<float> > > skiningMatrices;
 	vector<glm::mat4> modelMatrices;
+	vector<vector<ObjectPose> > poses;
+	vector<ObjectPose> anim_poses;
+	vector<vector<float> > knots;
+	vector<AnimTimer> timers;
+	vector<int> movement;
+	bool animateCamera;
 	bool canDraw;
 public:
 
@@ -27,6 +34,8 @@ public:
 	void LoadScene();
 	void LoadSkeleton(string fileName);
 	void LoadAnimation(string fileName);
+	void LoadCameraMovement(string fileName);
+	void LoadMovement(string fileName);
 	void LoadDefaultAnimation(SQMAlgorithm &sqmAlgorithm);
 	void CreateBuffers(SQMAlgorithm &sqmAlgorithm);
 	void LoadMatrices();

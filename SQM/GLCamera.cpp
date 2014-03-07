@@ -105,6 +105,14 @@ void GLCamera::getCameraMatrices(GLint pLoc, GLint vLoc) {
 	glUniformMatrix4fv(vLoc, 1, GL_FALSE, glm::value_ptr(view));
 }
 
+void GLCamera::getProjectionMatrix(GLint pLoc) {
+	glUniformMatrix4fv(pLoc, 1, GL_FALSE, glm::value_ptr(projection));
+}
+
+void GLCamera::getViewMatrix(GLint vLoc) {
+	glUniformMatrix4fv(vLoc, 1, GL_FALSE, glm::value_ptr(view));
+}
+
 void GLCamera::setupModelViewMatrix(GLint mvLoc) {
 	glUniformMatrix4fv(mvLoc, 1, GL_FALSE, glm::value_ptr(view));
 }

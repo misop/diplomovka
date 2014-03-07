@@ -13,9 +13,6 @@
 #include <map>
 #include <deque>
 
-#define DONT_LOAD 0
-#define LOAD_DONT_ANIMATE 1
-#define LOAD_ANIMATE 2
 
 #pragma region Init
 
@@ -49,6 +46,7 @@ void AnimationController::LoadScene() {
 	inputFile >> comment;
 	inputFile >> comment;
 	inputFile >> comment;
+	inputFile >> comment;
 	int n;
 	inputFile >> n;
 	//load models
@@ -65,15 +63,27 @@ void AnimationController::LoadScene() {
 		LoadAnimation(animationName);
 	}
 	inputFile >> n;
+	//load camera animation
+	string cameraFile;
+	inputFile >> animateCamera >> cameraFile;
+	LoadCameraMovement(cameraFile);
+	//load movement
+	for (int i = 0; i < n; i++) {
+		string movementName;
+		inputFile >> movementName;
+		LoadMovement(movementName);
+	}
+	inputFile >> n;
 	//load objects
 	for (int i = 0; i < n; i++) {
-		int objectID = 0, animationID = 0, frame = 0;
+		int objectID = 0, movementID = -1, animationID = 0, frame = 0;
 		float speed = 0, counter = 0;
 		string modelMatrixFile;
-		inputFile >> objectID >> animationID >> speed >> counter >> frame >> modelMatrixFile;
+		inputFile >> objectID >> movementID >> animationID >> speed >> counter >> frame >> modelMatrixFile;
 		int keyframes = skiningMatrices[animationID].size();
 		objects.push_back(objectID);
 		counters.push_back(AnimationCounter(animationID, counter, speed, frame, keyframes));
+		movement.push_back(movementID);
 		LoadModelMatrix(modelMatrixFile);
 	}
 
@@ -120,6 +130,46 @@ void AnimationController::LoadAnimation(string fileName) {
 	animations.push_back(node);
 	animationBones.push_back(bones);
 	LoadMatrices();
+}
+
+void AnimationController::LoadCameraMovement(string fileName) {
+	ifstream inputFile(fileName);
+	string comment;
+	inputFile >> comment;
+	int n;
+	inputFile >> n;
+	knots.push_back(vector<float>(n));
+	poses.push_back(vector<ObjectPose>(n));
+	for (int i = 0; i < n; i++) {
+		int knot;
+		glm::vec3 from, to, up;
+		inputFile >> knot >> from.x >> from.y >> from.z >> to.x >> to.y >> to.z >> up.x >> up.y >> up.z;
+		knots.back()[i] = knot;
+		poses.back()[i] = CreateLookAtPose(from, to, up);
+	}
+
+	timers.push_back(AnimTimer(knots.back().back()));
+	anim_poses.push_back(ObjectPose());
+}
+
+void AnimationController::LoadMovement(string fileName) {
+	ifstream inputFile(fileName);
+	string comment;
+	inputFile >> comment;
+	int n;
+	inputFile >> n;
+	knots.push_back(vector<float>(n));
+	poses.push_back(vector<ObjectPose>(n));
+	for (int i = 0; i < n; i++) {
+		int knot;
+		glm::vec3 pos, euler, scale;
+		inputFile >> knot >> pos.x >> pos.y >> pos.z >> euler.x >> euler.y >> euler.z >> scale.x >> scale.y >> scale.z;
+		knots.back()[i] = knot;
+		poses.back()[i] = ObjectPose(pos, euler, scale);
+	}
+	
+	timers.push_back(AnimTimer(knots.back().back()));
+	anim_poses.push_back(ObjectPose());
 }
 
 void AnimationController::LoadMatrices() {
@@ -240,6 +290,10 @@ void AnimationController::InitShaders() {
 	phongShaders->vert->Load("shaders/phong.vert", replaceMap);
 	phongShaders->vert->Compile();
 
+	phongShaders->geom = new GLShader(GL_GEOMETRY_SHADER);
+	phongShaders->geom->Load("shaders/phong.geom");
+	phongShaders->geom->Compile();
+
 	phongShaders->frag = new GLShader(GL_FRAGMENT_SHADER);
 	phongShaders->frag->Load("shaders/phong.frag");
 	phongShaders->frag->Compile();
@@ -264,10 +318,32 @@ void AnimationController::Draw(GLCamera *camera) {
 
 	programs[0]->Use();
 	//set matrices
-	camera->getCameraMatrices(PROJECTION_MATRIX, VIEW_MATRIX);
+	if (animateCamera) {
+		camera->getProjectionMatrix(PROJECTION_MATRIX);
+		ObjectPose pose = IntepolatePoseCubic(knots[0], poses[0], timers[0].time, true);
+		glm::mat4 model = glm::inverse(pose.GetMatrix());
+		glUniformMatrix4fv(VIEW_MATRIX, 1, GL_FALSE, glm::value_ptr(model));
+	} else {
+		camera->getCameraMatrices(PROJECTION_MATRIX, VIEW_MATRIX);
+	}
+	
+	timers[0].Next();
+	for (int i = 1; i < poses.size(); i++) {
+		anim_poses[i] = IntepolatePoseCubicDerivedRot(knots[i], poses[i], poses[i][0].quat, timers[i].time, true);
+		timers[i].Next();
+	}
+
 	for (int i = 0; i < objects.size(); i++) {
-		glUniformMatrix4fv(MODEL_MATRIX, 1, GL_FALSE, glm::value_ptr(modelMatrices[i]));
-		camera->setupNormalMatrix(modelMatrices[i], NORMAL_MATRIX);
+		if (movement[i] != -1) {
+			glm::mat4 model = anim_poses[movement[i]].GetMatrix();
+			model = model*modelMatrices[i];
+			//model = glm::translate(model, glm::vec3(50*i, 0, 50*i));
+			glUniformMatrix4fv(MODEL_MATRIX, 1, GL_FALSE, glm::value_ptr(model));
+			camera->setupNormalMatrix(model, NORMAL_MATRIX);
+		} else {
+			glUniformMatrix4fv(MODEL_MATRIX, 1, GL_FALSE, glm::value_ptr(modelMatrices[i]));
+			camera->setupNormalMatrix(modelMatrices[i], NORMAL_MATRIX);
+		}
 		//set skinning matrices
 		int matrixID = counters[i].animationID;
 		glUniformMatrix4fv(SKINNING_MATRICES, animationBones[matrixID]*16, GL_FALSE, &skiningMatrices[matrixID][counters[i].nextFrame][0]);

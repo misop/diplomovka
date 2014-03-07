@@ -1,13 +1,19 @@
 #model:fileName
 #animations:fileName
-#objects:modelID_animationID_speed_counter_frame_matrixFile
+#movement:animateCamera_filename//filename
+#objects:modelID_speedID_animationID_speed_counter_frame_matrixFile
 3
 models/strom.skl
 models/jedla.skl
 models/pes.skl
 1
 animations/pes.anm
-3
-0 0 0.02 0 0 animations/strom2.txt
-1 1 0 0 0 animations/strom.txt
-2 3 0.025 0 0 animations/pes_model.txt
+1
+1 animations/camera.txt
+animations/kruh.txt
+5
+0 -1 0 0.02 0 0 animations/strom2.txt
+1 -1 1 0 0 0 animations/strom.txt
+2 1 3 0.025 0 0 animations/pes1.txt
+2 1 3 0.025 0 0 animations/pes2.txt
+2 1 3 0.025 0 0 animations/pes3.txt

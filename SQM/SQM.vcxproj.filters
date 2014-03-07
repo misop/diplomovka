@@ -129,6 +129,9 @@
     <ClCompile Include="AnimationController.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Interpolation.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Form1.h">
@@ -233,6 +236,9 @@
     <ClInclude Include="AnimationCounter.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Interpolation.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="app.rc">
@@ -308,6 +314,9 @@
       <Filter>Shaders\Phong</Filter>
     </None>
     <None Include="Shaders\phong.vert">
+      <Filter>Shaders\Phong</Filter>
+    </None>
+    <None Include="Shaders\phong.geom">
       <Filter>Shaders\Phong</Filter>
     </None>
   </ItemGroup>

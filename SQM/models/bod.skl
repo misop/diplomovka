@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<!DOCTYPE boost_serialization>
+<boost_serialization signature="serialization::archive" version="9">
+<node class_id="0" tracking_level="1" version="2" object_id="_0">
+	<id>0</id>
+	<cyclic>0</cyclic>
+	<point class_id="1" tracking_level="0" version="0">
+		<x>0</x>
+		<y>0</y>
+		<z>0</z>
+	</point>
+	<radius>10</radius>
+	<capsule>1</capsule>
+	<tessLevel>1</tessLevel>
+	<scale>
+		<x>1</x>
+		<y>1</y>
+		<z>1</z>
+	</scale>
+	<rotate>
+		<x>0</x>
+		<y>0</y>
+		<z>0</z>
+	</rotate>
+	<nodes class_id="2" tracking_level="0" version="0">
+		<count>1</count>
+		<item_version>0</item_version>
+		<item class_id_reference="0" object_id="_1">
+			<id>0</id>
+			<cyclic>0</cyclic>
+			<point>
+				<x>14.997372</x>
+				<y>1.2497895</y>
+				<z>0</z>
+			</point>
+			<radius>10</radius>
+			<capsule>1</capsule>
+			<tessLevel>1</tessLevel>
+			<scale>
+				<x>1</x>
+				<y>1</y>
+				<z>1</z>
+			</scale>
+			<rotate>
+				<x>0</x>
+				<y>0</y>
+				<z>0</z>
+			</rotate>
+			<nodes>
+				<count>0</count>
+				<item_version>0</item_version>
+			</nodes>
+		</item>
+	</nodes>
+</node>
+</boost_serialization>
+

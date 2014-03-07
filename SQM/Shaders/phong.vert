@@ -16,9 +16,9 @@ layout(location = 4) uniform mat4 SkinningMatrices[SKINNING_MATRICES];
 uniform mat4 SkinningMatricesReference[SKINNING_MATRICES];
 uniform float AnimInterpolation;
 
-out vec4 vertex_eye;
-out vec4 normal_eye;
-out vec4 light_eye;
+out vec4 v_vertex_eye;
+out vec4 v_normal_eye;
+out vec4 v_light_eye;
 
 void main(void) {
 	vec4 pos = vec4(Position, 1.0);
@@ -32,10 +32,10 @@ void main(void) {
 	normal = M * normal;
 
 	//camera in eye coordinates is at (0,0,0,0) and light is at camera location now
-	vertex_eye = ViewMatrix * ModelMatrix * pos;
-	light_eye = vec4(0, 0, 0, 1) - vertex_eye;
-	normal_eye = vec4(NormalMatrix * vec3(normal), 0.0);
-	vertex_eye = vec4(0, 0, 0, 1) - vertex_eye;
+	v_vertex_eye = ViewMatrix * ModelMatrix * pos;
+	v_light_eye = vec4(0, 0, 0, 1) - v_vertex_eye;
+	v_normal_eye = vec4(NormalMatrix * vec3(normal), 0.0);
+	v_vertex_eye = vec4(0, 0, 0, 1) - v_vertex_eye;
 
 	gl_Position = ProjectionMatrix * ViewMatrix * ModelMatrix * pos;
 }

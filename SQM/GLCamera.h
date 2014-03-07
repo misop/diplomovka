@@ -50,6 +50,8 @@ public:
 	
 	void lookFromCamera(GLint mvpLoc);
 	void getCameraMatrices(GLint pLoc, GLint vLoc);
+	void getProjectionMatrix(GLint pLoc);
+	void getViewMatrix(GLint vLoc);
 	void setupNormalMatrix(glm::mat4 &model, GLint nmLoc);
 	void setupModelViewMatrix(GLint mvLoc);
 	void setupNormalMatrix(GLint nmLoc);

@@ -111,6 +111,7 @@
     <ClCompile Include="GLProgram.cpp" />
     <ClCompile Include="GLShader.cpp" />
     <ClCompile Include="GLTexture.cpp" />
+    <ClCompile Include="Interpolation.cpp" />
     <ClCompile Include="Laplacian.cpp" />
     <ClCompile Include="LIE.cpp" />
     <ClCompile Include="LIENeedEntry.cpp" />
@@ -148,6 +149,7 @@
     <ClInclude Include="GLProgram.h" />
     <ClInclude Include="GLShader.h" />
     <ClInclude Include="GLTexture.h" />
+    <ClInclude Include="Interpolation.h" />
     <ClInclude Include="Laplacian.h" />
     <ClInclude Include="LIE.h" />
     <ClInclude Include="LIENeedEntry.h" />
@@ -189,6 +191,7 @@
     <None Include="Shaders\BNPGeomShader.geom" />
     <None Include="Shaders\BNPVertShader.vert" />
     <None Include="Shaders\phong.frag" />
+    <None Include="Shaders\phong.geom" />
     <None Include="Shaders\phong.vert" />
     <None Include="Shaders\SklLineFragShader.frag" />
     <None Include="Shaders\SklLineVertShader.vert" />
