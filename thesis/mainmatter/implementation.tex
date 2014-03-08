@@ -14,6 +14,7 @@ In this chapter we will describe how we implemented our solution.
 We will start with used programming language, Integrated Developer Environment (IDE), tools and libraries.
 Next, we will describe implemented classes, grouped by model-view-controller pattern in greater detail.
 After that we will show some programmable shaders used in our implementation.
+Finally, we will describe our implementation of base manifold mesh library.
 
 \section{Programming Language, IDE, Tools, and Libraries}
 
@@ -188,6 +189,19 @@ Mouse wheel translates the camera along its view direction and therefore produce
 
 \subsection{Controller}
 
-Controller updates input forms with models data and if new values are provided through input forms controller updates model accordingly.
+Controller is represneted by BMMController class.
+BMMController connects model and view together by updating input forms with models data, providing OpenGL view with buffer data from the model and if new values are provided through input forms or mouse interaction, controller updates model accordingly.
+Controller also handles file input and output.
+When an input skeleton is loaded from a file, controller de-serializes objects saved in file and creates new BMMNode.
+This new node is then set as the root for BMMAlgorithm.
+BMMController is also capable of saving current skeleton into a file.
+First controller queries BMMAlgorithm for skeletal representation through a provided interface.
+Then controller serializes and stores the received skeletal structure.
+Through a different interface, BMMController can query the generated base mesh, represented as Wavefront .obj and store it in a file.
+Since controllers only interaction with model is providing input and output, it can be replaced at any time to accommodate for a different application.
+For example in a library for base manifold mesh generation, where a one-shot algorithm would be desired, the controller would  send input skeleton to BMMAlgorithm.
+Let BMMAlgorithm execute and return the generated base mesh either a Wavefron .obj suitable for storing or transferring to a different application, indexed face data structure suitable for rendering or in half edge data structure suitable for further mesh processing.
 
 \section{GPU Shaders}
+
+\section{Base Manifold Mesh Library}
