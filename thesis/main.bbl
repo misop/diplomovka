@@ -1,5 +1,12 @@
 \begin{thebibliography}{10}
 
+\bibitem{wireframe}
+Andreas B{\ae}rentzen, Steen~L. Nielsen, Mikkel Gj{\o}l, Bent~D. Larsen, and
+  Niels~J{\o}rgen Christensen.
+\newblock Single-pass wireframe rendering.
+\newblock In {\em ACM SIGGRAPH 2006 Sketches}, SIGGRAPH '06, New York, NY, USA,
+  2006. ACM.
+
 \bibitem{Boost}
 Boost.
 \newblock Boost {C}++ libraries.
@@ -66,7 +73,7 @@ OpenMesh.
 \bibitem{gpu_gems_2}
 Matt Pharr and Randima Fernando.
 \newblock {\em GPU Gems 2: Programming Techniques for High-Performance Graphics
-  and General-Purpose Computation (Gpu Gems)}.
+  and General-Purpose Computation (Gpu Gems)}, chapter~7.
 \newblock Addison-Wesley Professional, 2005.
 
 \end{thebibliography}
