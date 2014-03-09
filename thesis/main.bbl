@@ -35,6 +35,12 @@ Zhongping Ji~Ligang Liu and Yigang Wang.
   shapes.
 \newblock {\em ComputGraphForum}, 29(7):2169–77, 2010.
 
+\bibitem{gregory_patch}
+Charles Loop, Scott Schaefer, Tianyun Ni, and Ignacio Casta\~{n}o.
+\newblock Approximating subdivision surfaces with gregory patches for hardware
+  tessellation.
+\newblock {\em ACM Trans. Graph.}, 28(5):151:1--151:9, December 2009.
+
 \bibitem{laplac_phd}
 Martin Madaras.
 \newblock Todo.
@@ -56,5 +62,11 @@ OpenMesh.
 \newblock Open{M}esh open half edge data structure.
 \newblock \url{http://openmesh.org/}, 2014.
 \newblock [Online; accessed 24-February-2014].
+
+\bibitem{gpu_gems_2}
+Matt Pharr and Randima Fernando.
+\newblock {\em GPU Gems 2: Programming Techniques for High-Performance Graphics
+  and General-Purpose Computation (Gpu Gems)}.
+\newblock Addison-Wesley Professional, 2005.
 
 \end{thebibliography}
