@@ -70,6 +70,12 @@ OpenMesh.
 \newblock \url{http://openmesh.org/}, 2014.
 \newblock [Online; accessed 24-February-2014].
 
+\bibitem{laplac}
+Hung-Kuo Chu Daniel Cohen-Or Oscar Kin-Chung~Au, Chiew-Lan~Tai and Tong-Yee
+  Lee.
+\newblock Skeleton extraction by mesh contraction.
+\newblock {\em ACM SIGGRAPH 2008 papers}, pages 1--10, 2008.
+
 \bibitem{gpu_gems_2}
 Matt Pharr and Randima Fernando.
 \newblock {\em GPU Gems 2: Programming Techniques for High-Performance Graphics
