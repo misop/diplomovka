@@ -1,0 +1,29 @@
+#version 430
+
+layout(vertices = 3) out;
+
+in _{
+	vec4 vertex_eye;
+	vec4 normal_eye;
+	vec4 light_eye;
+} v[];
+
+const float tessLevel = 5;
+
+out _{
+	vec4 vertex_eye;
+	vec4 normal_eye;
+	vec4 light_eye;
+} tc;
+
+void main(void) {
+	//inner level
+    gl_TessLevelInner[0] = tessLevel;
+	//outter levels
+    gl_TessLevelOuter[0] = tessLevel;
+    gl_TessLevelOuter[1] = tessLevel;
+    gl_TessLevelOuter[2] = tessLevel;
+	tc[gl_InvocationID] = v[gl_InvocationID];
+
+	gl_out[gl_InvocationID].gl_Position = gl_in[gl_InvocationID].gl_Position;
+}

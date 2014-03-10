@@ -1,12 +1,15 @@
 #version 430
 
-const float LineWidth = 0.5;
+const float LineWidth = 0.01;
 const bool Wireframe = false;
+const bool ToonShading = false;
 
-in vec4 vertex_eye;
-in vec4 normal_eye;
-in vec4 light_eye;
-in vec3 height;
+in _{
+	vec4 vertex_eye;
+	vec4 normal_eye;
+	vec4 light_eye;
+	vec3 height;
+} g;
 
 layout (location = 0) out vec4 fColor;
 
@@ -32,7 +35,7 @@ void main(void) {
 	float alpha = 1;
 
 	if (Wireframe) {	
-		float dist = evalMinDistanceToEdges(height);
+		float dist = evalMinDistanceToEdges(g.height);
 
 		if (dist > 0.5*LineWidth+1) discard;
 		// Map the computed distance to the [0,2] range on the border of the line.
@@ -42,9 +45,9 @@ void main(void) {
 		float alpha = exp2(-2.0*dist);
 	}
 
-	vec4 V = normalize(vertex_eye);
-   	vec4 L = normalize(light_eye);
-   	vec4 N = normalize(normal_eye); 
+	vec4 V = normalize(g.vertex_eye);
+   	vec4 L = normalize(g.light_eye);
+   	vec4 N = normalize(g.normal_eye); 
 
 	float diffuse = clamp(dot(L, N), 0.0, 1.0);
    	vec4 R = reflect(-L, N);
@@ -52,6 +55,11 @@ void main(void) {
 	
 	vec4 ambient = vec4(0.2, 0.2, 0.2, 1.0);
 	vec4 specularL = vec4(1, 1, 1, 1.0);
+	
+	if (ToonShading) {
+		diffuse = diffuse < 0.3 ? 0 : diffuse < 0.7 ? 0.5 : 1;
+		specular = specular < 0.3 ? 0 : specular < 0.7 ? 0.5 : 1;
+	}
 
 	color = 0.2 * (vec4(0.2, 0.2, 0.2, 1.0) + ambient) * (diffuse_material);
 	color += diffuse * diffuse_material;

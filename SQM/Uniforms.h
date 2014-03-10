@@ -10,6 +10,8 @@
 
 #define MVP_MATRIX_STR "MVPmatrix"
 #define MODEL_MATRIX_STR "ModelMatrix"
+#define VIEW_MATRIX_STR "ViewMatrix"
+#define PROJECTION_MATRIX_STR "ProjectionMatrix"
 #define MODEL_VIEW_MATRIX_STR "ModelViewMatrix"
 #define NORMAL_MATRIX_STR "NormalMatrix"
 #define SKINNING_MATRICES_STR "SkinningMatrices"

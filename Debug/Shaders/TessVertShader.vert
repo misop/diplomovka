@@ -12,7 +12,6 @@ layout (location = 5) in ivec2 Data;
 uniform mat4 SkinningMatrices[SKINNING_MATRICES];
 uniform mat4 TransformMatrices[SKINNING_MATRICES];
 uniform int SkinningType;
-uniform float param;
 
 out vec3 vVertexNormal;
 out float vTessLevel;
@@ -40,26 +39,25 @@ void main(void)
 		vec4 npos = nodePosition;
 		vec4 n = normal;
 		mat4 U = mat4(1.0);
-		float alpha = 0.5;
 		if (SkinningIDs.x != -1) {
 			//mat4 M1 = (1-alpha)*U;
 			//mat4 M2 = alpha*SkinningMatrices[SkinningIDs.x];
 			//mat4 M3 = M1 + M2;
 			//pos = M3 * position;
-			mat4 M = (1-alpha)*U + alpha*SkinningMatrices[SkinningIDs.x];
-			pos = M * position;
-			npos = M * nodePosition;
-			n = M * normal;
-			//pos = w0 * SkinningMatrices[SkinningIDs.x] * position;
-			//npos = SkinningMatrices[SkinningIDs.x] * nodePosition;
-			//n = w0 * SkinningMatrices[SkinningIDs.x] * normal;
+			//mat4 M = (1-alpha)*U + alpha*SkinningMatrices[SkinningIDs.x];
+			//pos = M * position;
+			//npos = M * nodePosition;
+			//n = M * normal;
+			pos = w0 * SkinningMatrices[SkinningIDs.x] * position;
+			npos = SkinningMatrices[SkinningIDs.x] * nodePosition;
+			n = w0 * SkinningMatrices[SkinningIDs.x] * normal;
 		}
 		if (SkinningIDs.y != -1) {
-			mat4 M = (1-alpha)*U + alpha*(w0*SkinningMatrices[SkinningIDs.x] + w1*SkinningMatrices[SkinningIDs.y]);
-			pos = M * position;
-			n = M * normal;
-			//pos += w1 * SkinningMatrices[SkinningIDs.y] * position;
-			//n += w1 * SkinningMatrices[SkinningIDs.y] * normal;
+			//mat4 M = (1-alpha)*U + alpha*(w0*SkinningMatrices[SkinningIDs.x] + w1*SkinningMatrices[SkinningIDs.y]);
+			//pos = M * position;
+			//n = M * normal;
+			pos += w1 * SkinningMatrices[SkinningIDs.y] * position;
+			n += w1 * SkinningMatrices[SkinningIDs.y] * normal;
 		}
 		position = pos;
 		nodePosition = npos;

@@ -47,6 +47,7 @@ void AnimationController::LoadScene() {
 	inputFile >> comment;
 	inputFile >> comment;
 	inputFile >> comment;
+	inputFile >> comment;
 	int n;
 	inputFile >> n;
 	//load models
@@ -74,17 +75,33 @@ void AnimationController::LoadScene() {
 		LoadMovement(movementName);
 	}
 	inputFile >> n;
-	//load objects
+	//load objects with pose files
 	for (int i = 0; i < n; i++) {
 		int objectID = 0, movementID = -1, animationID = 0, frame = 0;
 		float speed = 0, counter = 0;
 		string modelMatrixFile;
-		inputFile >> objectID >> movementID >> animationID >> speed >> counter >> frame >> modelMatrixFile;
+		char c;
+		inputFile >> objectID >> movementID >> animationID >> c >> speed >> counter >> frame >> c >> modelMatrixFile;
 		int keyframes = skiningMatrices[animationID].size();
 		objects.push_back(objectID);
 		counters.push_back(AnimationCounter(animationID, counter, speed, frame, keyframes));
 		movement.push_back(movementID);
 		LoadModelMatrix(modelMatrixFile);
+	}
+	inputFile >> n;
+	//load objects with just position
+	for (int i = 0; i < n; i++) {
+		int objectID = 0, movementID = -1, animationID = 0, frame = 0;
+		float speed = 0, counter = 0;
+		glm::vec3 pos(0);
+		char c;
+		inputFile >> objectID >> movementID >> animationID >> c >> speed >> counter >> frame >> c >> pos.x >> pos.y >> pos.z;
+		int keyframes = skiningMatrices[animationID].size();
+		objects.push_back(objectID);
+		counters.push_back(AnimationCounter(animationID, counter, speed, frame, keyframes));
+		movement.push_back(movementID);
+		glm::mat4 T = glm::translate(glm::mat4(1.0), pos);
+		modelMatrices.push_back(T);
 	}
 
 	InitShaders();
@@ -167,7 +184,7 @@ void AnimationController::LoadMovement(string fileName) {
 		knots.back()[i] = knot;
 		poses.back()[i] = ObjectPose(pos, euler, scale);
 	}
-	
+
 	timers.push_back(AnimTimer(knots.back().back()));
 	anim_poses.push_back(ObjectPose());
 }
@@ -290,6 +307,14 @@ void AnimationController::InitShaders() {
 	phongShaders->vert->Load("shaders/phong.vert", replaceMap);
 	phongShaders->vert->Compile();
 
+	phongShaders->ctrl = new GLShader(GL_TESS_CONTROL_SHADER);
+	phongShaders->ctrl->Load("shaders/phong.ctrl");
+	phongShaders->ctrl->Compile();
+
+	phongShaders->eval = new GLShader(GL_TESS_EVALUATION_SHADER);
+	phongShaders->eval->Load("shaders/phong.eval");
+	phongShaders->eval->Compile();
+
 	phongShaders->geom = new GLShader(GL_GEOMETRY_SHADER);
 	phongShaders->geom->Load("shaders/phong.geom");
 	phongShaders->geom->Compile();
@@ -326,13 +351,14 @@ void AnimationController::Draw(GLCamera *camera) {
 	} else {
 		camera->getCameraMatrices(PROJECTION_MATRIX, VIEW_MATRIX);
 	}
-	
+
 	timers[0].Next();
 	for (int i = 1; i < poses.size(); i++) {
 		anim_poses[i] = IntepolatePoseCubicDerivedRot(knots[i], poses[i], poses[i][0].quat, timers[i].time, true);
 		timers[i].Next();
 	}
-
+	
+	//glPatchParameteri(GL_PATCH_VERTICES, 3);
 	for (int i = 0; i < objects.size(); i++) {
 		if (movement[i] != -1) {
 			glm::mat4 model = anim_poses[movement[i]].GetMatrix();
@@ -346,12 +372,13 @@ void AnimationController::Draw(GLCamera *camera) {
 		}
 		//set skinning matrices
 		int matrixID = counters[i].animationID;
-		glUniformMatrix4fv(SKINNING_MATRICES, animationBones[matrixID]*16, GL_FALSE, &skiningMatrices[matrixID][counters[i].nextFrame][0]);
+		glUniformMatrix4fv(programs[0]->getUniformLocation(SKINNING_MATRICES_STR), animationBones[matrixID]*16, GL_FALSE, &skiningMatrices[matrixID][counters[i].nextFrame][0]);
 		glUniformMatrix4fv(programs[0]->getUniformLocation(SKINNING_REF_MATRIX_STR), animationBones[matrixID]*16, GL_FALSE, &skiningMatrices[matrixID][counters[i].frame][0]);
 		//set animation step
 		glUniform1f(programs[0]->getUniformLocation(ANIM_PARAM_STR), counters[i].counter);
 		//draw model
-		models[objects[i]]->DrawElement(0, GL_TRIANGLES);
+		//models[objects[i]]->DrawElement(0, GL_TRIANGLES);
+		models[objects[i]]->DrawElement(0, GL_PATCHES);
 		counters[i].Animate();
 	}
 }
