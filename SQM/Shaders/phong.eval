@@ -6,6 +6,7 @@ in _{
 	vec4 vertex_eye;
 	vec4 normal_eye;
 	vec4 light_eye;
+	vec2 uv;
 } tc[];
 
 layout(location = 0) uniform mat4 ModelMatrix;
@@ -16,6 +17,7 @@ out _{
 	vec4 vertex_eye;
 	vec4 normal_eye;
 	vec4 light_eye;
+	vec2 uv;
 } te;
 
 void main(void) {
@@ -28,6 +30,7 @@ void main(void) {
 	te.vertex_eye = gl_TessCoord.x*tc[0].vertex_eye + gl_TessCoord.y*tc[1].vertex_eye + gl_TessCoord.z*tc[2].vertex_eye;
 	te.normal_eye = gl_TessCoord.x*tc[0].normal_eye + gl_TessCoord.y*tc[1].normal_eye + gl_TessCoord.z*tc[2].normal_eye;
 	te.light_eye = gl_TessCoord.x*tc[0].light_eye + gl_TessCoord.y*tc[1].light_eye + gl_TessCoord.z*tc[2].light_eye;
+	te.uv = gl_TessCoord.x*tc[0].uv + gl_TessCoord.y*tc[1].uv + gl_TessCoord.z*tc[2].uv;
 	
 	//gl_Position = vec4(position, 1);
 	gl_Position = ProjectionMatrix * ViewMatrix * vec4(position, 1);

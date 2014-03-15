@@ -1,14 +1,13 @@
-#model:fileName
-#animations:fileName
+#model:fileName_textures
 #movement:animateCamera_filename//filename
-#objects:modelID_moveID_animationID_speed_counter_frame_matrixFile
-#objects:modelID_moveID_animationID_speed_counter_frame_posX_posY_posZ
+#objects:modelID_moveID_matrixFile
+#objects:modelID_moveID_posX_posY_posZ
 1
-models/pes.bin
+models/monsterfrog_mapped.obj textures/monsterfrog.txt
 1
-animations/pes.anm
-0
 0 animations/camera.txt
+animations/kruh.txt
 1
-0  0 0 | 0  0  0 | animations/pes1.txt
-0
+0 1 | animations/pes1.txt
+1
+0 -1 | 0 0 0

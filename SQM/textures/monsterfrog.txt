@@ -1,0 +1,4 @@
+#diffuse_displacement_normal
+1 ./textures/monsterfrog-n.bmp
+0
+0

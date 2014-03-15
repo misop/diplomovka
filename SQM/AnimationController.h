@@ -7,17 +7,14 @@
 #include "AnimationSkeleton.h"
 #include "AnimationCounter.h"
 #include "Interpolation.h"
+#include "AssimpObject.h"
 
 class AnimationController
 {
 	vector<GLProgram *> programs;
 	vector<OpenGLShaders *> shaders;
-	vector<GLArrayBuffer *> models;
+	vector<AssimpObject *> models;
 	vector<int> objects;
-	vector<AnimationSkeleton *> animations;
-	vector<int> animationBones;
-	vector<AnimationCounter> counters;
-	vector<vector<vector<float> > > skiningMatrices;
 	vector<glm::mat4> modelMatrices;
 	vector<vector<ObjectPose> > poses;
 	vector<ObjectPose> anim_poses;
@@ -32,14 +29,9 @@ public:
 	~AnimationController(void);
 
 	void LoadScene();
-	void LoadSkeleton(string fileName);
-	void LoadAnimation(string fileName);
+	void LoadModel(string fileName, string texturesFileName);
 	void LoadCameraMovement(string fileName);
 	void LoadMovement(string fileName);
-	void LoadDefaultAnimation(SQMAlgorithm &sqmAlgorithm);
-	void CreateBuffers(SQMAlgorithm &sqmAlgorithm);
-	void CreateBuffers(string fileName);
-	void LoadMatrices();
 	void LoadModelMatrix(string fileName);
 
 	void ClearShaders();

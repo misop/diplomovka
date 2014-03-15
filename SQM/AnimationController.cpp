@@ -36,9 +36,6 @@ AnimationController::~AnimationController(void)
 	for (int i = 0; i < models.size(); i++) {
 		delete models[i];
 	}
-	for (int i = 0; i < animations.size(); i++) {
-		delete animations[i];
-	}
 }
 
 #pragma endregion
@@ -55,21 +52,13 @@ void AnimationController::LoadScene() {
 	inputFile >> comment;
 	inputFile >> comment;
 	inputFile >> comment;
-	inputFile >> comment;
 	int n;
 	inputFile >> n;
 	//load models
 	for (int i = 0; i < n; i++) {
-		string modelName;
-		inputFile >> modelName;
-		LoadSkeleton(modelName);
-	}
-	inputFile >> n;
-	//load animations
-	for (int i = 0; i < n; i++) {
-		string animationName;
-		inputFile >> animationName;
-		LoadAnimation(animationName);
+		string modelName, texturesFileName;
+		inputFile >> modelName >> texturesFileName;
+		LoadModel(modelName, texturesFileName);
 	}
 	inputFile >> n;
 	//load camera animation
@@ -85,28 +74,22 @@ void AnimationController::LoadScene() {
 	inputFile >> n;
 	//load objects with pose files
 	for (int i = 0; i < n; i++) {
-		int objectID = 0, movementID = -1, animationID = 0, frame = 0;
-		float speed = 0, counter = 0;
+		int objectID = 0, movementID = -1;
 		string modelMatrixFile;
 		char c;
-		inputFile >> objectID >> movementID >> animationID >> c >> speed >> counter >> frame >> c >> modelMatrixFile;
-		int keyframes = skiningMatrices[animationID].size();
+		inputFile >> objectID >> movementID >> c >> modelMatrixFile;
 		objects.push_back(objectID);
-		counters.push_back(AnimationCounter(animationID, counter, speed, frame, keyframes));
 		movement.push_back(movementID);
 		LoadModelMatrix(modelMatrixFile);
 	}
 	inputFile >> n;
 	//load objects with just position
 	for (int i = 0; i < n; i++) {
-		int objectID = 0, movementID = -1, animationID = 0, frame = 0;
-		float speed = 0, counter = 0;
+		int objectID = 0, movementID = -1;
 		glm::vec3 pos(0);
 		char c;
-		inputFile >> objectID >> movementID >> animationID >> c >> speed >> counter >> frame >> c >> pos.x >> pos.y >> pos.z;
-		int keyframes = skiningMatrices[animationID].size();
+		inputFile >> objectID >> movementID >> c >> pos.x >> pos.y >> pos.z;
 		objects.push_back(objectID);
-		counters.push_back(AnimationCounter(animationID, counter, speed, frame, keyframes));
 		movement.push_back(movementID);
 		glm::mat4 T = glm::translate(glm::mat4(1.0), pos);
 		modelMatrices.push_back(T);
@@ -117,45 +100,10 @@ void AnimationController::LoadScene() {
 	canDraw = prevDraw;
 }
 
-void AnimationController::LoadSkeleton(string fileName) {
-	/*ofstream errorLog("log.txt");
-	ifstream inputFile(fileName);
-	assert(inputFile.good());
-	boost::archive::xml_iarchive inputArchive(inputFile);
-	SkeletonNode *node = NULL;
-	try {
-		inputArchive >> BOOST_SERIALIZATION_NVP(node);	
-	} catch (boost::archive::archive_exception e) {
-		errorLog << "Exception: " << e.what() << endl;
-		throw e;
-	}
-	SQMNode *sqmNode = new SQMNode(*node, NULL);
-	SQMAlgorithm sqmAlgorithm;
-	sqmAlgorithm.setUseCPUSkinning(false);
-	sqmAlgorithm.setRoot(sqmNode);
-	sqmAlgorithm.executeSQMAlgorithm(SQMFinalPlacement);
-	LoadDefaultAnimation(sqmAlgorithm);
-	CreateBuffers(sqmAlgorithm);
-	delete node;*/
-	CreateBuffers(fileName);
-}
-
-void AnimationController::LoadAnimation(string fileName) {
-	ofstream errorLog("log.txt");
-	ifstream inputFile(fileName);
-	assert(inputFile.good());
-	boost::archive::xml_iarchive inputArchive(inputFile);
-	AnimationSkeleton *node = NULL;
-	try {
-		inputArchive >> BOOST_SERIALIZATION_NVP(node);	
-	} catch (boost::archive::archive_exception e) {
-		errorLog << "Exception: " << e.what() << endl;
-		throw e;
-	}
-	int bones = RecalculateIDs(node);
-	animations.push_back(node);
-	animationBones.push_back(bones);
-	LoadMatrices();
+void AnimationController::LoadModel(string fileName, string texturesFileName) {
+	models.push_back(new AssimpObject());
+	models.back()->LoadFromFile(fileName);
+	models.back()->LoadTexturesFromFile(texturesFileName);
 }
 
 void AnimationController::LoadCameraMovement(string fileName) {
@@ -198,122 +146,19 @@ void AnimationController::LoadMovement(string fileName) {
 	anim_poses.push_back(ObjectPose());
 }
 
-void AnimationController::LoadMatrices() {
-	int keyframes = animations.back()->axisAngles.size();
-
-	skiningMatrices.push_back(vector<vector<float> >(0));
-	for (int i = 0; i < keyframes; i++) {
-		animations.back()->ComputeSkinningMatrices(i);
-		skiningMatrices.back().push_back(vector<float>(animationBones.back()*16));
-		deque<AnimationSkeleton*> queue;
-		queue.push_back(animations.back());
-
-		while (!queue.empty()) {
-			AnimationSkeleton *skin = queue.front();
-			queue.pop_front();
-
-			int id = skin->id * 16;
-			glm::mat4 mat = skin->matrix;
-			float *matPtr = glm::value_ptr(mat);
-			for (int j = 0; j < 16; j++) {
-				skiningMatrices.back()[i][id + j] = matPtr[j];
-			}
-
-			for (int j = 0; j < skin->nodes.size(); j++) {
-				queue.push_back(skin->nodes[j]);
-			}
-		}
-	}
-}
-
-void AnimationController::LoadDefaultAnimation(SQMAlgorithm &sqmAlgorithm) {
-	int skinningMatricesCount = sqmAlgorithm.getNumberOfSkinningMatrices();
-	animationBones.push_back(skinningMatricesCount);
-
-	skiningMatrices.push_back(vector<vector<float> >(0));
-	skiningMatrices.back().push_back(vector<float>(skinningMatricesCount*16));
-	skiningMatrices.back().push_back(vector<float>(skinningMatricesCount*16));
-
-	sqmAlgorithm.getSkinningMatrices(&skiningMatrices.back()[1][0]);
-
-	glm::mat4 M(1.0);
-	for (int i = 0; i < skinningMatricesCount; i++) {
-		int id = i * 16;
-		float *matPtr = glm::value_ptr(M);
-		for (int j = 0; j < 16; j++) {
-			skiningMatrices.back()[0][id + j] = matPtr[j];
-		}
-	}
-}
-
-void AnimationController::CreateBuffers(SQMAlgorithm &sqmAlgorithm) {
-	vector<float> points;
-	vector<float> normals;
-	vector<int> indices;
-	vector<int> skinMatrices;
-	vector<float> skinWeights;
-
-	convertMeshToArray(sqmAlgorithm.getMesh(), points, normals, indices);
-	sqmAlgorithm.getRoot()->getMeshData(skinMatrices, skinWeights);
-
-	GLArrayBuffer *buffer = new GLArrayBuffer();
-	buffer->Bind();
-	buffer->BindBufferDataf(points, 3, GL_STATIC_DRAW);
-	buffer->BindBufferDataf(normals, 3, GL_STATIC_DRAW);
-	buffer->BindBufferDatai(skinMatrices, 4, GL_STATIC_DRAW);
-	buffer->BindBufferDataf(skinWeights, 4, GL_STATIC_DRAW);
-
-	buffer->BindElement(indices, GL_STATIC_DRAW);
-
-	models.push_back(buffer);
-	/*for (int i = 0; i < points.size(); i++) {
-		if (i%3 == 0) {
-			float ffffff = points[i];
-			int lol = 1;
-		}
-	}*/
-	/*ofstream f("bin/data.bin", ios::out | ios::binary);
-
-	int count = points.size()/3;
-	f.write((char*)&count, sizeof(int));
-	f.write((char*)&points[0], points.size()*sizeof(float));
-	f.write((char*)&normals[0], normals.size()*sizeof(float));
-	f.write((char*)&skinMatrices[0], skinMatrices.size()*sizeof(int));
-	f.write((char*)&skinWeights[0], skinWeights.size()*sizeof(float));
-	f.close();*/
-}
-
-void AnimationController::CreateBuffers(string fileName) {
-	ifstream f(fileName, ios::in | ios::binary);
-	int N;
-	f.read((char*)&N, sizeof(int));
-	vector<float> points(N*3);
-	vector<float> normals(N*3);
-	vector<int> skinMatrices(N*4);
-	vector<float> skinWeights(N*4);
-	f.read((char*)&points[0], points.size()*sizeof(float));
-	f.read((char*)&normals[0], normals.size()*sizeof(float));
-	f.read((char*)&skinMatrices[0], skinMatrices.size()*sizeof(int));
-	f.read((char*)&skinWeights[0], skinWeights.size()*sizeof(float));
-	f.close();
-
-	GLArrayBuffer *buffer = new GLArrayBuffer();
-	buffer->Bind();
-	buffer->BindBufferDataf(points, 3, GL_STATIC_DRAW);
-	buffer->BindBufferDataf(normals, 3, GL_STATIC_DRAW);
-	buffer->BindBufferDatai(skinMatrices, 4, GL_STATIC_DRAW);
-	buffer->BindBufferDataf(skinWeights, 4, GL_STATIC_DRAW);
-
-	models.push_back(buffer);
-}
-
 void AnimationController::LoadModelMatrix(string fileName) {
 	ifstream inputFile(fileName);
 	string comment;
 	inputFile >> comment;
-	float tx = 0, ty = 0, tz = 0, sx = 1, sy = 1, sz = 1, rx = 0, ry = 1, rz = 0, a = 0;
-	inputFile >> tx >> ty >> tz >> sx >> sy >> sz >> rx >> ry >> rz >> a;
-	glm::mat4 R = glm::rotate(glm::mat4(1.0), a, glm::vec3(rx, ry, rz));
+	float tx = 0, ty = 0, tz = 0, sx = 1, sy = 1, sz = 1, rx = 0, ry = 1, rz = 0;
+	char c;
+	inputFile >> tx >> ty >> tz >> c >> sx >> sy >> sz >> c >> rx >> ry >> rz;
+	glm::quat qx = glm::angleAxis(rx, glm::vec3(1, 0, 0));
+	glm::quat qy = glm::angleAxis(ry, glm::vec3(0, 1, 0));
+	glm::quat qz = glm::angleAxis(rz, glm::vec3(0, 0, 1));
+	glm::quat q = qz * qy * qx;
+	glm::mat4 R = glm::toMat4(q);
+	//glm::mat4 R = glm::rotate(glm::mat4(1.0), a, glm::vec3(rx, ry, rz));
 	glm::mat4 S = glm::scale(glm::mat4(1.0), glm::vec3(sx, sy, sz));
 	glm::mat4 T = glm::translate(glm::mat4(1.0), glm::vec3(tx, ty, tz));
 	glm::mat4 M = T * S * R;
@@ -342,17 +187,9 @@ void AnimationController::InitShaders() {
 	canDraw = false;
 	ClearShaders();
 
-	map<std::string, std::string> replaceMap;
-	int matrices = 1;
-	for (int i = 0; i < animationBones.size(); i++) {
-		if (animationBones[i] > matrices) matrices = animationBones[i];
-	}
-	string matricesStr = std::to_string(matrices);
-	replaceMap.insert(std::pair<std::string, std::string>("fill_in_skinnig_matrices_number", matricesStr));
-
 	OpenGLShaders *phongShaders = new OpenGLShaders();
 	phongShaders->vert = new GLShader(GL_VERTEX_SHADER);
-	phongShaders->vert->Load("shaders/phong.vert", replaceMap);
+	phongShaders->vert->Load("shaders/phong.vert");
 	phongShaders->vert->Compile();
 
 	phongShaders->ctrl = new GLShader(GL_TESS_CONTROL_SHADER);
@@ -390,11 +227,7 @@ void AnimationController::Draw(GLCamera *camera) {
 	if (!canDraw) return;
 
 	programs[0]->Use();
-	int uiformSkinMatrixBindLoc = programs[0]->getUniformLocation(SKINNING_MATRICES_STR);
-	int uiformSkinMatrixRefLoc = programs[0]->getUniformLocation(SKINNING_REF_MATRIX_STR);
 	glUniform1f(programs[0]->getUniformLocation(SCREEN_HEIGHT_STR), (float)camera->height);
-
-	if (uiformSkinMatrixBindLoc == -1 || uiformSkinMatrixRefLoc == -1) return;
 	//set matrices
 	if (animateCamera) {
 		camera->getProjectionMatrix(PROJECTION_MATRIX);
@@ -421,17 +254,12 @@ void AnimationController::Draw(GLCamera *camera) {
 			glUniformMatrix4fv(MODEL_MATRIX, 1, GL_FALSE, glm::value_ptr(modelMatrices[i]));
 			camera->setupNormalMatrix(modelMatrices[i], NORMAL_MATRIX);
 		}
-		//set skinning matrices
-		int matrixID = counters[i].animationID;
-		glUniformMatrix4fv(uiformSkinMatrixBindLoc, animationBones[matrixID]*16, GL_FALSE, &skiningMatrices[matrixID][counters[i].nextFrame][0]);
-		glUniformMatrix4fv(uiformSkinMatrixRefLoc, animationBones[matrixID]*16, GL_FALSE, &skiningMatrices[matrixID][counters[i].frame][0]);
-		//set animation step
-		glUniform1f(programs[0]->getUniformLocation(ANIM_PARAM_STR), counters[i].counter);
+		int idx = objects[i];
+		//set textures
+		glActiveTexture(GL_TEXTURE0);
+		models[idx]->diffuseTexture->Bind();
 		//draw model
-		//models[objects[i]]->DrawElement(0, GL_TRIANGLES);
-		//models[objects[i]]->DrawElement(0, GL_PATCHES);
-		models[objects[i]]->Draw(GL_PATCHES);
-		counters[i].Animate();
+		models[idx]->buffer->DrawElement(0, GL_PATCHES);
 	}
 }
 

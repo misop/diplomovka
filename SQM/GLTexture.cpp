@@ -33,6 +33,14 @@ void GLTexture::FunctionTexture(int width, int height, float *data) {
 	glTexImage2D(target, 0, GL_R32F, width, height, 0, GL_RED, GL_FLOAT, data);
 }
 
+void GLTexture::RGBATexture(int width, int height, GLenum format, GLubyte *data) {
+	glTexImage2D(target, 0, GL_RGBA, width, height, 0, format, GL_UNSIGNED_BYTE, data);
+}
+
 void GLTexture::UseTexture(GLint loc, int unit) {
 	glUniform1i(loc, unit);
+}
+
+void GLTexture::TexParameteri(GLenum pname, GLint param) {
+	glTexParameteri(target, pname, param);
 }

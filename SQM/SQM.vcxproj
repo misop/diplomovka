@@ -44,6 +44,8 @@
     <Import Project="GLEW.props" />
     <Import Project="GLM.props" />
     <Import Project="freetype.props" />
+    <Import Project="assimp.props" />
+    <Import Project="iL.props" />
   </ImportGroup>
   <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
@@ -54,6 +56,9 @@
     <Import Project="GLEW.props" />
     <Import Project="GLM.props" />
     <Import Project="OpenMesh.props" />
+    <Import Project="freetype.props" />
+    <Import Project="assimp.props" />
+    <Import Project="iL.props" />
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
@@ -103,6 +108,7 @@
     <ClCompile Include="AnimationController.cpp" />
     <ClCompile Include="AnimationSkeleton.cpp" />
     <ClCompile Include="AssemblyInfo.cpp" />
+    <ClCompile Include="AssimpObject.cpp" />
     <ClCompile Include="Delaunay.cpp" />
     <ClCompile Include="EdgeLength.cpp" />
     <ClCompile Include="FloatArithmetic.cpp" />
@@ -139,6 +145,7 @@
     <ClInclude Include="AnimationController.h" />
     <ClInclude Include="AnimationCounter.h" />
     <ClInclude Include="AnimationSkeleton.h" />
+    <ClInclude Include="AssimpObject.h" />
     <ClInclude Include="Delaunay.h" />
     <ClInclude Include="EdgeLength.h" />
     <ClInclude Include="FloatArithmetic.h" />

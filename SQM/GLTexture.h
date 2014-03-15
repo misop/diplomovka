@@ -18,6 +18,8 @@ public:
 	void Disable();
 	void Bind();
 	void FunctionTexture(int width, int height, float *data);
+	void RGBATexture(int width, int height, GLenum format, GLubyte *data);
 	void UseTexture(GLint loc, int unit);
+	void TexParameteri(GLenum pname, GLint param);
 };
 

@@ -9,7 +9,10 @@ in _{
 	vec4 normal_eye;
 	vec4 light_eye;
 	vec3 height;
+	vec2 uv;
 } g;
+
+layout(binding=0) uniform sampler2D DiffuseSampler;
 
 layout (location = 0) out vec4 fColor;
 
@@ -29,7 +32,7 @@ float evalMinDistanceToEdges(in vec3 height)
 }
 
 void main(void) {	   
-	vec4 diffuse_material = vec4(0.0, 0.75, 0.75, 1);
+	vec4 diffuse_material = texture(DiffuseSampler, g.uv);//vec4(0.0, 0.75, 0.75, 1);
 	vec4 color = vec4(0.0, 0.75, 0.75, 1);
 
 	float alpha = 1;
