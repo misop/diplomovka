@@ -123,12 +123,34 @@ void SQMControler::saveSkeletonToFile(string fileName) {
 	node9->addChild(node11);*/
 	//TODO convert SQM tree to skeleton nodes
 	try {
-		oa << BOOST_SERIALIZATION_NVP(node);	
+	oa << BOOST_SERIALIZATION_NVP(node);	
 	} catch (boost::archive::archive_exception e) {
-		errorLog << "Exception: " << e.what() << endl;
-		throw e;
+	errorLog << "Exception: " << e.what() << endl;
+	throw e;
 	}
 	delete node;
+	/*//mado vypis :D
+	of << "PseudoRoot*-*0,0,0*0,0,0*" << endl;
+	deque<SQMNode*> queue;
+	queue.push_back(sqmALgorithm->getRoot());
+	while (!queue.empty()) {
+		SQMNode *node = queue.front();
+		queue.pop_front();
+
+		if (node->getParent() != NULL) {
+			glm::vec3 pos1 = node->getPosition_glm();
+			glm::vec3 pos2 = node->getParent()->getPosition_glm();
+			of << node->getIdStr() << "*" << node->getParent()->getIdStr() << "*" << pos2.x << "," << pos2.y << "," << pos2.z << "*" << pos1.x << "," << pos1.y << "," << pos1.z << "*" << endl;
+		} else {
+			glm::vec3 pos1 = node->getPosition_glm();
+			of << node->getIdStr() << "*PseudoRoot*0,0,0*" << pos1.x << "," << pos1.y << "," << pos1.z << "*" << endl;
+		}
+
+		vector<SQMNode*> *childs = node->getNodes();
+		for (int i = 0; i < childs->size(); i++) {
+			queue.push_back((*childs)[i]);
+		}
+	}*/
 }
 
 void SQMControler::exportMeshToFile(string fileName) {
@@ -640,7 +662,7 @@ void SQMControler::drawMeshForTesselation() {
 	//vector<float> data;
 	vector<int> skinningData;
 	vector<int> data;
-	
+
 	int skinningMatricesCount = sqmALgorithm->getNumberOfSkinningMatrices();
 	skinningMatrices = new float[skinningMatricesCount*16];
 	sqmALgorithm->getSkinningMatrices(skinningMatrices);
@@ -808,10 +830,10 @@ void SQMControler::fillRadiusTable() {
 	/*ofstream f;
 	f.open ("log_radiuses.txt");
 	for (int i = 0; i < nodes; i++) {
-		for (int j = 0; j < nodes; j++) {
-			f << table[i*nodes + j] << " ";
-		}
-		f << endl;
+	for (int j = 0; j < nodes; j++) {
+	f << table[i*nodes + j] << " ";
+	}
+	f << endl;
 	}
 	f.close();*/
 
@@ -835,16 +857,16 @@ void SQMControler::fillCentersTable() {
 	/*ofstream f;
 	f.open ("log_centers.txt");
 	for (int i = 0; i < nodes * 3; i++) {
-		f << std::fixed << std::setw( 5 ) << std::setprecision( 2 ) 
-		  << std::setfill( '0' ) << table[i] << " ";
-		if (i % 3 == 2) f << endl;
+	f << std::fixed << std::setw( 5 ) << std::setprecision( 2 ) 
+	<< std::setfill( '0' ) << table[i] << " ";
+	if (i % 3 == 2) f << endl;
 	}
 	/*for (int i = 0; i < nodes; i++) {
-		for (int j = 0; j < 3; j++) {
-			f << std::fixed << std::setw( 5 ) << std::setprecision( 2 ) 
-			  << std::setfill( '0' ) << table[i*nodes + j] << " ";
-		}
-		f << endl;
+	for (int j = 0; j < 3; j++) {
+	f << std::fixed << std::setw( 5 ) << std::setprecision( 2 ) 
+	<< std::setfill( '0' ) << table[i*nodes + j] << " ";
+	}
+	f << endl;
 	}
 	f.close();*/
 

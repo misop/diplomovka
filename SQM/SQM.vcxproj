@@ -108,6 +108,7 @@
     <ClCompile Include="GLArrayBuffer.cpp" />
     <ClCompile Include="GLCamera.cpp" />
     <ClCompile Include="GLEventHandler.cpp" />
+    <ClCompile Include="GLFrameBuffer.cpp" />
     <ClCompile Include="GLProgram.cpp" />
     <ClCompile Include="GLShader.cpp" />
     <ClCompile Include="GLTexture.cpp" />
@@ -146,6 +147,7 @@
     <ClInclude Include="GLArrayBuffer.h" />
     <ClInclude Include="GLCamera.h" />
     <ClInclude Include="GLEventHandler.h" />
+    <ClInclude Include="GLFrameBuffer.h" />
     <ClInclude Include="GLProgram.h" />
     <ClInclude Include="GLShader.h" />
     <ClInclude Include="GLTexture.h" />

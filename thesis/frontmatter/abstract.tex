@@ -1,11 +1,11 @@
 \chapter{Abstract}
-We have implemented a method, that generates base manifold mesh from an input skeleton, based on Skeleton to Quad Dominant Mesh (SQM) algorithm, which converts skeletons to meshes composed mainly from quadrilaterals.
-Each node in skeleton has assigned a sphere.
+We have implemented a method that generates base manifold mesh from an input skeleton, based on Skeleton to Quad Dominant Mesh (SQM) algorithm which converts skeletons to meshes composed mainly from quadrilaterals.
+Each node in skeleton has assigned a sphere with a predefined radius.
 SQM algorithm first creates branch node polyhedrons for each sphere corresponding to a branch node.
-These polyhedrons are bridged with quadrilaterals to create the final base mesh.
+These polyhedrons are bridged with quadrilaterals in order to create the final base mesh.
 We have extended the algorithm to support generation of meshes from cyclic skeletons.
 We have also generalized skeleton nodes to ellipsoids instead of spheres.
-Finally, we extended the algorithm to generate meshes from linear skeletons without branching and from skeletons, which root node is not a branch node.
+Finally, we extended the algorithm to generate meshes from linear skeletons without branching and from skeletons which root node is not a branch node.
 The generated base mesh is tessellated on GPU for better visual results.
 \\ \\
 \textbf{\textsc{Keywords:}} skeleton, convert, base mesh, manifold

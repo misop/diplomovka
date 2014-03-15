@@ -36,3 +36,4 @@
 #define PARAM_STR "param"
 #define SKINNING_REF_MATRIX_STR "SkinningMatricesReference"
 #define ANIM_PARAM_STR  "AnimInterpolation"
+#define SCREEN_HEIGHT_STR "ScreenHeight"

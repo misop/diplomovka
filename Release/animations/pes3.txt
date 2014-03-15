@@ -1,0 +1,2 @@
+#translate_scale_rotate_alfa
+-75 150 275 1 1 1 0 1 0 0

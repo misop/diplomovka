@@ -7,9 +7,10 @@
 
 class GLTexture
 {
+public:
 	GLuint texture;
 	GLenum target;
-public:
+
 	GLTexture(GLenum texType);
 	~GLTexture(void);
 

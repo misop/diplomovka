@@ -1,85 +1,69 @@
 \begin{thebibliography}{10}
 
-\bibitem{wireframe}
-Andreas B{\ae}rentzen, Steen~L. Nielsen, Mikkel Gj{\o}l, Bent~D. Larsen, and
-  Niels~J{\o}rgen Christensen.
-\newblock Single-pass wireframe rendering.
-\newblock In {\em ACM SIGGRAPH 2006 Sketches}, SIGGRAPH '06, New York, NY, USA,
-  2006. ACM.
+\bibitem{laplac}
+H.-K. C. D. C.-O. Oscar Kin-Chung~Au, Chiew-Lan~Tai and T.-Y. Lee, ``Skeleton
+  extraction by mesh contraction.,'' {\em ACM SIGGRAPH 2008 papers}, pp.~1--10,
+  2008.
 
-\bibitem{Boost}
-Boost.
-\newblock Boost {C}++ libraries.
-\newblock \url{http://www.boost.org/}, 2014.
-\newblock [Online; accessed 24-February-2014].
+\bibitem{ji_bm}
+Z.~J.~L. Liu and Y.~Wang, ``B-mesh: A fast modeling system for base meshes of
+  3d articulated shapes,'' {\em ComputGraphForum}, vol.~29, no.~7,
+  p.~2169–77, 2010.
+
+\bibitem{sqm}
+J.~A. B. M.~K. Misztal and K.~Welnicka, ``Converting skeletal structures to
+  quad dominant meshes,'' {\em Computers \& Graphics}, vol.~36, no.~5,
+  pp.~555--561, 2012.
 
 \bibitem{sqm_phd}
-Michael~Mc Donnell.
-\newblock Skeleton-based and interactive 3d modeling.
-\newblock Master's thesis, Technical University of Denmark, 2012.
+M.~M. Donnell, ``Skeleton-based and interactive 3d modeling,'' Master's thesis,
+  Technical University of Denmark, 2012.
+
+\bibitem{laplac_phd}
+M.~Madaras, ``Todo,'' Master's thesis, Comenius university of Bratislava, TODO.
+
+\bibitem{Kavan-07-SDQ}
+L.~Kavan, S.~Collins, J.~Zara, and C.~O'Sullivan, ``Skinning with dual
+  quaternions,'' in {\em 2007 ACM SIGGRAPH Symposium on Interactive 3D Graphics
+  and Games}, pp.~39--46, ACM Press, April/May 2007.
+
+\bibitem{Boost}
+Boost, ``Boost {C}++ libraries.'' \url{http://www.boost.org/}, 2014.
+\newblock [Online; accessed 24-February-2014].
+
+\bibitem{OpenMesh}
+OpenMesh, ``Open{M}esh open half edge data structure.''
+  \url{http://openmesh.org/}, 2014.
+\newblock [Online; accessed 24-February-2014].
 
 \bibitem{glew}
-GLEW.
-\newblock The {O}pen{GL} extension wrangler library.
-\newblock \url{http://glew.sourceforge.net/}, 2014.
+GLEW, ``The {O}pen{GL} extension wrangler library.''
+  \url{http://glew.sourceforge.net/}, 2014.
 \newblock [Online; accessed 24-February-2014].
 
 \bibitem{opengl}
-OpenGL~Khronos Group.
-\newblock The industry's foundation for high performance graphics.
-\newblock \url{http://www.opengl.org/}, 2014.
+O.~K. Group, ``The industry's foundation for high performance graphics.''
+  \url{http://www.opengl.org/}, 2014.
 \newblock [Online; accessed 24-February-2014].
-
-\bibitem{Kavan-07-SDQ}
-Ladislav Kavan, Steven Collins, Jiri Zara, and Carol O'Sullivan.
-\newblock Skinning with dual quaternions.
-\newblock In {\em 2007 ACM SIGGRAPH Symposium on Interactive 3D Graphics and
-  Games}, pages 39--46. ACM Press, April/May 2007.
-
-\bibitem{ji_bm}
-Zhongping Ji~Ligang Liu and Yigang Wang.
-\newblock B-mesh: A fast modeling system for base meshes of 3d articulated
-  shapes.
-\newblock {\em ComputGraphForum}, 29(7):2169–77, 2010.
-
-\bibitem{gregory_patch}
-Charles Loop, Scott Schaefer, Tianyun Ni, and Ignacio Casta\~{n}o.
-\newblock Approximating subdivision surfaces with gregory patches for hardware
-  tessellation.
-\newblock {\em ACM Trans. Graph.}, 28(5):151:1--151:9, December 2009.
-
-\bibitem{laplac_phd}
-Martin Madaras.
-\newblock Todo.
-\newblock Master's thesis, Comenius university of Bratislava, TODO.
 
 \bibitem{glm}
-OpenGL Mathematics.
-\newblock A {C}++ mathematics library for graphics programming.
-\newblock \url{http://glm.g-truc.net/0.9.5/index.html}, 2014.
+O.~Mathematics, ``A {C}++ mathematics library for graphics programming.''
+  \url{http://glm.g-truc.net/0.9.5/index.html}, 2014.
 \newblock [Online; accessed 24-February-2014].
 
-\bibitem{sqm}
-J.~A. Bærentzen M.~K. Misztal and K.~Welnicka.
-\newblock Converting skeletal structures to quad dominant meshes.
-\newblock {\em Computers \& Graphics}, 36(5):555--561, 2012.
-
-\bibitem{OpenMesh}
-OpenMesh.
-\newblock Open{M}esh open half edge data structure.
-\newblock \url{http://openmesh.org/}, 2014.
-\newblock [Online; accessed 24-February-2014].
-
-\bibitem{laplac}
-Hung-Kuo Chu Daniel Cohen-Or Oscar Kin-Chung~Au, Chiew-Lan~Tai and Tong-Yee
-  Lee.
-\newblock Skeleton extraction by mesh contraction.
-\newblock {\em ACM SIGGRAPH 2008 papers}, pages 1--10, 2008.
+\bibitem{gregory_patch}
+C.~Loop, S.~Schaefer, T.~Ni, and I.~Casta\~{n}o, ``Approximating subdivision
+  surfaces with gregory patches for hardware tessellation,'' {\em ACM Trans.
+  Graph.}, vol.~28, pp.~151:1--151:9, Dec. 2009.
 
 \bibitem{gpu_gems_2}
-Matt Pharr and Randima Fernando.
-\newblock {\em GPU Gems 2: Programming Techniques for High-Performance Graphics
-  and General-Purpose Computation (Gpu Gems)}, chapter~7.
+M.~Pharr and R.~Fernando, {\em GPU Gems 2: Programming Techniques for
+  High-Performance Graphics and General-Purpose Computation (Gpu Gems)}, ch.~7.
 \newblock Addison-Wesley Professional, 2005.
+
+\bibitem{wireframe}
+A.~B{\ae}rentzen, S.~L. Nielsen, M.~Gj{\o}l, B.~D. Larsen, and N.~J.
+  Christensen, ``Single-pass wireframe rendering,'' in {\em ACM SIGGRAPH 2006
+  Sketches}, SIGGRAPH '06, (New York, NY, USA), ACM, 2006.
 
 \end{thebibliography}

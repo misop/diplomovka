@@ -10,9 +10,11 @@ in _{
 
 const float tessLevel = 5;
 //screenHeight/pixelsPerEdge
-const float EdgesPerScreenHeight = 1080.0/150.0;
+const float PixelsPerEdge = 150.0;
+const float EdgesPerScreenHeight = 720.0/PixelsPerEdge;
 layout(location = 1) uniform mat4 ViewMatrix;
 layout(location = 2) uniform mat4 ProjectionMatrix;
+uniform float ScreenHeight;
 
 out _{
 	vec4 vertex_eye;
@@ -24,24 +26,37 @@ out _{
 //Dividing by ClipPos.W will perspective correct the diameter
 float GetPostProjectionSphereExtent(in vec4 Origin, in float Diameter)
 {
-    vec4 ClipPos = ProjectionMatrix * ViewMatrix * Origin;
+    //vec4 ClipPos = ProjectionMatrix * ViewMatrix * Origin;
+    vec4 ClipPos = ProjectionMatrix * Origin;
     return abs(Diameter * ProjectionMatrix[1][1] / ClipPos.w);
 }
 
-float CalculateTessellationFactor(in vec4 Control0, in vec4 Control1)
+float CalculateTessellationFactor(in vec4 Control0, in vec4 Control1, in vec4 Normal1, in vec4 Normal2)
 {
-    float e0 = distance(Control0, Control1);
+	vec4 n = normalize((Normal1 + Normal2)/2.0);
+	if (dot(vec4(0,0,-1,0), n) > 0) {
+		return 1;
+	}
+	
     vec4 m0 = (Control0 + Control1)/2;
-    return max(1, EdgesPerScreenHeight * GetPostProjectionSphereExtent(m0, e0));
+	//if (dot(ViewMatrix*m0, n) > 0) {
+	//if (dot(m0, n) > 0) {
+	
+    float e0 = distance(Control0, Control1);
+    return max(1, ScreenHeight / PixelsPerEdge * GetPostProjectionSphereExtent(m0, e0));
+    //return max(1, EdgesPerScreenHeight * GetPostProjectionSphereExtent(m0, e0));
 }
 
 void main(void) {
 	//set tessellation levels just once
 	if (gl_InvocationID == 0) {
 		//outter levels
-		gl_TessLevelOuter[0] = CalculateTessellationFactor(gl_in[0].gl_Position, gl_in[1].gl_Position);
-		gl_TessLevelOuter[1] = CalculateTessellationFactor(gl_in[1].gl_Position, gl_in[2].gl_Position);
-		gl_TessLevelOuter[2] = CalculateTessellationFactor(gl_in[2].gl_Position, gl_in[0].gl_Position);
+		//gl_TessLevelOuter[0] = CalculateTessellationFactor(gl_in[0].gl_Position, gl_in[1].gl_Position, v[0].normal_eye, v[1].normal_eye);
+		//gl_TessLevelOuter[1] = CalculateTessellationFactor(gl_in[1].gl_Position, gl_in[2].gl_Position, v[1].normal_eye, v[2].normal_eye);
+		//gl_TessLevelOuter[2] = CalculateTessellationFactor(gl_in[2].gl_Position, gl_in[0].gl_Position, v[2].normal_eye, v[0].normal_eye);
+		gl_TessLevelOuter[0] = CalculateTessellationFactor(v[0].vertex_eye, v[1].vertex_eye, v[0].normal_eye, v[1].normal_eye);
+		gl_TessLevelOuter[1] = CalculateTessellationFactor(v[1].vertex_eye, v[2].vertex_eye, v[1].normal_eye, v[2].normal_eye);
+		gl_TessLevelOuter[2] = CalculateTessellationFactor(v[2].vertex_eye, v[0].vertex_eye, v[2].normal_eye, v[0].normal_eye);
 		//inner level
 		gl_TessLevelInner[0] = max(max(gl_TessLevelOuter[0], gl_TessLevelOuter[1]), gl_TessLevelOuter[2]);
 	}

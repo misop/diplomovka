@@ -38,6 +38,7 @@ public:
 	void LoadMovement(string fileName);
 	void LoadDefaultAnimation(SQMAlgorithm &sqmAlgorithm);
 	void CreateBuffers(SQMAlgorithm &sqmAlgorithm);
+	void CreateBuffers(string fileName);
 	void LoadMatrices();
 	void LoadModelMatrix(string fileName);
 
