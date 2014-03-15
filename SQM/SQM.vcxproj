@@ -43,6 +43,7 @@
     <Import Project="OpenMeshd.props" />
     <Import Project="GLEW.props" />
     <Import Project="GLM.props" />
+    <Import Project="freetype.props" />
   </ImportGroup>
   <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />

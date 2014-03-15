@@ -14,6 +14,12 @@
 #include <deque>
 #include <memory>
 #include <fstream>
+#include <assimp\mesh.h>
+
+#define generic GenericFromFreeTypeLibrary
+#include <freetype\ft2build.h>
+#include <freetype\freetype.h>
+#undef generic
 
 
 #pragma region Init
