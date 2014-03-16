@@ -4,6 +4,8 @@
 #include <iostream>
 #include <string>
 
+#define TIMER_INTERVAL 20
+
 using namespace std;
 using namespace System;
 
@@ -288,7 +290,7 @@ private: System::Windows::Forms::ToolStripMenuItem^  saveAnimationToolStripMenuI
 				 // timer1
 				 // 
 				 this->timer1->Enabled = true;
-				 this->timer1->Interval = 10;
+				 this->timer1->Interval = TIMER_INTERVAL;
 				 this->timer1->Tick += gcnew System::EventHandler(this, &Form1::timer1_Tick);
 				 // 
 				 // toolStrip1

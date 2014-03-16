@@ -8,7 +8,7 @@
 
 using namespace std;
 
-#define DELTA_TIME 0.01
+#define DELTA_TIME 0.02
 
 struct AnimTimer
 {

@@ -15,6 +15,7 @@
 #include <memory>
 #include <fstream>
 #include <assimp\mesh.h>
+#include <string>
 
 #define generic GenericFromFreeTypeLibrary
 #include <freetype\ft2build.h>
@@ -27,12 +28,16 @@
 AnimationController::AnimationController(void)
 {
 	canDraw = true;
+	skybox = NULL;
+	skyboxTexture = NULL;
 }
 
 
 AnimationController::~AnimationController(void)
 {
 	ClearShaders();
+	if (skybox) delete skybox;
+	if (skyboxTexture) delete skyboxTexture;
 	for (int i = 0; i < models.size(); i++) {
 		delete models[i];
 	}
@@ -46,55 +51,56 @@ void AnimationController::LoadScene() {
 	bool prevDraw = canDraw;
 	canDraw = false;
 
-	ifstream inputFile("scenes/scene.txt");
-	string comment;
-	inputFile >> comment;
-	inputFile >> comment;
-	inputFile >> comment;
-	inputFile >> comment;
-	int n;
-	inputFile >> n;
-	//load models
-	for (int i = 0; i < n; i++) {
-		string modelName, texturesFileName;
-		inputFile >> modelName >> texturesFileName;
-		LoadModel(modelName, texturesFileName);
-	}
-	inputFile >> n;
-	//load camera animation
-	string cameraFile;
-	inputFile >> animateCamera >> cameraFile;
-	LoadCameraMovement(cameraFile);
-	//load movement
-	for (int i = 0; i < n; i++) {
-		string movementName;
-		inputFile >> movementName;
-		LoadMovement(movementName);
-	}
-	inputFile >> n;
-	//load objects with pose files
-	for (int i = 0; i < n; i++) {
-		int objectID = 0, movementID = -1;
-		string modelMatrixFile;
-		char c;
-		inputFile >> objectID >> movementID >> c >> modelMatrixFile;
-		objects.push_back(objectID);
-		movement.push_back(movementID);
-		LoadModelMatrix(modelMatrixFile);
-	}
-	inputFile >> n;
-	//load objects with just position
-	for (int i = 0; i < n; i++) {
-		int objectID = 0, movementID = -1;
-		glm::vec3 pos(0);
-		char c;
-		inputFile >> objectID >> movementID >> c >> pos.x >> pos.y >> pos.z;
-		objects.push_back(objectID);
-		movement.push_back(movementID);
-		glm::mat4 T = glm::translate(glm::mat4(1.0), pos);
-		modelMatrices.push_back(T);
-	}
+	ifstream inputFile("scenes/scene.scn");
+	//cant create variables in case
+	char type;
+	string str1, str2;
+	int int1, int2, int3;
+	glm::vec3 pos, scale, euler;
+	char c;
 
+	while (!inputFile.eof()) {
+		inputFile >> type;
+		switch (type) {
+		case '#':
+			getline(inputFile, str1);
+			break;
+		case 'm':
+			inputFile >> str1 >> str2;
+			LoadModel(str1, str2);
+			break;
+		case 'v':
+			inputFile >> int1 >> str1 >> str2;
+			LoadAnimatedModel(int1, str1, str2);
+			break;
+		case 'c':
+			inputFile >> animateCamera >> str1;
+			LoadCameraMovement(str1);
+			break;
+		case 'a':
+			inputFile >> str1;
+			LoadMovement(str1);
+			break;
+		case 'o':
+			inputFile >> int1 >> int2 >> c;
+			inputFile >> pos.x >> pos.y >> pos.z >> c >> scale.x >> scale.y >> scale.z >> c >> euler.x >> euler.y >> euler.z;
+			objects.push_back(glm::ivec3(int1, int1, int1));
+			movement.push_back(int2);
+			LoadModelMatrix(pos, scale, euler);
+			break;
+		case 'p':
+			inputFile >> int1 >> int2 >> int3 >> c;
+			inputFile >> pos.x >> pos.y >> pos.z >> c >> scale.x >> scale.y >> scale.z >> c >> euler.x >> euler.y >> euler.z;
+			objects.push_back(glm::ivec3(int1, int1, int1 + int2));
+			movement.push_back(int3);
+			LoadModelMatrix(pos, scale, euler);
+			break;
+		default:
+			break;
+		}
+	}
+	
+	InitSkybox();
 	InitShaders();
 
 	canDraw = prevDraw;
@@ -104,6 +110,28 @@ void AnimationController::LoadModel(string fileName, string texturesFileName) {
 	models.push_back(new AssimpObject());
 	models.back()->LoadFromFile(fileName);
 	models.back()->LoadTexturesFromFile(texturesFileName);
+}
+
+void AnimationController::LoadAnimatedModel(int files, string fileName, string texturesFileName) {
+	shared_ptr<GLTexture> diffuse, displacement, normal;
+	for (int i = 0; i < files; i++) {
+		string wholeFileName = fileName;
+		if (i < 10) wholeFileName += "0";
+		wholeFileName += to_string(i);
+		wholeFileName += ".obj";
+		models.push_back(new AssimpObject());
+		models.back()->LoadFromFile(wholeFileName);
+		if (i == 0) {
+			models.back()->LoadTexturesFromFile(texturesFileName);
+			diffuse = models.back()->diffuseTexture;
+			displacement = models.back()->displacementTexture;
+			normal = models.back()->normalTexture;
+		} else {
+			models.back()->diffuseTexture = diffuse;
+			models.back()->displacementTexture = displacement;
+			models.back()->normalTexture = normal;
+		}
+	}
 }
 
 void AnimationController::LoadCameraMovement(string fileName) {
@@ -150,17 +178,20 @@ void AnimationController::LoadModelMatrix(string fileName) {
 	ifstream inputFile(fileName);
 	string comment;
 	inputFile >> comment;
-	float tx = 0, ty = 0, tz = 0, sx = 1, sy = 1, sz = 1, rx = 0, ry = 1, rz = 0;
+	glm::vec3 pos, scale, euler;
 	char c;
-	inputFile >> tx >> ty >> tz >> c >> sx >> sy >> sz >> c >> rx >> ry >> rz;
-	glm::quat qx = glm::angleAxis(rx, glm::vec3(1, 0, 0));
-	glm::quat qy = glm::angleAxis(ry, glm::vec3(0, 1, 0));
-	glm::quat qz = glm::angleAxis(rz, glm::vec3(0, 0, 1));
+	inputFile >> pos.x >> pos.y >> pos.z >> c >> scale.x >> scale.y >> scale.z >> c >> euler.x >> euler.y >> euler.z;
+	LoadModelMatrix(pos, scale, euler);
+}
+
+void AnimationController::LoadModelMatrix(glm::vec3 pos, glm::vec3 scale, glm::vec3 euler) {
+	glm::quat qx = glm::angleAxis(euler.x, glm::vec3(1, 0, 0));
+	glm::quat qy = glm::angleAxis(euler.y, glm::vec3(0, 1, 0));
+	glm::quat qz = glm::angleAxis(euler.z, glm::vec3(0, 0, 1));
 	glm::quat q = qz * qy * qx;
 	glm::mat4 R = glm::toMat4(q);
-	//glm::mat4 R = glm::rotate(glm::mat4(1.0), a, glm::vec3(rx, ry, rz));
-	glm::mat4 S = glm::scale(glm::mat4(1.0), glm::vec3(sx, sy, sz));
-	glm::mat4 T = glm::translate(glm::mat4(1.0), glm::vec3(tx, ty, tz));
+	glm::mat4 S = glm::scale(glm::mat4(1.0), scale);
+	glm::mat4 T = glm::translate(glm::mat4(1.0), pos);
 	glm::mat4 M = T * S * R;
 	modelMatrices.push_back(M);
 }
@@ -216,7 +247,53 @@ void AnimationController::InitShaders() {
 	shaders.push_back(phongShaders);
 	programs.push_back(phongProgram);
 
+	OpenGLShaders *skyboxShaders = new OpenGLShaders();
+	skyboxShaders->vert = new GLShader(GL_VERTEX_SHADER);
+	skyboxShaders->vert->Load("shaders/skybox.vert");
+	skyboxShaders->vert->Compile();
+
+	skyboxShaders->frag = new GLShader(GL_FRAGMENT_SHADER);
+	skyboxShaders->frag->Load("shaders/skybox.frag");
+	skyboxShaders->frag->Compile();
+
+	GLProgram *skyboxProgram = new GLProgram("Skybox");
+	skyboxProgram->AttachShaders(skyboxShaders);
+	skyboxProgram->Link();
+	skyboxProgram->SaveProgramLog();
+
+	shaders.push_back(skyboxShaders);
+	programs.push_back(skyboxProgram);
+
 	canDraw = prevDraw;
+}
+
+void AnimationController::InitSkybox() {
+    glEnable(GL_TEXTURE_CUBE_MAP_SEAMLESS);
+
+	GLfloat cube_vertices[] = {1,1,1,    -1,1,1,   -1,-1,1,  1,-1,1,  
+		1,1,1,    1,-1,1,   1,-1,-1,  1,1,-1,
+		1,1,1,    1,1,-1,   -1,1,-1,  -1,1,1,
+		-1,1,1,   -1,1,-1,  -1,-1,-1, -1,-1,1,
+		-1,-1,-1, 1,-1,-1,  1,-1,1,   -1,-1,1,
+		1,-1,-1,  -1,-1,-1, -1,1,-1,  1,1,-1 };
+	GLuint cube_indices[] = {0,1,2,3,  4,5,6,7,  8,9,10,11,   12,13,14,15,   16,17,18,19,  20,21,22,23};
+	
+	vector<float> vertices(begin(cube_vertices), end(cube_vertices));
+	vector<int> indices(begin(cube_indices), end(cube_indices));
+	
+	if (skybox) delete skybox;
+	skybox = new GLArrayBuffer();
+	skybox->Bind();
+	skybox->BindBufferDataf(vertices, 3, GL_STATIC_DRAW);
+	skybox->BindElement(indices, GL_STATIC_DRAW);
+
+	skyboxModel = glm::scale(glm::mat4(1.0), glm::vec3(8000, 8000, 8000));
+
+	if (skyboxTexture) delete skyboxTexture;
+	skyboxTexture = new GLTexture(GL_TEXTURE_CUBE_MAP);
+	skyboxTexture->LoadCubeTextureFromImages("skybox/grimnight_posX.png", "skybox/grimnight_negX.png",
+		"skybox/grimnight_posY.png", "skybox/grimnight_negY.png",
+		"skybox/grimnight_posZ.png", "skybox/grimnight_negZ.png");
 }
 
 #pragma endregion
@@ -225,7 +302,15 @@ void AnimationController::InitShaders() {
 
 void AnimationController::Draw(GLCamera *camera) {
 	if (!canDraw) return;
-
+	//skybox
+	programs[1]->Use();	
+	glUniformMatrix4fv(MODEL_MATRIX, 1, GL_FALSE, glm::value_ptr(skyboxModel));
+	camera->getCameraMatrices(PROJECTION_MATRIX, VIEW_MATRIX);
+	
+	glActiveTexture(GL_TEXTURE0);
+	skyboxTexture->Bind();
+	skybox->DrawElement(0, GL_QUADS);
+	//objects
 	programs[0]->Use();
 	glUniform1f(programs[0]->getUniformLocation(SCREEN_HEIGHT_STR), (float)camera->height);
 	//set matrices
@@ -237,13 +322,14 @@ void AnimationController::Draw(GLCamera *camera) {
 	} else {
 		camera->getCameraMatrices(PROJECTION_MATRIX, VIEW_MATRIX);
 	}
-	
+
 	timers[0].Next();
 	for (int i = 1; i < poses.size(); i++) {
-		anim_poses[i] = IntepolatePoseCubicDerivedRot(knots[i], poses[i], poses[i][0].quat, timers[i].time, true);
+		//anim_poses[i] = IntepolatePoseCubicDerivedRot(knots[i], poses[i], poses[i][0].quat, timers[i].time, true);
+		anim_poses[i] = IntepolatePoseCubic(knots[i], poses[i], timers[i].time, true);
 		timers[i].Next();
 	}
-	
+
 	for (int i = 0; i < objects.size(); i++) {
 		if (movement[i] != -1) {
 			glm::mat4 model = anim_poses[movement[i]].GetMatrix();
@@ -254,12 +340,15 @@ void AnimationController::Draw(GLCamera *camera) {
 			glUniformMatrix4fv(MODEL_MATRIX, 1, GL_FALSE, glm::value_ptr(modelMatrices[i]));
 			camera->setupNormalMatrix(modelMatrices[i], NORMAL_MATRIX);
 		}
-		int idx = objects[i];
+		int idx = objects[i].y;
 		//set textures
 		glActiveTexture(GL_TEXTURE0);
 		models[idx]->diffuseTexture->Bind();
 		//draw model
 		models[idx]->buffer->DrawElement(0, GL_PATCHES);
+		//animate
+		objects[i].y++;
+		if (objects[i].y >= objects[i].z) objects[i].y = objects[i].x;
 	}
 }
 

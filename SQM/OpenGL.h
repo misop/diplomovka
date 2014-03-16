@@ -708,6 +708,7 @@ namespace OpenGLForm
 		}
 		//functions
 		void StartAnimation() {
+			if (animation) StopAnimation();
 			animation = true;
 			animController->LoadScene();
 		}

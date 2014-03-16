@@ -2,7 +2,7 @@
 
 const float LineWidth = 0.01;
 const bool Wireframe = false;
-const bool ToonShading = false;
+const bool ToonShading = true;
 
 in _{
 	vec4 vertex_eye;
@@ -33,6 +33,7 @@ float evalMinDistanceToEdges(in vec3 height)
 
 void main(void) {	   
 	vec4 diffuse_material = texture(DiffuseSampler, g.uv);//vec4(0.0, 0.75, 0.75, 1);
+	if (diffuse_material.x < 0.001 && diffuse_material.y < 0.001 && diffuse_material.z < 0.001) discard;
 	vec4 color = vec4(0.0, 0.75, 0.75, 1);
 
 	float alpha = 1;
@@ -52,7 +53,7 @@ void main(void) {
    	vec4 L = normalize(g.light_eye);
    	vec4 N = normalize(g.normal_eye); 
 
-	float diffuse = clamp(dot(L, N), 0.0, 1.0);
+	float diffuse = clamp(abs(dot(L, N)), 0.0, 1.0);
    	vec4 R = reflect(-L, N);
    	float specular = sign(diffuse) * pow(clamp(dot(R, V), 0.0, 1.0), 16);
 	
@@ -61,7 +62,7 @@ void main(void) {
 	
 	if (ToonShading) {
 		diffuse = diffuse < 0.3 ? 0 : diffuse < 0.7 ? 0.5 : 1;
-		specular = specular < 0.3 ? 0 : specular < 0.7 ? 0.5 : 1;
+		specular = 0;//specular < 0.3 ? 0 : specular < 0.7 ? 0.5 : 1;
 	}
 
 	color = 0.2 * (vec4(0.2, 0.2, 0.2, 1.0) + ambient) * (diffuse_material);

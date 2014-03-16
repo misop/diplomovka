@@ -1,0 +1,4 @@
+#diffuse_displacement_normal
+1 ./textures/Table01_D.tga
+0
+0

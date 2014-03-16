@@ -5,6 +5,8 @@
 #include <map>
 #include <vector>
 
+using namespace std;
+
 class GLTexture
 {
 public:
@@ -17,9 +19,13 @@ public:
 	void Enable();
 	void Disable();
 	void Bind();
-	void FunctionTexture(int width, int height, float *data);
-	void RGBATexture(int width, int height, GLenum format, GLubyte *data);
 	void UseTexture(GLint loc, int unit);
 	void TexParameteri(GLenum pname, GLint param);
+
+	void FunctionTexture(int width, int height, float *data);
+	void RGBATexture(int width, int height, GLenum format, GLubyte *data);
+	
+	void LoadRGBATextureFromImage(string img);
+	void LoadCubeTextureFromImages(string posxFile, string negxFile, string posyFile, string negyFile, string poszFile, string negzFile);
 };
 

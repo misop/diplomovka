@@ -10,18 +10,15 @@
 AssimpObject::AssimpObject(void)
 {
 	buffer = new GLArrayBuffer();
-	diffuseTexture = NULL;
-	displacementTexture = NULL;
-	normalTexture = NULL;
 }
 
 
 AssimpObject::~AssimpObject(void)
 {
 	delete buffer;
-	if (diffuseTexture) delete diffuseTexture;
-	if (displacementTexture) delete displacementTexture;
-	if (normalTexture) delete normalTexture;
+	//if (diffuseTexture) delete diffuseTexture;
+	//if (displacementTexture) delete displacementTexture;
+	//if (normalTexture) delete normalTexture;
 }
 
 void AssimpObject::LoadFromFile(string fileName) {	
@@ -68,56 +65,6 @@ void AssimpObject::LoadFromFile(string fileName) {
 	buffer->BindElement(indices, GL_STATIC_DRAW);
 }
 
-void AssimpObject::LoadTexture(GLTexture **texture, string img) {
-    ilInit();
-
-    ILuint texIL;
-    ilGenImages(1, &texIL);
-    ilBindImage(texIL);
-    // nacitanie textury zo suboru
-	//wstring widestr(img.begin(), img.end());
-	ILboolean result = ilLoadImage((ILstring)img.c_str());
-    if (!result) {
-        ilDeleteImages(1, &texIL);
-        return;
-    }
-	ilConvertImage(IL_RGBA, IL_UNSIGNED_BYTE);
-    // generovanie OpenGL textur
-    GLuint tex;
-    glGenTextures(1, &tex);
-    glBindTexture(GL_TEXTURE_2D, tex);
-    // nastavenie parametrov textury
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-
-	if ((*texture)) delete (*texture);
-	(*texture) = new GLTexture(GL_TEXTURE_2D);
-	(*texture)->Bind();
-	(*texture)->TexParameteri(GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-	(*texture)->TexParameteri(GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	(*texture)->TexParameteri(GL_TEXTURE_WRAP_S, GL_REPEAT);
-	(*texture)->TexParameteri(GL_TEXTURE_WRAP_T, GL_REPEAT);
-	(*texture)->RGBATexture(ilGetInteger(IL_IMAGE_WIDTH), ilGetInteger(IL_IMAGE_HEIGHT), ilGetInteger(IL_IMAGE_FORMAT), ilGetData());
-
-    // zmazanie OpenIL textury
-    ilDeleteImages(1, &texIL);
-}
-
-void AssimpObject::LoadDiffuseTexture(string img) {
-	LoadTexture(&diffuseTexture, img);
-
-}
-
-void AssimpObject::LoadDisplacementTexture(string img) {
-	LoadTexture(&displacementTexture, img);
-}
-
-void AssimpObject::LoadNormalTexture(string img) {
-	LoadTexture(&normalTexture, img);
-}
-
 void AssimpObject::LoadTexturesFromFile(string fileName) {
 	ifstream inputFile(fileName);
 	string comment, texName;
@@ -127,18 +74,21 @@ void AssimpObject::LoadTexturesFromFile(string fileName) {
 	inputFile >> load;
 	if (load) {
 		inputFile >> texName;
-		LoadDiffuseTexture(texName);
+		diffuseTexture = shared_ptr<GLTexture>(new GLTexture(GL_TEXTURE_2D));
+		diffuseTexture->LoadRGBATextureFromImage(texName);
 	}
 	//load displacement
 	inputFile >> load;
 	if (load) {
 		inputFile >> texName;
-		LoadDisplacementTexture(texName);
+		displacementTexture = shared_ptr<GLTexture>(new GLTexture(GL_TEXTURE_2D));
+		displacementTexture->LoadRGBATextureFromImage(texName);
 	}
 	//load normal
 	inputFile >> load;
 	if (load) {
 		inputFile >> texName;
-		LoadNormalTexture(texName);
+		normalTexture = shared_ptr<GLTexture>(new GLTexture(GL_TEXTURE_2D));
+		normalTexture->LoadRGBATextureFromImage(texName);
 	}
 }

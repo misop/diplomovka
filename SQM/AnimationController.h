@@ -11,10 +11,13 @@
 
 class AnimationController
 {
+	GLArrayBuffer *skybox;
+	glm::mat4 skyboxModel;
+	GLTexture *skyboxTexture;
 	vector<GLProgram *> programs;
 	vector<OpenGLShaders *> shaders;
 	vector<AssimpObject *> models;
-	vector<int> objects;
+	vector<glm::ivec3> objects;
 	vector<glm::mat4> modelMatrices;
 	vector<vector<ObjectPose> > poses;
 	vector<ObjectPose> anim_poses;
@@ -30,12 +33,15 @@ public:
 
 	void LoadScene();
 	void LoadModel(string fileName, string texturesFileName);
+	void LoadAnimatedModel(int files, string fileName, string texturesFileName);
 	void LoadCameraMovement(string fileName);
 	void LoadMovement(string fileName);
 	void LoadModelMatrix(string fileName);
+	void LoadModelMatrix(glm::vec3 pos, glm::vec3 scale, glm::vec3 euler);
 
 	void ClearShaders();
 	void InitShaders();
+	void InitSkybox();
 
 	void Draw(GLCamera *camera);
 };
