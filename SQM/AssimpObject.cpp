@@ -10,6 +10,7 @@
 AssimpObject::AssimpObject(void)
 {
 	buffer = new GLArrayBuffer();
+	material = glm::vec4(0);
 }
 
 
@@ -69,6 +70,7 @@ void AssimpObject::LoadTexturesFromFile(string fileName) {
 	ifstream inputFile(fileName);
 
 	string str1;
+	float float1, float2;
 	char command;
 
 	while (!inputFile.eof()) {
@@ -93,6 +95,9 @@ void AssimpObject::LoadTexturesFromFile(string fileName) {
 			normalTexture = shared_ptr<GLTexture>(new GLTexture(GL_TEXTURE_2D));
 			normalTexture->LoadRGBATextureFromImage(str1);
 			break;
+		case 'm':
+			inputFile >> float1 >> float2;
+			material = glm::vec4(float1, float2, 0, 0);
 		default:
 			break;
 		}

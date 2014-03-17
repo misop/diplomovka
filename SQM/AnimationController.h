@@ -11,6 +11,7 @@
 
 class AnimationController
 {
+	GLTexture *toonShadingTexture;
 	GLArrayBuffer *skybox;
 	glm::mat4 skyboxModel;
 	GLTexture *skyboxTexture;
@@ -42,6 +43,7 @@ public:
 	void ClearShaders();
 	void InitShaders();
 	void InitSkybox();
+	void InitToonShadingTexture();
 
 	void Draw(GLCamera *camera);
 };

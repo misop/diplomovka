@@ -4,9 +4,7 @@
 #define VIEW_MATRIX 1
 #define PROJECTION_MATRIX 2
 #define NORMAL_MATRIX 3
-#define SKINNING_MATRICES 4
-#define SKINNING_MATRICES_REF 5
-#define ANIM_INTERPOL 6
+#define MATERIAL 4
 
 #define MVP_MATRIX_STR "MVPmatrix"
 #define MODEL_MATRIX_STR "ModelMatrix"

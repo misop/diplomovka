@@ -11,6 +11,7 @@ using namespace std;
 class AssimpObject
 {
 public:
+	glm::vec4 material;
 	GLArrayBuffer *buffer;
 	shared_ptr<GLTexture> diffuseTexture;
 	shared_ptr<GLTexture> displacementTexture;

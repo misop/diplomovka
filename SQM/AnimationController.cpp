@@ -30,6 +30,7 @@ AnimationController::AnimationController(void)
 	canDraw = true;
 	skybox = NULL;
 	skyboxTexture = NULL;
+	toonShadingTexture = NULL;
 }
 
 
@@ -41,6 +42,7 @@ AnimationController::~AnimationController(void)
 	for (int i = 0; i < models.size(); i++) {
 		delete models[i];
 	}
+	delete toonShadingTexture;
 }
 
 #pragma endregion
@@ -100,6 +102,7 @@ void AnimationController::LoadScene() {
 		}
 	}
 
+	InitToonShadingTexture();
 	InitSkybox();
 	InitShaders();
 
@@ -293,6 +296,15 @@ void AnimationController::InitShaders() {
 	canDraw = prevDraw;
 }
 
+void AnimationController::InitToonShadingTexture() {
+	delete toonShadingTexture;
+	toonShadingTexture = new GLTexture(GL_TEXTURE_2D);
+	toonShadingTexture->Bind();
+	toonShadingTexture->LoadRGBATextureFromImage("./textures/toon.png");
+	toonShadingTexture->TexParameteri(GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	toonShadingTexture->TexParameteri(GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+}
+
 void AnimationController::InitSkybox() {
 	glEnable(GL_TEXTURE_CUBE_MAP_SEAMLESS);
 
@@ -350,6 +362,8 @@ void AnimationController::Draw(GLCamera *camera) {
 	skybox->DrawElement(0, GL_QUADS);
 	//objects
 	programs[0]->Use();
+	glActiveTexture(GL_TEXTURE5);
+	toonShadingTexture->Bind();
 	glUniform1f(programs[0]->getUniformLocation(SCREEN_HEIGHT_STR), (float)camera->height);
 	//set matrices
 	if (animateCamera) {
@@ -377,6 +391,8 @@ void AnimationController::Draw(GLCamera *camera) {
 			camera->setupNormalMatrix(modelMatrices[i], NORMAL_MATRIX);
 		}
 		int idx = objects[i].y;
+		//set material
+		glUniform4fv(MATERIAL, 4, glm::value_ptr(models[idx]->material)); 
 		//set textures
 		glActiveTexture(GL_TEXTURE0);
 		models[idx]->diffuseTexture->Bind();

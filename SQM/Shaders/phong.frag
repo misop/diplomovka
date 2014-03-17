@@ -2,7 +2,7 @@
 
 const float LineWidth = 0.01;
 const bool Wireframe = false;
-const bool ToonShading = true;
+const bool ToonShading = false;
 
 in _{
 	vec4 vertex_eye;
@@ -12,7 +12,10 @@ in _{
 	vec2 uv;
 } g;
 
+
+layout(location = 4) uniform vec4 Material;
 layout(binding=0) uniform sampler2D DiffuseSampler;
+layout(binding=5) uniform sampler2D ToonShadingSampler;
 
 layout (location = 0) out vec4 fColor;
 
@@ -54,16 +57,18 @@ void main(void) {
    	vec4 N = normalize(g.normal_eye); 
 
 	//float diffuse = clamp(abs(dot(L, N)), 0.0, 1.0);
-	float diffuse = clamp(dot(L, N), 0.0, 1.0);
+	float diffuse = clamp(dot(L, N) + Material.x, 0.0, 1.0);
+	//float diffuse = clamp(dot(L, N), 0.0, 1.0);
    	vec4 R = reflect(-L, N);
-   	float specular = sign(diffuse) * pow(clamp(dot(R, V), 0.0, 1.0), 16);
+   	float specular = 0;
+	if (Material.y >= 1) specular = sign(diffuse) * pow(clamp(dot(R, V), 0.0, 1.0), Material.y);
 	
 	vec4 ambient = vec4(0.2, 0.2, 0.2, 1.0);
 	vec4 specularL = vec4(1, 1, 1, 1.0);
 	
 	if (ToonShading) {
-		diffuse = diffuse < 0.3 ? 0 : diffuse < 0.7 ? 0.5 : 1;
-		specular = 0;//specular < 0.3 ? 0 : specular < 0.7 ? 0.5 : 1;
+		diffuse = texture(ToonShadingSampler, vec2(diffuse, 0));
+		specular = 0;
 	}
 
 	color = 0.2 * (vec4(0.2, 0.2, 0.2, 1.0) + ambient) * (diffuse_material);
