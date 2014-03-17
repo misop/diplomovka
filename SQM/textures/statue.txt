@@ -1,4 +1,0 @@
-#diffuse_displacement_normal
-1 ./textures/Statue01_D.tga
-0
-0

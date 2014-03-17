@@ -53,15 +53,15 @@ void AnimationController::LoadScene() {
 
 	ifstream inputFile("scenes/scene.scn");
 	//cant create variables in case
-	char type;
+	char command;
 	string str1, str2;
 	int int1, int2, int3;
 	glm::vec3 pos, scale, euler;
 	char c;
 
 	while (!inputFile.eof()) {
-		inputFile >> type;
-		switch (type) {
+		inputFile >> command;
+		switch (command) {
 		case '#':
 			getline(inputFile, str1);
 			break;
@@ -99,7 +99,7 @@ void AnimationController::LoadScene() {
 			break;
 		}
 	}
-	
+
 	InitSkybox();
 	InitShaders();
 
@@ -136,18 +136,31 @@ void AnimationController::LoadAnimatedModel(int files, string fileName, string t
 
 void AnimationController::LoadCameraMovement(string fileName) {
 	ifstream inputFile(fileName);
-	string comment;
-	inputFile >> comment;
-	int n;
-	inputFile >> n;
-	knots.push_back(vector<float>(n));
-	poses.push_back(vector<ObjectPose>(n));
-	for (int i = 0; i < n; i++) {
-		int knot;
-		glm::vec3 from, to, up;
-		inputFile >> knot >> from.x >> from.y >> from.z >> to.x >> to.y >> to.z >> up.x >> up.y >> up.z;
-		knots.back()[i] = knot;
-		poses.back()[i] = CreateLookAtPose(from, to, up);
+	knots.push_back(vector<float>());
+	poses.push_back(vector<ObjectPose>());
+
+	float prevKnot = 0;
+	string str1;
+	char c, command;
+	float knot;
+	glm::vec3 from, to, up;
+
+	while (!inputFile.eof()) {
+		inputFile >> command;
+		switch (command)
+		{
+		case '#':
+			getline(inputFile, str1);
+			break;
+		case 'k':
+			inputFile >> knot >> c >> from.x >> from.y >> from.z >> c >> to.x >> to.y >> to.z >> c >> up.x >> up.y >> up.z;
+			knots.back().push_back(prevKnot + knot);
+			poses.back().push_back(CreateLookAtPose(from, to, up));
+			prevKnot += knot;
+			break;
+		default:
+			break;
+		}
 	}
 
 	timers.push_back(AnimTimer(knots.back().back()));
@@ -156,18 +169,31 @@ void AnimationController::LoadCameraMovement(string fileName) {
 
 void AnimationController::LoadMovement(string fileName) {
 	ifstream inputFile(fileName);
-	string comment;
-	inputFile >> comment;
-	int n;
-	inputFile >> n;
-	knots.push_back(vector<float>(n));
-	poses.push_back(vector<ObjectPose>(n));
-	for (int i = 0; i < n; i++) {
-		int knot;
-		glm::vec3 pos, euler, scale;
-		inputFile >> knot >> pos.x >> pos.y >> pos.z >> euler.x >> euler.y >> euler.z >> scale.x >> scale.y >> scale.z;
-		knots.back()[i] = knot;
-		poses.back()[i] = ObjectPose(pos, euler, scale);
+	knots.push_back(vector<float>());
+	poses.push_back(vector<ObjectPose>());
+
+	float prevKnot = 0;
+	string str1;
+	char c, command;
+	float knot;
+	glm::vec3 pos, euler, scale;
+
+	while (!inputFile.eof()) {
+		inputFile >> command;
+		switch (command)
+		{
+		case '#':
+			getline(inputFile, str1);
+			break;
+		case 'k':
+			inputFile >> knot >> c >> pos.x >> pos.y >> pos.z >> c >> euler.x >> euler.y >> euler.z >> c >> scale.x >> scale.y >> scale.z;
+			knots.back().push_back(prevKnot + knot);
+			poses.back().push_back(ObjectPose(pos, euler, scale));
+			prevKnot += knot;
+			break;
+		default:
+			break;
+		}
 	}
 
 	timers.push_back(AnimTimer(knots.back().back()));
@@ -268,7 +294,7 @@ void AnimationController::InitShaders() {
 }
 
 void AnimationController::InitSkybox() {
-    glEnable(GL_TEXTURE_CUBE_MAP_SEAMLESS);
+	glEnable(GL_TEXTURE_CUBE_MAP_SEAMLESS);
 
 	GLfloat cube_vertices[] = {1,1,1,    -1,1,1,   -1,-1,1,  1,-1,1,  
 		1,1,1,    1,-1,1,   1,-1,-1,  1,1,-1,
@@ -277,10 +303,10 @@ void AnimationController::InitSkybox() {
 		-1,-1,-1, 1,-1,-1,  1,-1,1,   -1,-1,1,
 		1,-1,-1,  -1,-1,-1, -1,1,-1,  1,1,-1 };
 	GLuint cube_indices[] = {0,1,2,3,  4,5,6,7,  8,9,10,11,   12,13,14,15,   16,17,18,19,  20,21,22,23};
-	
+
 	vector<float> vertices(begin(cube_vertices), end(cube_vertices));
 	vector<int> indices(begin(cube_indices), end(cube_indices));
-	
+
 	if (skybox) delete skybox;
 	skybox = new GLArrayBuffer();
 	skybox->Bind();
@@ -288,6 +314,7 @@ void AnimationController::InitSkybox() {
 	skybox->BindElement(indices, GL_STATIC_DRAW);
 
 	skyboxModel = glm::scale(glm::mat4(1.0), glm::vec3(8000, 8000, 8000));
+	skyboxModel *= glm::rotate(glm::mat4(1.0), 180.0f, glm::vec3(0, 1, 0));
 
 	if (skyboxTexture) delete skyboxTexture;
 	skyboxTexture = new GLTexture(GL_TEXTURE_CUBE_MAP);
@@ -302,11 +329,22 @@ void AnimationController::InitSkybox() {
 
 void AnimationController::Draw(GLCamera *camera) {
 	if (!canDraw) return;
+	//animate camera
+	glm::mat4 view_matrix;
+	if (animateCamera) {
+		ObjectPose pose = IntepolatePoseCubic(knots[0], poses[0], timers[0].time, true);
+		view_matrix = glm::inverse(pose.GetMatrix());
+	}
 	//skybox
 	programs[1]->Use();	
 	glUniformMatrix4fv(MODEL_MATRIX, 1, GL_FALSE, glm::value_ptr(skyboxModel));
-	camera->getCameraMatrices(PROJECTION_MATRIX, VIEW_MATRIX);
-	
+	if (animateCamera) {
+		camera->getProjectionMatrix(PROJECTION_MATRIX);
+		glUniformMatrix4fv(VIEW_MATRIX, 1, GL_FALSE, glm::value_ptr(view_matrix));
+	} else {
+		camera->getCameraMatrices(PROJECTION_MATRIX, VIEW_MATRIX);
+	}
+
 	glActiveTexture(GL_TEXTURE0);
 	skyboxTexture->Bind();
 	skybox->DrawElement(0, GL_QUADS);
@@ -316,9 +354,7 @@ void AnimationController::Draw(GLCamera *camera) {
 	//set matrices
 	if (animateCamera) {
 		camera->getProjectionMatrix(PROJECTION_MATRIX);
-		ObjectPose pose = IntepolatePoseCubic(knots[0], poses[0], timers[0].time, true);
-		glm::mat4 model = glm::inverse(pose.GetMatrix());
-		glUniformMatrix4fv(VIEW_MATRIX, 1, GL_FALSE, glm::value_ptr(model));
+		glUniformMatrix4fv(VIEW_MATRIX, 1, GL_FALSE, glm::value_ptr(view_matrix));
 	} else {
 		camera->getCameraMatrices(PROJECTION_MATRIX, VIEW_MATRIX);
 	}

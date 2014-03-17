@@ -1,4 +1,0 @@
-#diffuse_displacement_normal
-1 ./textures/Coffin01_D.tga
-0
-0

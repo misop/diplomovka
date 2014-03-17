@@ -53,7 +53,8 @@ void main(void) {
    	vec4 L = normalize(g.light_eye);
    	vec4 N = normalize(g.normal_eye); 
 
-	float diffuse = clamp(abs(dot(L, N)), 0.0, 1.0);
+	//float diffuse = clamp(abs(dot(L, N)), 0.0, 1.0);
+	float diffuse = clamp(dot(L, N), 0.0, 1.0);
    	vec4 R = reflect(-L, N);
    	float specular = sign(diffuse) * pow(clamp(dot(R, V), 0.0, 1.0), 16);
 	

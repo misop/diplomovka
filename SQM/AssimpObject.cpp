@@ -67,28 +67,34 @@ void AssimpObject::LoadFromFile(string fileName) {
 
 void AssimpObject::LoadTexturesFromFile(string fileName) {
 	ifstream inputFile(fileName);
-	string comment, texName;
-	inputFile >> comment;
-	//load diffuse
-	bool load = false;
-	inputFile >> load;
-	if (load) {
-		inputFile >> texName;
-		diffuseTexture = shared_ptr<GLTexture>(new GLTexture(GL_TEXTURE_2D));
-		diffuseTexture->LoadRGBATextureFromImage(texName);
-	}
-	//load displacement
-	inputFile >> load;
-	if (load) {
-		inputFile >> texName;
-		displacementTexture = shared_ptr<GLTexture>(new GLTexture(GL_TEXTURE_2D));
-		displacementTexture->LoadRGBATextureFromImage(texName);
-	}
-	//load normal
-	inputFile >> load;
-	if (load) {
-		inputFile >> texName;
-		normalTexture = shared_ptr<GLTexture>(new GLTexture(GL_TEXTURE_2D));
-		normalTexture->LoadRGBATextureFromImage(texName);
+
+	string str1;
+	char command;
+
+	while (!inputFile.eof()) {
+		inputFile >> command;
+		switch (command)
+		{
+		case '#':
+			getline(inputFile, str1);
+			break;
+		case 'a':
+			inputFile >> str1;
+			diffuseTexture = shared_ptr<GLTexture>(new GLTexture(GL_TEXTURE_2D));
+			diffuseTexture->LoadRGBATextureFromImage(str1);
+			break;
+		case 'd':
+			inputFile >> str1;
+			displacementTexture = shared_ptr<GLTexture>(new GLTexture(GL_TEXTURE_2D));
+			displacementTexture->LoadRGBATextureFromImage(str1);
+			break;
+		case 'n':
+			inputFile >> str1;
+			normalTexture = shared_ptr<GLTexture>(new GLTexture(GL_TEXTURE_2D));
+			normalTexture->LoadRGBATextureFromImage(str1);
+			break;
+		default:
+			break;
+		}
 	}
 }

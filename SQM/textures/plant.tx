@@ -1,0 +1,4 @@
+# a = albedo
+# d = displacement
+# n = normal
+a ./textures/Plant01_D.tga

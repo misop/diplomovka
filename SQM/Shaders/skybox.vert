@@ -11,6 +11,6 @@ out vec3 cube_map_coords;
 void main(void)
 {
    cube_map_coords = Position.xyz;
-   gl_Position = ProjectionMatrix * vec4((mat3(ViewMatrix) * mat3(ModelMatrix) * Position), 1);
+   gl_Position = ProjectionMatrix * vec4(mat3(ViewMatrix) * vec3(ModelMatrix * vec4(Position, 1.0)), 1);
 }
 
