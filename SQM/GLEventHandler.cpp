@@ -8,6 +8,14 @@ GLEventHandler::GLEventHandler(GLCamera *newGlCamera, SQMControler *newSqmContro
 {
 	glCamera = newGlCamera;
 	sqmControler = newSqmControler;
+	animControler = NULL;
+	state = NodeEditState;
+}
+
+GLEventHandler::GLEventHandler(GLCamera *newGlCamera, SQMControler *newSqmControler, AnimationController *newAnimControler) {
+	glCamera = newGlCamera;
+	sqmControler = newSqmControler;
+	animControler = newAnimControler;
 	state = NodeEditState;
 }
 
@@ -71,7 +79,7 @@ void GLEventHandler::mouseDown(int positionX, int positionY, int mouseFlags) {
 		glm::vec3 dir = glm::normalize(pos - glCamera->getEye());
 		SQMNode *inRay = sqmControler->getNodeInRay(pos, dir);
 		SQMNode *selected = sqmControler->getSelected();
-		
+
 		//selected->getParent()->removeDescendant(selected);
 		if (inRay != NULL && inRay != selected && selected->isValidCycleNode()) {
 			sqmControler->createCycle(selected, inRay);
@@ -198,6 +206,51 @@ void GLEventHandler::rotate(float delta, CVector3 axis) {
 	SQMNode *node= sqmControler->getSelected();
 	CVector4 q = QuaternionFromAngleAxis(delta, axis);
 	node->rotateDescendants(q);
+}
+
+#pragma endregion
+
+
+#pragma region Keys
+
+void GLEventHandler::KeyDown(char c) {
+	if (!animControler) return;
+	switch (c) {
+	case 'W':
+		//alterWireframe
+		animControler->drawWireframe = !animControler->drawWireframe;
+		break;
+	case 'T':
+		//alter toon
+		animControler->useToonShading = !animControler->useToonShading;
+		break;
+	case 'P':
+		//pause animation
+		animControler->pause = !animControler->pause;
+		break;
+	case 'O':
+		//pause animation
+		animControler->drawText = !animControler->drawText;
+		break;
+	case 'Q':// 'k' = '+'
+		//tessellate more
+		animControler->TessellateMore();
+		break;
+	case 'E':// 'm' = '-'
+		//tessellate less
+		animControler->TessellateLess();
+		break;
+	case 'D':
+		//alter dispalcement
+		animControler->useDispalcement = !animControler->useDispalcement;
+		break;
+	case 'S':
+		//alter SSAO
+		animControler->useSSAO = !animControler->useSSAO;
+		break;
+	default:
+		break;
+	}
 }
 
 #pragma endregion

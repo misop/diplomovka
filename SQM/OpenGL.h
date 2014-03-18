@@ -56,7 +56,7 @@ namespace OpenGLForm
 			sqmControler = new SQMControler();
 			animController = new AnimationController();
 			glCamera = new GLCamera();
-			glEventHandler = new GLEventHandler(glCamera, sqmControler);
+			glEventHandler = new GLEventHandler(glCamera, sqmControler, animController);
 			programs = new OpenGLPrograms();
 			sklTessShaders = new OpenGLShaders();
 			sklLineShaders = new OpenGLShaders();
@@ -613,6 +613,12 @@ namespace OpenGLForm
 #pragma region Handling Events
 	protected:
 		virtual void WndProc(Message% m)override {
+#pragma region Keys
+			if (m.Msg == WM_KEYDOWN) {
+				glEventHandler->KeyDown((int)m.WParam);
+				return;
+			}
+#pragma endregion
 			static bool rmousedown = false;
 			static bool lmousedown = false;
 #pragma region Right Mouse

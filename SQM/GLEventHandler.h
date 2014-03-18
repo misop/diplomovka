@@ -1,6 +1,7 @@
 #pragma once
 #include "GLCamera.h"
 #include "SQMControler.h"
+#include "AnimationController.h"
 
 #define LEFT_MOUSE_DOWN 1
 #define RIGHT_MOUSE_DOWN 2
@@ -17,6 +18,7 @@ class GLEventHandler
 {
 	GLCamera *glCamera;
 	SQMControler *sqmControler;
+	AnimationController *animControler;
 	int mouse;
 	int lastX;
 	int lastY;
@@ -24,8 +26,9 @@ class GLEventHandler
 	int selectedY;
 public:
 	EventState state;
-
+	
 	GLEventHandler(GLCamera *newGlCamera, SQMControler *newSqmControler);
+	GLEventHandler(GLCamera *newGlCamera, SQMControler *newSqmControler, AnimationController *newAnimControler);
 	~GLEventHandler(void);
 
 #pragma region General Event Handling
@@ -47,6 +50,10 @@ public:
 	void moveHorizontal(float dist);
 	void moveVertical(float dist);
 	void rotate(float delta, CVector3 axis);
+#pragma endregion
+
+#pragma region Keys
+	void KeyDown(char c);
 #pragma endregion
 };
 

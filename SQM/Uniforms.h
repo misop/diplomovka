@@ -5,6 +5,10 @@
 #define PROJECTION_MATRIX 2
 #define NORMAL_MATRIX 3
 #define MATERIAL 4
+#define PIXELS_PER_EDGE 5
+#define USE_WIREFRAME 6
+#define USE_TOON_SHADING 7
+#define SCREEN_HEIGHT 8
 
 #define MVP_MATRIX_STR "MVPmatrix"
 #define MODEL_MATRIX_STR "ModelMatrix"

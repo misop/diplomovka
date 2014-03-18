@@ -1,8 +1,6 @@
 #version 430
 
 const float LineWidth = 0.01;
-const bool Wireframe = false;
-const bool ToonShading = false;
 
 in _{
 	vec4 vertex_eye;
@@ -14,6 +12,8 @@ in _{
 
 
 layout(location = 4) uniform vec4 Material;
+layout(location = 6) uniform bool Wireframe;
+layout(location = 7) uniform bool ToonShading;
 layout(binding=0) uniform sampler2D DiffuseSampler;
 layout(binding=5) uniform sampler2D ToonShadingSampler;
 

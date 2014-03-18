@@ -31,6 +31,14 @@ AnimationController::AnimationController(void)
 	skybox = NULL;
 	skyboxTexture = NULL;
 	toonShadingTexture = NULL;
+	text = NULL;
+	drawWireframe = false;
+	useSSAO = false;
+	useDispalcement = false;
+	pause = false;
+	useToonShading = false;
+	drawText = true;
+	PixelsPerEdge = 150;
 }
 
 
@@ -43,6 +51,7 @@ AnimationController::~AnimationController(void)
 		delete models[i];
 	}
 	delete toonShadingTexture;
+	delete text;
 }
 
 #pragma endregion
@@ -105,6 +114,7 @@ void AnimationController::LoadScene() {
 	InitToonShadingTexture();
 	InitSkybox();
 	InitShaders();
+	InitFont();
 
 	canDraw = prevDraw;
 }
@@ -293,6 +303,23 @@ void AnimationController::InitShaders() {
 	shaders.push_back(skyboxShaders);
 	programs.push_back(skyboxProgram);
 
+	OpenGLShaders *textShaders = new OpenGLShaders();
+	textShaders->vert = new GLShader(GL_VERTEX_SHADER);
+	textShaders->vert->Load("shaders/text.vert");
+	textShaders->vert->Compile();
+
+	textShaders->frag = new GLShader(GL_FRAGMENT_SHADER);
+	textShaders->frag->Load("shaders/text.frag");
+	textShaders->frag->Compile();
+
+	GLProgram *textProgram = new GLProgram("Text");
+	textProgram->AttachShaders(textShaders);
+	textProgram->Link();
+	textProgram->SaveProgramLog();
+
+	shaders.push_back(textShaders);
+	programs.push_back(textProgram);
+
 	canDraw = prevDraw;
 }
 
@@ -335,36 +362,29 @@ void AnimationController::InitSkybox() {
 		"skybox/grimnight_posZ.png", "skybox/grimnight_negZ.png");
 }
 
+void AnimationController::InitFont() {
+	delete text;
+	text = new GLText("fonts/planetbe.ttf");
+}
+
 #pragma endregion
 
 #pragma region Draw
 
 void AnimationController::Draw(GLCamera *camera) {
 	if (!canDraw) return;
-	//animate camera
-	glm::mat4 view_matrix;
-	if (animateCamera) {
-		ObjectPose pose = IntepolatePoseCubic(knots[0], poses[0], timers[0].time, true);
-		view_matrix = glm::inverse(pose.GetMatrix());
-	}
-	//skybox
-	programs[1]->Use();	
-	glUniformMatrix4fv(MODEL_MATRIX, 1, GL_FALSE, glm::value_ptr(skyboxModel));
-	if (animateCamera) {
-		camera->getProjectionMatrix(PROJECTION_MATRIX);
-		glUniformMatrix4fv(VIEW_MATRIX, 1, GL_FALSE, glm::value_ptr(view_matrix));
-	} else {
-		camera->getCameraMatrices(PROJECTION_MATRIX, VIEW_MATRIX);
-	}
 
-	glActiveTexture(GL_TEXTURE0);
-	skyboxTexture->Bind();
-	skybox->DrawElement(0, GL_QUADS);
+	glm::mat4 view_matrix = AnimateCamera();
+	DrawSkybox(camera, view_matrix);
+
 	//objects
 	programs[0]->Use();
 	glActiveTexture(GL_TEXTURE5);
 	toonShadingTexture->Bind();
-	glUniform1f(programs[0]->getUniformLocation(SCREEN_HEIGHT_STR), (float)camera->height);
+	glUniform1f(SCREEN_HEIGHT, (float)camera->height);
+	glUniform1f(PIXELS_PER_EDGE, PixelsPerEdge);
+	glUniform1i(USE_WIREFRAME, drawWireframe);
+	glUniform1i(USE_TOON_SHADING, useToonShading);
 	//set matrices
 	if (animateCamera) {
 		camera->getProjectionMatrix(PROJECTION_MATRIX);
@@ -373,12 +393,7 @@ void AnimationController::Draw(GLCamera *camera) {
 		camera->getCameraMatrices(PROJECTION_MATRIX, VIEW_MATRIX);
 	}
 
-	timers[0].Next();
-	for (int i = 1; i < poses.size(); i++) {
-		//anim_poses[i] = IntepolatePoseCubicDerivedRot(knots[i], poses[i], poses[i][0].quat, timers[i].time, true);
-		anim_poses[i] = IntepolatePoseCubic(knots[i], poses[i], timers[i].time, true);
-		timers[i].Next();
-	}
+	MoveTimers();
 
 	for (int i = 0; i < objects.size(); i++) {
 		if (movement[i] != -1) {
@@ -399,9 +414,74 @@ void AnimationController::Draw(GLCamera *camera) {
 		//draw model
 		models[idx]->buffer->DrawElement(0, GL_PATCHES);
 		//animate
+		if (pause) continue;
 		objects[i].y++;
 		if (objects[i].y >= objects[i].z) objects[i].y = objects[i].x;
 	}
+
+	DrawText(camera, view_matrix);
+}
+
+glm::mat4 AnimationController::AnimateCamera() {
+	//animate camera
+	glm::mat4 view_matrix;
+	if (animateCamera) {
+		ObjectPose pose = IntepolatePoseCubic(knots[0], poses[0], timers[0].time, true);
+		view_matrix = glm::inverse(pose.GetMatrix());
+	}
+	return view_matrix;
+}
+
+void AnimationController::DrawSkybox(GLCamera *camera, glm::mat4 &view_matrix) {
+	//skybox
+	programs[1]->Use();	
+	glUniformMatrix4fv(MODEL_MATRIX, 1, GL_FALSE, glm::value_ptr(skyboxModel));
+	if (animateCamera) {
+		camera->getProjectionMatrix(PROJECTION_MATRIX);
+		glUniformMatrix4fv(VIEW_MATRIX, 1, GL_FALSE, glm::value_ptr(view_matrix));
+	} else {
+		camera->getCameraMatrices(PROJECTION_MATRIX, VIEW_MATRIX);
+	}
+
+	glActiveTexture(GL_TEXTURE0);
+	skyboxTexture->Bind();
+	skybox->DrawElement(0, GL_QUADS);
+}
+
+void AnimationController::MoveTimers() {
+	timers[0].Next();
+	if (pause) return;
+	for (int i = 1; i < poses.size(); i++) {
+		//anim_poses[i] = IntepolatePoseCubicDerivedRot(knots[i], poses[i], poses[i][0].quat, timers[i].time, true);
+		anim_poses[i] = IntepolatePoseCubic(knots[i], poses[i], timers[i].time, true);
+		timers[i].Next();
+	}
+}
+
+void AnimationController::DrawText(GLCamera *camera, glm::mat4 &view_matrix) {
+	if (!drawText) return;
+
+	programs[2]->Use();
+	if (animateCamera) {
+		glUniformMatrix4fv(VIEW_MATRIX, 1, GL_FALSE, glm::value_ptr(view_matrix));
+	} else {
+		camera->getViewMatrix(VIEW_MATRIX);
+	}
+
+	//text->RenderText(20, camera->height - 20, "ABCDabcdefghijklmnopqrstuvwxyz", camera);
+	text->RenderText(20, camera->height - 20, "A", camera);
+}
+
+#pragma endregion
+
+#pragma region Setters
+
+void AnimationController::TessellateMore() {
+	PixelsPerEdge = max(PixelsPerEdge - 50.0f, 50.0f);
+}
+
+void AnimationController::TessellateLess() {
+	PixelsPerEdge = min(PixelsPerEdge + 50.0f, 1080.0f);
 }
 
 #pragma endregion

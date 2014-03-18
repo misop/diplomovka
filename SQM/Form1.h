@@ -160,7 +160,7 @@ namespace SQM {
 	private: System::Windows::Forms::ToolStripMenuItem^  addReferencePoseToolStripMenuItem;
 	private: System::Windows::Forms::ToolStripMenuItem^  startToolStripMenuItem;
 	private: System::Windows::Forms::ToolStripMenuItem^  stopToolStripMenuItem;
-private: System::Windows::Forms::ToolStripMenuItem^  saveAnimationToolStripMenuItem;
+	private: System::Windows::Forms::ToolStripMenuItem^  saveAnimationToolStripMenuItem;
 
 
 
@@ -290,7 +290,7 @@ private: System::Windows::Forms::ToolStripMenuItem^  saveAnimationToolStripMenuI
 				 // timer1
 				 // 
 				 this->timer1->Enabled = true;
-				 this->timer1->Interval = TIMER_INTERVAL;
+				 this->timer1->Interval = 20;
 				 this->timer1->Tick += gcnew System::EventHandler(this, &Form1::timer1_Tick);
 				 // 
 				 // toolStrip1
@@ -349,6 +349,7 @@ private: System::Windows::Forms::ToolStripMenuItem^  saveAnimationToolStripMenuI
 				 this->panel1->MouseDown += gcnew System::Windows::Forms::MouseEventHandler(this, &Form1::Panel1_MouseDown);
 				 this->panel1->MouseMove += gcnew System::Windows::Forms::MouseEventHandler(this, &Form1::Panel1_MouseMove);
 				 this->panel1->MouseUp += gcnew System::Windows::Forms::MouseEventHandler(this, &Form1::Panel1_MouseUp);
+				 this->panel1->PreviewKeyDown += gcnew System::Windows::Forms::PreviewKeyDownEventHandler(this, &Form1::panel1_PreviewKeyDown);
 				 this->panel1->Resize += gcnew System::EventHandler(this, &Form1::panel1_Resize);
 				 // 
 				 // menuStrip1
@@ -1285,6 +1286,10 @@ private: System::Windows::Forms::ToolStripMenuItem^  saveAnimationToolStripMenuI
 			 {
 				 OpenGL->glEventHandler->mouseUp(e->X, e->Y);
 				 ReEnableNodeGUI();
+			 }
+
+	private: System::Void panel1_PreviewKeyDown(System::Object^  sender, System::Windows::Forms::PreviewKeyDownEventArgs^  e) {
+				 OpenGL->glEventHandler->KeyDown(e->KeyValue);
 			 }
 
 			 void Form1_KeyPress(Object^ sender, KeyPressEventArgs^ e)

@@ -118,6 +118,7 @@
     <ClCompile Include="GLFrameBuffer.cpp" />
     <ClCompile Include="GLProgram.cpp" />
     <ClCompile Include="GLShader.cpp" />
+    <ClCompile Include="GLText.cpp" />
     <ClCompile Include="GLTexture.cpp" />
     <ClCompile Include="Interpolation.cpp" />
     <ClCompile Include="Laplacian.cpp" />
@@ -158,6 +159,7 @@
     <ClInclude Include="GLFrameBuffer.h" />
     <ClInclude Include="GLProgram.h" />
     <ClInclude Include="GLShader.h" />
+    <ClInclude Include="GLText.h" />
     <ClInclude Include="GLTexture.h" />
     <ClInclude Include="Interpolation.h" />
     <ClInclude Include="Laplacian.h" />

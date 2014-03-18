@@ -8,11 +8,13 @@
 #include "AnimationCounter.h"
 #include "Interpolation.h"
 #include "AssimpObject.h"
+#include "GLText.h"
 
 class AnimationController
 {
 	GLTexture *toonShadingTexture;
 	GLArrayBuffer *skybox;
+	GLText *text;
 	glm::mat4 skyboxModel;
 	GLTexture *skyboxTexture;
 	vector<GLProgram *> programs;
@@ -28,6 +30,13 @@ class AnimationController
 	bool animateCamera;
 	bool canDraw;
 public:
+	bool drawWireframe;
+	bool useSSAO;
+	bool useDispalcement;
+	bool pause;
+	bool useToonShading;
+	bool drawText;
+	float PixelsPerEdge;
 
 	AnimationController(void);
 	~AnimationController(void);
@@ -44,6 +53,14 @@ public:
 	void InitShaders();
 	void InitSkybox();
 	void InitToonShadingTexture();
-
+	void InitFont();
+	
 	void Draw(GLCamera *camera);
+	glm::mat4 AnimateCamera();
+	void DrawSkybox(GLCamera *camera, glm::mat4 &view_matrix);
+	void MoveTimers();
+	void DrawText(GLCamera *camera, glm::mat4 &view_matrix);
+	
+	void TessellateMore();
+	void TessellateLess();
 };
