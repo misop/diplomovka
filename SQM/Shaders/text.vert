@@ -10,8 +10,9 @@ out vec2 coords;
 
 void main(void)
 {
-   coords = Position + vec2(0.5, 0.5);
+   coords = Position;
+   coords.y = 1 - coords.y;
    //gl_Position = ProjectionMatrix * ViewMatrix * ModelMatrix * vec4(Position, 0.0, 1.0);
-   gl_Position = vec4(Position, 0.0, 1.0);
+   gl_Position = ProjectionMatrix * ModelMatrix * vec4(Position, 0.0, 1.0);
 }
 

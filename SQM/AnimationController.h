@@ -29,6 +29,10 @@ class AnimationController
 	vector<int> movement;
 	bool animateCamera;
 	bool canDraw;
+	unsigned long time;
+	int frames;
+	double fps;
+	double perFrame;
 public:
 	bool drawWireframe;
 	bool useSSAO;

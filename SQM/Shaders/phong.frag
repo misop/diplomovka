@@ -17,6 +17,9 @@ layout(location = 7) uniform bool ToonShading;
 layout(binding=0) uniform sampler2D DiffuseSampler;
 layout(binding=5) uniform sampler2D ToonShadingSampler;
 
+const float Toonines = 11;
+const float Toonines_1 = 1.0/Toonines;
+
 layout (location = 0) out vec4 fColor;
 
 float evalMinDistanceToEdges(in vec3 height)
@@ -57,7 +60,7 @@ void main(void) {
    	vec4 N = normalize(g.normal_eye); 
 
 	//float diffuse = clamp(abs(dot(L, N)), 0.0, 1.0);
-	float diffuse = clamp(dot(L, N) + Material.x, 0.0, 1.0);
+	float diffuse = clamp(dot(L, N), 0.0, 1.0);
 	//float diffuse = clamp(dot(L, N), 0.0, 1.0);
    	vec4 R = reflect(-L, N);
    	float specular = 0;
@@ -67,6 +70,7 @@ void main(void) {
 	vec4 specularL = vec4(1, 1, 1, 1.0);
 	
 	if (ToonShading) {
+		diffuse_material = floor(diffuse_material * Toonines) * Toonines_1;
 		diffuse = texture(ToonShadingSampler, vec2(diffuse, 0));
 		specular = 0;
 	}

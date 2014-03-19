@@ -16,12 +16,16 @@
 #include <fstream>
 #include <assimp\mesh.h>
 #include <string>
+#include <iomanip>
 
 #define generic GenericFromFreeTypeLibrary
 #include <freetype\ft2build.h>
 #include <freetype\freetype.h>
 #undef generic
 
+#define PHONG 0
+#define SKYBOX 1
+#define TEXT 2
 
 #pragma region Init
 
@@ -39,6 +43,10 @@ AnimationController::AnimationController(void)
 	useToonShading = false;
 	drawText = true;
 	PixelsPerEdge = 150;
+	time = GetTickCount();
+	frames = 0;
+	fps = 0;
+	perFrame = 0;
 }
 
 
@@ -364,7 +372,7 @@ void AnimationController::InitSkybox() {
 
 void AnimationController::InitFont() {
 	delete text;
-	text = new GLText("fonts/planetbe.ttf");
+	text = new GLText("fonts/Consolas_Bold.ttf");
 }
 
 #pragma endregion
@@ -374,11 +382,23 @@ void AnimationController::InitFont() {
 void AnimationController::Draw(GLCamera *camera) {
 	if (!canDraw) return;
 
+	unsigned long t = GetTickCount();
+	unsigned long diff = t - time;
+	if (diff >= 1000) {
+		time = t;
+		perFrame = (double)diff / (double)frames;
+		fps = 1000.0 / perFrame;
+		frames = 0;
+	}
+	frames++;
+
+
 	glm::mat4 view_matrix = AnimateCamera();
 	DrawSkybox(camera, view_matrix);
 
 	//objects
-	programs[0]->Use();
+
+	programs[PHONG]->Use();
 	glActiveTexture(GL_TEXTURE5);
 	toonShadingTexture->Bind();
 	glUniform1f(SCREEN_HEIGHT, (float)camera->height);
@@ -407,7 +427,7 @@ void AnimationController::Draw(GLCamera *camera) {
 		}
 		int idx = objects[i].y;
 		//set material
-		glUniform4fv(MATERIAL, 4, glm::value_ptr(models[idx]->material)); 
+		glUniform4f(MATERIAL, models[idx]->material.x, models[idx]->material.y, models[idx]->material.z, models[idx]->material.w);
 		//set textures
 		glActiveTexture(GL_TEXTURE0);
 		models[idx]->diffuseTexture->Bind();
@@ -434,7 +454,7 @@ glm::mat4 AnimationController::AnimateCamera() {
 
 void AnimationController::DrawSkybox(GLCamera *camera, glm::mat4 &view_matrix) {
 	//skybox
-	programs[1]->Use();	
+	programs[SKYBOX]->Use();	
 	glUniformMatrix4fv(MODEL_MATRIX, 1, GL_FALSE, glm::value_ptr(skyboxModel));
 	if (animateCamera) {
 		camera->getProjectionMatrix(PROJECTION_MATRIX);
@@ -449,8 +469,9 @@ void AnimationController::DrawSkybox(GLCamera *camera, glm::mat4 &view_matrix) {
 }
 
 void AnimationController::MoveTimers() {
-	timers[0].Next();
 	if (pause) return;
+
+	timers[0].Next();
 	for (int i = 1; i < poses.size(); i++) {
 		//anim_poses[i] = IntepolatePoseCubicDerivedRot(knots[i], poses[i], poses[i][0].quat, timers[i].time, true);
 		anim_poses[i] = IntepolatePoseCubic(knots[i], poses[i], timers[i].time, true);
@@ -461,15 +482,26 @@ void AnimationController::MoveTimers() {
 void AnimationController::DrawText(GLCamera *camera, glm::mat4 &view_matrix) {
 	if (!drawText) return;
 
-	programs[2]->Use();
-	if (animateCamera) {
-		glUniformMatrix4fv(VIEW_MATRIX, 1, GL_FALSE, glm::value_ptr(view_matrix));
-	} else {
-		camera->getViewMatrix(VIEW_MATRIX);
-	}
-
+	programs[TEXT]->Use();
 	//text->RenderText(20, camera->height - 20, "ABCDabcdefghijklmnopqrstuvwxyz", camera);
-	text->RenderText(20, camera->height - 20, "A", camera);
+	std::ostringstream strs;
+	strs << setprecision(2) << fps << " fps (" << setprecision(2)  << perFrame << " ms)";
+
+	int offset = 20;
+	text->RenderText(20, camera->height - offset, strs.str(), camera);
+	offset += 20;
+
+	text->RenderText(20, camera->height - offset, "P = pause animation", camera);
+	offset += 20;
+
+	text->RenderText(20, camera->height - offset, "T = toon shading", camera);
+	offset += 20;
+
+	text->RenderText(20, camera->height - offset, "W = wireframe", camera);
+	offset += 20;
+
+	text->RenderText(20, camera->height - offset, "Q/E = tessellate more/less", camera);
+	offset += 20;
 }
 
 #pragma endregion

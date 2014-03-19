@@ -25,7 +25,7 @@ GLText::GLText(string fileName) {
 	int fontHeight = 16;
 	FT_Set_Char_Size(face, 64 * fontHeight, 64 * fontHeight, 96, 96);
 	
-	GLfloat verts[] = {-0.5,-0.5, 0.5,-0.5, 0.5,0.5, -0.5,0.5};
+	GLfloat verts[] = {0.0,0.0, 1.0,0.0, 1.0,1.0, 0.0,1.0};
 	
 	vector<float> vertices(std::begin(verts), std::end(verts));
 
@@ -35,11 +35,13 @@ GLText::GLText(string fileName) {
 	glBindVertexArray(0);
 
 	glGenTextures(96, characters);
+	vector<char> test;
 	for (int i = 0; i < 96; i++) {
 		// inicializuje bitmapu pre aktualny glyf
 		if (FT_Load_Glyph(face, FT_Get_Char_Index(face, i + 32), FT_LOAD_DEFAULT)) continue;
 		FT_Glyph glyph;
 		if(FT_Get_Glyph(face->glyph, &glyph)) continue;
+
 		FT_Glyph_To_Bitmap(&glyph, ft_render_mode_normal, 0, 1);
 		FT_BitmapGlyph bitmap_glyph = (FT_BitmapGlyph)glyph;
 		FT_Bitmap& bitmap = bitmap_glyph->bitmap;
@@ -103,17 +105,16 @@ GLText::~GLText(void)
 void GLText::RenderText(float x, float y, string text, GLCamera *camera) {
 	float current_x = x;
 	float current_y = y;
-
+	
 	glm::mat4 proj = glm::ortho(0.0f, camera->width, 0.0f, camera->height, -1.0f, 1.0f);
 	glUniformMatrix4fv(PROJECTION_MATRIX, 1, GL_FALSE, glm::value_ptr(proj));
-
 
 	for (int i = 0; i < text.size(); i++) {
 		char c = text[i];
 		glm::mat4 model = glm::translate(glm::mat4(1.0), glm::vec3(current_x, current_y, 0));
 		model = model * models[c - 32];
 		if (glyphs[c - 32].bitmap_width > 0 && glyphs[c - 32].bitmap_height > 0) {
-			//glUniformMatrix4fv(MODEL_MATRIX, 1, GL_FALSE, glm::value_ptr(model));
+			glUniformMatrix4fv(MODEL_MATRIX, 1, GL_FALSE, glm::value_ptr(model));
 			glActiveTexture(GL_TEXTURE0);
 			glBindTexture(GL_TEXTURE_2D, characters[c - 32]);
 

@@ -10,5 +10,7 @@ layout (location = 0) out vec4 fColor;
 
 void main(void)
 {
-   fColor = FontColor * texture(font, coords);
+	vec4 text = texture(font, coords);
+	if (text.a < 0.1) discard;
+	fColor = text;
 }

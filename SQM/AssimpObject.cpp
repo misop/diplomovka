@@ -25,33 +25,45 @@ AssimpObject::~AssimpObject(void)
 void AssimpObject::LoadFromFile(string fileName) {	
 	Assimp::Importer importer;
 	const aiScene* ai_scene = importer.ReadFile(fileName, aiProcessPreset_TargetRealtime_Quality);
+	aiApplyPostProcessing(ai_scene, aiProcess_CalcTangentSpace);
 
 	if (ai_scene->mNumMeshes == 0) return;
 
 	aiMesh* ai_mesh = ai_scene->mMeshes[0];
-
 	vector<float> verts;
+	verts.reserve(ai_mesh->mNumVertices*3);
+	vector<float> normals;
+	normals.reserve(ai_mesh->mNumVertices*3);
+	vector<float> uvs;
+	uvs.reserve(ai_mesh->mNumVertices*2);
+	vector<float> tangents;
+	tangents.reserve(ai_mesh->mNumVertices*3);
+	vector<float> bitangents;
+	bitangents.reserve(ai_mesh->mNumVertices*3);
+
 	for (int i = 0; i < ai_mesh->mNumVertices; i++) {
 		verts.push_back(ai_mesh->mVertices[i].x);
 		verts.push_back(ai_mesh->mVertices[i].y);
 		verts.push_back(ai_mesh->mVertices[i].z);
+
+		normals.push_back(ai_mesh->mNormals[i].x);
+		normals.push_back(ai_mesh->mNormals[i].y);
+		normals.push_back(ai_mesh->mNormals[i].z);
+
+		uvs.push_back(ai_mesh->mTextureCoords[0][i].x);
+		uvs.push_back(ai_mesh->mTextureCoords[0][i].y);
+
+		tangents.push_back(ai_mesh->mTangents[i].x);
+		tangents.push_back(ai_mesh->mTangents[i].y);
+		tangents.push_back(ai_mesh->mTangents[i].z);
+
+		bitangents.push_back(ai_mesh->mBitangents[i].x);
+		bitangents.push_back(ai_mesh->mBitangents[i].y);
+		bitangents.push_back(ai_mesh->mBitangents[i].z);
 	}
-	vector<float> normals;
-	if(ai_mesh->mNormals != NULL) {
-		for (int i = 0; i < ai_mesh->mNumVertices; i++) {
-			normals.push_back(ai_mesh->mNormals[i].x);
-			normals.push_back(ai_mesh->mNormals[i].y);
-			normals.push_back(ai_mesh->mNormals[i].z);
-		}
-	}
-	vector<float> uvs;
-	if(ai_mesh->HasTextureCoords(0)) {
-		for (int i = 0; i < ai_mesh->mNumVertices; i++) {
-			uvs.push_back(ai_mesh->mTextureCoords[0][i].x);
-			uvs.push_back(ai_mesh->mTextureCoords[0][i].y);
-		}
-	}
+
 	vector<int> indices;
+	indices.reserve(ai_mesh->mNumFaces*3);
 	for (int i = 0; i < ai_mesh->mNumFaces; i++) {
 		indices.push_back(ai_mesh->mFaces[i].mIndices[0]);
 		indices.push_back(ai_mesh->mFaces[i].mIndices[1]);
@@ -61,7 +73,9 @@ void AssimpObject::LoadFromFile(string fileName) {
 	buffer->Bind();
 	buffer->BindBufferDataf(verts, 3, GL_STATIC_DRAW);
 	buffer->BindBufferDataf(normals, 3, GL_STATIC_DRAW);
-	if (uvs.size() > 0) buffer->BindBufferDataf(uvs, 2, GL_STATIC_DRAW);
+	buffer->BindBufferDataf(uvs, 2, GL_STATIC_DRAW);
+	buffer->BindBufferDataf(tangents, 3, GL_STATIC_DRAW);
+	buffer->BindBufferDataf(bitangents, 3, GL_STATIC_DRAW);
 
 	buffer->BindElement(indices, GL_STATIC_DRAW);
 }

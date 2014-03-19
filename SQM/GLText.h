@@ -18,11 +18,13 @@ struct GlyphMetrics
 
 class GLText
 {
+	GLArrayBuffer *vao;
 	GLuint characters[96];
 	glm::mat4 models[96];
 	GlyphMetrics glyphs[96];
 public:
-	GLArrayBuffer *vao;
+	float fontSize;
+	glm::vec4 fontColor;
 
 	GLText(string fileName);
 	~GLText(void);
