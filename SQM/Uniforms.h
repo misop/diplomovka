@@ -1,14 +1,25 @@
 #pragma once
 
-#define MODEL_MATRIX 0
-#define VIEW_MATRIX 1
-#define PROJECTION_MATRIX 2
-#define NORMAL_MATRIX 3
-#define MATERIAL 4
-#define PIXELS_PER_EDGE 5
-#define USE_WIREFRAME 6
-#define USE_TOON_SHADING 7
-#define SCREEN_HEIGHT 8
+#define MODEL_MATRIX             0
+#define VIEW_MATRIX              1
+#define SWAP                     1
+#define PROJECTION_MATRIX_INV    1
+#define PROJECTION_MATRIX        2
+#define NORMAL_MATRIX            3
+#define MATERIAL                 4
+#define NORMAL_PROJ_MATRIX       4
+#define PIXELS_PER_EDGE          5
+#define SHADOW_MATRIX            6
+#define USE_TOON_SHADING         7
+#define SCREEN_HEIGHT            8
+#define SCREEN_WIDTH             9
+#define DISPLACE                 9
+
+#define TEXEL_WIDTH              3
+#define TEXEL_HEIGHT             4
+#define SOBEL_X                  5
+#define TEXEL_SIZE               3
+#define HORIZONTAL               4
 
 #define MVP_MATRIX_STR "MVPmatrix"
 #define MODEL_MATRIX_STR "ModelMatrix"

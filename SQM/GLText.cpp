@@ -102,12 +102,9 @@ GLText::~GLText(void)
 	delete vao;
 }
 
-void GLText::RenderText(float x, float y, string text, GLCamera *camera) {
+void GLText::RenderText(float x, float y, string text) {
 	float current_x = x;
 	float current_y = y;
-	
-	glm::mat4 proj = glm::ortho(0.0f, camera->width, 0.0f, camera->height, -1.0f, 1.0f);
-	glUniformMatrix4fv(PROJECTION_MATRIX, 1, GL_FALSE, glm::value_ptr(proj));
 
 	for (int i = 0; i < text.size(); i++) {
 		char c = text[i];

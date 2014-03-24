@@ -17,6 +17,9 @@ AssimpObject::AssimpObject(void)
 AssimpObject::~AssimpObject(void)
 {
 	delete buffer;
+	diffuseTexture.reset();
+	displacementTexture.reset();
+	normalTexture.reset();
 	//if (diffuseTexture) delete diffuseTexture;
 	//if (displacementTexture) delete displacementTexture;
 	//if (normalTexture) delete normalTexture;
@@ -25,7 +28,8 @@ AssimpObject::~AssimpObject(void)
 void AssimpObject::LoadFromFile(string fileName) {	
 	Assimp::Importer importer;
 	const aiScene* ai_scene = importer.ReadFile(fileName, aiProcessPreset_TargetRealtime_Quality);
-	aiApplyPostProcessing(ai_scene, aiProcess_CalcTangentSpace);
+	if (!ai_scene->mMeshes[0]->HasTangentsAndBitangents())
+		aiApplyPostProcessing(ai_scene, aiProcess_CalcTangentSpace);
 
 	if (ai_scene->mNumMeshes == 0) return;
 

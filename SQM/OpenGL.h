@@ -291,6 +291,7 @@ namespace OpenGLForm
 			glDepthFunc(GL_LEQUAL);								// The type of depth testing to do
 			//glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST);	// Really nice perspective calculations
 			glEnable(GL_PROGRAM_POINT_SIZE);
+			glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 			sqmControler->generateTextures();
 			InitShaders();
 			animController->InitShaders();
@@ -569,7 +570,8 @@ namespace OpenGLForm
 			// Calculate The Aspect Ratio Of The Window
 			//gluPerspective(45.0f,(GLfloat)width/(GLfloat)height,0.1f,100.0f);
 			//gluPerspective(45.0f,(GLfloat)width/(GLfloat)height, 1.0f, INFINITE);
-			glCamera->projection = glm::perspective<float>(45.0f, (GLfloat)width/(GLfloat)height, 1.0f, INFINITE);
+			//glCamera->projection = glm::perspective<float>(45.0f, (GLfloat)width/(GLfloat)height, 1.0f, INFINITE);
+			glCamera->projection = glm::perspective<float>(45.0f, (GLfloat)width/(GLfloat)height, 1.0f, 15000);
 			glCamera->fovy = 45.0;
 			glCamera->aspect = (float)width/(float)height;
 			glCamera->setWidth(width);

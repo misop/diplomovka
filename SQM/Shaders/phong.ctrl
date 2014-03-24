@@ -2,12 +2,12 @@
 
 layout(vertices = 3) out;
 
-in _{
-	vec4 vertex_eye;
-	vec4 normal_eye;
-	vec4 light_eye;
-	vec2 uv;
-} v[];
+layout(location = 0) in vec4 i_vertex_eye[];
+layout(location = 1) in vec4 i_normal_eye[];
+layout(location = 2) in vec4 i_light_eye[];
+layout(location = 3) in vec3 i_tangent_eye[];
+layout(location = 4) in vec3 i_bitangent_eye[];
+layout(location = 5) in vec2 i_uv[];
 
 const float tessLevel = 5;
 //screenHeight/pixelsPerEdge
@@ -17,12 +17,12 @@ layout(location = 4) uniform vec4 Material;
 layout(location = 5) uniform float PixelsPerEdge;
 layout(location = 8) uniform float ScreenHeight;
 
-out _{
-	vec4 vertex_eye;
-	vec4 normal_eye;
-	vec4 light_eye;
-	vec2 uv;
-} tc[];
+layout(location = 0) out vec4 vertex_eye[];
+layout(location = 1) out vec4 normal_eye[];
+layout(location = 2) out vec4 light_eye[];
+layout(location = 3) out vec3 tangent_eye[];
+layout(location = 4) out vec3 bitangent_eye[];
+layout(location = 5) out vec2 uv[];
 
 //Obtain the diameter of a bounding sphere on each edge transformed into clip space and multiple by the shader constant to obtain a tessellation factor for the edge.
 //Dividing by ClipPos.W will perspective correct the diameter
@@ -35,8 +35,6 @@ float GetPostProjectionSphereExtent(in vec4 Origin, in float Diameter)
 
 float CalculateTessellationFactor(in vec4 Control0, in vec4 Control1, in vec4 Normal1, in vec4 Normal2)
 {
-	//no tessellation for you
-	if (Material.x < 0.5) return 1.0;
 	vec4 n = normalize((Normal1 + Normal2)/2.0);
 	//tessellate only facing
 	vec4 eye_dir = vec4(0,0,-1,0);
@@ -50,7 +48,9 @@ float CalculateTessellationFactor(in vec4 Control0, in vec4 Control1, in vec4 No
 	}
 	
     float e0 = distance(Control0, Control1);
-    return max(1, ScreenHeight / PixelsPerEdge * GetPostProjectionSphereExtent(m0, e0));
+    //return max(1, ScreenHeight / PixelsPerEdge * GetPostProjectionSphereExtent(m0, e0));
+	float factor = min(Material.x, PixelsPerEdge);
+    return max(1, ScreenHeight / factor * GetPostProjectionSphereExtent(m0, e0));
     //return max(1, EdgesPerScreenHeight * GetPostProjectionSphereExtent(m0, e0));
 }
 
@@ -58,20 +58,19 @@ void main(void) {
 	//set tessellation levels just once
 	if (gl_InvocationID == 0) {
 		//outter levels
-		//gl_TessLevelOuter[0] = CalculateTessellationFactor(gl_in[0].gl_Position, gl_in[1].gl_Position, v[0].normal_eye, v[1].normal_eye);
-		//gl_TessLevelOuter[1] = CalculateTessellationFactor(gl_in[1].gl_Position, gl_in[2].gl_Position, v[1].normal_eye, v[2].normal_eye);
-		//gl_TessLevelOuter[2] = CalculateTessellationFactor(gl_in[2].gl_Position, gl_in[0].gl_Position, v[2].normal_eye, v[0].normal_eye);
-		gl_TessLevelOuter[0] = CalculateTessellationFactor(v[0].vertex_eye, v[1].vertex_eye, v[0].normal_eye, v[1].normal_eye);
-		gl_TessLevelOuter[1] = CalculateTessellationFactor(v[1].vertex_eye, v[2].vertex_eye, v[1].normal_eye, v[2].normal_eye);
-		gl_TessLevelOuter[2] = CalculateTessellationFactor(v[2].vertex_eye, v[0].vertex_eye, v[2].normal_eye, v[0].normal_eye);
+		gl_TessLevelOuter[0] = CalculateTessellationFactor(i_vertex_eye[0], i_vertex_eye[1], i_normal_eye[0], i_normal_eye[1]);
+		gl_TessLevelOuter[1] = CalculateTessellationFactor(i_vertex_eye[1], i_vertex_eye[2], i_normal_eye[1], i_normal_eye[2]);
+		gl_TessLevelOuter[2] = CalculateTessellationFactor(i_vertex_eye[2], i_vertex_eye[0], i_normal_eye[2], i_normal_eye[0]);
 		//inner level
 		gl_TessLevelInner[0] = max(max(gl_TessLevelOuter[0], gl_TessLevelOuter[1]), gl_TessLevelOuter[2]);
 	}
 	//pass parameters
-	tc[gl_InvocationID].vertex_eye = v[gl_InvocationID].vertex_eye;
-	tc[gl_InvocationID].normal_eye = v[gl_InvocationID].normal_eye;
-	tc[gl_InvocationID].light_eye = v[gl_InvocationID].light_eye;
-	tc[gl_InvocationID].uv = v[gl_InvocationID].uv;
+	vertex_eye[gl_InvocationID] = i_vertex_eye[gl_InvocationID];
+	normal_eye[gl_InvocationID] = i_normal_eye[gl_InvocationID];
+	light_eye[gl_InvocationID] = i_light_eye[gl_InvocationID];
+	tangent_eye[gl_InvocationID] = i_tangent_eye[gl_InvocationID];
+	bitangent_eye[gl_InvocationID] = i_bitangent_eye[gl_InvocationID];
+	uv[gl_InvocationID] = i_uv[gl_InvocationID];
 
 	gl_out[gl_InvocationID].gl_Position = gl_in[gl_InvocationID].gl_Position;
 }

@@ -7,16 +7,17 @@
 
 class GLFrameBuffer
 {
-	std::vector<GLenum> attachedTextures;
+	GLuint renderBuffer;
 public:
+	std::vector<GLTexture*> attachedTextures;
 	GLuint fbo;
 
 	GLFrameBuffer(void);
 	~GLFrameBuffer(void);
 	
+	bool CreateGeneralFBO(int width, int height, int colorBuffers, bool depthBuffer);
 	void Bind();
-	void AttachTexture(GLenum attachement, GLTexture *texture, bool bind = false);
+	void Unbind();
 	bool CheckStatus();
-	void Draw();
 };
 

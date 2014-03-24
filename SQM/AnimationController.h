@@ -9,13 +9,21 @@
 #include "Interpolation.h"
 #include "AssimpObject.h"
 #include "GLText.h"
+#include "GLFrameBuffer.h"
 
 class AnimationController
 {
 	GLTexture *toonShadingTexture;
+	GLTexture *noiseTexture;
 	GLArrayBuffer *skybox;
 	GLText *text;
+	GLFrameBuffer *ssaoFbo;
+	GLFrameBuffer *edgeFbo;
+	GLFrameBuffer *shadowmap;
+	GLArrayBuffer *quad;
 	glm::mat4 skyboxModel;
+	glm::mat4 depthMVP;
+	glm::mat4 biasMatrix;
 	GLTexture *skyboxTexture;
 	vector<GLProgram *> programs;
 	vector<OpenGLShaders *> shaders;
@@ -37,10 +45,12 @@ public:
 	bool drawWireframe;
 	bool useSSAO;
 	bool useDispalcement;
+	bool useNormals;
 	bool pause;
 	bool useToonShading;
 	bool drawText;
 	float PixelsPerEdge;
+	bool drawDebug;
 
 	AnimationController(void);
 	~AnimationController(void);
@@ -58,12 +68,27 @@ public:
 	void InitSkybox();
 	void InitToonShadingTexture();
 	void InitFont();
+	void InitFBOs();
 	
 	void Draw(GLCamera *camera);
 	glm::mat4 AnimateCamera();
+	void GetShadowMaps(GLCamera *camera);
 	void DrawSkybox(GLCamera *camera, glm::mat4 &view_matrix);
 	void MoveTimers();
-	void DrawText(GLCamera *camera, glm::mat4 &view_matrix);
+	void DrawModels(GLCamera *camera, glm::mat4 &view_matrix, bool texture = true, bool tessellate = true, bool ssao = false);
+	void BindTextures(int idx, bool bind);
+	void DrawText(GLCamera *camera);
+	void DrawToTexture(GLCamera *camera, glm::mat4 &view_matrix);
+	void DrawDebug(GLCamera *camera);
+	void DrawWireframe(GLCamera *camera, glm::mat4 &view_matrix);
+	void DrawPhong(GLCamera *camera, glm::mat4 &view_matrix);
+	void DrawPhongNormal(GLCamera *camera, glm::mat4 &view_matrix);
+	void DrawPhongAll(GLCamera *camera, glm::mat4 &view_matrix);
+	void DrawToon(GLCamera *camera, glm::mat4 &view_matrix);
+	void DrawToonAll(GLCamera *camera, glm::mat4 &view_matrix);
+	void DetectEdges();
+	void Smooth(bool horizontal);
+	void Postprocess(GLCamera *camera);
 	
 	void TessellateMore();
 	void TessellateLess();

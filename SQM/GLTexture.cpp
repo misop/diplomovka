@@ -37,6 +37,10 @@ void GLTexture::Bind() {
 	glBindTexture(target, texture);
 }
 
+void GLTexture::Unbind() {
+	glBindTexture(target, 0);
+}
+
 void GLTexture::UseTexture(GLint loc, int unit) {
 	glUniform1i(loc, unit);
 }
@@ -49,12 +53,23 @@ void GLTexture::TexParameteri(GLenum pname, GLint param) {
 
 #pragma region Texture Loading from Data
 
+void GLTexture::Texture2D(int width, int height, GLenum internalFormat, GLenum format, GLenum type, GLubyte *data) {
+	glTexImage2D(target, 0, internalFormat, width, height, 0, format, type, data);
+}
+
 void GLTexture::FunctionTexture(int width, int height, float *data) {
 	glTexImage2D(target, 0, GL_R32F, width, height, 0, GL_RED, GL_FLOAT, data);
 }
 
-void GLTexture::RGBATexture(int width, int height, GLenum format, GLubyte *data) {
-	glTexImage2D(target, 0, GL_RGBA, width, height, 0, format, GL_UNSIGNED_BYTE, data);
+void GLTexture::RGBATexture(int width, int height, GLenum format, GLenum type, GLubyte *data) {
+	GLenum internalFormat = GL_RGBA32F;
+	if (format == GL_UNSIGNED_BYTE)
+		internalFormat = GL_RGBA;
+	glTexImage2D(target, 0, internalFormat, width, height, 0, format, type, data);
+}
+
+void GLTexture::DepthTexture(int width, int height, GLenum type) {
+	glTexImage2D(target, 0, GL_DEPTH_COMPONENT32, width, height, 0, GL_DEPTH_COMPONENT, type, 0);
 }
 
 #pragma endregion
@@ -90,7 +105,7 @@ void GLTexture::LoadRGBATextureFromImage(string img) {
 	TexParameteri(GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	TexParameteri(GL_TEXTURE_WRAP_S, GL_REPEAT);
 	TexParameteri(GL_TEXTURE_WRAP_T, GL_REPEAT);
-	RGBATexture(ilGetInteger(IL_IMAGE_WIDTH), ilGetInteger(IL_IMAGE_HEIGHT), ilGetInteger(IL_IMAGE_FORMAT), ilGetData());
+	RGBATexture(ilGetInteger(IL_IMAGE_WIDTH), ilGetInteger(IL_IMAGE_HEIGHT), ilGetInteger(IL_IMAGE_FORMAT), GL_UNSIGNED_BYTE, ilGetData());
 
 	// zmazanie OpenIL textury
 	ilDeleteImages(1, &texIL);

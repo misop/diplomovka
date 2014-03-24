@@ -23,9 +23,37 @@
 #include <freetype\freetype.h>
 #undef generic
 
-#define PHONG 0
-#define SKYBOX 1
-#define TEXT 2
+#pragma region Defines
+
+#define PHONG           0
+#define SKYBOX          1
+#define TEXT            2
+#define SHADOW_MAP      3
+#define SSAO_FBO        4
+#define WIREFRAME       5
+#define PHONG_NORMAL    6
+#define PHONG_ALL       7
+#define TOON            8
+#define TOON_ALL        9
+#define SOBEL          10
+#define BILATERAL      11
+#define SSAO           12
+#define EDGE_FBO       13
+
+#define DIFFUSE_TEXTURE            GL_TEXTURE0
+#define DISPLACEMENT_TEXTURE       GL_TEXTURE1
+#define NORMAL_TEXTURE             GL_TEXTURE2
+#define SHADOWMAP_TEXTURE          GL_TEXTURE4
+#define TOON_TEXTURE               GL_TEXTURE5
+#define SCREEN_NORMALS_TEXTURE     GL_TEXTURE6
+#define DEPTH_TEXTURE              GL_TEXTURE7
+
+#define EDGE_TEX_SIZE     1024
+#define MAP_SIZE          1024
+#define SSAO_TEX_SIZE     1024
+#define DEBUG_SIZE         256
+
+#pragma endregion
 
 #pragma region Init
 
@@ -36,13 +64,20 @@ AnimationController::AnimationController(void)
 	skyboxTexture = NULL;
 	toonShadingTexture = NULL;
 	text = NULL;
+	quad = NULL;
+	ssaoFbo = NULL;
+	edgeFbo = NULL;
+	shadowmap = NULL;
+	noiseTexture = NULL;
 	drawWireframe = false;
 	useSSAO = false;
 	useDispalcement = false;
 	pause = false;
 	useToonShading = false;
 	drawText = true;
-	PixelsPerEdge = 150;
+	drawDebug = true;
+	useNormals = true;
+	PixelsPerEdge = 500;
 	time = GetTickCount();
 	frames = 0;
 	fps = 0;
@@ -59,7 +94,12 @@ AnimationController::~AnimationController(void)
 		delete models[i];
 	}
 	delete toonShadingTexture;
+	delete noiseTexture;
 	delete text;
+	delete quad;
+	delete ssaoFbo;
+	delete edgeFbo;
+	delete shadowmap;
 }
 
 #pragma endregion
@@ -123,6 +163,7 @@ void AnimationController::LoadScene() {
 	InitSkybox();
 	InitShaders();
 	InitFont();
+	InitFBOs();
 
 	canDraw = prevDraw;
 }
@@ -264,23 +305,11 @@ void AnimationController::InitShaders() {
 	bool prevDraw = canDraw;
 	canDraw = false;
 	ClearShaders();
-
+#pragma region Phong
 	OpenGLShaders *phongShaders = new OpenGLShaders();
 	phongShaders->vert = new GLShader(GL_VERTEX_SHADER);
-	phongShaders->vert->Load("shaders/phong.vert");
+	phongShaders->vert->Load("shaders/phong_noTess.vert");
 	phongShaders->vert->Compile();
-
-	phongShaders->ctrl = new GLShader(GL_TESS_CONTROL_SHADER);
-	phongShaders->ctrl->Load("shaders/phong.ctrl");
-	phongShaders->ctrl->Compile();
-
-	phongShaders->eval = new GLShader(GL_TESS_EVALUATION_SHADER);
-	phongShaders->eval->Load("shaders/phong.eval");
-	phongShaders->eval->Compile();
-
-	phongShaders->geom = new GLShader(GL_GEOMETRY_SHADER);
-	phongShaders->geom->Load("shaders/phong.geom");
-	phongShaders->geom->Compile();
 
 	phongShaders->frag = new GLShader(GL_FRAGMENT_SHADER);
 	phongShaders->frag->Load("shaders/phong.frag");
@@ -293,7 +322,8 @@ void AnimationController::InitShaders() {
 
 	shaders.push_back(phongShaders);
 	programs.push_back(phongProgram);
-
+#pragma endregion
+#pragma region Skybox
 	OpenGLShaders *skyboxShaders = new OpenGLShaders();
 	skyboxShaders->vert = new GLShader(GL_VERTEX_SHADER);
 	skyboxShaders->vert->Load("shaders/skybox.vert");
@@ -327,6 +357,233 @@ void AnimationController::InitShaders() {
 
 	shaders.push_back(textShaders);
 	programs.push_back(textProgram);
+#pragma endregion
+#pragma region Shadowmap
+	OpenGLShaders *shadowmapShaders = new OpenGLShaders();
+	shadowmapShaders->vert = new GLShader(GL_VERTEX_SHADER);
+	shadowmapShaders->vert->Load("shaders/ShadowMap.vert");
+	shadowmapShaders->vert->Compile();
+
+	shadowmapShaders->frag = new GLShader(GL_FRAGMENT_SHADER);
+	shadowmapShaders->frag->Load("shaders/ShadowMap.frag");
+	shadowmapShaders->frag->Compile();
+
+	GLProgram *shadowmapProgram = new GLProgram("Shadowmap");
+	shadowmapProgram->AttachShaders(shadowmapShaders);
+	shadowmapProgram->Link();
+	shadowmapProgram->SaveProgramLog();
+
+	shaders.push_back(shadowmapShaders);
+	programs.push_back(shadowmapProgram);
+#pragma endregion
+#pragma region SSAO FBO
+	OpenGLShaders *fboShaders = new OpenGLShaders();
+	fboShaders->vert = new GLShader(GL_VERTEX_SHADER);
+	fboShaders->vert->Load("shaders/FBO.vert");
+	fboShaders->vert->Compile();
+
+	fboShaders->frag = new GLShader(GL_FRAGMENT_SHADER);
+	fboShaders->frag->Load("shaders/FBO.frag");
+	fboShaders->frag->Compile();
+
+	GLProgram *fboProgram = new GLProgram("FBO");
+	fboProgram->AttachShaders(fboShaders);
+	fboProgram->Link();
+	fboProgram->SaveProgramLog();
+
+	shaders.push_back(fboShaders);
+	programs.push_back(fboProgram);
+#pragma endregion
+#pragma region Wireframe
+	OpenGLShaders *phongWireframeShaders = new OpenGLShaders();
+	phongWireframeShaders->vert = new GLShader(GL_VERTEX_SHADER);
+	phongWireframeShaders->vert->Load("shaders/phong.vert");
+	phongWireframeShaders->vert->Compile();
+
+	phongWireframeShaders->ctrl = new GLShader(GL_TESS_CONTROL_SHADER);
+	phongWireframeShaders->ctrl->Load("shaders/phong.ctrl");
+	phongWireframeShaders->ctrl->Compile();
+
+	phongWireframeShaders->eval = new GLShader(GL_TESS_EVALUATION_SHADER);
+	phongWireframeShaders->eval->Load("shaders/phong.eval");
+	phongWireframeShaders->eval->Compile();
+
+	phongWireframeShaders->geom = new GLShader(GL_GEOMETRY_SHADER);
+	phongWireframeShaders->geom->Load("shaders/phong.geom");
+	phongWireframeShaders->geom->Compile();
+
+	phongWireframeShaders->frag = new GLShader(GL_FRAGMENT_SHADER);
+	phongWireframeShaders->frag->Load("shaders/phong_wireframe.frag");
+	phongWireframeShaders->frag->Compile();
+
+	GLProgram *phongWireframeProgram = new GLProgram("Phong_wireframe");
+	phongWireframeProgram->AttachShaders(phongWireframeShaders);
+	phongWireframeProgram->Link();
+	phongWireframeProgram->SaveProgramLog();
+
+	shaders.push_back(phongWireframeShaders);
+	programs.push_back(phongWireframeProgram);
+#pragma endregion
+#pragma region Phong Normal
+	OpenGLShaders *phongNormalShaders = new OpenGLShaders();
+	phongNormalShaders->vert = new GLShader(GL_VERTEX_SHADER);
+	phongNormalShaders->vert->Load("shaders/phong_noTess.vert");
+	phongNormalShaders->vert->Compile();
+
+	phongNormalShaders->frag = new GLShader(GL_FRAGMENT_SHADER);
+	phongNormalShaders->frag->Load("shaders/phong_normal.frag");
+	phongNormalShaders->frag->Compile();
+
+	GLProgram *phongNormalProgram = new GLProgram("Phong_normal");
+	phongNormalProgram->AttachShaders(phongNormalShaders);
+	phongNormalProgram->Link();
+	phongNormalProgram->SaveProgramLog();
+
+	shaders.push_back(phongNormalShaders);
+	programs.push_back(phongNormalProgram);
+#pragma endregion
+#pragma region Phong ALL
+	OpenGLShaders *phongAllShaders = new OpenGLShaders();
+	phongAllShaders->vert = new GLShader(GL_VERTEX_SHADER);
+	phongAllShaders->vert->Load("shaders/phong.vert");
+	phongAllShaders->vert->Compile();
+
+	phongAllShaders->ctrl = new GLShader(GL_TESS_CONTROL_SHADER);
+	phongAllShaders->ctrl->Load("shaders/phong.ctrl");
+	phongAllShaders->ctrl->Compile();
+
+	phongAllShaders->eval = new GLShader(GL_TESS_EVALUATION_SHADER);
+	phongAllShaders->eval->Load("shaders/phong.eval");
+	phongAllShaders->eval->Compile();
+
+	phongAllShaders->frag = new GLShader(GL_FRAGMENT_SHADER);
+	phongAllShaders->frag->Load("shaders/phongAll.frag");
+	phongAllShaders->frag->Compile();
+
+	GLProgram *phongAllProgram = new GLProgram("Phong_all");
+	phongAllProgram->AttachShaders(phongAllShaders);
+	phongAllProgram->Link();
+	phongAllProgram->SaveProgramLog();
+
+	shaders.push_back(phongAllShaders);
+	programs.push_back(phongAllProgram);
+#pragma endregion
+#pragma region Toon
+	OpenGLShaders *toonShaders = new OpenGLShaders();
+	toonShaders->vert = new GLShader(GL_VERTEX_SHADER);
+	toonShaders->vert->Load("shaders/phong_noTess.vert");
+	toonShaders->vert->Compile();
+
+	toonShaders->frag = new GLShader(GL_FRAGMENT_SHADER);
+	toonShaders->frag->Load("shaders/toon.frag");
+	toonShaders->frag->Compile();
+
+	GLProgram *toonProgram = new GLProgram("Toon");
+	toonProgram->AttachShaders(toonShaders);
+	toonProgram->Link();
+	toonProgram->SaveProgramLog();
+
+	shaders.push_back(toonShaders);
+	programs.push_back(toonProgram);
+#pragma endregion
+#pragma region Phong ALL
+	OpenGLShaders *toonAllShaders = new OpenGLShaders();
+	toonAllShaders->vert = new GLShader(GL_VERTEX_SHADER);
+	toonAllShaders->vert->Load("shaders/phong.vert");
+	toonAllShaders->vert->Compile();
+
+	toonAllShaders->ctrl = new GLShader(GL_TESS_CONTROL_SHADER);
+	toonAllShaders->ctrl->Load("shaders/phong.ctrl");
+	toonAllShaders->ctrl->Compile();
+
+	toonAllShaders->eval = new GLShader(GL_TESS_EVALUATION_SHADER);
+	toonAllShaders->eval->Load("shaders/phong.eval");
+	toonAllShaders->eval->Compile();
+
+	toonAllShaders->frag = new GLShader(GL_FRAGMENT_SHADER);
+	toonAllShaders->frag->Load("shaders/toonAll.frag");
+	toonAllShaders->frag->Compile();
+
+	GLProgram *toonAllProgram = new GLProgram("Toon_all");
+	toonAllProgram->AttachShaders(toonAllShaders);
+	toonAllProgram->Link();
+	toonAllProgram->SaveProgramLog();
+
+	shaders.push_back(toonAllShaders);
+	programs.push_back(toonAllProgram);
+#pragma endregion
+#pragma region Sobel
+	OpenGLShaders *sobelShaders = new OpenGLShaders();
+	sobelShaders->vert = new GLShader(GL_VERTEX_SHADER);
+	sobelShaders->vert->Load("shaders/sobel.vert");
+	sobelShaders->vert->Compile();
+
+	sobelShaders->frag = new GLShader(GL_FRAGMENT_SHADER);
+	sobelShaders->frag->Load("shaders/sobel.frag");
+	sobelShaders->frag->Compile();
+
+	GLProgram *sobelProgram = new GLProgram("Sobel");
+	sobelProgram->AttachShaders(sobelShaders);
+	sobelProgram->Link();
+	sobelProgram->SaveProgramLog();
+
+	shaders.push_back(sobelShaders);
+	programs.push_back(sobelProgram);
+#pragma endregion
+#pragma region Bilateral
+	OpenGLShaders *bilateralShaders = new OpenGLShaders();
+	bilateralShaders->vert = new GLShader(GL_VERTEX_SHADER);
+	bilateralShaders->vert->Load("shaders/gaussian.vert");
+	bilateralShaders->vert->Compile();
+
+	bilateralShaders->frag = new GLShader(GL_FRAGMENT_SHADER);
+	bilateralShaders->frag->Load("shaders/gaussian.frag");
+	bilateralShaders->frag->Compile();
+
+	GLProgram *bilateralProgram = new GLProgram("Bilateral");
+	bilateralProgram->AttachShaders(bilateralShaders);
+	bilateralProgram->Link();
+	bilateralProgram->SaveProgramLog();
+
+	shaders.push_back(bilateralShaders);
+	programs.push_back(bilateralProgram);
+#pragma endregion
+#pragma region SSAO
+	OpenGLShaders *ssaoShaders = new OpenGLShaders();
+	ssaoShaders->vert = new GLShader(GL_VERTEX_SHADER);
+	ssaoShaders->vert->Load("shaders/ssao.vert");
+	ssaoShaders->vert->Compile();
+
+	ssaoShaders->frag = new GLShader(GL_FRAGMENT_SHADER);
+	ssaoShaders->frag->Load("shaders/ssao.frag");
+	ssaoShaders->frag->Compile();
+
+	GLProgram *ssaoProgram = new GLProgram("SSAO");
+	ssaoProgram->AttachShaders(ssaoShaders);
+	ssaoProgram->Link();
+	ssaoProgram->SaveProgramLog();
+
+	shaders.push_back(ssaoShaders);
+	programs.push_back(ssaoProgram);
+#pragma endregion
+#pragma region Edge FBO
+	OpenGLShaders *edgeFBOShaders = new OpenGLShaders();
+	edgeFBOShaders->vert = new GLShader(GL_VERTEX_SHADER);
+	edgeFBOShaders->vert->Load("shaders/edgeFBO.vert");
+	edgeFBOShaders->vert->Compile();
+
+	edgeFBOShaders->frag = new GLShader(GL_FRAGMENT_SHADER);
+	edgeFBOShaders->frag->Load("shaders/edgeFBO.frag");
+	edgeFBOShaders->frag->Compile();
+
+	GLProgram *edgeFBOProgram = new GLProgram("Edge_FBO");
+	edgeFBOProgram->AttachShaders(edgeFBOShaders);
+	edgeFBOProgram->Link();
+	edgeFBOProgram->SaveProgramLog();
+
+	shaders.push_back(edgeFBOShaders);
+	programs.push_back(edgeFBOProgram);
+#pragma endregion
 
 	canDraw = prevDraw;
 }
@@ -375,6 +632,40 @@ void AnimationController::InitFont() {
 	text = new GLText("fonts/Consolas_Bold.ttf");
 }
 
+void AnimationController::InitFBOs() {
+	//debug quad vao
+	GLfloat verts[] = {0.0,0.0, 1.0,0.0, 1.0,1.0, 0.0,1.0};
+	vector<float> vertices(std::begin(verts), std::end(verts));
+	delete quad;
+	quad = new GLArrayBuffer();
+	quad->Bind();
+	quad->BindBufferDataf(vertices, 2, GL_STATIC_DRAW);
+	glBindVertexArray(0);
+	//bias matrix
+	biasMatrix = glm::mat4(
+		0.5, 0.0, 0.0, 0.0,
+		0.0, 0.5, 0.0, 0.0,
+		0.0, 0.0, 0.5, 0.0,
+		0.5, 0.5, 0.5, 1.0
+		);
+	//fbos
+	delete shadowmap;
+	shadowmap = new GLFrameBuffer();
+	shadowmap->CreateGeneralFBO(MAP_SIZE, MAP_SIZE, 0, true);
+
+	delete ssaoFbo;
+	ssaoFbo = new GLFrameBuffer();
+	ssaoFbo->CreateGeneralFBO(SSAO_TEX_SIZE, SSAO_TEX_SIZE, 2, true);
+
+	delete edgeFbo;
+	edgeFbo = new GLFrameBuffer();
+	edgeFbo->CreateGeneralFBO(EDGE_TEX_SIZE, EDGE_TEX_SIZE, 1, true);
+
+	delete noiseTexture;
+	noiseTexture = new GLTexture(GL_TEXTURE_2D);
+	noiseTexture->LoadRGBATextureFromImage("./textures/noise.jpg");
+}
+
 #pragma endregion
 
 #pragma region Draw
@@ -384,28 +675,50 @@ void AnimationController::Draw(GLCamera *camera) {
 
 	unsigned long t = GetTickCount();
 	unsigned long diff = t - time;
-	if (diff >= 1000) {
+	if (diff >= 100) {
 		time = t;
 		perFrame = (double)diff / (double)frames;
-		fps = 1000.0 / perFrame;
+		fps = 1000.0/ perFrame;
 		frames = 0;
 	}
 	frames++;
 
-
 	glm::mat4 view_matrix = AnimateCamera();
 	DrawSkybox(camera, view_matrix);
 
-	//objects
+	MoveTimers();
 
-	programs[PHONG]->Use();
-	glActiveTexture(GL_TEXTURE5);
-	toonShadingTexture->Bind();
+	DrawToTexture(camera, view_matrix);
+	GetShadowMaps(camera);
+
+	//objects
+	if (drawWireframe) {
+		DrawWireframe(camera, view_matrix);
+	} else if (useDispalcement) {
+		if (useToonShading)
+			DrawToonAll(camera, view_matrix);
+		else
+			DrawPhongAll(camera, view_matrix);
+	} else {
+		if (useToonShading)
+			DrawToon(camera, view_matrix);
+		else if (useNormals)
+			DrawPhongNormal(camera, view_matrix);
+		else
+			DrawPhong(camera, view_matrix);
+	}
+
+	Postprocess(camera);
+
+	DrawDebug(camera);
+	DrawText(camera);
+}
+
+#pragma region Different shaders
+void AnimationController::DrawWireframe(GLCamera *camera, glm::mat4 &view_matrix) {
+	programs[WIREFRAME]->Use();
 	glUniform1f(SCREEN_HEIGHT, (float)camera->height);
 	glUniform1f(PIXELS_PER_EDGE, PixelsPerEdge);
-	glUniform1i(USE_WIREFRAME, drawWireframe);
-	glUniform1i(USE_TOON_SHADING, useToonShading);
-	//set matrices
 	if (animateCamera) {
 		camera->getProjectionMatrix(PROJECTION_MATRIX);
 		glUniformMatrix4fv(VIEW_MATRIX, 1, GL_FALSE, glm::value_ptr(view_matrix));
@@ -413,33 +726,164 @@ void AnimationController::Draw(GLCamera *camera) {
 		camera->getCameraMatrices(PROJECTION_MATRIX, VIEW_MATRIX);
 	}
 
-	MoveTimers();
+	DrawModels(camera, view_matrix);
+}
 
+void AnimationController::DrawPhong(GLCamera *camera, glm::mat4 &view_matrix) {
+	programs[PHONG]->Use();
+	if (animateCamera) {
+		camera->getProjectionMatrix(PROJECTION_MATRIX);
+		glUniformMatrix4fv(VIEW_MATRIX, 1, GL_FALSE, glm::value_ptr(view_matrix));
+	} else {
+		camera->getCameraMatrices(PROJECTION_MATRIX, VIEW_MATRIX);
+	}
+	glUniformMatrix4fv(SHADOW_MATRIX, 1, GL_FALSE, glm::value_ptr(depthMVP));
+
+	DrawModels(camera, view_matrix, true, false);
+}
+
+void AnimationController::DrawPhongNormal(GLCamera *camera, glm::mat4 &view_matrix) {
+	programs[PHONG_NORMAL]->Use();
+	if (animateCamera) {
+		camera->getProjectionMatrix(PROJECTION_MATRIX);
+		glUniformMatrix4fv(VIEW_MATRIX, 1, GL_FALSE, glm::value_ptr(view_matrix));
+	} else {
+		camera->getCameraMatrices(PROJECTION_MATRIX, VIEW_MATRIX);
+	}
+
+	DrawModels(camera, view_matrix, true, false);
+}
+
+void AnimationController::DrawPhongAll(GLCamera *camera, glm::mat4 &view_matrix) {
+	programs[PHONG_ALL]->Use();
+	glUniform1f(SCREEN_HEIGHT, (float)camera->height);
+	glUniform1f(PIXELS_PER_EDGE, PixelsPerEdge);
+	if (animateCamera) {
+		camera->getProjectionMatrix(PROJECTION_MATRIX);
+		glUniformMatrix4fv(VIEW_MATRIX, 1, GL_FALSE, glm::value_ptr(view_matrix));
+	} else {
+		camera->getCameraMatrices(PROJECTION_MATRIX, VIEW_MATRIX);
+	}
+
+	DrawModels(camera, view_matrix);
+}
+
+void AnimationController::DrawToon(GLCamera *camera, glm::mat4 &view_matrix) {
+	programs[TOON]->Use();
+	glActiveTexture(GL_TEXTURE5);
+	toonShadingTexture->Bind();
+	if (animateCamera) {
+		camera->getProjectionMatrix(PROJECTION_MATRIX);
+		glUniformMatrix4fv(VIEW_MATRIX, 1, GL_FALSE, glm::value_ptr(view_matrix));
+	} else {
+		camera->getCameraMatrices(PROJECTION_MATRIX, VIEW_MATRIX);
+	}
+
+	DrawModels(camera, view_matrix, true, false);
+}
+
+void AnimationController::DrawToonAll(GLCamera *camera, glm::mat4 &view_matrix) {
+	programs[PHONG_ALL]->Use();
+	glActiveTexture(GL_TEXTURE5);
+	toonShadingTexture->Bind();
+	glUniform1f(SCREEN_HEIGHT, (float)camera->height);
+	glUniform1f(PIXELS_PER_EDGE, PixelsPerEdge);
+	if (animateCamera) {
+		camera->getProjectionMatrix(PROJECTION_MATRIX);
+		glUniformMatrix4fv(VIEW_MATRIX, 1, GL_FALSE, glm::value_ptr(view_matrix));
+	} else {
+		camera->getCameraMatrices(PROJECTION_MATRIX, VIEW_MATRIX);
+	}
+
+	DrawModels(camera, view_matrix);
+}
+
+void AnimationController::DetectEdges() {
+	programs[SOBEL]->Use();
+	float factor = (float)1/(float)MAP_SIZE;
+
+	glUniform1f(TEXEL_WIDTH, factor);
+	glUniform1f(TEXEL_HEIGHT, factor);
+}
+
+void AnimationController::Smooth(bool horizontal) {
+	programs[BILATERAL]->Use();
+	float factor = (float)1/(float)MAP_SIZE;
+
+	glUniform1f(TEXEL_SIZE, factor);
+	glUniform1i(HORIZONTAL, horizontal);
+}
+#pragma endregion
+
+void AnimationController::DrawModels(GLCamera *camera, glm::mat4 &view_matrix, bool texture, bool tessellate, bool ssao) {
 	for (int i = 0; i < objects.size(); i++) {
-		if (movement[i] != -1) {
-			glm::mat4 model = anim_poses[movement[i]].GetMatrix();
-			model = model*modelMatrices[i];
-			glUniformMatrix4fv(MODEL_MATRIX, 1, GL_FALSE, glm::value_ptr(model));
-			camera->setupNormalMatrix(model, NORMAL_MATRIX);
+		glm::mat4 model = modelMatrices[i];
+		if (movement[i] != -1) model = anim_poses[movement[i]].GetMatrix() * model;
+		glUniformMatrix4fv(MODEL_MATRIX, 1, GL_FALSE, glm::value_ptr(model));
+		if (ssao) {
+			glm::mat3 NormalMatrix;
+			if (animateCamera) {
+				NormalMatrix = glm::mat3(camera->projection * view_matrix * model);
+			}
+			else {
+				NormalMatrix = glm::mat3(camera->projection * camera->view * model);
+			}
+			NormalMatrix = glm::transpose(glm::inverse(NormalMatrix));
+			glUniformMatrix3fv(NORMAL_MATRIX, 1, GL_FALSE, glm::value_ptr(NormalMatrix));
 		} else {
-			glUniformMatrix4fv(MODEL_MATRIX, 1, GL_FALSE, glm::value_ptr(modelMatrices[i]));
-			camera->setupNormalMatrix(modelMatrices[i], NORMAL_MATRIX);
+			if (camera) {
+				if (animateCamera) {
+					glm::mat3 NM = glm::mat3(view_matrix*model);
+					NM = glm::transpose(glm::inverse(NM));
+					glUniformMatrix3fv(NORMAL_MATRIX, 1, GL_FALSE, glm::value_ptr(NM));
+				} else {
+					camera->setupNormalMatrix(model, NORMAL_MATRIX);
+				}
+			}
 		}
 		int idx = objects[i].y;
-		//set material
-		glUniform4f(MATERIAL, models[idx]->material.x, models[idx]->material.y, models[idx]->material.z, models[idx]->material.w);
-		//set textures
-		glActiveTexture(GL_TEXTURE0);
-		models[idx]->diffuseTexture->Bind();
+		if (texture) {
+			BindTextures(idx, true);
+		}
 		//draw model
-		models[idx]->buffer->DrawElement(0, GL_PATCHES);
+		if (tessellate)
+			models[idx]->buffer->DrawElement(0, GL_PATCHES);
+		else
+			models[idx]->buffer->DrawElement(0, GL_TRIANGLES);
+		//unbind textures
+		if (texture) {
+			BindTextures(idx, false);
+		}
 		//animate
 		if (pause) continue;
 		objects[i].y++;
 		if (objects[i].y >= objects[i].z) objects[i].y = objects[i].x;
 	}
+}
 
-	DrawText(camera, view_matrix);
+void AnimationController::BindTextures(int idx, bool bind) {
+	//set material
+	glUniform4f(MATERIAL, models[idx]->material.x, models[idx]->material.y, models[idx]->material.z, models[idx]->material.w);
+	//set textures
+	glActiveTexture(GL_TEXTURE0);
+	if (bind)
+		models[idx]->diffuseTexture->Bind();
+	else
+		models[idx]->diffuseTexture->Unbind();
+	if (models[idx]->displacementTexture) {
+		glActiveTexture(GL_TEXTURE1);
+		if (bind)
+			models[idx]->displacementTexture->Bind();
+		else
+			models[idx]->displacementTexture->Unbind();
+	}
+	if (models[idx]->normalTexture) {
+		glActiveTexture(GL_TEXTURE2);
+		if (bind)
+			models[idx]->normalTexture->Bind();
+		else
+			models[idx]->normalTexture->Unbind();
+	}
 }
 
 glm::mat4 AnimationController::AnimateCamera() {
@@ -452,10 +896,39 @@ glm::mat4 AnimationController::AnimateCamera() {
 	return view_matrix;
 }
 
+void AnimationController::GetShadowMaps(GLCamera *camera) {
+	bool paused = pause;
+	pause = true;
+
+	shadowmap->Bind();
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	glViewport(0, 0, MAP_SIZE, MAP_SIZE);
+	//glCullFace(GL_FRONT);
+	programs[SHADOW_MAP]->Use();
+
+	glm::mat4 proj = glm::ortho<float>(0, camera->width, 0, camera->height, 1, 5000);
+	glm::mat4 view = glm::lookAt(glm::vec3(0, 300, 1200), glm::vec3(0), glm::vec3(0, 1, 0));
+	depthMVP = biasMatrix * proj * view;
+	glUniformMatrix4fv(PROJECTION_MATRIX, 1, GL_FALSE, glm::value_ptr(proj));
+	camera->getProjectionMatrix(PROJECTION_MATRIX);
+	glUniformMatrix4fv(VIEW_MATRIX, 1, GL_FALSE, glm::value_ptr(view));
+	DrawModels(NULL, glm::mat4(1.0), false, false, false);
+
+	//glCullFace(GL_BACK);
+	shadowmap->Unbind();
+	glViewport(0, 0, camera->width, camera->height);
+
+	glActiveTexture(GL_TEXTURE4);
+	shadowmap->attachedTextures[0]->Bind();
+
+	pause = paused;
+}
+
 void AnimationController::DrawSkybox(GLCamera *camera, glm::mat4 &view_matrix) {
 	//skybox
 	programs[SKYBOX]->Use();	
 	glUniformMatrix4fv(MODEL_MATRIX, 1, GL_FALSE, glm::value_ptr(skyboxModel));
+	glUniform1i(USE_TOON_SHADING, useToonShading);
 	if (animateCamera) {
 		camera->getProjectionMatrix(PROJECTION_MATRIX);
 		glUniformMatrix4fv(VIEW_MATRIX, 1, GL_FALSE, glm::value_ptr(view_matrix));
@@ -466,6 +939,45 @@ void AnimationController::DrawSkybox(GLCamera *camera, glm::mat4 &view_matrix) {
 	glActiveTexture(GL_TEXTURE0);
 	skyboxTexture->Bind();
 	skybox->DrawElement(0, GL_QUADS);
+}
+
+void AnimationController::DrawToTexture(GLCamera *camera, glm::mat4 &view_matrix) {
+	bool paused = pause;
+	pause = true;
+	//draw ssao
+	ssaoFbo->Bind();
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	glViewport(0, 0, SSAO_TEX_SIZE, SSAO_TEX_SIZE);
+
+	programs[SSAO_FBO]->Use();
+	if (animateCamera) {
+		camera->getProjectionMatrix(PROJECTION_MATRIX);
+		glUniformMatrix4fv(VIEW_MATRIX, 1, GL_FALSE, glm::value_ptr(view_matrix));
+	} else {
+		camera->getCameraMatrices(PROJECTION_MATRIX, VIEW_MATRIX);
+	}
+	DrawModels(camera, view_matrix, false, false, true);
+
+	ssaoFbo->Unbind();
+	glViewport(0, 0, camera->width, camera->height);
+	//draw edges
+	edgeFbo->Bind();
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	glViewport(0, 0, EDGE_TEX_SIZE, EDGE_TEX_SIZE);
+
+	programs[EDGE_FBO]->Use();
+	if (animateCamera) {
+		camera->getProjectionMatrix(PROJECTION_MATRIX);
+		glUniformMatrix4fv(VIEW_MATRIX, 1, GL_FALSE, glm::value_ptr(view_matrix));
+	} else {
+		camera->getCameraMatrices(PROJECTION_MATRIX, VIEW_MATRIX);
+	}
+	DrawModels(camera, view_matrix, false, false, true);
+
+	edgeFbo->Unbind();
+	glViewport(0, 0, camera->width, camera->height);
+
+	pause = paused;
 }
 
 void AnimationController::MoveTimers() {
@@ -479,29 +991,164 @@ void AnimationController::MoveTimers() {
 	}
 }
 
-void AnimationController::DrawText(GLCamera *camera, glm::mat4 &view_matrix) {
-	if (!drawText) return;
+void AnimationController::Postprocess(GLCamera *camera) {
+	glm::mat4 ProjectionMatrix = glm::ortho(0.0f, camera->width, 0.0f, camera->height, -1.0f, 1.0f);
+	glm::mat4 ModelMatrix = glm::scale(glm::mat4(1.0), glm::vec3(camera->width, camera->height, 0));
 
+	if (useToonShading) {
+		glEnable(GL_BLEND);
+		glDepthMask(GL_FALSE);
+
+		DetectEdges();
+		glUniformMatrix4fv(PROJECTION_MATRIX, 1, GL_FALSE, glm::value_ptr(ProjectionMatrix));
+		glUniformMatrix4fv(MODEL_MATRIX, 1, GL_FALSE, glm::value_ptr(ModelMatrix));
+
+		glActiveTexture(GL_TEXTURE0);
+		edgeFbo->attachedTextures[0]->Bind();
+
+		quad->Draw(GL_QUADS);
+
+		glDepthMask(GL_TRUE);
+		glDisable(GL_BLEND);
+	}
+
+	if (useSSAO) {
+		glEnable(GL_BLEND);
+		glDepthMask(GL_FALSE);
+		//glClampColor(GL_CLAMP_READ_COLOR, GL_FALSE);
+		//glClampColor(GL_CLAMP_VERTEX_COLOR, GL_FALSE);
+		//glClampColor(GL_CLAMP_FRAGMENT_COLOR, GL_FALSE);
+
+		programs[SSAO]->Use();
+		glm::mat4 proj_inv = glm::inverse(camera->projection);
+		glUniformMatrix4fv(PROJECTION_MATRIX, 1, GL_FALSE, glm::value_ptr(ProjectionMatrix));
+		glUniformMatrix4fv(PROJECTION_MATRIX_INV, 1, GL_FALSE, glm::value_ptr(proj_inv));
+		glUniformMatrix4fv(MODEL_MATRIX, 1, GL_FALSE, glm::value_ptr(ModelMatrix));
+		glUniform1f(SCREEN_WIDTH, camera->width);
+		glUniform1f(SCREEN_HEIGHT, camera->height);
+
+		glActiveTexture(GL_TEXTURE0);
+		noiseTexture->Bind();
+		glActiveTexture(GL_TEXTURE1);
+		ssaoFbo->attachedTextures[0]->Bind();
+		glActiveTexture(GL_TEXTURE2);
+		ssaoFbo->attachedTextures[1]->Bind();
+
+		quad->Draw(GL_QUADS);
+
+		glDepthMask(GL_TRUE);
+		glDisable(GL_BLEND);
+		//glClampColor(GL_CLAMP_READ_COLOR, GL_TRUE);
+		//glClampColor(GL_CLAMP_VERTEX_COLOR, GL_TRUE);
+		//glClampColor(GL_CLAMP_FRAGMENT_COLOR, GL_TRUE);
+	}
+}
+
+void AnimationController::DrawText(GLCamera *camera) {
 	programs[TEXT]->Use();
+	glUniform1i(SWAP, true);
+
 	//text->RenderText(20, camera->height - 20, "ABCDabcdefghijklmnopqrstuvwxyz", camera);
 	std::ostringstream strs;
 	strs << setprecision(2) << fps << " fps (" << setprecision(2)  << perFrame << " ms)";
 
+	string active_program;
+
+	if (drawWireframe) {
+		active_program = "Wireframe";
+	} else if (useDispalcement) {
+		if (useToonShading)
+			active_program = "Toon + All";
+		else
+			active_program = "Phong + All";;
+	} else {
+		if (useToonShading)
+			active_program = "Toon";
+		else if (useNormals)
+			active_program = "Phong + Normals";
+		else
+			active_program = "Phong";
+	}
+	if (useSSAO)
+		active_program += " + SSAO";
+
+	glm::mat4 proj = glm::ortho(0.0f, camera->width, 0.0f, camera->height, -1.0f, 1.0f);
+	glUniformMatrix4fv(PROJECTION_MATRIX, 1, GL_FALSE, glm::value_ptr(proj));
+
 	int offset = 20;
-	text->RenderText(20, camera->height - offset, strs.str(), camera);
+	text->RenderText(20, camera->height - offset, strs.str());
 	offset += 20;
 
-	text->RenderText(20, camera->height - offset, "P = pause animation", camera);
+	text->RenderText(20, camera->height - offset, active_program);
 	offset += 20;
 
-	text->RenderText(20, camera->height - offset, "T = toon shading", camera);
+	if (!drawText) return;
+
+	text->RenderText(20, camera->height - offset, "P = pause animation");
 	offset += 20;
 
-	text->RenderText(20, camera->height - offset, "W = wireframe", camera);
+	text->RenderText(20, camera->height - offset, "T = toon shading");
 	offset += 20;
 
-	text->RenderText(20, camera->height - offset, "Q/E = tessellate more/less", camera);
+	text->RenderText(20, camera->height - offset, "W = wireframe");
 	offset += 20;
+
+	text->RenderText(20, camera->height - offset, "Q/E = tessellate more/less");
+	offset += 20;
+}
+
+void AnimationController::DrawDebug(GLCamera *camera) {
+	if (!drawDebug) return;
+
+	programs[TEXT]->Use();
+	glUniform1i(SWAP, false);
+
+	glm::mat4 proj = glm::ortho(0.0f, camera->width, 0.0f, camera->height, -1.0f, 1.0f);
+	glUniformMatrix4fv(PROJECTION_MATRIX, 1, GL_FALSE, glm::value_ptr(proj));
+
+	glm::mat4 ModelMatrix = glm::translate(glm::mat4(1.0), glm::vec3(5, 5, 0));
+	ModelMatrix = ModelMatrix * glm::scale(glm::mat4(1.0), glm::vec3(DEBUG_SIZE, DEBUG_SIZE, 0));
+	glUniformMatrix4fv(MODEL_MATRIX, 1, GL_FALSE, glm::value_ptr(ModelMatrix));
+
+	glActiveTexture(GL_TEXTURE0);
+	ssaoFbo->attachedTextures[0]->Bind();
+
+	quad->Draw(GL_QUADS);
+
+	programs[SSAO]->Use();
+
+	glm::mat4 proj_inv = glm::inverse(camera->projection);
+	glUniformMatrix4fv(PROJECTION_MATRIX, 1, GL_FALSE, glm::value_ptr(proj_inv));
+	glUniformMatrix4fv(PROJECTION_MATRIX, 1, GL_FALSE, glm::value_ptr(proj));
+	ModelMatrix = glm::translate(glm::mat4(1.0), glm::vec3(DEBUG_SIZE + 5, 0, 0)) * ModelMatrix;
+	glUniformMatrix4fv(MODEL_MATRIX, 1, GL_FALSE, glm::value_ptr(ModelMatrix));
+	glUniform1f(SCREEN_WIDTH, DEBUG_SIZE);
+	glUniform1f(SCREEN_HEIGHT, DEBUG_SIZE);
+
+	glActiveTexture(GL_TEXTURE0);
+	noiseTexture->Bind();
+	glActiveTexture(GL_TEXTURE1);
+	ssaoFbo->attachedTextures[0]->Bind();
+	glActiveTexture(GL_TEXTURE2);
+	ssaoFbo->attachedTextures[1]->Bind();
+
+	quad->Draw(GL_QUADS);
+
+	/*ModelMatrix = glm::translate(glm::mat4(1.0), glm::vec3(DEBUG_SIZE + 5, 0, 0)) * ModelMatrix;
+	glUniformMatrix4fv(MODEL_MATRIX, 1, GL_FALSE, glm::value_ptr(ModelMatrix));
+
+	glActiveTexture(GL_TEXTURE0);
+	fbo->attachedTextures[1]->Bind();
+
+	quad->Draw(GL_QUADS);
+
+	ModelMatrix = glm::translate(glm::mat4(1.0), glm::vec3(DEBUG_SIZE + 5, 0, 0)) * ModelMatrix;
+	glUniformMatrix4fv(MODEL_MATRIX, 1, GL_FALSE, glm::value_ptr(ModelMatrix));
+
+	glActiveTexture(GL_TEXTURE0);
+	shadowmap->attachedTextures[0]->Bind();
+
+	quad->Draw(GL_QUADS);*/
 }
 
 #pragma endregion

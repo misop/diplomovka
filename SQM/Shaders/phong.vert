@@ -7,44 +7,33 @@ layout (location = 1) in vec3 Normal;
 layout (location = 2) in vec2 UV;
 layout (location = 3) in vec3 Tangent;
 layout (location = 4) in vec3 Bitangent;
-//layout (location = 2) in ivec4 id;
-//layout (location = 2) in ivec2 id;
-//layout (location = 3) in vec4 w;
 
 layout(location = 0) uniform mat4 ModelMatrix;
 layout(location = 1) uniform mat4 ViewMatrix;
 layout(location = 2) uniform mat4 ProjectionMatrix;
 layout(location = 3) uniform mat3 NormalMatrix;
-//layout(location = 4) uniform mat4 SkinningMatrices[SKINNING_MATRICES];
-//uniform mat4 SkinningMatricesReference[SKINNING_MATRICES];
-//uniform float AnimInterpolation;
 
-out _{
-	vec4 vertex_eye;
-	vec4 normal_eye;
-	vec4 light_eye;
-	vec2 uv;
-} v;
+layout(location = 0) out vec4 vertex_eye;
+layout(location = 1) out vec4 normal_eye;
+layout(location = 2) out vec4 light_eye;
+layout(location = 3) out vec3 tangent_eye;
+layout(location = 4) out vec3 bitangent_eye;
+layout(location = 5) out vec2 uv;
 
 void main(void) {
 	vec4 pos = vec4(Position, 1.0);
 	vec4 normal = vec4(Normal, 0.0);
-	
-	//skinning
-	/*mat4 M1 = (w.x*SkinningMatricesReference[id.x] + w.y*SkinningMatricesReference[id.y] + w.z*SkinningMatricesReference[id.z]+ w.w*SkinningMatricesReference[id.w]);
-	mat4 M2 = (w.x*SkinningMatrices[id.x] + w.y*SkinningMatrices[id.y] + w.z*SkinningMatrices[id.z]+ w.w*SkinningMatrices[id.w]);
-	mat4 M = (1-AnimInterpolation)*M1 + AnimInterpolation*M2;
-	pos = M * pos;
-	normal = M * normal;*/
 
 	//camera in eye coordinates is at (0,0,0,0) and light is at camera location now
-	v.vertex_eye = ViewMatrix * ModelMatrix * pos;
-	v.light_eye = vec4(0, 0, 0, 1) - v.vertex_eye;
-	v.normal_eye = vec4(NormalMatrix * vec3(normal), 0.0);
-	v.vertex_eye = vec4(0, 0, 0, 1) - v.vertex_eye;
+	vertex_eye = ViewMatrix * ModelMatrix * pos;
+	light_eye = vec4(0, 0, 0, 1) - vertex_eye;
+	normal_eye = vec4(NormalMatrix * vec3(normal), 0.0);
+	vertex_eye = vec4(0, 0, 0, 1) - vertex_eye;
+	tangent_eye = NormalMatrix * Tangent;
+	bitangent_eye = NormalMatrix * Bitangent;
 	
-	v.uv = UV;
+	uv = UV;
 
 	//gl_Position = ProjectionMatrix * ViewMatrix * ModelMatrix * pos;
-	gl_Position = ModelMatrix * pos;
+	gl_Position = pos;
 }

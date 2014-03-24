@@ -29,6 +29,6 @@ public:
 	GLText(string fileName);
 	~GLText(void);
 
-	void RenderText(float x, float y, string text, GLCamera *camera);
+	void RenderText(float x, float y, string text);
 };
 

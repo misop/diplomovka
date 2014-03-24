@@ -1,5 +1,6 @@
 # a = albedo
 # d = displacement
 # n = normal
-m 0.2 0
+m 300 0
 a ./textures/Table01_D.tga
+n ./textures/table_n.png

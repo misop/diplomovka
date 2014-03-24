@@ -120,7 +120,7 @@ void SQMControler::saveSkeletonToFile(string fileName) {
 	node2->addChild(node8);
 	node2->addChild(node9);
 	node8->addChild(node10);
-	node9->addChild(node11);*/
+	node9->addChild(node11);
 	//TODO convert SQM tree to skeleton nodes
 	try {
 	oa << BOOST_SERIALIZATION_NVP(node);	
@@ -129,8 +129,8 @@ void SQMControler::saveSkeletonToFile(string fileName) {
 	throw e;
 	}
 	delete node;
-	/*//mado vypis :D
-	of << "PseudoRoot*-*0,0,0*0,0,0*" << endl;
+	/* //mado vypis :D
+	of << "PseudoRoot*-*0,0,0*0,0,0*0*" << endl;
 	deque<SQMNode*> queue;
 	queue.push_back(sqmALgorithm->getRoot());
 	while (!queue.empty()) {
@@ -140,10 +140,10 @@ void SQMControler::saveSkeletonToFile(string fileName) {
 		if (node->getParent() != NULL) {
 			glm::vec3 pos1 = node->getPosition_glm();
 			glm::vec3 pos2 = node->getParent()->getPosition_glm();
-			of << node->getIdStr() << "*" << node->getParent()->getIdStr() << "*" << pos2.x << "," << pos2.y << "," << pos2.z << "*" << pos1.x << "," << pos1.y << "," << pos1.z << "*" << endl;
+			of << node->getIdStr() << "*" << node->getParent()->getIdStr() << "*" << pos2.x << "," << pos2.y << "," << pos2.z << "*" << pos1.x << "," << pos1.y << "," << pos1.z << "*" << node->getNodeRadius() << "*"  << endl;
 		} else {
 			glm::vec3 pos1 = node->getPosition_glm();
-			of << node->getIdStr() << "*PseudoRoot*0,0,0*" << pos1.x << "," << pos1.y << "," << pos1.z << "*" << endl;
+			of << node->getIdStr() << "*PseudoRoot*0,0,0*" << pos1.x << "," << pos1.y << "," << pos1.z << "*" << node->getNodeRadius() << "*" << endl;
 		}
 
 		vector<SQMNode*> *childs = node->getNodes();

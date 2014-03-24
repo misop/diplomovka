@@ -240,9 +240,17 @@ void GLEventHandler::KeyDown(char c) {
 		//tessellate less
 		animControler->TessellateLess();
 		break;
-	case 'D':
+	case 'A':
 		//alter dispalcement
 		animControler->useDispalcement = !animControler->useDispalcement;
+		break;
+	case 'N':
+		//alter dispalcement
+		animControler->useNormals = !animControler->useNormals;
+		break;
+	case 'D':
+		//alter dispalcement
+		animControler->drawDebug = !animControler->drawDebug;
 		break;
 	case 'S':
 		//alter SSAO
