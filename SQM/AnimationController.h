@@ -13,11 +13,16 @@
 
 class AnimationController
 {
+	glm::vec3 sun;
 	GLTexture *toonShadingTexture;
 	GLTexture *noiseTexture;
 	GLArrayBuffer *skybox;
 	GLText *text;
 	GLFrameBuffer *ssaoFbo;
+	GLFrameBuffer *ssaoFbo2;
+	GLFrameBuffer *upscaleFBO;
+	GLFrameBuffer *blurXFBO;
+	GLFrameBuffer *blurYFBO;
 	GLFrameBuffer *edgeFbo;
 	GLFrameBuffer *shadowmap;
 	GLArrayBuffer *quad;
@@ -75,7 +80,7 @@ public:
 	void GetShadowMaps(GLCamera *camera);
 	void DrawSkybox(GLCamera *camera, glm::mat4 &view_matrix);
 	void MoveTimers();
-	void DrawModels(GLCamera *camera, glm::mat4 &view_matrix, bool texture = true, bool tessellate = true, bool ssao = false);
+	void DrawModels(GLCamera *camera, glm::mat4 &view_matrix, bool texture = true, bool tessellate = true, bool ssao = false, bool screen = false);
 	void BindTextures(int idx, bool bind);
 	void DrawText(GLCamera *camera);
 	void DrawToTexture(GLCamera *camera, glm::mat4 &view_matrix);

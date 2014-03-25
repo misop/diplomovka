@@ -2,7 +2,7 @@
 
 layout(location = 0) in vec2 uvs;
 
-layout(location = 1) uniform mat4 ProjectionMatrix_inv;
+//layout(location = 1) uniform mat4 ProjectionMatrix_inv;
 layout(location = 8) uniform float ScreenHeight;
 layout(location = 9) uniform float ScreenWidth;
 layout(binding=0) uniform sampler2D NoiseSamper;
@@ -11,36 +11,35 @@ layout(binding=2) uniform sampler2D PositionSampler;
 
 layout(location = 0) out vec4 fColor;
 
-//noise texture size
+/*//noise texture size
 float random_size = 64;
 //the sampling radius
-float g_sample_rad = 5;//5;//0.05;//0.1;//0.015;//0.05;//0.015;
+float g_sample_rad = 5;//5;//5;//0.05;//0.1;//0.015;//0.05;//0.015;
 //the ao intensity
 float g_intensity = 5;
 //scales distance between occluders and occludee
 float g_scale = 0;//0.000005;//0.5;//5;//10;//50;
 //controls the width of the occlusion cone considered by the occludee
-float g_bias = 0.1;//0;//0.01;//0.05;
+float g_bias = 0.01;//0.01;//0;//0.01;//0.05;*/
 
-// Function for converting depth to view-space position
-// in deferred pixel shader pass.  vTexCoord is a texture
-// coordinate for a full-screen quad, such that x=0 is the
-// left of the screen, and y=0 is the top of the screen.
-vec3 PositionFromDepth(in vec2 vTexCoord) {
-    // Get the depth value for this pixel
-    float z = texture(ScreenSampler, vTexCoord).a;  
-    // Get x/w and y/w from the viewport position
-    float x = vTexCoord.x * 2 - 1;
-    float y = (vTexCoord.y) * 2 - 1;
-    vec4 vProjectedPos = vec4(x, y, z, 1.0f);
-    // Transform by the inverse projection matrix
-    vec4 vPositionVS = ProjectionMatrix_inv * vProjectedPos;  
-    // Divide by w to get the view-space position
-    return vPositionVS.xyz / vPositionVS.w;  
-}
+//noise texture size
+float random_size = 64;
+//the sampling radius
+float g_sample_rad = 10;
+//the ao intensity
+float g_intensity = 4;
+//scales distance between occluders and occludee
+float g_scale = 0.003;//0.000005;//0.5;//5;//10;//50;
+//controls the width of the occlusion cone considered by the occludee
+float g_bias = 0.01;//0.01;//0;//0.01;//0.05;
 
 vec3 getPosition(in vec2 coord) {
 	return texture(PositionSampler, coord).xyz;
+	//return PositionFromDepth(coord);
+}
+
+vec4 getPositionAndDepth(in vec2 coord) {
+	return texture(PositionSampler, coord);
 	//return PositionFromDepth(coord);
 }
 
@@ -66,7 +65,8 @@ void main(void)
 	vec2 uv = uvs;
 	//uv.x -= 5/ScreenWidth;
 	
-	vec3 p = getPosition(uv);
+	vec4 point = getPositionAndDepth(uv);
+	vec3 p = point.xyz;
 	vec3 n = getNormal(uv);
 	vec2 rand = getRandom(uv);
 
@@ -87,7 +87,8 @@ void main(void)
 	ao/=float(iterations)*4.0;
 
 	//Do stuff here with your occlusion value: modulate ambient lighting, write it to a buffer for later //use, etc.
-	if (ao <0.01) discard;
-	fColor = vec4(0);
-	fColor.a = (1 - ao);
+	if (ao <0.1) discard;
+	fColor = vec4(ao);
+	fColor.a = point.a;//(1 - ao);
+	fColor = clamp(fColor, 0.0, 1.0);
 }

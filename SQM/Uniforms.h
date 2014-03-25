@@ -15,6 +15,10 @@
 #define SCREEN_WIDTH             9
 #define DISPLACE                 9
 
+#define SUN                     10
+#define POINT1                  11
+#define POINT2                  12
+
 #define TEXEL_WIDTH              3
 #define TEXEL_HEIGHT             4
 #define SOBEL_X                  5

@@ -33,7 +33,7 @@ m models/quad.obj textures/ground.tx
 # v 100 models/monsterfrog/monsterfrog_mapped_ textures/monsterfrog.tx
 
 # animations
-c 0 animations/camera.anm
+c 1 animations/camera.anm
 a animations/kruh.anm
 
 # objects

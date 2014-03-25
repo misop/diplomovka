@@ -25,20 +25,22 @@
 
 #pragma region Defines
 
-#define PHONG           0
-#define SKYBOX          1
-#define TEXT            2
-#define SHADOW_MAP      3
-#define SSAO_FBO        4
-#define WIREFRAME       5
-#define PHONG_NORMAL    6
-#define PHONG_ALL       7
-#define TOON            8
-#define TOON_ALL        9
-#define SOBEL          10
-#define BILATERAL      11
-#define SSAO           12
-#define EDGE_FBO       13
+#define PHONG                  0
+#define SKYBOX                 1
+#define TEXT                   2
+#define SHADOW_MAP             3
+#define SSAO_FBO               4
+#define WIREFRAME              5
+#define PHONG_NORMAL           6
+#define PHONG_ALL              7
+#define TOON                   8
+#define TOON_ALL               9
+#define SOBEL                 10
+#define BILATERAL             11
+#define SSAO                  12
+#define EDGE_FBO              13
+#define POST_PROCESS_AO       14
+#define TEXTURED_QUAD         15
 
 #define DIFFUSE_TEXTURE            GL_TEXTURE0
 #define DISPLACEMENT_TEXTURE       GL_TEXTURE1
@@ -48,10 +50,13 @@
 #define SCREEN_NORMALS_TEXTURE     GL_TEXTURE6
 #define DEPTH_TEXTURE              GL_TEXTURE7
 
-#define EDGE_TEX_SIZE     1024
-#define MAP_SIZE          1024
-#define SSAO_TEX_SIZE     1024
-#define DEBUG_SIZE         256
+#define SCREEN_PX_WIDTH    1920
+#define SCREEN_PX_HEIGHT   1080
+#define DEBUG_SIZE          256
+#define EDGE_TEX_SIZE      1024
+#define MAP_SIZE           1024
+#define SSAO_TEX_SIZE       512
+#define DEBUG_SIZE          256
 
 #pragma endregion
 
@@ -66,6 +71,10 @@ AnimationController::AnimationController(void)
 	text = NULL;
 	quad = NULL;
 	ssaoFbo = NULL;
+	ssaoFbo2 = NULL;
+	upscaleFBO = NULL;
+	blurXFBO = NULL;
+	blurYFBO = NULL;
 	edgeFbo = NULL;
 	shadowmap = NULL;
 	noiseTexture = NULL;
@@ -82,6 +91,7 @@ AnimationController::AnimationController(void)
 	frames = 0;
 	fps = 0;
 	perFrame = 0;
+	sun = glm::normalize(glm::vec3(0, -1500, -1200));
 }
 
 
@@ -98,6 +108,10 @@ AnimationController::~AnimationController(void)
 	delete text;
 	delete quad;
 	delete ssaoFbo;
+	delete ssaoFbo2;
+	delete upscaleFBO;
+	delete blurXFBO;
+	delete blurYFBO;
 	delete edgeFbo;
 	delete shadowmap;
 }
@@ -584,6 +598,42 @@ void AnimationController::InitShaders() {
 	shaders.push_back(edgeFBOShaders);
 	programs.push_back(edgeFBOProgram);
 #pragma endregion
+#pragma region Postprocess SSAO
+	OpenGLShaders *postSSAOShaders = new OpenGLShaders();
+	postSSAOShaders->vert = new GLShader(GL_VERTEX_SHADER);
+	postSSAOShaders->vert->Load("shaders/postSSAO.vert");
+	postSSAOShaders->vert->Compile();
+
+	postSSAOShaders->frag = new GLShader(GL_FRAGMENT_SHADER);
+	postSSAOShaders->frag->Load("shaders/postSSAO.frag");
+	postSSAOShaders->frag->Compile();
+
+	GLProgram *postSSAOProgram = new GLProgram("Post_SSAO");
+	postSSAOProgram->AttachShaders(postSSAOShaders);
+	postSSAOProgram->Link();
+	postSSAOProgram->SaveProgramLog();
+
+	shaders.push_back(postSSAOShaders);
+	programs.push_back(postSSAOProgram);
+#pragma endregion
+#pragma region Textured Quad
+	OpenGLShaders *quadShaders = new OpenGLShaders();
+	quadShaders->vert = new GLShader(GL_VERTEX_SHADER);
+	quadShaders->vert->Load("shaders/texturedQuad.vert");
+	quadShaders->vert->Compile();
+
+	quadShaders->frag = new GLShader(GL_FRAGMENT_SHADER);
+	quadShaders->frag->Load("shaders/texturedQuad.frag");
+	quadShaders->frag->Compile();
+
+	GLProgram *quadProgram = new GLProgram("Textured_Quad");
+	quadProgram->AttachShaders(quadShaders);
+	quadProgram->Link();
+	quadProgram->SaveProgramLog();
+
+	shaders.push_back(quadShaders);
+	programs.push_back(quadProgram);
+#pragma endregion
 
 	canDraw = prevDraw;
 }
@@ -649,17 +699,34 @@ void AnimationController::InitFBOs() {
 		0.5, 0.5, 0.5, 1.0
 		);
 	//fbos
+	bool good = true;
 	delete shadowmap;
 	shadowmap = new GLFrameBuffer();
-	shadowmap->CreateGeneralFBO(MAP_SIZE, MAP_SIZE, 0, true);
+	good &= shadowmap->CreateGeneralFBO(MAP_SIZE, MAP_SIZE, 0, true);
 
 	delete ssaoFbo;
 	ssaoFbo = new GLFrameBuffer();
-	ssaoFbo->CreateGeneralFBO(SSAO_TEX_SIZE, SSAO_TEX_SIZE, 2, true);
+	good &= ssaoFbo->CreateGeneralFBO(SSAO_TEX_SIZE, SSAO_TEX_SIZE, 2, true);
+
+	delete ssaoFbo2;
+	ssaoFbo2 = new GLFrameBuffer();
+	good &= ssaoFbo2->CreateGeneralFBO(SSAO_TEX_SIZE, SSAO_TEX_SIZE, 1, false);
+
+	delete blurXFBO;
+	blurXFBO = new GLFrameBuffer();
+	good &= blurXFBO->CreateGeneralFBO(SSAO_TEX_SIZE, SSAO_TEX_SIZE, 1, false);
+
+	delete blurYFBO;
+	blurYFBO = new GLFrameBuffer();
+	good &= blurYFBO->CreateGeneralFBO(SSAO_TEX_SIZE, SSAO_TEX_SIZE, 1, false);
+
+	delete upscaleFBO;
+	upscaleFBO = new GLFrameBuffer();
+	good &= upscaleFBO->CreateGeneralFBO(SCREEN_PX_WIDTH, SCREEN_PX_HEIGHT, 1, false);
 
 	delete edgeFbo;
 	edgeFbo = new GLFrameBuffer();
-	edgeFbo->CreateGeneralFBO(EDGE_TEX_SIZE, EDGE_TEX_SIZE, 1, true);
+	good &= edgeFbo->CreateGeneralFBO(EDGE_TEX_SIZE, EDGE_TEX_SIZE, 1, true);
 
 	delete noiseTexture;
 	noiseTexture = new GLTexture(GL_TEXTURE_2D);
@@ -738,6 +805,7 @@ void AnimationController::DrawPhong(GLCamera *camera, glm::mat4 &view_matrix) {
 		camera->getCameraMatrices(PROJECTION_MATRIX, VIEW_MATRIX);
 	}
 	glUniformMatrix4fv(SHADOW_MATRIX, 1, GL_FALSE, glm::value_ptr(depthMVP));
+	glUniform4f(SUN, sun.x, sun.y, sun.z, 0);
 
 	DrawModels(camera, view_matrix, true, false);
 }
@@ -750,6 +818,7 @@ void AnimationController::DrawPhongNormal(GLCamera *camera, glm::mat4 &view_matr
 	} else {
 		camera->getCameraMatrices(PROJECTION_MATRIX, VIEW_MATRIX);
 	}
+	glUniform4f(SUN, sun.x, sun.y, sun.z, 0);
 
 	DrawModels(camera, view_matrix, true, false);
 }
@@ -764,6 +833,7 @@ void AnimationController::DrawPhongAll(GLCamera *camera, glm::mat4 &view_matrix)
 	} else {
 		camera->getCameraMatrices(PROJECTION_MATRIX, VIEW_MATRIX);
 	}
+	glUniform4f(SUN, sun.x, sun.y, sun.z, 0);
 
 	DrawModels(camera, view_matrix);
 }
@@ -778,6 +848,7 @@ void AnimationController::DrawToon(GLCamera *camera, glm::mat4 &view_matrix) {
 	} else {
 		camera->getCameraMatrices(PROJECTION_MATRIX, VIEW_MATRIX);
 	}
+	glUniform4f(SUN, sun.x, sun.y, sun.z, 0);
 
 	DrawModels(camera, view_matrix, true, false);
 }
@@ -794,6 +865,7 @@ void AnimationController::DrawToonAll(GLCamera *camera, glm::mat4 &view_matrix) 
 	} else {
 		camera->getCameraMatrices(PROJECTION_MATRIX, VIEW_MATRIX);
 	}
+	glUniform4f(SUN, sun.x, sun.y, sun.z, 0);
 
 	DrawModels(camera, view_matrix);
 }
@@ -815,7 +887,7 @@ void AnimationController::Smooth(bool horizontal) {
 }
 #pragma endregion
 
-void AnimationController::DrawModels(GLCamera *camera, glm::mat4 &view_matrix, bool texture, bool tessellate, bool ssao) {
+void AnimationController::DrawModels(GLCamera *camera, glm::mat4 &view_matrix, bool texture, bool tessellate, bool ssao, bool screen) {
 	for (int i = 0; i < objects.size(); i++) {
 		glm::mat4 model = modelMatrices[i];
 		if (movement[i] != -1) model = anim_poses[movement[i]].GetMatrix() * model;
@@ -823,10 +895,12 @@ void AnimationController::DrawModels(GLCamera *camera, glm::mat4 &view_matrix, b
 		if (ssao) {
 			glm::mat3 NormalMatrix;
 			if (animateCamera) {
-				NormalMatrix = glm::mat3(camera->projection * view_matrix * model);
+				NormalMatrix = glm::mat3(view_matrix * model);
+				if (screen) NormalMatrix = glm::mat3(camera->projection) * NormalMatrix;
 			}
 			else {
-				NormalMatrix = glm::mat3(camera->projection * camera->view * model);
+				NormalMatrix = glm::mat3(camera->view * model);
+				if (screen) NormalMatrix = glm::mat3(camera->projection) * NormalMatrix;
 			}
 			NormalMatrix = glm::transpose(glm::inverse(NormalMatrix));
 			glUniformMatrix3fv(NORMAL_MATRIX, 1, GL_FALSE, glm::value_ptr(NormalMatrix));
@@ -944,37 +1018,115 @@ void AnimationController::DrawSkybox(GLCamera *camera, glm::mat4 &view_matrix) {
 void AnimationController::DrawToTexture(GLCamera *camera, glm::mat4 &view_matrix) {
 	bool paused = pause;
 	pause = true;
-	//draw ssao
-	ssaoFbo->Bind();
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	glViewport(0, 0, SSAO_TEX_SIZE, SSAO_TEX_SIZE);
 
-	programs[SSAO_FBO]->Use();
-	if (animateCamera) {
-		camera->getProjectionMatrix(PROJECTION_MATRIX);
-		glUniformMatrix4fv(VIEW_MATRIX, 1, GL_FALSE, glm::value_ptr(view_matrix));
-	} else {
-		camera->getCameraMatrices(PROJECTION_MATRIX, VIEW_MATRIX);
+	if (useSSAO) {
+#pragma region SSAO buffers
+		ssaoFbo->Bind();
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		glViewport(0, 0, SSAO_TEX_SIZE, SSAO_TEX_SIZE);
+
+		programs[SSAO_FBO]->Use();
+		if (animateCamera) {
+			camera->getProjectionMatrix(PROJECTION_MATRIX);
+			glUniformMatrix4fv(VIEW_MATRIX, 1, GL_FALSE, glm::value_ptr(view_matrix));
+		} else {
+			camera->getCameraMatrices(PROJECTION_MATRIX, VIEW_MATRIX);
+		}
+		DrawModels(camera, view_matrix, false, false, true);
+
+		ssaoFbo->Unbind();
+#pragma endregion
+#pragma region SSAO
+		ssaoFbo2->Bind();
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+		glm::mat4 ProjectionMatrix = glm::ortho<float>(0.0f, SSAO_TEX_SIZE, 0.0f, SSAO_TEX_SIZE, -1.0f, 1.0f);
+		glm::mat4 ModelMatrix = glm::scale(glm::mat4(1.0), glm::vec3(SSAO_TEX_SIZE, SSAO_TEX_SIZE, 0));
+
+		programs[SSAO]->Use();
+		glUniformMatrix4fv(PROJECTION_MATRIX, 1, GL_FALSE, glm::value_ptr(ProjectionMatrix));
+		glUniformMatrix4fv(MODEL_MATRIX, 1, GL_FALSE, glm::value_ptr(ModelMatrix));
+		glUniform1f(SCREEN_WIDTH, SSAO_TEX_SIZE);
+		glUniform1f(SCREEN_HEIGHT, SSAO_TEX_SIZE);
+
+		glActiveTexture(GL_TEXTURE0);
+		noiseTexture->Bind();
+		glActiveTexture(GL_TEXTURE1);
+		ssaoFbo->attachedTextures[0]->Bind();
+		glActiveTexture(GL_TEXTURE2);
+		ssaoFbo->attachedTextures[1]->Bind();
+
+		quad->Draw(GL_QUADS);
+
+		ssaoFbo2->Unbind();
+#pragma endregion
+#pragma region Blur X SSAO
+		blurXFBO->Bind();
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		glViewport(0, 0, SSAO_TEX_SIZE, SSAO_TEX_SIZE);
+
+		programs[BILATERAL]->Use();
+		glUniform1f(TEXEL_SIZE, (float)1 / (float)SSAO_TEX_SIZE);
+		glUniform1i(HORIZONTAL, true);
+
+		glActiveTexture(GL_TEXTURE0);
+		ssaoFbo2->attachedTextures[0]->Bind();
+
+		quad->Draw(GL_QUADS);
+
+		blurXFBO->Unbind();
+#pragma endregion
+#pragma region Blur Y SSAO
+		blurYFBO->Bind();
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		glViewport(0, 0, SSAO_TEX_SIZE, SSAO_TEX_SIZE);
+
+		programs[BILATERAL]->Use();
+		glUniform1f(TEXEL_SIZE, (float)1 / (float)SSAO_TEX_SIZE);
+		glUniform1i(HORIZONTAL, false);
+
+		glActiveTexture(GL_TEXTURE0);
+		blurXFBO->attachedTextures[0]->Bind();
+
+		quad->Draw(GL_QUADS);
+
+		blurYFBO->Unbind();
+#pragma endregion
+#pragma region Upscale SSAO
+		upscaleFBO->Bind();
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		glViewport(0, 0, SCREEN_PX_WIDTH, SCREEN_PX_HEIGHT);
+
+		programs[TEXTURED_QUAD]->Use();
+
+		glActiveTexture(GL_TEXTURE0);
+		blurYFBO->attachedTextures[0]->Bind();
+
+		quad->Draw(GL_QUADS);
+
+		upscaleFBO->Unbind();
+#pragma endregion
 	}
-	DrawModels(camera, view_matrix, false, false, true);
+	if (useToonShading) {
+#pragma region edges
+		edgeFbo->Bind();
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		glViewport(0, 0, EDGE_TEX_SIZE, EDGE_TEX_SIZE);
 
-	ssaoFbo->Unbind();
-	glViewport(0, 0, camera->width, camera->height);
-	//draw edges
-	edgeFbo->Bind();
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	glViewport(0, 0, EDGE_TEX_SIZE, EDGE_TEX_SIZE);
+		programs[EDGE_FBO]->Use();
+		if (animateCamera) {
+			camera->getProjectionMatrix(PROJECTION_MATRIX);
+			glUniformMatrix4fv(VIEW_MATRIX, 1, GL_FALSE, glm::value_ptr(view_matrix));
+		} else {
+			camera->getCameraMatrices(PROJECTION_MATRIX, VIEW_MATRIX);
+		}
+		DrawModels(camera, view_matrix, false, false, true, true);
 
-	programs[EDGE_FBO]->Use();
-	if (animateCamera) {
-		camera->getProjectionMatrix(PROJECTION_MATRIX);
-		glUniformMatrix4fv(VIEW_MATRIX, 1, GL_FALSE, glm::value_ptr(view_matrix));
-	} else {
-		camera->getCameraMatrices(PROJECTION_MATRIX, VIEW_MATRIX);
+		edgeFbo->Unbind();
+		glViewport(0, 0, camera->width, camera->height);
+#pragma endregion
 	}
-	DrawModels(camera, view_matrix, false, false, true);
 
-	edgeFbo->Unbind();
 	glViewport(0, 0, camera->width, camera->height);
 
 	pause = paused;
@@ -1015,32 +1167,21 @@ void AnimationController::Postprocess(GLCamera *camera) {
 	if (useSSAO) {
 		glEnable(GL_BLEND);
 		glDepthMask(GL_FALSE);
+		//glBlendFunc(GL_DST_COLOR, GL_ONE_MINUS_SRC_ALPHA);
 		//glClampColor(GL_CLAMP_READ_COLOR, GL_FALSE);
 		//glClampColor(GL_CLAMP_VERTEX_COLOR, GL_FALSE);
 		//glClampColor(GL_CLAMP_FRAGMENT_COLOR, GL_FALSE);
 
-		programs[SSAO]->Use();
-		glm::mat4 proj_inv = glm::inverse(camera->projection);
-		glUniformMatrix4fv(PROJECTION_MATRIX, 1, GL_FALSE, glm::value_ptr(ProjectionMatrix));
-		glUniformMatrix4fv(PROJECTION_MATRIX_INV, 1, GL_FALSE, glm::value_ptr(proj_inv));
-		glUniformMatrix4fv(MODEL_MATRIX, 1, GL_FALSE, glm::value_ptr(ModelMatrix));
-		glUniform1f(SCREEN_WIDTH, camera->width);
-		glUniform1f(SCREEN_HEIGHT, camera->height);
+		programs[POST_PROCESS_AO]->Use();
 
 		glActiveTexture(GL_TEXTURE0);
-		noiseTexture->Bind();
-		glActiveTexture(GL_TEXTURE1);
-		ssaoFbo->attachedTextures[0]->Bind();
-		glActiveTexture(GL_TEXTURE2);
-		ssaoFbo->attachedTextures[1]->Bind();
+		upscaleFBO->attachedTextures[0]->Bind();
 
 		quad->Draw(GL_QUADS);
 
 		glDepthMask(GL_TRUE);
 		glDisable(GL_BLEND);
-		//glClampColor(GL_CLAMP_READ_COLOR, GL_TRUE);
-		//glClampColor(GL_CLAMP_VERTEX_COLOR, GL_TRUE);
-		//glClampColor(GL_CLAMP_FRAGMENT_COLOR, GL_TRUE);
+		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	}
 }
 
@@ -1105,17 +1246,34 @@ void AnimationController::DrawDebug(GLCamera *camera) {
 
 	glm::mat4 proj = glm::ortho(0.0f, camera->width, 0.0f, camera->height, -1.0f, 1.0f);
 	glUniformMatrix4fv(PROJECTION_MATRIX, 1, GL_FALSE, glm::value_ptr(proj));
-
 	glm::mat4 ModelMatrix = glm::translate(glm::mat4(1.0), glm::vec3(5, 5, 0));
 	ModelMatrix = ModelMatrix * glm::scale(glm::mat4(1.0), glm::vec3(DEBUG_SIZE, DEBUG_SIZE, 0));
 	glUniformMatrix4fv(MODEL_MATRIX, 1, GL_FALSE, glm::value_ptr(ModelMatrix));
 
-	glActiveTexture(GL_TEXTURE0);
-	ssaoFbo->attachedTextures[0]->Bind();
+	if (useSSAO) {
+		glActiveTexture(GL_TEXTURE0);
+		ssaoFbo->attachedTextures[0]->Bind();
 
-	quad->Draw(GL_QUADS);
+		quad->Draw(GL_QUADS);
 
-	programs[SSAO]->Use();
+		ModelMatrix = glm::translate(glm::mat4(1.0), glm::vec3(DEBUG_SIZE + 5, 0, 0)) * ModelMatrix;
+		glUniformMatrix4fv(MODEL_MATRIX, 1, GL_FALSE, glm::value_ptr(ModelMatrix));
+
+		glActiveTexture(GL_TEXTURE0);
+		ssaoFbo2->attachedTextures[0]->Bind();
+
+		quad->Draw(GL_QUADS);
+
+		ModelMatrix = glm::translate(glm::mat4(1.0), glm::vec3(DEBUG_SIZE + 5, 0, 0)) * ModelMatrix;
+		glUniformMatrix4fv(MODEL_MATRIX, 1, GL_FALSE, glm::value_ptr(ModelMatrix));
+
+		glActiveTexture(GL_TEXTURE0);
+		blurYFBO->attachedTextures[0]->Bind();
+
+		quad->Draw(GL_QUADS);
+	}
+
+	/*programs[SSAO]->Use();
 
 	glm::mat4 proj_inv = glm::inverse(camera->projection);
 	glUniformMatrix4fv(PROJECTION_MATRIX, 1, GL_FALSE, glm::value_ptr(proj_inv));
@@ -1132,7 +1290,7 @@ void AnimationController::DrawDebug(GLCamera *camera) {
 	glActiveTexture(GL_TEXTURE2);
 	ssaoFbo->attachedTextures[1]->Bind();
 
-	quad->Draw(GL_QUADS);
+	quad->Draw(GL_QUADS);*/
 
 	/*ModelMatrix = glm::translate(glm::mat4(1.0), glm::vec3(DEBUG_SIZE + 5, 0, 0)) * ModelMatrix;
 	glUniformMatrix4fv(MODEL_MATRIX, 1, GL_FALSE, glm::value_ptr(ModelMatrix));
