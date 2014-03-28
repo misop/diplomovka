@@ -8,6 +8,7 @@ layout(location = 4) in vec3 bitangent_eye;
 layout(location = 5) in vec2 uv;
 
 layout(location = 4) uniform vec4 Material;
+layout(location = 13) uniform vec4 SunColor;
 layout(binding=0) uniform sampler2D DiffuseSampler;
 layout(binding=2) uniform sampler2D NormalSampler;
 
@@ -38,8 +39,8 @@ void main(void) {
 	vec4 specularL = vec4(1, 1, 1, 1.0);
 
 	color = 0.2 * (vec4(0.2, 0.2, 0.2, 1.0) + ambient) * (diffuse_material);
-	color += diffuse * diffuse_material;
-	color += specular * specularL;
+	color += diffuse * diffuse_material * SunColor;
+	color += specular * specularL * SunColor;
 
 	fColor = color;
 }

@@ -30,7 +30,7 @@ void main(void) {
 
 	//camera in eye coordinates is at (0,0,0,0) and light is at camera location now
 	vertex_eye = ViewMatrix * ModelMatrix * pos;
-	light_eye = -Sun;//vec4(0, 0, 0, 1) - vertex_eye;
+	light_eye = Sun - vertex_eye;//vec4(0, 0, 0, 1) - vertex_eye;
 	normal_eye = vec4(NormalMatrix * vec3(normal), 0.0);
 	vertex_eye = vec4(0, 0, 0, 1) - vertex_eye;
 	tangent_eye = NormalMatrix * Tangent;

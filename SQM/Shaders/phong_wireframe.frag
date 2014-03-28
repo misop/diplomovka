@@ -8,6 +8,7 @@ layout(location = 2) in vec4 light_eye;
 layout(location = 5) in vec2 uv;
 layout(location = 6) in vec3 height;
 
+layout(location = 13) uniform vec4 SunColor;
 layout(binding=0) uniform sampler2D DiffuseSampler;
 
 layout (location = 0) out vec4 fColor;
@@ -52,7 +53,7 @@ void main(void) {
 	vec4 ambient = vec4(0.2, 0.2, 0.2, 1.0);
 
 	color = 0.2 * (vec4(0.2, 0.2, 0.2, 1.0) + ambient) * (diffuse_material);
-	color += diffuse * diffuse_material;
+	color += diffuse * diffuse_material;// * SunColor;
 	color.a *= alpha;
 
 	fColor = color;

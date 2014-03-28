@@ -13,7 +13,7 @@
 
 class AnimationController
 {
-	glm::vec3 sun;
+	glm::vec3 sun, sunPos, sunColor;
 	GLTexture *toonShadingTexture;
 	GLTexture *noiseTexture;
 	GLArrayBuffer *skybox;
@@ -94,6 +94,7 @@ public:
 	void DetectEdges();
 	void Smooth(bool horizontal);
 	void Postprocess(GLCamera *camera);
+	void SetLight();
 	
 	void TessellateMore();
 	void TessellateLess();

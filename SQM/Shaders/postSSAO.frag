@@ -9,7 +9,7 @@ layout (location = 0) out vec4 fColor;
 void main(void)
 {
 	vec4 color = texture(ImageSampler, uv);	
-	fColor = vec4(0.03);
+	if (color.a < 0.1) discard;
 	fColor = vec4(0.0);
 	fColor.a = 1 - color.r;
 }

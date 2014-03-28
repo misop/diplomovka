@@ -46,43 +46,43 @@ void main(void)
 	//result = (left2Color + left1Color + centerColor + right1Color + right2Color) / 5.0;
 	
 	//left 4
-	closeness = 1.0 / (epsilon + abs(centerColor.a - left3Color.a));
+	closeness = 1.0;//1.0 / (epsilon + abs(centerColor.a - left2Color.a));
 	sampleWeight = closeness * Gaussian[0];
 	result += left4Color * sampleWeight;
 	normalization += sampleWeight;
 	//left 3
-	closeness = 1.0 / (epsilon + abs(centerColor.a - left4Color.a));
+	closeness = 1.0;//1.0 / (epsilon + abs(centerColor.a - left2Color.a));
 	sampleWeight = closeness * Gaussian[1];
 	result += left3Color * sampleWeight;
 	normalization += sampleWeight;
 	//left 2
-	closeness = 1.0 / (epsilon + abs(centerColor.a - left2Color.a));
+	closeness = 1.0;//1.0 / (epsilon + abs(centerColor.a - left2Color.a));
 	sampleWeight = closeness * Gaussian[2];
 	result += left2Color * sampleWeight;
 	normalization += sampleWeight;
 	//left 1
-	closeness = 1.0 / (epsilon + abs(centerColor.a - left1Color.a));
+	//closeness = 1.0 / (epsilon + abs(centerColor.a - left1Color.a));
 	sampleWeight = closeness * Gaussian[3];
 	result += left1Color * sampleWeight;
 	normalization += sampleWeight;
 	//center has 0 distance
 	//right 1
-	closeness = 1.0 / (epsilon + abs(centerColor.a - right1Color.a));
+	//closeness = 1.0 / (epsilon + abs(centerColor.a - right1Color.a));
 	sampleWeight = closeness * Gaussian[5];
 	result += right1Color * sampleWeight;
 	normalization += sampleWeight;
 	//right 2
-	closeness = 1.0 / (epsilon + abs(centerColor.a - right2Color.a));
+	//closeness = 1.0 / (epsilon + abs(centerColor.a - right2Color.a));
 	sampleWeight = closeness * Gaussian[6];
 	result += right2Color * sampleWeight;
 	normalization += sampleWeight;
 	//right 3
-	closeness = 1.0 / (epsilon + abs(centerColor.a - right3Color.a));
+	//closeness = 1.0 / (epsilon + abs(centerColor.a - right2Color.a));
 	sampleWeight = closeness * Gaussian[7];
 	result += right3Color * sampleWeight;
 	normalization += sampleWeight;
 	//right 4
-	closeness = 1.0 / (epsilon + abs(centerColor.a - right4Color.a));
+	//closeness = 1.0 / (epsilon + abs(centerColor.a - right2Color.a));
 	sampleWeight = closeness * Gaussian[8];
 	result += right4Color * sampleWeight;
 	normalization += sampleWeight;

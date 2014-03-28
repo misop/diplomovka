@@ -7,6 +7,7 @@ layout(location = 3) in vec3 tangent_eye;
 layout(location = 4) in vec3 bitangent_eye;
 layout(location = 5) in vec2 uv;
 
+layout(location = 13) uniform vec4 SunColor;
 layout(binding=0) uniform sampler2D DiffuseSampler;
 layout(binding=2) uniform sampler2D NormalSampler;
 layout(binding=5) uniform sampler2D ToonShadingSampler;
@@ -30,7 +31,6 @@ void main(void) {
 	mat3 TBN = transpose(mat3(T, B, vec3(N)));
 	V = vec4(TBN * vec3(V), 0.0);
 	L = vec4(TBN * vec3(L), 0.0);
-   	vec4 H = normalize(L + V); 
 	N = normalize(texture2D(NormalSampler, uv)*2.0 - 1.0);
 	
 
@@ -40,7 +40,7 @@ void main(void) {
 	vec4 ambient = vec4(0.2, 0.2, 0.2, 1.0);
 
 	color = 0.2 * (vec4(0.2, 0.2, 0.2, 1.0) + ambient) * (diffuse_material);
-	color += diffuse * diffuse_material;
+	color += diffuse * diffuse_material * SunColor;
 
 	fColor = color;
 }

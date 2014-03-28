@@ -91,7 +91,9 @@ AnimationController::AnimationController(void)
 	frames = 0;
 	fps = 0;
 	perFrame = 0;
-	sun = glm::normalize(glm::vec3(0, -1500, -1200));
+	sunPos = glm::vec3(0, 1500, 1200);
+	sun = glm::normalize(-sunPos);
+	sunColor = glm::vec3(245.0/255.0, 234.0/255.0, 246.0/255.0);
 }
 
 
@@ -666,7 +668,7 @@ void AnimationController::InitSkybox() {
 	skybox->Bind();
 	skybox->BindBufferDataf(vertices, 3, GL_STATIC_DRAW);
 	skybox->BindElement(indices, GL_STATIC_DRAW);
-
+	
 	skyboxModel = glm::scale(glm::mat4(1.0), glm::vec3(8000, 8000, 8000));
 	skyboxModel *= glm::rotate(glm::mat4(1.0), 180.0f, glm::vec3(0, 1, 0));
 
@@ -692,17 +694,19 @@ void AnimationController::InitFBOs() {
 	quad->BindBufferDataf(vertices, 2, GL_STATIC_DRAW);
 	glBindVertexArray(0);
 	//bias matrix
-	biasMatrix = glm::mat4(
+	biasMatrix = glm::scale(glm::mat4(1.0), glm::vec3(0.5));
+	biasMatrix = glm::translate(glm::mat4(1.0), glm::vec3(0.5)) * biasMatrix; 
+	/*biasMatrix = glm::mat4(
 		0.5, 0.0, 0.0, 0.0,
 		0.0, 0.5, 0.0, 0.0,
 		0.0, 0.0, 0.5, 0.0,
 		0.5, 0.5, 0.5, 1.0
-		);
+		);*/
 	//fbos
 	bool good = true;
 	delete shadowmap;
 	shadowmap = new GLFrameBuffer();
-	good &= shadowmap->CreateGeneralFBO(MAP_SIZE, MAP_SIZE, 0, true);
+	good &= shadowmap->CreateGeneralFBO(MAP_SIZE, MAP_SIZE, 1, true);
 
 	delete ssaoFbo;
 	ssaoFbo = new GLFrameBuffer();
@@ -730,7 +734,7 @@ void AnimationController::InitFBOs() {
 
 	delete noiseTexture;
 	noiseTexture = new GLTexture(GL_TEXTURE_2D);
-	noiseTexture->LoadRGBATextureFromImage("./textures/noise.jpg");
+	noiseTexture->LoadRGBATextureFromImage("./textures/noise.png");
 }
 
 #pragma endregion
@@ -781,6 +785,12 @@ void AnimationController::Draw(GLCamera *camera) {
 	DrawText(camera);
 }
 
+void AnimationController::SetLight() {
+	glUniformMatrix4fv(SHADOW_MATRIX, 1, GL_FALSE, glm::value_ptr(depthMVP));
+	glUniform4f(SUN, sun.x, sun.y, sun.z, 0);
+	glUniform4f(SUN_COLOR, sunColor.x, sunColor.y, sunColor.z, 1);
+}
+
 #pragma region Different shaders
 void AnimationController::DrawWireframe(GLCamera *camera, glm::mat4 &view_matrix) {
 	programs[WIREFRAME]->Use();
@@ -804,8 +814,7 @@ void AnimationController::DrawPhong(GLCamera *camera, glm::mat4 &view_matrix) {
 	} else {
 		camera->getCameraMatrices(PROJECTION_MATRIX, VIEW_MATRIX);
 	}
-	glUniformMatrix4fv(SHADOW_MATRIX, 1, GL_FALSE, glm::value_ptr(depthMVP));
-	glUniform4f(SUN, sun.x, sun.y, sun.z, 0);
+	SetLight();
 
 	DrawModels(camera, view_matrix, true, false);
 }
@@ -818,7 +827,7 @@ void AnimationController::DrawPhongNormal(GLCamera *camera, glm::mat4 &view_matr
 	} else {
 		camera->getCameraMatrices(PROJECTION_MATRIX, VIEW_MATRIX);
 	}
-	glUniform4f(SUN, sun.x, sun.y, sun.z, 0);
+	SetLight();
 
 	DrawModels(camera, view_matrix, true, false);
 }
@@ -833,7 +842,7 @@ void AnimationController::DrawPhongAll(GLCamera *camera, glm::mat4 &view_matrix)
 	} else {
 		camera->getCameraMatrices(PROJECTION_MATRIX, VIEW_MATRIX);
 	}
-	glUniform4f(SUN, sun.x, sun.y, sun.z, 0);
+	SetLight();
 
 	DrawModels(camera, view_matrix);
 }
@@ -848,7 +857,7 @@ void AnimationController::DrawToon(GLCamera *camera, glm::mat4 &view_matrix) {
 	} else {
 		camera->getCameraMatrices(PROJECTION_MATRIX, VIEW_MATRIX);
 	}
-	glUniform4f(SUN, sun.x, sun.y, sun.z, 0);
+	SetLight();
 
 	DrawModels(camera, view_matrix, true, false);
 }
@@ -865,7 +874,7 @@ void AnimationController::DrawToonAll(GLCamera *camera, glm::mat4 &view_matrix) 
 	} else {
 		camera->getCameraMatrices(PROJECTION_MATRIX, VIEW_MATRIX);
 	}
-	glUniform4f(SUN, sun.x, sun.y, sun.z, 0);
+	SetLight();
 
 	DrawModels(camera, view_matrix);
 }
@@ -980,8 +989,8 @@ void AnimationController::GetShadowMaps(GLCamera *camera) {
 	//glCullFace(GL_FRONT);
 	programs[SHADOW_MAP]->Use();
 
-	glm::mat4 proj = glm::ortho<float>(0, camera->width, 0, camera->height, 1, 5000);
-	glm::mat4 view = glm::lookAt(glm::vec3(0, 300, 1200), glm::vec3(0), glm::vec3(0, 1, 0));
+	glm::mat4 proj = glm::ortho<float>(0, MAP_SIZE, 0, MAP_SIZE, 1, 5000);
+	glm::mat4 view = glm::lookAt(sunPos, glm::vec3(0), glm::vec3(0, 1, 0));
 	depthMVP = biasMatrix * proj * view;
 	glUniformMatrix4fv(PROJECTION_MATRIX, 1, GL_FALSE, glm::value_ptr(proj));
 	camera->getProjectionMatrix(PROJECTION_MATRIX);
@@ -1039,13 +1048,15 @@ void AnimationController::DrawToTexture(GLCamera *camera, glm::mat4 &view_matrix
 #pragma region SSAO
 		ssaoFbo2->Bind();
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-		glm::mat4 ProjectionMatrix = glm::ortho<float>(0.0f, SSAO_TEX_SIZE, 0.0f, SSAO_TEX_SIZE, -1.0f, 1.0f);
-		glm::mat4 ModelMatrix = glm::scale(glm::mat4(1.0), glm::vec3(SSAO_TEX_SIZE, SSAO_TEX_SIZE, 0));
+		
+		glm::mat4 ProjectionMatrix = camera->projection;//glm::ortho<float>(0.0f, SSAO_TEX_SIZE, 0.0f, SSAO_TEX_SIZE, -1.0f, 1.0f);
+		glm::mat4 ProjectionMatrixINV = glm::inverse(camera->projection);
+		//glm::mat4 ModelMatrix = glm::scale(glm::mat4(1.0), glm::vec3(SSAO_TEX_SIZE, SSAO_TEX_SIZE, 0));
 
 		programs[SSAO]->Use();
 		glUniformMatrix4fv(PROJECTION_MATRIX, 1, GL_FALSE, glm::value_ptr(ProjectionMatrix));
-		glUniformMatrix4fv(MODEL_MATRIX, 1, GL_FALSE, glm::value_ptr(ModelMatrix));
+		glUniformMatrix4fv(PROJECTION_MATRIX_INV, 1, GL_FALSE, glm::value_ptr(ProjectionMatrixINV));
+		//glUniformMatrix4fv(MODEL_MATRIX, 1, GL_FALSE, glm::value_ptr(ModelMatrix));
 		glUniform1f(SCREEN_WIDTH, SSAO_TEX_SIZE);
 		glUniform1f(SCREEN_HEIGHT, SSAO_TEX_SIZE);
 
@@ -1120,7 +1131,7 @@ void AnimationController::DrawToTexture(GLCamera *camera, glm::mat4 &view_matrix
 		} else {
 			camera->getCameraMatrices(PROJECTION_MATRIX, VIEW_MATRIX);
 		}
-		DrawModels(camera, view_matrix, false, false, true, true);
+		DrawModels(camera, view_matrix, false, false, true);
 
 		edgeFbo->Unbind();
 		glViewport(0, 0, camera->width, camera->height);
@@ -1250,7 +1261,15 @@ void AnimationController::DrawDebug(GLCamera *camera) {
 	ModelMatrix = ModelMatrix * glm::scale(glm::mat4(1.0), glm::vec3(DEBUG_SIZE, DEBUG_SIZE, 0));
 	glUniformMatrix4fv(MODEL_MATRIX, 1, GL_FALSE, glm::value_ptr(ModelMatrix));
 
+	glActiveTexture(GL_TEXTURE0);
+	shadowmap->attachedTextures[0]->Bind();
+
+	quad->Draw(GL_QUADS);
+
 	if (useSSAO) {
+		ModelMatrix = glm::translate(glm::mat4(1.0), glm::vec3(DEBUG_SIZE + 5, 0, 0)) * ModelMatrix;
+		glUniformMatrix4fv(MODEL_MATRIX, 1, GL_FALSE, glm::value_ptr(ModelMatrix));
+
 		glActiveTexture(GL_TEXTURE0);
 		ssaoFbo->attachedTextures[0]->Bind();
 

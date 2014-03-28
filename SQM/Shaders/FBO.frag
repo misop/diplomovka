@@ -15,9 +15,9 @@ void main(void)
     float z_b = gl_FragCoord.z;
     float z_n = 2.0 * z_b - 1.0;
     float z_e = 2.0 * zNear * zFar / (zFar + zNear - z_n * (zFar - zNear));
-	z_e /= dist;
+	z_e /= (zFar - zNear);
 	
 	//should be view space but look better screen space
-	fNormal = vec4(normalize(normal_eye), gl_FragCoord.z);
+	fNormal = vec4(normalize(normal_eye), z_e);
 	fPos = vec4(pos_eye.xyz, z_e);
 }

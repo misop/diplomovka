@@ -2,6 +2,7 @@
 # a = albedo
 # d = displacement
 # n = normal
-m 150 0
+m 10 0
 a ./textures/chodnik_a.png
+d ./textures/chodnik_d.png
 n ./textures/chodnik_n.png

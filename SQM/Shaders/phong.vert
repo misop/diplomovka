@@ -21,14 +21,15 @@ layout(location = 2) out vec4 light_eye;
 layout(location = 3) out vec3 tangent_eye;
 layout(location = 4) out vec3 bitangent_eye;
 layout(location = 5) out vec2 uv;
+layout(location = 6) out vec4 normal;
 
 void main(void) {
 	vec4 pos = vec4(Position, 1.0);
-	vec4 normal = vec4(Normal, 0.0);
+	normal = vec4(Normal, 0.0);
 
 	//camera in eye coordinates is at (0,0,0,0) and light is at camera location now
 	vertex_eye = ViewMatrix * ModelMatrix * pos;
-	light_eye = -Sun;//vec4(0, 0, 0, 1) - vertex_eye;
+	light_eye = Sun - vertex_eye;//vec4(0, 0, 0, 1) - vertex_eye;
 	normal_eye = vec4(NormalMatrix * vec3(normal), 0.0);
 	vertex_eye = vec4(0, 0, 0, 1) - vertex_eye;
 	tangent_eye = NormalMatrix * Tangent;

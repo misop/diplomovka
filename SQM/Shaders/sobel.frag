@@ -47,7 +47,7 @@ void main(void)
 	vec4 edge = sqrt(edgeX*edgeX + edgeY*edgeY);
 
 	float detected = edge.r + edge.g + edge.b + edge.a;
-	if (detected < 0.99) discard;//detected = 0;
+	if (detected < 2) discard;//detected = 0;
 	//fColor = vec4(detected);
 	fColor = vec4(0);
 	fColor.a = 1 - centerColor.a;// *0.8;
