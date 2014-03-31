@@ -179,7 +179,7 @@ void Delaunay_on_sphere(const vector<Vec3f>& vertices_tmp,
 			// In case no triangle seems to contain the point, we add a small random vector to its position
 			// and add the point to the end of the list. In the final triangulation we will use the original
 			// position so the modified point is just to avoid degeneracies.
-			//vertices[v_idx] = (vertices[v_idx] + 0.001 * rand_unit_vector()).normalized(); for now
+			vertices[v_idx] = (vertices[v_idx] + 0.001 * rand_unit_vector()).normalized();
 			vertices[v_idx] = vertices[v_idx];
 			vertex_indices.push_back(v_idx);
 		}

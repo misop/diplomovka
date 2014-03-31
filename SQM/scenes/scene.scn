@@ -30,7 +30,7 @@ m models/quad.obj textures/chodnik.tx
 m models/quad.obj textures/ground.tx
 
 # animated models
-v 100 models/monsterfrog/monsterfrog_mapped_ textures/monsterfrog.tx
+# v 100 models/monsterfrog/monsterfrog_mapped_ textures/monsterfrog.tx
 
 # animations
 c 0 animations/camera.anm
@@ -39,8 +39,8 @@ a animations/kruh.anm
 # objects
 
 # zaba
-# o  7 -1 |    0    225 -1050 |  15  15  15 | 0 0 0
-p 19 100 -1 |    0    225 -1050 |  15  15  15 | 0 0 0
+o  7 -1 |    0    225 -1050 |  15  15  15 | 0 0 0
+# p 19 100 -1 |    0    225 -1050 |  15  15  15 | 0 0 0
 
 # predny plot stlpy medzi plotmi
 o 13 -1 |  -1780      0  1200 | 100 100 100 | 0 0 0

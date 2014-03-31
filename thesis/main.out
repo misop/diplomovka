@@ -10,7 +10,7 @@
 \BOOKMARK [1][]{section.1.3}{Skeleton-based and interactive 3D modelling}{chapter.1}% 10
 \BOOKMARK [0][]{chapter.2}{Proposed solution}{}% 11
 \BOOKMARK [1][]{section.2.1}{Skeleton straightening}{chapter.2}% 12
-\BOOKMARK [2][]{subsection.2.1.1}{Skinning matrices}{section.2.1}% 13
+\BOOKMARK [2][]{subsection.2.1.1}{Skinning}{section.2.1}% 13
 \BOOKMARK [1][]{section.2.2}{BNP generation}{chapter.2}% 14
 \BOOKMARK [1][]{section.2.3}{BNP refinement}{chapter.2}% 15
 \BOOKMARK [2][]{subsection.2.3.1}{Smoothing}{section.2.3}% 16
@@ -34,6 +34,10 @@
 \BOOKMARK [2][]{subsection.3.3.3}{One-pass Wire-frame}{section.3.3}% 34
 \BOOKMARK [1][]{section.3.4}{Base Manifold Mesh Library}{chapter.3}% 35
 \BOOKMARK [0][]{chapter.4}{Results}{}% 36
-\BOOKMARK [0][]{chapter.5}{Conclusion}{}% 37
-\BOOKMARK [0][]{appendix.A}{TeX}{}% 38
-\BOOKMARK [0][]{toc.0}{Bibliography}{}% 39
+\BOOKMARK [1][]{section.4.1}{Humanoids, animals, plants and bugs}{chapter.4}% 37
+\BOOKMARK [1][]{section.4.2}{Linear and cyclic skeletons}{chapter.4}% 38
+\BOOKMARK [1][]{section.4.3}{Capsules, ellipsoid nodes and tessellation}{chapter.4}% 39
+\BOOKMARK [1][]{section.4.4}{Computation time}{chapter.4}% 40
+\BOOKMARK [0][]{chapter.5}{Conclusion}{}% 41
+\BOOKMARK [0][]{appendix.A}{TeX}{}% 42
+\BOOKMARK [0][]{toc.0}{Bibliography}{}% 43
