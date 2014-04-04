@@ -9,9 +9,11 @@ layout(location = 3) in vec3 i_tangent_eye[];
 layout(location = 4) in vec3 i_bitangent_eye[];
 layout(location = 5) in vec2 i_uv[];
 layout(location = 6) in vec4 i_normal[];
+layout(location = 7) in vec4 i_shadowCoord[];
 
 const float tessLevel = 5;
 //screenHeight/pixelsPerEdge
+layout(location = 0) uniform mat4 ModelMatrix;
 layout(location = 1) uniform mat4 ViewMatrix;
 layout(location = 2) uniform mat4 ProjectionMatrix;
 layout(location = 4) uniform vec4 Material;
@@ -25,22 +27,19 @@ layout(location = 3) out vec3 tangent_eye[];
 layout(location = 4) out vec3 bitangent_eye[];
 layout(location = 5) out vec2 uv[];
 layout(location = 6) out vec4 normal[];
+layout(location = 7) out vec4 shadowCoord[];
 
 //Obtain the diameter of a bounding sphere on each edge transformed into clip space and multiple by the shader constant to obtain a tessellation factor for the edge.
 //Dividing by ClipPos.W will perspective correct the diameter
 float GetPostProjectionSphereExtent(in vec4 Origin, in float Diameter)
 {
-    //vec4 ClipPos = ProjectionMatrix * ViewMatrix * Origin;
-    vec4 ClipPos = ProjectionMatrix * Origin;
+    //vec4 ClipPos = ProjectionMatrix * ViewMatrix * ModelMatrix * Origin;
+	vec4 ClipPos = ProjectionMatrix * Origin;
     return abs(Diameter * ProjectionMatrix[1][1] / ClipPos.w);
 }
 
 float CalculateTessellationFactor(in vec4 Control0, in vec4 Control1, in vec4 Normal1, in vec4 Normal2)
 {
-	/*if (Material.x < 151)
-		return 20;
-	else
-		return 1;*/
 	vec4 n = normalize((Normal1 + Normal2)/2.0);
 	//tessellate only facing
 	vec4 eye_dir = vec4(0,0,-1,0);
@@ -67,8 +66,12 @@ void main(void) {
 		gl_TessLevelOuter[0] = CalculateTessellationFactor(i_vertex_eye[0], i_vertex_eye[1], i_normal_eye[0], i_normal_eye[1]);
 		gl_TessLevelOuter[1] = CalculateTessellationFactor(i_vertex_eye[1], i_vertex_eye[2], i_normal_eye[1], i_normal_eye[2]);
 		gl_TessLevelOuter[2] = CalculateTessellationFactor(i_vertex_eye[2], i_vertex_eye[0], i_normal_eye[2], i_normal_eye[0]);
+		//gl_TessLevelOuter[0] = CalculateTessellationFactor(gl_in[0].gl_Position, gl_in[1].gl_Position, i_normal_eye[0], i_normal_eye[1]);
+		//gl_TessLevelOuter[1] = CalculateTessellationFactor(gl_in[1].gl_Position, gl_in[2].gl_Position, i_normal_eye[1], i_normal_eye[2]);
+		//gl_TessLevelOuter[2] = CalculateTessellationFactor(gl_in[2].gl_Position, gl_in[0].gl_Position, i_normal_eye[2], i_normal_eye[0]);
 		//inner level
-		gl_TessLevelInner[0] = max(max(gl_TessLevelOuter[0], gl_TessLevelOuter[1]), gl_TessLevelOuter[2]);
+		//gl_TessLevelInner[0] = max(max(gl_TessLevelOuter[0], gl_TessLevelOuter[1]), gl_TessLevelOuter[2]);
+		gl_TessLevelInner[0] = (gl_TessLevelOuter[0] + gl_TessLevelOuter[1] + gl_TessLevelOuter[2]) / 3.0;
 	}
 	//pass parameters
 	vertex_eye[gl_InvocationID] = i_vertex_eye[gl_InvocationID];
@@ -78,6 +81,7 @@ void main(void) {
 	bitangent_eye[gl_InvocationID] = i_bitangent_eye[gl_InvocationID];
 	uv[gl_InvocationID] = i_uv[gl_InvocationID];
 	normal[gl_InvocationID] = i_normal[gl_InvocationID];
+	shadowCoord[gl_InvocationID] = i_shadowCoord[gl_InvocationID];
 
 	gl_out[gl_InvocationID].gl_Position = gl_in[gl_InvocationID].gl_Position;
 }

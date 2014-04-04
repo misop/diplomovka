@@ -6,11 +6,13 @@ layout(location = 2) in vec4 light_eye;
 layout(location = 3) in vec3 tangent_eye;
 layout(location = 4) in vec3 bitangent_eye;
 layout(location = 5) in vec2 uv;
+layout(location = 7) in vec4 shadowCoord;
 
 layout(location = 4) uniform vec4 Material;
 layout(location = 13) uniform vec4 SunColor;
 layout(binding=0) uniform sampler2D DiffuseSampler;
 layout(binding=2) uniform sampler2D NormalSampler;
+layout(binding=4) uniform sampler2D ShadowSampler;
 
 layout (location = 0) out vec4 fColor;
 
@@ -30,6 +32,16 @@ void main(void) {
    	vec4 H = normalize(L + V); 
 	N = normalize(texture2D(NormalSampler, uv)*2.0 - 1.0);
 	
+	//shadow bias
+	float bias = Material.z;
+	//shadow visibility
+	float visibility = 1.0;
+	vec4 shadowmap = texture(ShadowSampler, shadowCoord.xy);
+	float depth = shadowmap.r;
+	if (depth < shadowCoord.z - bias) {
+		visibility = 0.3;
+	}
+	
 	float diffuse = clamp(dot(L, N), 0.0, 1.0);
    	vec4 R = reflect(-L, N);
    	float specular = 0;
@@ -39,8 +51,8 @@ void main(void) {
 	vec4 specularL = vec4(1, 1, 1, 1.0);
 
 	color = 0.2 * (vec4(0.2, 0.2, 0.2, 1.0) + ambient) * (diffuse_material);
-	color += diffuse * diffuse_material * SunColor;
-	color += specular * specularL * SunColor;
+	color += visibility * diffuse * diffuse_material * SunColor;
+	color += visibility * specular * specularL * SunColor;
 
 	fColor = color;
 }

@@ -88,7 +88,7 @@ void AssimpObject::LoadTexturesFromFile(string fileName) {
 	ifstream inputFile(fileName);
 
 	string str1;
-	float float1, float2;
+	float float1, float2, float3;
 	char command;
 
 	while (!inputFile.eof()) {
@@ -114,8 +114,8 @@ void AssimpObject::LoadTexturesFromFile(string fileName) {
 			normalTexture->LoadRGBATextureFromImage(str1);
 			break;
 		case 'm':
-			inputFile >> float1 >> float2;
-			material = glm::vec4(float1, float2, 0, 0);
+			inputFile >> float1 >> float2 >> float3;
+			material = glm::vec4(float1, float2, float3, 0);
 		default:
 			break;
 		}

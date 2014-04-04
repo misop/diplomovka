@@ -2,6 +2,6 @@
 # a = albedo
 # d = displacement
 # n = normal
-m 400 0
+m 400 0 0.001
 a ./textures/Ground07_D.tga
 n ./textures/ground_n.png

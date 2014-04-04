@@ -2,6 +2,7 @@
 #include "GLProgram.h"
 #include <fstream>
 #include "Utility.h"
+#include <boost\filesystem.hpp>
 
 using namespace std;
 
@@ -79,8 +80,11 @@ string GLProgram::GetProgramLog() {
 }
 
 void GLProgram::SaveProgramLog() {
+	string log = GetProgramLog();
 	string fileName = "logs/log_program_" + name + ".txt";
+	if (!boost::filesystem::exists(fileName) && log.size() == 0) return;
+
 	ofstream output(fileName);
-	output << GetProgramLog();
+	output << log;
 	output.close();
 }

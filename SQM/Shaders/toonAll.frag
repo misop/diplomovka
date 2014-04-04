@@ -6,11 +6,14 @@ layout(location = 2) in vec4 light_eye;
 layout(location = 3) in vec3 tangent_eye;
 layout(location = 4) in vec3 bitangent_eye;
 layout(location = 5) in vec2 uv;
+layout(location = 7) in vec4 shadowCoord;
 
+layout(location = 4) uniform vec4 Material;
 layout(location = 13) uniform vec4 SunColor;
 layout(binding=0) uniform sampler2D DiffuseSampler;
 layout(binding=2) uniform sampler2D NormalSampler;
 layout(binding=5) uniform sampler2D ToonShadingSampler;
+layout(binding=4) uniform sampler2D ShadowSampler;
 
 const float Toonines = 11;
 const float Toonines_1 = 1.0/Toonines;
@@ -33,8 +36,17 @@ void main(void) {
 	L = vec4(TBN * vec3(L), 0.0);
 	N = normalize(texture2D(NormalSampler, uv)*2.0 - 1.0);
 	
+	//shadow bias
+	float bias = Material.z;
+	//shadow visibility
+	float visibility = 1.0;
+	vec4 shadowmap = texture(ShadowSampler, shadowCoord.xy);
+	float depth = shadowmap.r;
+	if (depth < shadowCoord.z - bias) {
+		visibility = 0.3;
+	}
 
-	float diffuse = clamp(dot(L, N), 0.0, 1.0);
+	float diffuse = clamp(dot(L, N), 0.0, visibility);
 	diffuse = texture(ToonShadingSampler, vec2(diffuse, 0));
 	
 	vec4 ambient = vec4(0.2, 0.2, 0.2, 1.0);

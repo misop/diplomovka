@@ -41,6 +41,8 @@
 #define EDGE_FBO              13
 #define POST_PROCESS_AO       14
 #define TEXTURED_QUAD         15
+#define OREN_NAYAR            16
+#define COOK_TORRANCE         17
 
 #define DIFFUSE_TEXTURE            GL_TEXTURE0
 #define DISPLACEMENT_TEXTURE       GL_TEXTURE1
@@ -54,7 +56,7 @@
 #define SCREEN_PX_HEIGHT   1080
 #define DEBUG_SIZE          256
 #define EDGE_TEX_SIZE      1024
-#define MAP_SIZE           1024
+#define MAP_SIZE           2048
 #define SSAO_TEX_SIZE       512
 #define DEBUG_SIZE          256
 
@@ -91,8 +93,14 @@ AnimationController::AnimationController(void)
 	frames = 0;
 	fps = 0;
 	perFrame = 0;
-	sunPos = glm::vec3(0, 1500, 1200);
-	sun = glm::normalize(-sunPos);
+	orenNayarModel = glm::translate(glm::mat4(1.0), glm::vec3(-450, 120, -1050)) * glm::scale(glm::mat4(1.0), glm::vec3(8.0));
+	cookTorranceModel = glm::translate(glm::mat4(1.0), glm::vec3(600, 120, -1050)) * glm::scale(glm::mat4(1.0), glm::vec3(8.0));
+	//sunPos = glm::vec3(0, 1500, 1200);
+	sunPos = glm::vec3(-1780, 2000, 2400);
+	sunLook = glm::vec3(0, 0, -500);
+	sunFar = glm::length(glm::vec3(0, 0, -2250) - sunPos);
+	sunNear = glm::length(glm::vec3(0, 300, 1200) - sunPos);
+	sun = glm::normalize(sunLook - sunPos);
 	sunColor = glm::vec3(245.0/255.0, 234.0/255.0, 246.0/255.0);
 }
 
@@ -636,6 +644,42 @@ void AnimationController::InitShaders() {
 	shaders.push_back(quadShaders);
 	programs.push_back(quadProgram);
 #pragma endregion
+#pragma region Oren Nayar
+	OpenGLShaders *orenNayarShaders = new OpenGLShaders();
+	orenNayarShaders->vert = new GLShader(GL_VERTEX_SHADER);
+	orenNayarShaders->vert->Load("shaders/phong_noTess.vert");
+	orenNayarShaders->vert->Compile();
+
+	orenNayarShaders->frag = new GLShader(GL_FRAGMENT_SHADER);
+	orenNayarShaders->frag->Load("shaders/oren_nayar.frag");
+	orenNayarShaders->frag->Compile();
+
+	GLProgram *orenNayarProgram = new GLProgram("Oren_Nayar");
+	orenNayarProgram->AttachShaders(orenNayarShaders);
+	orenNayarProgram->Link();
+	orenNayarProgram->SaveProgramLog();
+
+	shaders.push_back(orenNayarShaders);
+	programs.push_back(orenNayarProgram);
+#pragma endregion
+#pragma region Cook Torrance
+	OpenGLShaders *cookTorranceShaders = new OpenGLShaders();
+	cookTorranceShaders->vert = new GLShader(GL_VERTEX_SHADER);
+	cookTorranceShaders->vert->Load("shaders/phong_noTess.vert");
+	cookTorranceShaders->vert->Compile();
+
+	cookTorranceShaders->frag = new GLShader(GL_FRAGMENT_SHADER);
+	cookTorranceShaders->frag->Load("shaders/cook_torrance.frag");
+	cookTorranceShaders->frag->Compile();
+
+	GLProgram *cookTorranceProgram = new GLProgram("Cook_Torrance");
+	cookTorranceProgram->AttachShaders(cookTorranceShaders);
+	cookTorranceProgram->Link();
+	cookTorranceProgram->SaveProgramLog();
+
+	shaders.push_back(cookTorranceShaders);
+	programs.push_back(cookTorranceProgram);
+#pragma endregion
 
 	canDraw = prevDraw;
 }
@@ -668,7 +712,7 @@ void AnimationController::InitSkybox() {
 	skybox->Bind();
 	skybox->BindBufferDataf(vertices, 3, GL_STATIC_DRAW);
 	skybox->BindElement(indices, GL_STATIC_DRAW);
-	
+
 	skyboxModel = glm::scale(glm::mat4(1.0), glm::vec3(8000, 8000, 8000));
 	skyboxModel *= glm::rotate(glm::mat4(1.0), 180.0f, glm::vec3(0, 1, 0));
 
@@ -694,14 +738,14 @@ void AnimationController::InitFBOs() {
 	quad->BindBufferDataf(vertices, 2, GL_STATIC_DRAW);
 	glBindVertexArray(0);
 	//bias matrix
-	biasMatrix = glm::scale(glm::mat4(1.0), glm::vec3(0.5));
-	biasMatrix = glm::translate(glm::mat4(1.0), glm::vec3(0.5)) * biasMatrix; 
-	/*biasMatrix = glm::mat4(
+	//biasMatrix = glm::scale(glm::mat4(1.0), glm::vec3(0.5));
+	//biasMatrix = glm::translate(glm::mat4(1.0), glm::vec3(0.5)) * biasMatrix; 
+	biasMatrix = glm::mat4(
 		0.5, 0.0, 0.0, 0.0,
 		0.0, 0.5, 0.0, 0.0,
 		0.0, 0.0, 0.5, 0.0,
 		0.5, 0.5, 0.5, 1.0
-		);*/
+		);
 	//fbos
 	bool good = true;
 	delete shadowmap;
@@ -779,6 +823,9 @@ void AnimationController::Draw(GLCamera *camera) {
 			DrawPhong(camera, view_matrix);
 	}
 
+	DrawOrenNayarFrog(camera, view_matrix);
+	DrawCookTorranceFrog(camera, view_matrix);
+
 	Postprocess(camera);
 
 	DrawDebug(camera);
@@ -804,6 +851,53 @@ void AnimationController::DrawWireframe(GLCamera *camera, glm::mat4 &view_matrix
 	}
 
 	DrawModels(camera, view_matrix);
+}
+
+
+void AnimationController::DrawOrenNayarFrog(GLCamera *camera, glm::mat4 &view_matrix) {
+	programs[OREN_NAYAR]->Use();
+	if (animateCamera) {
+		camera->getProjectionMatrix(PROJECTION_MATRIX);
+		glUniformMatrix4fv(VIEW_MATRIX, 1, GL_FALSE, glm::value_ptr(view_matrix));
+	} else {
+		camera->getCameraMatrices(PROJECTION_MATRIX, VIEW_MATRIX);
+	}
+	SetLight();
+
+	glUniformMatrix4fv(MODEL_MATRIX, 1, GL_FALSE, glm::value_ptr(orenNayarModel));
+	if (animateCamera) {
+		glm::mat3 NM = glm::mat3(view_matrix*orenNayarModel);
+		NM = glm::transpose(glm::inverse(NM));
+		glUniformMatrix3fv(NORMAL_MATRIX, 1, GL_FALSE, glm::value_ptr(NM));
+	} else {
+		camera->setupNormalMatrix(orenNayarModel, NORMAL_MATRIX);
+	}
+	BindTextures(7, true);
+	models[7]->buffer->DrawElement(0, GL_TRIANGLES);
+	BindTextures(7, false);
+}
+
+void AnimationController::DrawCookTorranceFrog(GLCamera *camera, glm::mat4 &view_matrix) {
+	programs[COOK_TORRANCE]->Use();
+	if (animateCamera) {
+		camera->getProjectionMatrix(PROJECTION_MATRIX);
+		glUniformMatrix4fv(VIEW_MATRIX, 1, GL_FALSE, glm::value_ptr(view_matrix));
+	} else {
+		camera->getCameraMatrices(PROJECTION_MATRIX, VIEW_MATRIX);
+	}
+	SetLight();
+
+	glUniformMatrix4fv(MODEL_MATRIX, 1, GL_FALSE, glm::value_ptr(cookTorranceModel));
+	if (animateCamera) {
+		glm::mat3 NM = glm::mat3(view_matrix*cookTorranceModel);
+		NM = glm::transpose(glm::inverse(NM));
+		glUniformMatrix3fv(NORMAL_MATRIX, 1, GL_FALSE, glm::value_ptr(NM));
+	} else {
+		camera->setupNormalMatrix(cookTorranceModel, NORMAL_MATRIX);
+	}
+	BindTextures(7, true);
+	models[7]->buffer->DrawElement(0, GL_TRIANGLES);
+	BindTextures(7, false);
 }
 
 void AnimationController::DrawPhong(GLCamera *camera, glm::mat4 &view_matrix) {
@@ -989,11 +1083,21 @@ void AnimationController::GetShadowMaps(GLCamera *camera) {
 	//glCullFace(GL_FRONT);
 	programs[SHADOW_MAP]->Use();
 
-	glm::mat4 proj = glm::ortho<float>(0, MAP_SIZE, 0, MAP_SIZE, 1, 5000);
-	glm::mat4 view = glm::lookAt(sunPos, glm::vec3(0), glm::vec3(0, 1, 0));
-	depthMVP = biasMatrix * proj * view;
+	glm::mat4 proj = glm::ortho<float>(-2690, 2680, -1300, 1500, 1800, 6400);
+	glm::mat4 view = glm::lookAt(sunPos, sunLook, glm::vec3(0, 1, 0));
+	/*glm::vec4 t1 = view * glm::vec4(-1780,0,1200, 1);
+	glm::vec4 t2 = view * glm::vec4(-1780,0,-2540, 1);
+	glm::vec4 t3 = view * glm::vec4(1980,0,1200, 1);
+	glm::vec4 t4 = view * glm::vec4(1980,0,-2540, 1);
+	float x,y,z ,mx, my, mz;
+	x = min(t1.x, min(t2.x, min(t3.x, t4.x)));
+	mx = max(t1.x, max(t2.x, max(t3.x, t4.x)));
+	y = min(t1.y, min(t2.y, min(t3.y, t4.y)));
+	my = max(t1.y, max(t2.y, max(t3.y, t4.y)));
+	z = min(t1.z, min(t2.z, min(t3.z, t4.z)));
+	mz = max(t1.z, max(t2.z, max(t3.z, t4.z)));*/
+	depthMVP = proj * view;
 	glUniformMatrix4fv(PROJECTION_MATRIX, 1, GL_FALSE, glm::value_ptr(proj));
-	camera->getProjectionMatrix(PROJECTION_MATRIX);
 	glUniformMatrix4fv(VIEW_MATRIX, 1, GL_FALSE, glm::value_ptr(view));
 	DrawModels(NULL, glm::mat4(1.0), false, false, false);
 
@@ -1011,7 +1115,6 @@ void AnimationController::DrawSkybox(GLCamera *camera, glm::mat4 &view_matrix) {
 	//skybox
 	programs[SKYBOX]->Use();	
 	glUniformMatrix4fv(MODEL_MATRIX, 1, GL_FALSE, glm::value_ptr(skyboxModel));
-	glUniform1i(USE_TOON_SHADING, useToonShading);
 	if (animateCamera) {
 		camera->getProjectionMatrix(PROJECTION_MATRIX);
 		glUniformMatrix4fv(VIEW_MATRIX, 1, GL_FALSE, glm::value_ptr(view_matrix));
@@ -1048,7 +1151,7 @@ void AnimationController::DrawToTexture(GLCamera *camera, glm::mat4 &view_matrix
 #pragma region SSAO
 		ssaoFbo2->Bind();
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-		
+
 		glm::mat4 ProjectionMatrix = camera->projection;//glm::ortho<float>(0.0f, SSAO_TEX_SIZE, 0.0f, SSAO_TEX_SIZE, -1.0f, 1.0f);
 		glm::mat4 ProjectionMatrixINV = glm::inverse(camera->projection);
 		//glm::mat4 ModelMatrix = glm::scale(glm::mat4(1.0), glm::vec3(SSAO_TEX_SIZE, SSAO_TEX_SIZE, 0));

@@ -57,9 +57,13 @@ bool GLFrameBuffer::CreateGeneralFBO(int width, int height, int colorBuffers, bo
 		depth->Bind();
 		depth->TexParameteri(GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 		depth->TexParameteri(GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-		depth->TexParameteri(GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-		depth->TexParameteri(GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-		depth->TexParameteri(GL_TEXTURE_COMPARE_MODE, GL_NONE);
+		//depth->TexParameteri(GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+		//depth->TexParameteri(GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+		//depth->TexParameteri(GL_TEXTURE_COMPARE_MODE, GL_NONE);
+		depth->TexParameteri(GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+		depth->TexParameteri(GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+		depth->TexParameteri(GL_TEXTURE_COMPARE_MODE, GL_COMPARE_REF_TO_TEXTURE);
+		depth->TexParameteri(GL_TEXTURE_COMPARE_FUNC, GL_LEQUAL);
 		depth->DepthTexture(width, height, GL_FLOAT);
 
 		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, depth->texture, 0);

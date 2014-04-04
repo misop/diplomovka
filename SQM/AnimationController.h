@@ -13,7 +13,8 @@
 
 class AnimationController
 {
-	glm::vec3 sun, sunPos, sunColor;
+	glm::vec3 sun, sunPos, sunLook, sunColor;
+	float sunNear, sunFar;
 	GLTexture *toonShadingTexture;
 	GLTexture *noiseTexture;
 	GLArrayBuffer *skybox;
@@ -29,6 +30,7 @@ class AnimationController
 	glm::mat4 skyboxModel;
 	glm::mat4 depthMVP;
 	glm::mat4 biasMatrix;
+	glm::mat4 cookTorranceModel, orenNayarModel;
 	GLTexture *skyboxTexture;
 	vector<GLProgram *> programs;
 	vector<OpenGLShaders *> shaders;
@@ -91,6 +93,8 @@ public:
 	void DrawPhongAll(GLCamera *camera, glm::mat4 &view_matrix);
 	void DrawToon(GLCamera *camera, glm::mat4 &view_matrix);
 	void DrawToonAll(GLCamera *camera, glm::mat4 &view_matrix);
+	void DrawOrenNayarFrog(GLCamera *camera, glm::mat4 &view_matrix);
+	void DrawCookTorranceFrog(GLCamera *camera, glm::mat4 &view_matrix);
 	void DetectEdges();
 	void Smooth(bool horizontal);
 	void Postprocess(GLCamera *camera);

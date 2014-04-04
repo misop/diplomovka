@@ -10,7 +10,7 @@ out vec3 position;
 
 void main(void)
 {
-	vec4 pos = ViewMatrix * ModelMatrix * vec4(Position, 1.0);
-	gl_Position =  ProjectionMatrix * pos;
-	position = vec3(gl_Position / gl_Position.w);
+	vec4 pos = ProjectionMatrix * ViewMatrix * ModelMatrix * vec4(Position, 1.0);
+	position = vec3(pos);
+	gl_Position = pos;
 }

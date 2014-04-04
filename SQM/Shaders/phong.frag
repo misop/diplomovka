@@ -10,6 +10,7 @@ layout(location = 4) uniform vec4 Material;
 layout(location = 13) uniform vec4 SunColor;
 layout(binding=0) uniform sampler2D DiffuseSampler;
 layout(binding=4) uniform sampler2D ShadowSampler;
+//layout(binding=4) uniform sampler2DShadow ShadowSampler;
 
 const float zNear = 1.0;
 const float zFar = 15000;
@@ -28,12 +29,14 @@ void main(void)
 	
 	float diffuse = clamp(dot(L, N), 0.0, 1.0);
 	
+	//shadow bias
+	float bias = Material.z;
+	//shadow visibility
 	float visibility = 1.0;
 	vec4 shadowmap = texture(ShadowSampler, shadowCoord.xy);
-	//float depth = (zNear + (zFar - zNear) * shadowmap.r);
-	float depth = (shadowmap.r * 0.5) + 0.5;
-	if (depth <  shadowCoord.z){
-		visibility = 1.0;
+	float depth = shadowmap.r;
+	if (depth < shadowCoord.z - bias) {
+		visibility = 0.3;
 	}
 	
    	vec4 R = reflect(-L, N);
@@ -48,4 +51,5 @@ void main(void)
 	color += visibility * specular * specularL * SunColor;	
 
 	fColor = color;
+	//fColor = vec4(shadowCoord.Z);
 }
