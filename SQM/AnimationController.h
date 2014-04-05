@@ -95,6 +95,7 @@ public:
 	void DrawToonAll(GLCamera *camera, glm::mat4 &view_matrix);
 	void DrawOrenNayarFrog(GLCamera *camera, glm::mat4 &view_matrix);
 	void DrawCookTorranceFrog(GLCamera *camera, glm::mat4 &view_matrix);
+	void DrawFrog(GLCamera *camera, glm::mat4 &view_matrix, glm::mat4 &modelMatrix);
 	void DetectEdges();
 	void Smooth(bool horizontal);
 	void Postprocess(GLCamera *camera);

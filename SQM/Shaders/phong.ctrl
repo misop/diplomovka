@@ -29,6 +29,14 @@ layout(location = 5) out vec2 uv[];
 layout(location = 6) out vec4 normal[];
 layout(location = 7) out vec4 shadowCoord[];
 
+//easing
+const vec2 P0 = vec2(0.0, 0.0);
+const vec2 P3 = vec2(1.0, 1.0);
+
+vec2 bezier(in vec2 P1, in vec2 P2, in float t) {
+	return (pow(1 - t, 3)*P0 + 3*pow(1 - t, 2)*t*P1 + 3*(1 - t)*pow(t, 2)*P2 + pow(t, 3)*P3);
+}
+
 //Obtain the diameter of a bounding sphere on each edge transformed into clip space and multiple by the shader constant to obtain a tessellation factor for the edge.
 //Dividing by ClipPos.W will perspective correct the diameter
 float GetPostProjectionSphereExtent(in vec4 Origin, in float Diameter)
@@ -47,15 +55,17 @@ float CalculateTessellationFactor(in vec4 Control0, in vec4 Control1, in vec4 No
 		return 1;
 	}
 	//tessellate only in fron of camera
-    vec4 m0 = (Control0 + Control1)/2;
-	if (dot(eye_dir, m0) > 0) {
+    //vec4 m0 = (Control0 + Control1)/2;
+    vec4 m0 = (-Control0 - Control1)/2;
+	if (dot(eye_dir, m0) < 0) {
 		return 1;
 	}
+	float dist = 1- (length(m0) / 3700.0);
+	dist = bezier(vec2(1.0, 0.0), vec2(0.25, 1.0), dist);
 	
     float e0 = distance(Control0, Control1);
-    //return max(1, ScreenHeight / PixelsPerEdge * GetPostProjectionSphereExtent(m0, e0));
 	float factor = min(Material.x, PixelsPerEdge);
-    return max(1, ScreenHeight / factor * GetPostProjectionSphereExtent(m0, e0));
+    return max(1, round(ScreenHeight / factor * GetPostProjectionSphereExtent(m0, e0) * dist));
     //return max(1, EdgesPerScreenHeight * GetPostProjectionSphereExtent(m0, e0));
 }
 

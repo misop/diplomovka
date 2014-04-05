@@ -864,17 +864,7 @@ void AnimationController::DrawOrenNayarFrog(GLCamera *camera, glm::mat4 &view_ma
 	}
 	SetLight();
 
-	glUniformMatrix4fv(MODEL_MATRIX, 1, GL_FALSE, glm::value_ptr(orenNayarModel));
-	if (animateCamera) {
-		glm::mat3 NM = glm::mat3(view_matrix*orenNayarModel);
-		NM = glm::transpose(glm::inverse(NM));
-		glUniformMatrix3fv(NORMAL_MATRIX, 1, GL_FALSE, glm::value_ptr(NM));
-	} else {
-		camera->setupNormalMatrix(orenNayarModel, NORMAL_MATRIX);
-	}
-	BindTextures(7, true);
-	models[7]->buffer->DrawElement(0, GL_TRIANGLES);
-	BindTextures(7, false);
+	DrawFrog(camera, view_matrix, orenNayarModel);
 }
 
 void AnimationController::DrawCookTorranceFrog(GLCamera *camera, glm::mat4 &view_matrix) {
@@ -887,17 +877,7 @@ void AnimationController::DrawCookTorranceFrog(GLCamera *camera, glm::mat4 &view
 	}
 	SetLight();
 
-	glUniformMatrix4fv(MODEL_MATRIX, 1, GL_FALSE, glm::value_ptr(cookTorranceModel));
-	if (animateCamera) {
-		glm::mat3 NM = glm::mat3(view_matrix*cookTorranceModel);
-		NM = glm::transpose(glm::inverse(NM));
-		glUniformMatrix3fv(NORMAL_MATRIX, 1, GL_FALSE, glm::value_ptr(NM));
-	} else {
-		camera->setupNormalMatrix(cookTorranceModel, NORMAL_MATRIX);
-	}
-	BindTextures(7, true);
-	models[7]->buffer->DrawElement(0, GL_TRIANGLES);
-	BindTextures(7, false);
+	DrawFrog(camera, view_matrix, cookTorranceModel);
 }
 
 void AnimationController::DrawPhong(GLCamera *camera, glm::mat4 &view_matrix) {
@@ -1038,6 +1018,20 @@ void AnimationController::DrawModels(GLCamera *camera, glm::mat4 &view_matrix, b
 	}
 }
 
+void AnimationController::DrawFrog(GLCamera *camera, glm::mat4 &view_matrix, glm::mat4 &modelMatrix) {
+	glUniformMatrix4fv(MODEL_MATRIX, 1, GL_FALSE, glm::value_ptr(modelMatrix));
+	if (animateCamera) {
+		glm::mat3 NM = glm::mat3(view_matrix*modelMatrix);
+		NM = glm::transpose(glm::inverse(NM));
+		glUniformMatrix3fv(NORMAL_MATRIX, 1, GL_FALSE, glm::value_ptr(NM));
+	} else {
+		camera->setupNormalMatrix(modelMatrix, NORMAL_MATRIX);
+	}
+	BindTextures(7, true);
+	models[7]->buffer->DrawElement(0, GL_TRIANGLES);
+	BindTextures(7, false);
+}
+
 void AnimationController::BindTextures(int idx, bool bind) {
 	//set material
 	glUniform4f(MATERIAL, models[idx]->material.x, models[idx]->material.y, models[idx]->material.z, models[idx]->material.w);
@@ -1145,6 +1139,8 @@ void AnimationController::DrawToTexture(GLCamera *camera, glm::mat4 &view_matrix
 			camera->getCameraMatrices(PROJECTION_MATRIX, VIEW_MATRIX);
 		}
 		DrawModels(camera, view_matrix, false, false, true);
+		DrawFrog(camera, view_matrix, orenNayarModel);
+		DrawFrog(camera, view_matrix, cookTorranceModel);
 
 		ssaoFbo->Unbind();
 #pragma endregion
@@ -1235,6 +1231,8 @@ void AnimationController::DrawToTexture(GLCamera *camera, glm::mat4 &view_matrix
 			camera->getCameraMatrices(PROJECTION_MATRIX, VIEW_MATRIX);
 		}
 		DrawModels(camera, view_matrix, false, false, true);
+		DrawFrog(camera, view_matrix, orenNayarModel);
+		DrawFrog(camera, view_matrix, cookTorranceModel);
 
 		edgeFbo->Unbind();
 		glViewport(0, 0, camera->width, camera->height);
