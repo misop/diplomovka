@@ -14,7 +14,7 @@
 class AnimationController
 {
 	glm::vec3 sun, sunPos, sunLook, sunColor;
-	float sunNear, sunFar;
+	float ortoLeft, ortoRight, ortoBottom, ortoTop, ortoNear, ortoFar;
 	GLTexture *toonShadingTexture;
 	GLTexture *noiseTexture;
 	GLArrayBuffer *skybox;
@@ -37,6 +37,7 @@ class AnimationController
 	vector<AssimpObject *> models;
 	vector<glm::ivec3> objects;
 	vector<glm::mat4> modelMatrices;
+	vector<LightAnim> lights;
 	vector<vector<ObjectPose> > poses;
 	vector<ObjectPose> anim_poses;
 	vector<vector<float> > knots;
@@ -69,6 +70,7 @@ public:
 	void LoadMovement(string fileName);
 	void LoadModelMatrix(string fileName);
 	void LoadModelMatrix(glm::vec3 pos, glm::vec3 scale, glm::vec3 euler);
+	void LoadSun();
 
 	void ClearShaders();
 	void InitShaders();

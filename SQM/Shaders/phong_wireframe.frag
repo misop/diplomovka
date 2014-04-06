@@ -1,14 +1,16 @@
 #version 430
 
+#define POINT_LIGHTS 2
+
 const float LineWidth = 0.01;
 
 layout(location = 0) in vec4 vertex_eye;
 layout(location = 1) in vec4 normal_eye;
 layout(location = 2) in vec4 light_eye;
-layout(location = 5) in vec2 uv;
-layout(location = 6) in vec3 height;
+layout(location = 3) in vec2 uv;
+layout(location = 4) in vec3 height;
 
-layout(location = 13) uniform vec4 SunColor;
+
 layout(binding=0) uniform sampler2D DiffuseSampler;
 
 layout (location = 0) out vec4 fColor;
@@ -49,11 +51,10 @@ void main(void) {
 
 	//float diffuse = clamp(abs(dot(L, N)), 0.0, 1.0);
 	float diffuse = clamp(dot(L, N), 0.0, 1.0);
-	
-	vec4 ambient = vec4(0.2, 0.2, 0.2, 1.0);
+	diffuse = clamp(dot(V, N), 0.0, 1.0);
 
-	color = 0.2 * (vec4(0.2, 0.2, 0.2, 1.0) + ambient) * (diffuse_material);
-	color += diffuse * diffuse_material;// * SunColor;
+	color = 0.2 * vec4(0.4, 0.4, 0.4, 1.0) * (diffuse_material);
+	color += diffuse * diffuse_material;
 	color.a *= alpha;
 
 	fColor = color;

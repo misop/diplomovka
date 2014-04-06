@@ -96,10 +96,10 @@ AnimationController::AnimationController(void)
 	orenNayarModel = glm::translate(glm::mat4(1.0), glm::vec3(-450, 120, -1050)) * glm::scale(glm::mat4(1.0), glm::vec3(8.0));
 	cookTorranceModel = glm::translate(glm::mat4(1.0), glm::vec3(600, 120, -1050)) * glm::scale(glm::mat4(1.0), glm::vec3(8.0));
 	//sunPos = glm::vec3(0, 1500, 1200);
-	sunPos = glm::vec3(-1780, 2000, 2400);
-	sunLook = glm::vec3(0, 0, -500);
-	sunFar = glm::length(glm::vec3(0, 0, -2250) - sunPos);
-	sunNear = glm::length(glm::vec3(0, 300, 1200) - sunPos);
+	//sunPos = glm::vec3(-1780, 2000, 2400);
+	//sunLook = glm::vec3(0, 0, -500);
+	sunPos = glm::vec3(-2350, 943, 3335);
+	sunLook = glm::vec3(222, 452, -1523);
 	sun = glm::normalize(sunLook - sunPos);
 	sunColor = glm::vec3(245.0/255.0, 234.0/255.0, 246.0/255.0);
 }
@@ -140,6 +140,7 @@ void AnimationController::LoadScene() {
 	string str1, str2;
 	int int1, int2, int3;
 	glm::vec3 pos, scale, euler;
+	glm::vec4 att;
 	char c;
 
 	while (!inputFile.eof()) {
@@ -178,11 +179,22 @@ void AnimationController::LoadScene() {
 			movement.push_back(int3);
 			LoadModelMatrix(pos, scale, euler);
 			break;
+		case 's':
+			inputFile >> sunPos.x >> sunPos.y >> sunPos.z >> c >> sunLook.x >> sunLook.y >> sunLook.z >> c >> sunColor.x >> sunColor.y >> sunColor.z;
+			sun = glm::normalize(sunLook - sunPos);
+			sunColor /= 255.0;
+			break;
+		case 'l':
+			inputFile >> int1 >> c >> pos.x >> pos.y >> pos.z >> c >> scale.x >> scale.y >> scale.z >> c >> att.x >> att.y >> att.z >> att.w;
+			scale /= 255.0;
+			lights.push_back(LightAnim(pos, scale, att, int1));
+			break;
 		default:
 			break;
 		}
 	}
 
+	LoadSun();
 	InitToonShadingTexture();
 	InitSkybox();
 	InitShaders();
@@ -306,6 +318,20 @@ void AnimationController::LoadModelMatrix(glm::vec3 pos, glm::vec3 scale, glm::v
 	glm::mat4 T = glm::translate(glm::mat4(1.0), pos);
 	glm::mat4 M = T * S * R;
 	modelMatrices.push_back(M);
+}
+
+void AnimationController::LoadSun() {
+	glm::mat4 view = glm::lookAt(sunPos, sunLook, glm::vec3(0, 1, 0));
+	glm::vec4 t1 = view * glm::vec4(-1780,0,1200, 1);
+	glm::vec4 t2 = view * glm::vec4(-1780,0,-2540, 1);
+	glm::vec4 t3 = view * glm::vec4(1980,0,1200, 1);
+	glm::vec4 t4 = view * glm::vec4(1980,0,-2540, 1);
+	ortoLeft = min(t1.x, min(t2.x, min(t3.x, t4.x))) - 100;
+	ortoRight = max(t1.x, max(t2.x, max(t3.x, t4.x))) + 100;
+	ortoBottom = min(t1.y, min(t2.y, min(t3.y, t4.y))) - 100;
+	ortoTop = max(t1.y, max(t2.y, max(t3.y, t4.y))) + 100;
+	ortoNear = -max(t1.z, max(t2.z, max(t3.z, t4.z))) - 100;
+	ortoFar = -min(t1.z, min(t2.z, min(t3.z, t4.z))) + 100;
 }
 
 #pragma endregion
@@ -809,14 +835,11 @@ void AnimationController::Draw(GLCamera *camera) {
 	//objects
 	if (drawWireframe) {
 		DrawWireframe(camera, view_matrix);
-	} else if (useDispalcement) {
-		if (useToonShading)
-			DrawToonAll(camera, view_matrix);
-		else
-			DrawPhongAll(camera, view_matrix);
+	} else if (useToonShading) {
+		DrawToon(camera, view_matrix);
 	} else {
-		if (useToonShading)
-			DrawToon(camera, view_matrix);
+		if (useDispalcement)
+			DrawPhongAll(camera, view_matrix);
 		else if (useNormals)
 			DrawPhongNormal(camera, view_matrix);
 		else
@@ -834,8 +857,16 @@ void AnimationController::Draw(GLCamera *camera) {
 
 void AnimationController::SetLight() {
 	glUniformMatrix4fv(SHADOW_MATRIX, 1, GL_FALSE, glm::value_ptr(depthMVP));
-	glUniform4f(SUN, sun.x, sun.y, sun.z, 0);
-	glUniform4f(SUN_COLOR, sunColor.x, sunColor.y, sunColor.z, 1);
+	glUniform4f(SUN, sun.x, sun.y, sun.z, 0.0);
+	glUniform4f(SUN_COLOR, sunColor.r, sunColor.g, sunColor.b, 1);
+
+	for (int i = 0; i < lights.size(); i++) {
+		glm::vec4 pos = lights[i].pos;
+		if (lights[i].anim != -1) pos = anim_poses[lights[i].anim].GetMatrix() * pos;
+		glUniform4f(POINT1 + i, pos.x, pos.y, pos.z, 1.0);
+		glUniform4f(POINT1_COLOR + i, lights[i].color.r, lights[i].color.g, lights[i].color.b, 1);
+		glUniform4f(POINT1_ATTEN + i, lights[i].attenuation.x, lights[i].attenuation.y, lights[i].attenuation.z, lights[i].attenuation.w);
+	}
 }
 
 #pragma region Different shaders
@@ -1076,20 +1107,10 @@ void AnimationController::GetShadowMaps(GLCamera *camera) {
 	glViewport(0, 0, MAP_SIZE, MAP_SIZE);
 	//glCullFace(GL_FRONT);
 	programs[SHADOW_MAP]->Use();
-
-	glm::mat4 proj = glm::ortho<float>(-2690, 2680, -1300, 1500, 1800, 6400);
+	
+	//glm::mat4 proj = glm::ortho<float>(-2690, 2680, -1300, 1500, 1800, 6400);
+	glm::mat4 proj = glm::ortho<float>(ortoLeft, ortoRight, ortoBottom, ortoTop, ortoNear, ortoFar);
 	glm::mat4 view = glm::lookAt(sunPos, sunLook, glm::vec3(0, 1, 0));
-	/*glm::vec4 t1 = view * glm::vec4(-1780,0,1200, 1);
-	glm::vec4 t2 = view * glm::vec4(-1780,0,-2540, 1);
-	glm::vec4 t3 = view * glm::vec4(1980,0,1200, 1);
-	glm::vec4 t4 = view * glm::vec4(1980,0,-2540, 1);
-	float x,y,z ,mx, my, mz;
-	x = min(t1.x, min(t2.x, min(t3.x, t4.x)));
-	mx = max(t1.x, max(t2.x, max(t3.x, t4.x)));
-	y = min(t1.y, min(t2.y, min(t3.y, t4.y)));
-	my = max(t1.y, max(t2.y, max(t3.y, t4.y)));
-	z = min(t1.z, min(t2.z, min(t3.z, t4.z)));
-	mz = max(t1.z, max(t2.z, max(t3.z, t4.z)));*/
 	depthMVP = proj * view;
 	glUniformMatrix4fv(PROJECTION_MATRIX, 1, GL_FALSE, glm::value_ptr(proj));
 	glUniformMatrix4fv(VIEW_MATRIX, 1, GL_FALSE, glm::value_ptr(view));
@@ -1279,10 +1300,6 @@ void AnimationController::Postprocess(GLCamera *camera) {
 	if (useSSAO) {
 		glEnable(GL_BLEND);
 		glDepthMask(GL_FALSE);
-		//glBlendFunc(GL_DST_COLOR, GL_ONE_MINUS_SRC_ALPHA);
-		//glClampColor(GL_CLAMP_READ_COLOR, GL_FALSE);
-		//glClampColor(GL_CLAMP_VERTEX_COLOR, GL_FALSE);
-		//glClampColor(GL_CLAMP_FRAGMENT_COLOR, GL_FALSE);
 
 		programs[POST_PROCESS_AO]->Use();
 
@@ -1309,14 +1326,11 @@ void AnimationController::DrawText(GLCamera *camera) {
 
 	if (drawWireframe) {
 		active_program = "Wireframe";
-	} else if (useDispalcement) {
-		if (useToonShading)
-			active_program = "Toon + All";
-		else
-			active_program = "Phong + All";;
+	} else if (useToonShading) {
+		active_program = "Toon";
 	} else {
-		if (useToonShading)
-			active_program = "Toon";
+		if (useDispalcement)
+			active_program = "Phong + Tessellation";
 		else if (useNormals)
 			active_program = "Phong + Normals";
 		else
@@ -1346,7 +1360,13 @@ void AnimationController::DrawText(GLCamera *camera) {
 	text->RenderText(20, camera->height - offset, "W = wireframe");
 	offset += 20;
 
-	text->RenderText(20, camera->height - offset, "Q/E = tessellate more/less");
+	text->RenderText(20, camera->height - offset, "N = toogle normal mapping");
+	offset += 20;
+
+	text->RenderText(20, camera->height - offset, "O = toogle output text");
+	offset += 20;
+
+	text->RenderText(20, camera->height - offset, "D = toogle debug textures");
 	offset += 20;
 }
 
@@ -1392,41 +1412,6 @@ void AnimationController::DrawDebug(GLCamera *camera) {
 
 		quad->Draw(GL_QUADS);
 	}
-
-	/*programs[SSAO]->Use();
-
-	glm::mat4 proj_inv = glm::inverse(camera->projection);
-	glUniformMatrix4fv(PROJECTION_MATRIX, 1, GL_FALSE, glm::value_ptr(proj_inv));
-	glUniformMatrix4fv(PROJECTION_MATRIX, 1, GL_FALSE, glm::value_ptr(proj));
-	ModelMatrix = glm::translate(glm::mat4(1.0), glm::vec3(DEBUG_SIZE + 5, 0, 0)) * ModelMatrix;
-	glUniformMatrix4fv(MODEL_MATRIX, 1, GL_FALSE, glm::value_ptr(ModelMatrix));
-	glUniform1f(SCREEN_WIDTH, DEBUG_SIZE);
-	glUniform1f(SCREEN_HEIGHT, DEBUG_SIZE);
-
-	glActiveTexture(GL_TEXTURE0);
-	noiseTexture->Bind();
-	glActiveTexture(GL_TEXTURE1);
-	ssaoFbo->attachedTextures[0]->Bind();
-	glActiveTexture(GL_TEXTURE2);
-	ssaoFbo->attachedTextures[1]->Bind();
-
-	quad->Draw(GL_QUADS);*/
-
-	/*ModelMatrix = glm::translate(glm::mat4(1.0), glm::vec3(DEBUG_SIZE + 5, 0, 0)) * ModelMatrix;
-	glUniformMatrix4fv(MODEL_MATRIX, 1, GL_FALSE, glm::value_ptr(ModelMatrix));
-
-	glActiveTexture(GL_TEXTURE0);
-	fbo->attachedTextures[1]->Bind();
-
-	quad->Draw(GL_QUADS);
-
-	ModelMatrix = glm::translate(glm::mat4(1.0), glm::vec3(DEBUG_SIZE + 5, 0, 0)) * ModelMatrix;
-	glUniformMatrix4fv(MODEL_MATRIX, 1, GL_FALSE, glm::value_ptr(ModelMatrix));
-
-	glActiveTexture(GL_TEXTURE0);
-	shadowmap->attachedTextures[0]->Bind();
-
-	quad->Draw(GL_QUADS);*/
 }
 
 #pragma endregion

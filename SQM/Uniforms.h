@@ -16,9 +16,10 @@
 #define DISPLACE                 9
 
 #define SUN                     10
-#define POINT1                  11
-#define POINT2                  12
-#define SUN_COLOR               13
+#define SUN_COLOR               11
+#define POINT1                  12
+#define POINT1_COLOR            20
+#define POINT1_ATTEN            28
 
 #define TEXEL_WIDTH              3
 #define TEXEL_HEIGHT             4

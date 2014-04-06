@@ -4,6 +4,8 @@
 # a = movement: filename
 # o = objects: modelID, moveID, pos, scale, rot
 # p = objects: modelIDFirst, modelIDLast, moveID, pos, scale, rot
+# s = sun: position, lookat, color
+# l = light: animation, position, color, attenuation(strength, constant, linear, quadratic)
 
 # models
 m models/brana_lava.obj textures/tomb.tx
@@ -35,6 +37,20 @@ m models/quad.obj textures/ground.tx
 # animations
 c 0 animations/camera.anm
 a animations/kruh.anm
+
+# lights
+s -1780  2000  2400 |     0     0  -500 | 245 234 246
+
+l  1 |     0   400     0 | 188  16  16 | 1 0 0.000001 2
+l -1 |    75   225  -950 |  44 169 169 | 1 0 0.000005 2
+
+l -1 |  1250   200 -1600 |  44 169 169 | 1 0 0.000005 2
+l -1 |  1250   200  -800 |  44 169 169 | 1 0 0.000005 2
+l -1 |  1250   200     0 |  44 169 169 | 1 0 0.000005 2
+l -1 |  1250   200   800 |  44 169 169 | 1 0 0.000005 2
+
+l -1 |  -600   500 -2150 |  44 169 169 | 1 0 0.000005 2
+l -1 |   600   500 -2150 |  44 169 169 | 1 0 0.000005 2
 
 # objects
 

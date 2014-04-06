@@ -9,7 +9,7 @@ layout(location = 5) in vec2 uv;
 layout(location = 6) in vec4 shadowCoord;
 
 layout(location = 4) uniform vec4 Material;
-layout(location = 13) uniform vec4 SunColor;
+layout(location = 11) uniform vec4 SunColor;
 layout(binding=0) uniform sampler2D DiffuseSampler;
 layout(binding=4) uniform sampler2D ShadowSampler;
 //layout(binding=4) uniform sampler2DShadow ShadowSampler;

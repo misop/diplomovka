@@ -8,7 +8,7 @@ layout(location = 2) in vec4 light_eye;
 layout(location = 5) in vec2 uv;
 
 layout(location = 4) uniform vec4 Material;
-layout(location = 13) uniform vec4 SunColor;
+layout(location = 11) uniform vec4 SunColor;
 layout(binding=0) uniform sampler2D DiffuseSampler;
 //layout(binding=4) uniform sampler2DShadow ShadowSampler;
 

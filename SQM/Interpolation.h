@@ -10,6 +10,16 @@ using namespace std;
 
 #define DELTA_TIME 0.02
 
+struct LightAnim
+{
+	glm::vec4 pos;
+	glm::vec3 color;
+	glm::vec4 attenuation;
+	int anim;
+	LightAnim() : pos(glm::vec4(0)), color(glm::vec3(0)), attenuation(glm::vec4(0)), anim(-1) { };
+	LightAnim(glm::vec3 _pos, glm::vec3 _col, glm::vec4 _att, int _anim) : pos(glm::vec4(_pos, 1.0)), color(_col), attenuation(glm::vec4(_att)), anim(_anim) { };
+};
+
 struct AnimTimer
 {
 	float time;
