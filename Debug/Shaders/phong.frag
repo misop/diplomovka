@@ -1,64 +1,73 @@
 #version 430
 
-const float LineWidth = 0.5;
-const bool Wireframe = true;
+#define POINT_LIGHTS 8
 
-in _{
-	vec4 vertex_eye;
-	vec4 normal_eye;
-	vec4 light_eye;
-	vec3 height;
-} g;
+layout(location = 0) in vec4 vertex_eye;
+layout(location = 1) in vec4 normal_eye;
+layout(location = 2) in vec4 light_eye;
+layout(location = 5) in vec2 uv;
+layout(location = 6) in vec4 shadowCoord;
+layout(location = 7) in vec4 point_eye[POINT_LIGHTS];
+
+layout(location = 4) uniform vec4 Material;
+layout(location = 11) uniform vec4 SunColor;
+layout(location = 20) uniform vec4 PointColor[POINT_LIGHTS];
+layout(location = 28) uniform vec4 Attenuation[POINT_LIGHTS];
+layout(binding=0) uniform sampler2D DiffuseSampler;
+layout(binding=4) uniform sampler2D ShadowSampler;
+//layout(binding=4) uniform sampler2DShadow ShadowSampler;
+
+const float zNear = 1.0;
+const float zFar = 15000;
 
 layout (location = 0) out vec4 fColor;
 
-float evalMinDistanceToEdges(in vec3 height)
-{
-    float dist;
-
-	vec3 ddxHeights = dFdx(height);
-	vec3 ddyHeights = dFdy(height);
-	vec3 ddHeights2 =  ddxHeights*ddxHeights + ddyHeights*ddyHeights;
-	
-    vec3 pixHeights2 = height * height / ddHeights2 ;
-    
-    dist = sqrt( min ( min (pixHeights2.x, pixHeights2.y), pixHeights2.z) );
-    
-    return dist;
-}
-
-void main(void) {	   
-	vec4 diffuse_material = vec4(0.0, 0.75, 0.75, 1);
+void main(void)
+{	   
+	vec4 diffuse_material = texture(DiffuseSampler, uv);
 	vec4 color = vec4(0.0, 0.75, 0.75, 1);
 
-	float alpha = 1;
+	vec4 V = normalize(vertex_eye);
+   	vec4 L = normalize(light_eye);
+   	vec4 N = normalize(normal_eye);
+   	vec4 H = normalize(L + V); 
+	
+	float diffuse = clamp(dot(L, N), 0.0, 1.0);
+	
+	//shadow bias
+	float bias = Material.z;
+	//shadow visibility
+	float visibility = 1.0;
+	vec4 shadowmap = texture(ShadowSampler, shadowCoord.xy);
+	float depth = shadowmap.r;
+	if (depth < shadowCoord.z - bias) {
+		visibility = 0.3;
+	}
+	
+   	float specular = 0;
+	if (Material.y >= 1) specular = sign(diffuse) * pow(clamp(dot(H, N), 0.0, 1.0), Material.y);
 
-	if (Wireframe) {	
-		float dist = evalMinDistanceToEdges(height);
-
-		if (dist > 0.5*LineWidth+1) discard;
-		// Map the computed distance to the [0,2] range on the border of the line.
-		dist = clamp((dist - (0.5*LineWidth - 1)), 0, 2);
-		// Alpha is computed from the function exp2(-2(x)^2).
-		dist *= dist;
-		float alpha = exp2(-2.0*dist);
+	color = 0.2 * (vec4(0.4, 0.4, 0.4, 1.0)) * (diffuse_material);
+	color += visibility * diffuse * diffuse_material * SunColor;
+	color += visibility * specular * SunColor;	
+	
+	for (int i = 0; i < POINT_LIGHTS; i++) {
+		L = point_eye[i];
+		float dist = length(L);
+		L = normalize(L);
+		H = normalize(L + V);
+		diffuse = clamp(dot(L, N), 0.0, 1.0);
+		specular = 0.0;
+		if (Material.y >= 1.0) specular = sign(diffuse) * pow(clamp(dot(H, N), 0.0, 1.0), Material.y);
+		
+		float attenuation = Attenuation[i].x + Attenuation[i].y * dist + Attenuation[i].z * dist * dist;
+		
+		vec4 pcolor = diffuse * diffuse_material * PointColor[i];
+		pcolor += specular * PointColor[i];	
+		pcolor = pcolor * Attenuation[i].w / attenuation;
+		color += pcolor;
 	}
 
-	vec4 V = normalize(g.vertex_eye);
-   	vec4 L = normalize(g.light_eye);
-   	vec4 N = normalize(g.normal_eye); 
-
-	float diffuse = clamp(dot(L, N), 0.0, 1.0);
-   	vec4 R = reflect(-L, N);
-   	float specular = sign(diffuse) * pow(clamp(dot(R, V), 0.0, 1.0), 16);
-	
-	vec4 ambient = vec4(0.2, 0.2, 0.2, 1.0);
-	vec4 specularL = vec4(1, 1, 1, 1.0);
-
-	color = 0.2 * (vec4(0.2, 0.2, 0.2, 1.0) + ambient) * (diffuse_material);
-	color += diffuse * diffuse_material;
-	color += specular * specularL;	
-	color.a *= alpha;
-
 	fColor = color;
+	//fColor = vec4(shadowCoord.Z);
 }

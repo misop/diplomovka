@@ -83,10 +83,10 @@ AnimationController::AnimationController(void)
 	drawWireframe = false;
 	useSSAO = false;
 	useDispalcement = false;
-	pause = false;
+	pause = true;
 	useToonShading = false;
-	drawText = true;
-	drawDebug = true;
+	drawText = false;
+	drawDebug = false;
 	useNormals = true;
 	PixelsPerEdge = 500;
 	time = GetTickCount();
@@ -212,6 +212,7 @@ void AnimationController::LoadModel(string fileName, string texturesFileName) {
 
 void AnimationController::LoadAnimatedModel(int files, string fileName, string texturesFileName) {
 	shared_ptr<GLTexture> diffuse, displacement, normal;
+	glm::vec4 material;
 	for (int i = 0; i < files; i++) {
 		string wholeFileName = fileName;
 		if (i < 10) wholeFileName += "0";
@@ -221,10 +222,12 @@ void AnimationController::LoadAnimatedModel(int files, string fileName, string t
 		models.back()->LoadFromFile(wholeFileName);
 		if (i == 0) {
 			models.back()->LoadTexturesFromFile(texturesFileName);
+			material = models.back()->material;
 			diffuse = models.back()->diffuseTexture;
 			displacement = models.back()->displacementTexture;
 			normal = models.back()->normalTexture;
 		} else {
+			models.back()->material = material;
 			models.back()->diffuseTexture = diffuse;
 			models.back()->displacementTexture = displacement;
 			models.back()->normalTexture = normal;
@@ -1136,6 +1139,7 @@ void AnimationController::DrawSkybox(GLCamera *camera, glm::mat4 &view_matrix) {
 	} else {
 		camera->getCameraMatrices(PROJECTION_MATRIX, VIEW_MATRIX);
 	}
+	glUniform1f(USE_TOON_SHADING, useToonShading);
 
 	glActiveTexture(GL_TEXTURE0);
 	skyboxTexture->Bind();

@@ -1,29 +1,95 @@
 #version 430
 
+#define POINT_LIGHTS 8
+
 layout(vertices = 3) out;
 
-in _{
-	vec4 vertex_eye;
-	vec4 normal_eye;
-	vec4 light_eye;
-} v[];
+layout(location = 0) in vec4 i_vertex_eye[];
+layout(location = 1) in vec4 i_normal_eye[];
+layout(location = 2) in vec4 i_light_eye[];
+layout(location = 3) in vec3 i_tangent_eye[];
+layout(location = 4) in vec3 i_bitangent_eye[];
+layout(location = 5) in vec2 i_uv[];
+layout(location = 6) in vec4 i_normal[];
+layout(location = 7) in vec4 i_shadowCoord[];
+layout(location = 8) in vec4 i_point_eye[][POINT_LIGHTS];
 
 const float tessLevel = 5;
+//screenHeight/pixelsPerEdge
+layout(location = 0) uniform mat4 ModelMatrix;
+layout(location = 1) uniform mat4 ViewMatrix;
+layout(location = 2) uniform mat4 ProjectionMatrix;
+layout(location = 4) uniform vec4 Material;
+layout(location = 5) uniform float PixelsPerEdge;
+layout(location = 8) uniform float ScreenHeight;
 
-out _{
-	vec4 vertex_eye;
-	vec4 normal_eye;
-	vec4 light_eye;
-} tc;
+layout(location = 0) out vec4 vertex_eye[];
+layout(location = 1) out vec4 normal_eye[];
+layout(location = 2) out vec4 light_eye[];
+layout(location = 3) out vec3 tangent_eye[];
+layout(location = 4) out vec3 bitangent_eye[];
+layout(location = 5) out vec2 uv[];
+layout(location = 6) out vec4 normal[];
+layout(location = 7) out vec4 shadowCoord[];
+layout(location = 8) out vec4 point_eye[][POINT_LIGHTS];
+
+//Obtain the diameter of a bounding sphere on each edge transformed into clip space and multiple by the shader constant to obtain a tessellation factor for the edge.
+//Dividing by ClipPos.W will perspective correct the diameter
+float GetPostProjectionSphereExtent(in vec4 Origin, in float Diameter)
+{
+    //vec4 ClipPos = ProjectionMatrix * ViewMatrix * ModelMatrix * Origin;
+	vec4 ClipPos = ProjectionMatrix * Origin;
+    return abs(Diameter * ProjectionMatrix[1][1] / ClipPos.w);
+}
+
+float CalculateTessellationFactor(in vec4 Control0, in vec4 Control1, in vec4 Normal1, in vec4 Normal2)
+{
+	vec4 n = normalize((Normal1 + Normal2)/2.0);
+	//tessellate only facing
+	vec4 eye_dir = vec4(0,0,-1,0);
+	if (dot(eye_dir, n) > 0) {
+		return 1;
+	}
+	//tessellate only in fron of camera
+    //vec4 m0 = (Control0 + Control1)/2;
+    vec4 m0 = (-Control0 - Control1)/2;
+	if (dot(eye_dir, m0) < 0) {
+		return 1;
+	}
+	float dist = 1 - (length(m0) / 3700.0);
+	dist = smoothstep(0.0, 0.5, dist);
+	
+    float e0 = distance(Control0, Control1);
+	float factor = min(Material.x, PixelsPerEdge);
+    return max(1, round(ScreenHeight / factor * GetPostProjectionSphereExtent(m0, e0) * dist));
+    //return max(1, EdgesPerScreenHeight * GetPostProjectionSphereExtent(m0, e0));
+}
 
 void main(void) {
-	//inner level
-    gl_TessLevelInner[0] = tessLevel;
-	//outter levels
-    gl_TessLevelOuter[0] = tessLevel;
-    gl_TessLevelOuter[1] = tessLevel;
-    gl_TessLevelOuter[2] = tessLevel;
-	tc[gl_InvocationID] = v[gl_InvocationID];
+	//set tessellation levels just once
+	if (gl_InvocationID == 0) {
+		//outter levels
+		gl_TessLevelOuter[0] = CalculateTessellationFactor(i_vertex_eye[0], i_vertex_eye[1], i_normal_eye[0], i_normal_eye[1]);
+		gl_TessLevelOuter[1] = CalculateTessellationFactor(i_vertex_eye[1], i_vertex_eye[2], i_normal_eye[1], i_normal_eye[2]);
+		gl_TessLevelOuter[2] = CalculateTessellationFactor(i_vertex_eye[2], i_vertex_eye[0], i_normal_eye[2], i_normal_eye[0]);
+		//gl_TessLevelOuter[0] = CalculateTessellationFactor(gl_in[0].gl_Position, gl_in[1].gl_Position, i_normal_eye[0], i_normal_eye[1]);
+		//gl_TessLevelOuter[1] = CalculateTessellationFactor(gl_in[1].gl_Position, gl_in[2].gl_Position, i_normal_eye[1], i_normal_eye[2]);
+		//gl_TessLevelOuter[2] = CalculateTessellationFactor(gl_in[2].gl_Position, gl_in[0].gl_Position, i_normal_eye[2], i_normal_eye[0]);
+		//inner level
+		//gl_TessLevelInner[0] = max(max(gl_TessLevelOuter[0], gl_TessLevelOuter[1]), gl_TessLevelOuter[2]);
+		gl_TessLevelInner[0] = (gl_TessLevelOuter[0] + gl_TessLevelOuter[1] + gl_TessLevelOuter[2]) / 3.0;
+	}
+	//pass parameters
+	vertex_eye[gl_InvocationID] = i_vertex_eye[gl_InvocationID];
+	normal_eye[gl_InvocationID] = i_normal_eye[gl_InvocationID];
+	light_eye[gl_InvocationID] = i_light_eye[gl_InvocationID];
+	tangent_eye[gl_InvocationID] = i_tangent_eye[gl_InvocationID];
+	bitangent_eye[gl_InvocationID] = i_bitangent_eye[gl_InvocationID];
+	uv[gl_InvocationID] = i_uv[gl_InvocationID];
+	normal[gl_InvocationID] = i_normal[gl_InvocationID];
+	shadowCoord[gl_InvocationID] = i_shadowCoord[gl_InvocationID];
+	for (int i = 0; i < POINT_LIGHTS; i++)
+		point_eye[gl_InvocationID][i] = i_point_eye[gl_InvocationID][i];
 
 	gl_out[gl_InvocationID].gl_Position = gl_in[gl_InvocationID].gl_Position;
 }
