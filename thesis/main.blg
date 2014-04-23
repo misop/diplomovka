@@ -3,6 +3,5 @@ A level-1 auxiliary file: frontmatter/cover.aux
 A level-1 auxiliary file: frontmatter/title.aux
 The style file: ieeetr.bst
 Database file #1: bibliography.bib
-Too many commas in name 1 of "Oscar Kin-Chung Au, Chiew-Lan Tai, Hung-Kuo Chu, Daniel Cohen-Or and Tong-Yee Lee" for entry laplac
-while executing---line 963 of file ieeetr.bst
-(There was 1 error message)
+Warning--I didn't find a database entry for "laplac_phd"
+(There was 1 warning)

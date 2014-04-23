@@ -9,6 +9,9 @@ in vec4 gPatchDistanceCtrl;
 in vec3 gVertex;
 in vec3 gNormal;
 in vec3 gColor;
+in vec4 vertex_eye;
+in vec4 normal_eye;
+in vec4 light_eye;
 
 uniform vec3 LightPosition;
 uniform vec3 DiffuseColor;

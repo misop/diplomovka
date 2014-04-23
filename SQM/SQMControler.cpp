@@ -120,7 +120,7 @@ void SQMControler::saveSkeletonToFile(string fileName) {
 	node2->addChild(node8);
 	node2->addChild(node9);
 	node8->addChild(node10);
-	node9->addChild(node11);
+	node9->addChild(node11);*/
 	//TODO convert SQM tree to skeleton nodes
 	try {
 	oa << BOOST_SERIALIZATION_NVP(node);	
@@ -430,6 +430,7 @@ void SQMControler::drawSkeleton(OpenGLPrograms *programs, GLCamera *camera) {
 
 	programs->SklNodes->Use();
 	camera->lookFromCamera(programs->SklNodes->getUniformLocation(MVP_MATRIX_STR));
+	camera->getViewMatrix(programs->SklNodes->getUniformLocation(VIEW_MATRIX_STR));
 	glUniformMatrix4fv(programs->SklNodes->getUniformLocation(MODEL_MATRIX_STR), 1, GL_FALSE, glm::value_ptr(camera->cameraModelMatrix()));
 	glUniform1f(programs->SklNodes->getUniformLocation(TESS_LEVEL_INNER_STR), TESSELATION_LEVEL);
 	glUniform1f(programs->SklNodes->getUniformLocation(TESS_LEVEL_OUTER_STR), TESSELATION_LEVEL);
@@ -439,6 +440,7 @@ void SQMControler::drawSkeleton(OpenGLPrograms *programs, GLCamera *camera) {
 	glPatchParameteri(GL_PATCH_VERTICES, 3);
 	for (int i = 0; i < modelMatrices.size(); i++) {
 		glUniformMatrix4fv(programs->SklNodes->getUniformLocation(MODEL_MATRIX_STR), 1, GL_FALSE, glm::value_ptr(modelMatrices[i]));
+		camera->setupNormalMatrix(modelMatrices[i], programs->SklNodes->getUniformLocation(NORMAL_MATRIX_STR));
 		if (selectedIndex == i) {
 			glUniform3f(programs->SklNodes->getUniformLocation(DIFFUSE_COLOR_STR), 0.91, 0.67, 0.1);
 		} else {
@@ -452,6 +454,7 @@ void SQMControler::drawBNPs(OpenGLPrograms *programs, GLCamera *camera) {
 	//show camera
 	programs->SklNodes->Use();
 	camera->lookFromCamera(programs->SklNodes->getUniformLocation(MVP_MATRIX_STR));
+	camera->getViewMatrix(programs->SklNodes->getUniformLocation(VIEW_MATRIX_STR));
 	glUniformMatrix4fv(programs->SklNodes->getUniformLocation(MODEL_MATRIX_STR), 1, GL_FALSE, glm::value_ptr(camera->cameraModelMatrix()));
 	glUniform1f(programs->SklNodes->getUniformLocation(TESS_LEVEL_INNER_STR), TESSELATION_LEVEL);
 	glUniform1f(programs->SklNodes->getUniformLocation(TESS_LEVEL_OUTER_STR), TESSELATION_LEVEL);
@@ -544,6 +547,7 @@ void SQMControler::drawMesh(OpenGLPrograms *programs, GLCamera *camera) {
 	//show camera
 	programs->SklNodes->Use();
 	camera->lookFromCamera(programs->SklNodes->getUniformLocation(MVP_MATRIX_STR));
+	camera->getViewMatrix(programs->SklNodes->getUniformLocation(VIEW_MATRIX_STR));
 	glUniformMatrix4fv(programs->SklNodes->getUniformLocation(MODEL_MATRIX_STR), 1, GL_FALSE, glm::value_ptr(camera->cameraModelMatrix()));
 	glUniform1f(programs->SklNodes->getUniformLocation(TESS_LEVEL_INNER_STR), TESSELATION_LEVEL);
 	glUniform1f(programs->SklNodes->getUniformLocation(TESS_LEVEL_OUTER_STR), TESSELATION_LEVEL);
@@ -567,6 +571,7 @@ void SQMControler::drawMeshForTesselation(OpenGLPrograms *programs, GLCamera *ca
 	programs->SklNodes->Use();
 	glPatchParameteri(GL_PATCH_VERTICES, 3);
 	camera->lookFromCamera(programs->SklNodes->getUniformLocation(MVP_MATRIX_STR));
+	camera->getViewMatrix(programs->SklNodes->getUniformLocation(VIEW_MATRIX_STR));
 	glUniformMatrix4fv(programs->SklNodes->getUniformLocation(MODEL_MATRIX_STR), 1, GL_FALSE, glm::value_ptr(camera->cameraModelMatrix()));
 	glUniform1f(programs->SklNodes->getUniformLocation(TESS_LEVEL_INNER_STR), TESSELATION_LEVEL);
 	glUniform1f(programs->SklNodes->getUniformLocation(TESS_LEVEL_OUTER_STR), TESSELATION_LEVEL);
@@ -578,6 +583,7 @@ void SQMControler::drawMeshForTesselation(OpenGLPrograms *programs, GLCamera *ca
 	glPatchParameteri(GL_PATCH_VERTICES, 3);
 	camera->lookFromCamera(programs->TriMeshTess->getUniformLocation(MVP_MATRIX_STR));
 	camera->setupNormalMatrix(programs->TriMeshTess->getUniformLocation(NORMAL_MATRIX_STR));
+	camera->getViewMatrix(programs->TriMeshTess->getUniformLocation(VIEW_MATRIX_STR));
 	glUniform3f(programs->TriMeshTess->getUniformLocation(LIGHT_POSITION_STR), eye.x, eye.y, eye.z);
 	glUniform4f(programs->TriMeshTess->getUniformLocation(AMBIENT_COLOR_STR), 0.0, 0.75, 0.75, 0.1);
 	glUniform3f(programs->TriMeshTess->getUniformLocation(DIFFUSE_COLOR_STR), 0.0, 0.75, 0.75);
@@ -594,6 +600,7 @@ void SQMControler::drawMeshForTesselation(OpenGLPrograms *programs, GLCamera *ca
 
 	camera->lookFromCamera(programs->QuadMeshTess->getUniformLocation(MVP_MATRIX_STR));
 	camera->setupNormalMatrix(programs->QuadMeshTess->getUniformLocation(NORMAL_MATRIX_STR));
+	camera->getViewMatrix(programs->QuadMeshTess->getUniformLocation(VIEW_MATRIX_STR));
 	camera->setupModelViewMatrix(programs->QuadMeshTess->getUniformLocation(MODEL_VIEW_MATRIX_STR));
 	//glUniform3f(programs->QuadMeshTess->getUniformLocation(LIGHT_POSITION_STR), eye.x, eye.y, eye.z);
 	glUniform4f(programs->QuadMeshTess->getUniformLocation(AMBIENT_COLOR_STR), 0.0, 0.75, 0.75, 0.1);

@@ -343,6 +343,20 @@ void SQMNode::removeDescendant(SQMNode* node) {
 	}
 }
 
+void SQMNode::deleteDescendant(SQMNode* node) {
+	for (vector<SQMNode *>::iterator it = nodes.begin(); it != nodes.end(); it++) {
+		if ((*it) == node) {
+			it = nodes.erase(it);
+			vector<SQMNode*> *descendants = node->getDescendants();
+			for (int i = 0; i < (*descendants).size(); i++) {
+				(*descendants)[i]->setParent(this);
+				nodes.push_back((*descendants)[i]);
+			}
+			return;
+		}
+	}
+}
+
 void SQMNode::removeDescendants() {
 	nodes.clear();
 }

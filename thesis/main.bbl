@@ -1,26 +1,38 @@
 \begin{thebibliography}{10}
 
 \bibitem{laplac}
-H.-K. C. D. C.-O. Oscar Kin-Chung~Au, Chiew-Lan~Tai and T.-Y. Lee, ``Skeleton
+O.~K.-C. Au, C.-L. Tai, H.-K. Chu, D.~Cohen-Or, and T.-Y. Lee, ``Skeleton
   extraction by mesh contraction.,'' {\em ACM SIGGRAPH 2008 papers}, pp.~1--10,
   2008.
 
 \bibitem{ji_bm}
-Z.~J.~L. Liu and Y.~Wang, ``B-mesh: A fast modeling system for base meshes of
+Z.~Ji, L.~Liu, and Y.~Wang, ``B-mesh: A fast modeling system for base meshes of
   3d articulated shapes,'' {\em ComputGraphForum}, vol.~29, no.~7,
-  p.~2169–77, 2010.
+  p.~2169–2177, 2010.
 
 \bibitem{sqm}
-J.~A. B. M.~K. Misztal and K.~Welnicka, ``Converting skeletal structures to
-  quad dominant meshes,'' {\em Computers \& Graphics}, vol.~36, no.~5,
-  pp.~555--561, 2012.
+J.~A. Bærentzen, M.~K. Misztal, and K.~Welnicka, ``Converting skeletal
+  structures to quad dominant meshes,'' {\em Computers \& Graphics}, vol.~36,
+  no.~5, pp.~555--561, 2012.
 
 \bibitem{sqm_phd}
 M.~M. Donnell, ``Skeleton-based and interactive 3d modeling,'' Master's thesis,
   Technical University of Denmark, 2012.
 
-\bibitem{laplac_phd}
-M.~Madaras, ``Todo,'' Master's thesis, Comenius university of Bratislava, TODO.
+\bibitem{wireframes}
+V.~Srinivasan, E.~Mandal, and E.~Akleman, ``Solidifying wireframes,'' {\em
+  Proceedings of the 2004 bridges conference on mathematical connections in
+  art, music, and science}, 2005.
+
+\bibitem{blocks}
+L.~Leblanc, J.~Houle, and P.~Poulin, ``Modeling with blocks,'' {\em Vis
+  Comput}, pp.~555--563, 2011.
+
+\bibitem{mat}
+R.~Tam and W.~Heidrich, ``Shape simplification based on the medial axis
+  transform,'' in {\em Proceedings of the 14th IEEE Visualization 2003
+  (VIS'03)}, VIS '03, (Washington, DC, USA), pp.~63--, IEEE Computer Society,
+  2003.
 
 \bibitem{Kavan-07-SDQ}
 L.~Kavan, S.~Collins, J.~Zara, and C.~O'Sullivan, ``Skinning with dual
@@ -52,18 +64,24 @@ O.~Mathematics, ``A {C}++ mathematics library for graphics programming.''
 \newblock [Online; accessed 24-February-2014].
 
 \bibitem{gregory_patch}
-C.~Loop, S.~Schaefer, T.~Ni, and I.~Casta\~{n}o, ``Approximating subdivision
+C.~Loop, S.~Schaefer, Ni, T.~Ni, and I.~C. {n}o, ``Approximating subdivision
   surfaces with gregory patches for hardware tessellation,'' {\em ACM Trans.
   Graph.}, vol.~28, pp.~151:1--151:9, Dec. 2009.
 
 \bibitem{gpu_gems_2}
-M.~Pharr and R.~Fernando, {\em GPU Gems 2: Programming Techniques for
-  High-Performance Graphics and General-Purpose Computation (Gpu Gems)}, ch.~7.
+M.~Pharr, R.~Fernando, and T.~Sweeney, {\em GPU Gems 2: Programming Techniques
+  for High-Performance Graphics and General-Purpose Computation (Gpu Gems)},
+  ch.~7.
 \newblock Addison-Wesley Professional, 2005.
 
 \bibitem{wireframe}
 A.~B{\ae}rentzen, S.~L. Nielsen, M.~Gj{\o}l, B.~D. Larsen, and N.~J.
   Christensen, ``Single-pass wireframe rendering,'' in {\em ACM SIGGRAPH 2006
   Sketches}, SIGGRAPH '06, (New York, NY, USA), ACM, 2006.
+
+\bibitem{lplants}
+P.~Prusinkiewicz and A.~Lindenmayer, {\em The Algorithmic Beauty of Plants (The
+  Virtual Laboratory)}.
+\newblock Springer, 1996.
 
 \end{thebibliography}

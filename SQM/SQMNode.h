@@ -146,6 +146,7 @@ public:
 	void rotateDescendants(Quaternion q, CVector3 offset);
 	void addDescendant(float x, float y, float z);
 	void removeDescendant(SQMNode* node);
+	void deleteDescendant(SQMNode* node);
 	void removeDescendants();
 	void setX(float newX);
 	void setY(float newY);

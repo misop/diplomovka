@@ -1,1 +1,38 @@
 \chapter{Conclusion}
+
+We have developed an interactive application in which artist can create complex skeletal structures.
+The generated skeletons are automatically converted to base manifold meshes.
+The procedure is fully automatic and no user interaction is needed.
+Our algorithm also improves on already existing algorithms.
+Or algorithm can handle base meshes from linear skeletons which do not have branch nodes.
+Skeletons, which root is not a branch node, can also be generated naturally with our algorithm.
+Explicitly defined cyclic skeletons of arbitrary topology can be set as input to our algorithm.
+The algorithm is capable of generating a base mesh with genus corresponding to the input skeleton.
+To accelerate the computation of the algorithm we have implemented one step of the algorithm in GPU, thereby saving CPU processing time.
+We have also generalized spherical nodes of the input skeleton to ellipsoids.
+The computation of ellipsoid nodes is also accelerated on the GPU.
+Lastly we are using tessellation shaders to subdivide the generated base mesh and improve its visual quality.
+
+The generated base meshes have good edge flow and can be animated with standard animation techniques.
+Base meshes consists mainly from quadrilateral faces.
+Triangular faces are present only at leaf nodes.
+Computation of a base mesh is very fast as even complex meshes can be computed in milliseconds.
+Our technique is fully automatic and does not require any additional input from the user during generation of base meshes.
+
+\section{Future work}
+
+\paragraph{Parallel computation}
+Every step of the algorithm has just one pre-condition.
+When we are processing a node the only pre-condition is that the nodes parent was already processed.
+We could take advantage of this fact and accelerate base mesh generation even further.
+At each branch node we can start a parallel computation of its child nodes.
+With faster base mesh generation we are able to use base meshes as placeholder in complex applications.
+Fully detailed animated models are expensive and time consuming.
+Our method could generate base meshes on the fly directly during animation.
+This way the animation can be produced meanwhile artist create more sophisticated and detailed models.
+
+\paragraph{Procedural mesh generation}
+Skeletal structures corresponding to plants can be generated using L-Systems \cite{lplants}.
+Such skeletal structures could be send directly into our application and their corresponding base meshes could be recovered using our algorithm.
+Procedurally generated displacement maps could be used to add finer details to the generated base meshes of plants.
+Entire bioms of procedurally generated plants could be generated on the fly.

@@ -20,7 +20,7 @@ Finally, we will describe our implementation of base manifold mesh library.
 
 We have selected C++ as programming language.
 The main reasons are that C++ is fast and well established programming language.
-Also he open source libraries that we intended to use are available for C++ and many of them are available exclusively for C++.
+Also the open source libraries that we intended to use are available for C++ and many of them are available exclusively for C++.
 As IDE we are using Visual Studio 2012, which was the newest version of Visual Studio, when we started our work.
 Visual Studio is supported by all of the used libraries.
 We have used nVidia nSight for Visual Studio 2012 that is a debugger for graphics cards, which allows to set breakpoints in shaders during execution. We have also used several open source libraries in our project. We will briefly describe the key libraries.
@@ -44,7 +44,7 @@ This allows us to replace algorithms, without affecting the rest of the code.
 The relationships between the most important classes are shown in Figure \ref{fig:classes}.
 Model provides interface for the controller, which allows to query models data, for visualization.
 The interface provided by model also allows to change its state and attributes of various classes.
-View also provides an interface for the controller, which allows the controller to display models data.
+View provides an interface for the controller, which allows the controller to display models data.
 Views is also capable of receiving users input, either via mouse or by setting values exactly in an inspector panel.
 Controller connects model and view together.
 At constant intervals, data from model and input from view are gathered.
@@ -53,8 +53,8 @@ The model is updated according to users input and the data changes are immediate
 \begin{figure}[h]
     \centering
     \includegraphics[width=\textwidth]{images/classes}
-    \label{fig:classes}
     \caption[Component diagram of classes]{Component diagram of most important classes, forming the model-view-controller pattern.}
+    \label{fig:classes}
 \end{figure}
 
 \subsection{Model}
@@ -99,8 +99,8 @@ Transitions through junction node represent the possibility to jump between any 
 \begin{figure}[h]
     \centering
     \includegraphics[width=\textwidth]{images/states}
-    \label{fig:states}
     \caption[Model state diagram]{State diagram of model. Arrows between states show application work flow. Transition between any states is possible through the junction node.}
+    \label{fig:states}
 \end{figure}
 
 \subsubsection{BMMNode}
@@ -149,12 +149,12 @@ Corresponding model matrices are used to position the tessellated sphere at skel
 BNP generation and BNP refinement states also share the same shader programs.
 Upon entering these states all polyhedrons are queried from the model.
 The queried polyhedrons are converted from half edge representation to indexed face representation and stored in buffers on GPU.
-The shader program, responsible for rendering of polyhedrons, features one-pass wire-frame rendering and uniform shading for each triangle.
+The shader program, responsible for rendering of polyhedrons, features one-pass wireframe rendering and uniform shading for each triangle.
 This settings are useful for visualization of generated polyhedrons.
 
 In the last two states BNP joining and final vertex placement, the generated base mesh is converted from half edge to indexed face.
 Quadrilateral parts of the mesh are send as quadrilaterals to GPU for tessellation.
-Shader program for base mesh rendering displays uniformly shaded faces and wire-frame.
+Shader program for base mesh rendering displays uniformly shaded faces and wireframe.
 The shader program is also capable of Linear Blend Skinning computations, that transform the input mesh.
 Currently they are used only to revert transformations applied during skeleton straightening.
 
@@ -183,8 +183,8 @@ Mouse wheel translates the camera along its view direction and therefore produce
 \begin{figure}[h]
     \centering
     \includegraphics[width=\textwidth]{images/camera_selection}
-    \label{fig:camera_selection}
     \caption[Camera selection]{Camera selection in 3D. Mouse 2D location is mapped onto near plane and a ray is casted through the scene. The first object hit by the ray is selected.}
+    \label{fig:camera_selection}
 \end{figure}
 
 \subsection{Controller}
@@ -200,7 +200,7 @@ Then controller serializes and stores the received skeletal structure.
 Through a different interface, BMMController can query the generated base mesh, represented as Wavefront .obj and store it in a file.
 Since controllers only interaction with model is providing input and output, it can be replaced at any time to accommodate for a different application.
 For example in a library for base manifold mesh generation, where a one-shot algorithm would be desired, the controller would  send input skeleton to BMMAlgorithm.
-Let BMMAlgorithm execute and return the generated base mesh either a Wavefron .obj suitable for storing or transferring to a different application, indexed face data structure suitable for rendering or in half edge data structure suitable for further mesh processing.
+Let BMMAlgorithm execute and return the generated base mesh either as a Wavefron .obj suitable for storing or transferring to a different application, indexed face data structure suitable for rendering or in half edge data structure suitable for further mesh processing.
 
 \section{GPU Shaders}
 
@@ -217,13 +217,14 @@ Application responsibility then becomes to send data to graphics card in appropr
 Shaders can be linked together to form a program that is responsible for drawing on GPU.
 Each type of shader can be presented in a program only once.
 GLSL version 430 features these types of shaders, listed in order of execution:
+\pagebreak
 \begin{itemize}
 	\itemsep-0.25em 
-	\item \textbf{Vertex Shader} - must be implemented in every shader program. It purpus is to transform position of vertices sent to GPU.
+	\item \textbf{Vertex Shader} - must be implemented in every shader program. Its purpose is to transform position of vertices sent to GPU.
 	\item \textbf{Tessellation Control shader} - optional shader. Sets the level of tessellation that should be produced by hardware.
 	\item \textbf{Tessellation Evaluation shader} - optional shader. Its main purpose is to adjust the position of vertices generated by tessellation.
-	\item \textbf{Geometry shader} - optinal shader. Serves to generate new geometry directly on graphics hardware.
-	\item \textbf{Fragment shader} - must be implemented in every shader program. Serves to defines the color of each fragment, from its material, lighting, etc.
+	\item \textbf{Geometry shader} - optional shader. Serves to generate new geometry directly on graphics hardware.
+	\item \textbf{Fragment shader} - must be implemented in every shader program. Defines the color of each fragment, from its material, lighting, etc.
 \end{itemize}
 We have implemented various specialized shaders.
 In this section we will describe the most interesting and important of our implemented shaders.
@@ -242,7 +243,7 @@ This combination of matrices produces junctions that are not self collapsing.
 Since we are using only two matrices per vertex, most of the matrices have assigned a weight of 0, so we can send as per-vertex data only weight for actually used matrices.
 We are only sending weights for used matrices we also need to send index for each used matrix.
 In practice GLSL reserves for each per-vertex attribute a space that can hold a vector of four components.
-So we are sending four weights and four indices for each vertex, even though only two of them are used, this can potentially allows us to use mor complex skinning animations if we so desire.
+So we are sending four weights and four indices for each vertex, even though only two of them are used, this can potentially allows us to use more complex skinning animations if we so desire.
 Skinning matrices can be send to GPU in two ways.
 The former is to send skinning matrices as uniforms, the latter is sending them in a texture.
 Sending skinning matrices via textures is more general approach as a shader could be compiled just once and used for models with arbitrary number of bones.
@@ -312,7 +313,7 @@ We used two approaches to propagate skinning information from original patch ver
 According to patch vertex order shown in Figure \ref{fig:tess_patch}, we can apply skinning information corresponding to the second patch vertex to all newly generated vertices.
 This way the new vertices would be oriented directly towards the last vertices of each patch.
 Source code of this approach is shown in Listing \ref{lst:te_last_skin}.
-Firs a matrix is determined depending on parameter $v$.
+First a matrix is determined depending on parameter $v$.
 Vertices lying on patch borders have applied the same skinning transformations as patch vertices.
 The new vertices do not use the second transformation matrix, because they are not directly joined to a different bone and do not need to be equally split between two bones.
 
@@ -361,32 +362,32 @@ vec3 skinningAvarage(in vec4 pos, in float v, in ivec2 id0, in ivec2 id1, in vec
 \linespread{1.5}
 
 The resulting tessellated meshes are shown in Figure \ref{fig:tess_skin_comp}.
-Mesh skinned in vertex shader Figure \ref{fig:tess_skin_comp} (a) produces visual artifacts at each node of the skeleton.
-Last only tessellation evaluation skinning Figure \ref{fig:tess_skin_comp} (b) reduces visual artifacts and keeps the volume of the input.
-Avarage tessellation evaluation shader skinning Figure \ref{fig:tess_skin_comp} (c) produces the smallest number of visual artifacts.
+Mesh skinned in vertex shader Figure \ref{fig:tess_skin_comp}a produces visual artifacts at each node of the skeleton.
+Last only tessellation evaluation skinning Figure \ref{fig:tess_skin_comp}b reduces visual artifacts and keeps the volume of the input.
+Avarage tessellation evaluation shader skinning Figure \ref{fig:tess_skin_comp}c produces the smallest number of visual artifacts.
 
 \begin{figure}[h]
     \centering
     \includegraphics[width=\textwidth]{images/tess_comp}
+    \caption[Skinning and Tessellation]{Effects of selected skinning method on tessellation results. (a) vertex shader skinning; (b) last only tessellation evaluation shader skinning; (c) all average tessellation evaluation shader.}
     \label{fig:tess_skin_comp}
-    \caption[Skinning and Tessellation]{Effects of selected skinning method on tessellation results. (a) vertex shader skinning; (b) last only tessellation evaluation shader skinning; (c) all average tessellation evaluation shader;}
 \end{figure}
 
 \subsection{Tessellation and Smoothing}
 
 If tessellation is enabled OpenGL is rendering patches instead of triangles.
 A patch can be composed of arbitrary number of vertices, however the number must be constant among all rendered patches.
-Since we are tessellating quads our patch is composed from four vertices.
+Since we are tessellating quadrilaterals our patch is composed from four vertices.
 Our patch is depicted in Figure \ref{fig:tess_patch}.
 Vertices forming the patch are in counter-clockwise order starting with v0.
-Uv coordinates are displayed with blue and red respectively.
+Uv coordinates are displayed with blue and red, respectively.
 These coordinates are used to determine the position of new vertices generated during tessellation.
 
 \begin{figure}[h]
     \centering
     \includegraphics[height=15em]{images/tess_patch}
-    \label{fig:tess_patch}
     \caption[Tessellation patch]{A patch used to draw during tessellation. Patch vertices are marked with black, uv coordinates on patch are shown in blue and red respectively.}
+    \label{fig:tess_patch}
 \end{figure}
 
 The new vertices lie on the same plane as the original quadrilateral.
@@ -401,7 +402,7 @@ An example of such a shader is shown in Listing \ref{lst:tess_proj}.
 However with this procedure the tessellated mesh gains volume, which could lead into self intersection.
 In order to avoid this self intersection we are smoothing patches whose vertices have too sharp angles and therefore could potentially intersect with another patch.
 We are using ease-in, ease-out and ease-in-out, depending on if the bottom patch vertices (v0, v3), upper patch vertices (v1, v2) or both have sharp angles with their neighbours respectively.
-The sharpness of angles is computed by thresh holding the angle between normal of each vertex and v direction of current patch.
+The sharpness of angles is computed by thresholding the angle between normal of each vertex and v direction of current patch.
 Another disadvantage of this approach are visual artifacts, that are produced when we are applying Linear Blend Skinning and were discussed previously.
 
 \linespread{1.2}
@@ -445,9 +446,9 @@ void main() {
 \end{lstlisting} 
 \linespread{1.5}
 
-\subsection{One-pass Wire-frame}
+\subsection{One-pass Wireframe}
 
-We have implemented one-pass wire frame rendering method as described in Single-pass Wireframe Rendering \cite{wireframe}.
+We have implemented one-pass wireframe rendering method as described in Single-pass Wireframe Rendering \cite{wireframe}.
 This technique serves for many visualization purposes.
 We can see triangles and quadrilaterals generated by our base mesh algorithm.
 We can also display wireframe for new triangles generated during tessellation.

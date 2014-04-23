@@ -38,29 +38,33 @@ Branch nodes in their skeletons usually have better distribution of neighbours w
 \begin{figure}
         \centering
         \begin{subfigure}[b]{0.4\textwidth}
+        	\centering
                 \includegraphics[width=\textwidth]{images/pavuk_kostra.png}
-                \caption{Original spider input skeleton}
+                \caption{Original spider input skeleton.}
                 \label{fig:pavuk_skl_1}
         \end{subfigure}%
         ~ %add desired spacing between images, e. g. ~, \quad, \qquad etc.
           %(or a blank line to force the subfigure onto a new line)
         \begin{subfigure}[b]{0.4\textwidth}
+        	\centering
                 \includegraphics[width=\textwidth]{images/pavuk_fail.png}
-                \caption{Base mesh from original skeleton with undesired mesh topology}
+                \caption{Base mesh from original skeleton with undesired mesh topology.}
                 \label{fig:pavuk_mesh_1}
         \end{subfigure}
         \\ %add desired spacing between images, e. g. ~, \quad, \qquad etc.
           %(or a blank line to force the subfigure onto a new line)
         \begin{subfigure}[b]{0.4\textwidth}
+        	\centering
                 \includegraphics[width=\textwidth]{images/pavuk_kostra_upravena.png}
-                \caption{Changed input skeleton to allow better triangulation}
+                \caption{Changed input skeleton to allow better triangulation.}
                 \label{fig:pavuk_skl_2}
         \end{subfigure}
         ~ %add desired spacing between images, e. g. ~, \quad, \qquad etc.
           %(or a blank line to force the subfigure onto a new line)
         \begin{subfigure}[b]{0.4\textwidth}
+        	\centering
                 \includegraphics[width=\textwidth]{images/pavuk_dobry.png}
-                \caption{Final base mesh with extra triangular faces but acceptable mesh topology}
+                \caption{Final base mesh with extra triangular faces but acceptable mesh topology.}
                 \label{fig:pavuk_mesh_2}
         \end{subfigure}
         \caption[Base mesh of a spider]{Base mesh of a spider.}\label{fig:pavuk}
@@ -93,29 +97,33 @@ A cyclic input skeleton is shown in Figure \ref{fig:cyclic_skl} and its correspo
 \begin{figure}[h]
         \centering
         \begin{subfigure}[b]{0.4\textwidth}
+        	\centering
                 \includegraphics[width=\textwidth]{images/cerv_skl.png}
-                \caption{Linear skeleton}
+                \caption{Linear skeleton.}
                 \label{fig:lin_skl}
         \end{subfigure}%
         \qquad %add desired spacing between images, e. g. ~, \quad, \qquad etc.
           %(or a blank line to force the subfigure onto a new line)
         \begin{subfigure}[b]{0.4\textwidth}
+        	\centering
                 \includegraphics[width=\textwidth]{images/cerv_mesh.png}
-                \caption{Tessellated linear base mesh}
+                \caption{Tessellated linear base mesh.}
                 \label{fig:lin_mesh}
         \end{subfigure}%
         \\ %add desired spacing between images, e. g. ~, \quad, \qquad etc.
           %(or a blank line to force the subfigure onto a new line)
         \begin{subfigure}[b]{0.5\textwidth}
+        	\centering
                 \includegraphics[width=\textwidth]{images/cycle_skl.png}
-                \caption{Cyclic skeleton}
+                \caption{Cyclic skeleton.}
                 \label{fig:cyclic_skl}
         \end{subfigure}%
         ~ %add desired spacing between images, e. g. ~, \quad, \qquad etc.
           %(or a blank line to force the subfigure onto a new line)
         \begin{subfigure}[b]{0.5\textwidth}
+        	\centering
                 \includegraphics[width=\textwidth]{images/cycle_mesh.png}
-                \caption{Base mesh with genus four}
+                \caption{Base mesh with genus four.}
                 \label{fig:cyclic_mesh}
         \end{subfigure}
         \caption[Cyclic and linear base meshes]{Cyclic and linear base meshes.}\label{fig:pavuk}
@@ -149,15 +157,17 @@ After tessellation the base mesh is shown in Figure \ref{fig:tess}.
 \begin{figure}[h]
         \centering
         \begin{subfigure}[b]{0.25\textwidth}
+        	\centering
                 \includegraphics[height=\textwidth]{images/capsule.png}
-                \caption{Leaf node capsule}
+                \caption{Leaf node capsule.}
                 \label{fig:caps}
         \end{subfigure}%
         \qquad %add desired spacing between images, e. g. ~, \quad, \qquad etc.
           %(or a blank line to force the subfigure onto a new line)
         \begin{subfigure}[b]{0.4\textwidth}
+        	\centering
                 \includegraphics[width=\textwidth]{images/ryba_mesh.png}
-                \caption{Fish with ellipsoid nodes}
+                \caption{Fish with ellipsoid nodes.}
                 \label{fig:fish}
         \end{subfigure}
         \caption[Capsules and ellipsoid nodes]{Capsules and ellipsoid nodes.}\label{fig:caps_ell}
@@ -166,18 +176,66 @@ After tessellation the base mesh is shown in Figure \ref{fig:tess}.
 \begin{figure}[h]
         \centering
         \begin{subfigure}[b]{0.4\textwidth}
-                \includegraphics[width=\textwidth]{images/not_tessellated_mesh.png}
-                \caption{Not tessellated mesh}
+        	\centering
+                \includegraphics[width=0.8\textwidth]{images/not_tessellated_mesh.png}
+                \caption{Not tessellated mesh.}
                 \label{fig:no_tess}
         \end{subfigure}
         \qquad %add desired spacing between images, e. g. ~, \quad, \qquad etc.
           %(or a blank line to force the subfigure onto a new line)
         \begin{subfigure}[b]{0.4\textwidth}
-                \includegraphics[width=\textwidth]{images/tessellated_mesh.png}
-                \caption{Tessellated mesh}
+        	\centering
+                \includegraphics[width=0.8\textwidth]{images/tessellated_mesh.png}
+                \caption{Tessellated mesh.}
                 \label{fig:tess}
         \end{subfigure}
         \caption[Tessellation results]{Tessellation results.}\label{fig:tes_notess}
+\end{figure}
+
+\section{Comparison with SQM algorithm}
+
+Our algorithm is also capable of generating base meshes from skeletons on which SQM would fail.
+For example in Figure \ref{fig:comp_eel} we can see a fish produced in SQM without ellipsoid nodes.
+The generated base mesh resembles an eel.
+Our algorithm with ellipsoid nodes, Figure \ref{fig:comp_fish}, produces a base mesh that corresponds to a fish.
+In Figure \ref{fig:comp_cycle} we can see a cyclic mesh generated by our algorithm.
+We tried to generate similar mesh in SQM from the same skeleton, Figure \ref{fig:comp_cycle_sqm}.
+Producing a similar mesh in SQM is not possible as the cycles do not lie in symmetrical region of the input skeleton and SQM would not close them.
+
+\begin{figure}[ht]
+        \centering
+        \begin{subfigure}[b]{0.45\textwidth}
+        	\centering
+			\includegraphics[width=0.8\textwidth]{images/ryba_no_elips}
+            \caption{Fish without ellipsoid nodes generated by SQM.}
+            \label{fig:comp_eel}
+        \end{subfigure}%
+        ~ %add desired spacing between images, e. g. ~, \quad, \qquad etc.
+          %(or a blank line to force the subfigure onto a new line)
+        \begin{subfigure}[b]{0.45\textwidth}
+        	\centering
+			\includegraphics[width=0.7\textwidth]{images/ellipsoid_fish_ilu_2}
+            \caption{Fish with ellipsoid nodes generated by our algorithm.}
+            \label{fig:comp_fish}
+        \end{subfigure}
+        \\ %add desired spacing between images, e. g. ~, \quad, \qquad etc.
+          %(or a blank line to force the subfigure onto a new line)
+        \begin{subfigure}[b]{0.45\textwidth}
+        	\centering
+			\includegraphics[width=0.9\textwidth]{images/goat_amput_sqm_3}
+            \caption{Mesh from cyclic skeleton generated by SQM.}
+            \label{fig:comp_cycle_sqm}
+        \end{subfigure}
+        ~ %add desired spacing between images, e. g. ~, \quad, \qquad etc.
+          %(or a blank line to force the subfigure onto a new line)
+        \begin{subfigure}[b]{0.45\textwidth}
+        	\centering
+			\includegraphics[width=0.9\textwidth]{images/goat_amput_3}
+            \caption{Mesh from cyclic skeleton generated by our algorithm.}
+            \label{fig:comp_cycle}
+        \end{subfigure}
+        \caption{Comparision of SQM (left) to our implementation (right).}
+        \label{fig:comp_ilu}
 \end{figure}
 
 \section{Computation time}
@@ -186,15 +244,14 @@ In Table \ref{tab:models} we show the details about measured models.
 For each model its total number of nodes as well as node distribution is shown.
 Table \ref{tab:results} shows how much time each stage of our base manifold mesh algorithm takes.
 Time was measured on Intel\textsuperscript{\textregistered}  Core\textsuperscript{TM} i7-3615QM a four core processor with each core clocked at 2.3 GHz.
-Time is measured in computer clock clicks.
-Each click on our platform took one millisecond.
+Time is measured in milliseconds.
 From the table, we can see that the joining step, during which the tubular structure is generated, took the most time.
 Therefore, it is a candidate for optimization since other steps of the algorithm took nearly no time to execute.
 However, even at current speed we can generate base meshes at interactive frame rate.
 For example the goat creature, shown in Figure \ref{fig:result_goat}, can be generated 13.5 times per second.
 From the tables we can also conclude that computation time is also highly dependant on the number of branch nodes and their number of neighbours.
-For example a dummy consisting of 140 nodes is computed in 57 computer clock clicks.
-On the other hand a goat creature with 150 nodes is computed in 74 computer clock clicks.
+For example a dummy consisting of 140 nodes is computed in 57 milliseconds.
+On the other hand a goat creature with 150 nodes is computed in 74 milliseconds.
 
 BNP generation and subdivision steps are dependant on the number of branch nodes and number of neighbours of each branch node.
 The more neighbours a node has the longer it takes to execute the triangulation.
@@ -234,6 +291,6 @@ The BNP joining step is limited by our used data structure.
   goat & 1 & 16 & 10 & 47 & 74 \\
   tree & 3 & 28 & 15 & 50 & 96 \\ \hline
 \end{tabular}
-\caption[Table show statics of base mesh algorithm]{Table show statics of base mesh algorithm. From left to right: name of the model, timing of each step of the algorithm measured in computer clock clicks.}
+\caption[Table show statics of base mesh algorithm]{Table show statics of base mesh algorithm. From left to right: name of the model, timing of each step of the algorithm measured in milliseconds.}
 \label{tab:results}
 \end{table}
