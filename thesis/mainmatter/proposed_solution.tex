@@ -18,11 +18,11 @@ In fact, we do not even need the bind skeleton itself because the positions can 
 
 We want to calculate the rotation that would transform a node from its bind pose to its reference pose.
 We know that the nodes parent is already in reference pose.
-We also know that bind pose was constructed in such a way that all connection nodes childes are co-linear and preserve the distances between nodes.
+We also know that bind pose was constructed in such a way that all connection nodes child nodes are co-linear and preserve the distances between nodes.
 That means from nodes parent reference pose we can calculate where would the node be in bind pose, if we would apply on it the same transformation matrices as were applied to its parent node.
 The distance between parent and child nodes remains constant in both poses. And the direction at which the child node would be in bind pose is the same as the direction from its grandparent node to its parent node.
 Now we only need to store the rotation between calculated child node position in bind pose and its actual position in reference pose with respect to its parent node.
-The following formula demonstrates the calculation of a quaternion required to transform one node from straightened bind pose to input reference pose:
+The following algorithm demonstrates the calculation of a quaternion required to transform one node from straightened bind pose to input reference pose:
 \begin{align*}
 node& \leftarrow nodeInReferencePose \\
 parent& = node.Parent \\
@@ -49,7 +49,7 @@ rotation& = QuaternionBetweenVectors(u, v)
 %\end{figure}
 
 \section{BNP generation}\label{sec:bnp_gen}
-For each branch node we calculate the direction from said branch node to each of its children and to its parent. Then we create rays with origin in branch nodes position and direction corresponding to the direction calculated previously. These rays can be seen in Figure \ref{fig:bnp_gen_ilu}a as blue arrows. We calculate the intersection of each of these rays with a sphere associated with the branch node. We store each intersection in a set of intersection points. Now we triangulate the intersection points. Different algorithms can be used to achieve the same effect, but we have picked Delaunay triangulation in spherical domain, which was also used in the original paper. The algorithm works like standard Delaunay triangulation, but the predicate deciding whatever newly inserted triangle would lie in the circle of an already existing triangle is replaced. The new predicate compares angle between the newly inserted triangles normal with normals of already existing triangles. Result of triangulation is shown in Figure \ref{fig:bnp_gen_ilu}b as the blue triangle. We will use indexed face representation of the mesh, since taht is the output of Delaunnay triangulation. The generated polyhedron is now subdivided by inserting a point in the center of each face and in the middle of each edge. The vertex inserted in the center of each face is then connected with all vertices corresponding to the same face. So each triangle is subdivided into six smaller triangles. The newly inserted points are then projected onto the sphere associated with the node. The subdivision and projection is necessary because otherwise polyhedrons that would be generated with co-planar, or nearly co-planar intersection points would have no volume or very little volume, respectively. To project the newly inserted vertices onto the sphere, we once again use a ray-sphere intersection. The origin of the ray is the position of each newly inserted vertex. The direction of the ray is mean normal of the faces that are connected with the vertex. This means that for the vertices in the center of each face the normal of the subdivided face is used. For vertices inserted in the middle of each edge the mean normal of faces corresponding to that edge is used. Final polyhedron is shown in Figure \ref{fig:bnp_gen_ilu}c.
+For each branch node we calculate the direction from said branch node to each of its children and to its parent. Then we create rays with origin in branch nodes position and direction corresponding to the direction calculated previously. These rays can be seen in Figure \ref{fig:bnp_gen_ilu}a as blue arrows. We calculate the intersection of each of these rays with the sphere associated with the branch node. We store each intersection in a set of intersection points. Now we triangulate the intersection points. Different algorithms can be used to achieve the same effect, but we have picked Delaunay triangulation in spherical domain which was also used in the original paper. The algorithm works like standard Delaunay triangulation. With one exception the predicate deciding whatever newly inserted triangle would lie in the circle of an already existing triangle is replaced. The new predicate compares angle between the newly inserted triangles normal with normals of already existing triangles. Result of triangulation is shown in Figure \ref{fig:bnp_gen_ilu}b as the blue triangle. We will use indexed face representation of the mesh, since that is the output of Delaunnay triangulation. The generated polyhedron is now subdivided by inserting a point in the center of each face and in the middle of each edge. The vertex inserted in the center of each face is then connected with all vertices corresponding to the same face. So each triangle is subdivided into six smaller triangles. The newly inserted points are then projected onto the sphere associated with the node. The subdivision and projection is necessary because otherwise polyhedrons that would be generated with co-planar or nearly co-planar intersection points would have zero volume or very small volume, respectively. To project the newly inserted vertices onto the sphere, we once again use a ray-sphere intersection. The origin of the ray is the position of each newly inserted vertex. The direction of the ray is mean normal of the faces that are connected with the vertex. This means that for the vertices in the center of each face the normal of the subdivided face is used. For vertices inserted in the middle of each edge the mean normal of faces corresponding to that edge is used. Final polyhedron is shown in Figure \ref{fig:bnp_gen_ilu}c.
 
 \begin{figure}[h]
     \centering
@@ -58,7 +58,7 @@ For each branch node we calculate the direction from said branch node to each of
     \label{fig:bnp_gen_ilu}
 \end{figure}
 
-Triangulation of intersection vertices can sometimes create obtuse triangles. These are problematic, because when we insert the vertex in the middle of an obtuse triangle the one-rings of intersection vertices are not convex. That is if we would project them onto a plane defined by their principal axis and one of the vertices, the resulting polygon would not be convex. In Figure \ref{fig:obtus_tri_ilu} we can see on the left how a polyhedron looks when it is generated with obtuse triangles. Expected central vertex position is marked by red arrow, also expected edges are marked as yellow lines. This is not desirable, since it would cause problems during cyclic mesh generation. To remedy this situation we calculate the projection of the central vertex in a different manner. The origin of its ray is still vertex position. But we use a new direction vector. This vector is the normal of a triangle formed by the projected points that were inserted in the middle of each edge. The result can be seen in Figure \ref{fig:obtus_tri_ilu} on the right.
+Triangulation of intersection vertices can sometimes create obtuse triangles. These are problematic because when we insert the vertex in the middle of an obtuse triangle the one-rings of intersection vertices are not convex. If we would project the one-ring of the intersection vertex onto a plane, which is defined by the intersection point and the direction from skeletal nodes position to the intersection point, the resulting planar polygon would not be convex. In Figure \ref{fig:obtus_tri_ilu} we can see on the left how a polyhedron looks when it is generated with obtuse triangles. Expected central vertex position is marked by red arrow and expected edges are marked as yellow lines. This is not desirable since it would cause problems during cyclic mesh generation. To remedy this situation we calculate the projection of the central vertex in a different manner. The origin of its ray is still vertex position. But we use a new direction vector. This vector is the normal of a triangle formed by the projected points that were inserted in the middle of each edge. The result can be seen in Figure \ref{fig:obtus_tri_ilu} on the right.
 
 \begin{figure}[h]
     \centering
@@ -68,14 +68,14 @@ Triangulation of intersection vertices can sometimes create obtuse triangles. Th
 \end{figure}
 
 \section{BNP refinement}\label{sec:bnp_sub}
-During the penultimate step of the algorithm, BNP joining, we want to connect two BNPs, with tube consisting solely from quadrilaterals. To ensure that we can use quadrilaterals only, we want intersection vertices connected via a path, to have the same number of nodes in their one-ring neighbourhood. We take the notion of Link Intersection Edge (LIE) from \cite{sqm}. A LIE is a set of edges that are between vertices of two intersection vertices one-ring neighbourhoods, as can be seen in Figure \ref{fig:refinement_ilu}a. One LIE is represented with yellow colored edges and second LIE is represented with red colored edges. The refining of one BNP is a one-pass procedure. Since we will often need to access the one-ring neighbourhood of a vertex, we convert our mesh to half-edge representation.
+During the penultimate step of the algorithm, BNP joining, we want to connect two BNPs, with tube consisting solely from quadrilaterals. To ensure that we can use quadrilaterals only, we want intersection vertices connected via a path, to have the same number of nodes in their one-ring neighbourhood. We take the notion of Link Intersection Edge (LIE) from \cite{sqm}. A LIE is a set of edges that are between vertices of two intersection vertices one-ring neighbourhoods. In Figure \ref{fig:refinement_ilu}a one LIE is represented with yellow colored edges and a second LIE is represented with red colored edges. The refining of one BNP is a one-pass procedure. Since we will often need to access the one-ring neighbourhood of a vertex, we convert our mesh to half-edge representation.
 
 \paragraph{Preprocessing}
-We start the refining of a BNP by creating a map of LIEs, corresponding to each intersection vertex. For each intersection vertex, we store its corresponding LIEs, as well as the number of splits required by that vertex, to have the same valency as its corresponding vertex. An intersection vertex can be connected with three types of vertices. Each type defines how much we can split LIEs, corresponding to that intersection vertex.
+We start the refining of a BNP by creating a map of LIEs corresponding to each intersection vertex. For each intersection vertex, we store its corresponding LIEs, as well as the number of splits required by that vertex, to have the same valency as its corresponding vertex. An intersection vertex can be connected with three types of vertices. Each type defines how much we can split LIEs, corresponding to that intersection vertex.
 \begin{itemize}
 	\itemsep-0.25em 
-	\item \textbf{Parents intersection vertex} - the number of splits is fixed. That is after splitting the valency of these two vertices must be exactly the same. This is necessary otherwise splits in child BNP could cause splits in parents BNP, which could result in infinite loops.
-	\item \textbf{Branch node intersection vertex} - difference between valencies of the two vertices is calculated. If the number is negative, that is corresponding vertex has smaller valency, we prefer not to split LIEs corresponding to current intersection vertex. If the number is positive, that is corresponding vertex has higher valency, we split LIEs corresponding to current intersection vertex so that the vertex has at least the same valency as its corresponding vertex.
+	\item \textbf{Parents intersection vertex} - the number of splits is fixed. That is after splitting the valence of these two vertices must be exactly the same. This is necessary otherwise splits in child BNP could cause splits in parents BNP, which could result in infinite loops.
+	\item \textbf{Branch node intersection vertex} - difference between valencies of the two vertices is calculated. If the number is negative, that is corresponding vertex has smaller valence, we prefer not to split LIEs corresponding to current intersection vertex. If the number is positive, that is corresponding vertex has higher valence, we split LIEs corresponding to current intersection vertex so that the vertex has at least the same valence as its corresponding vertex.
 	\item \textbf{Leaf node} - corresponding LIEs can be split as much as needed.
 \end{itemize}
 
@@ -87,34 +87,34 @@ We start the refining of a BNP by creating a map of LIEs, corresponding to each 
 \end{figure}
 
 \paragraph{Subdivision}
-We loop through all intersection vertices, starting with the intersection vertex connected with parents BNP and continuing with the rest. In each cycle, we split LIEs corresponding to current intersection vertex, until the valency of the intersection vertex is equal to its required number of splits. Every time we want to split a LIE we heuristically select the best, based on two filters. The first filter is the splitting required by the other intersection vertex belonging to the same LIE. If two or more LIEs require the same number of splits, we use a second filter. This filter picks the LIE that was split the least. When we are splitting a LIE, we always split a representative edge, which is the first edge of the LIE. Because of that we need to apply a smoothing scheme to roughly equalize the lengths of edges in a LIE. 
+We loop through all intersection vertices, starting with the intersection vertex connected with parents BNP and continuing with the rest. In each cycle, we split LIEs corresponding to current intersection vertex, until the valence of the intersection vertex is equal to its required number of splits. Every time we want to split a LIE we heuristically select the best based on two filters. The first filter is the splitting required by the other intersection vertex belonging to the same LIE. If two or more LIEs require the same number of splits we use a second filter. This filter picks the LIE that was split the least. When we are splitting a LIE, we always split a representative edge which is the first edge of the LIE. Because of that we need to apply a smoothing scheme to roughly equalize the lengths of edges in a LIE. 
 
-The whole process can be seen in Figure \ref{fig:refinement_ilu}. In Figure \ref{fig:refinement_ilu}a the yellow circle marks an intersection vertex that needs to be split twice. Yellow edges represent a LIE corresponding to second intersection vertex and red edges represent a LIE corresponding to third intersection vertex. Both LIEs have the same need to be split and none of them was split previously. For the first split the yellow LIE is selected, subdivided once and smoothed. The result of the first split is shown in Figure \ref{fig:refinement_ilu}b. For the second split the need of both LIEs is still the same. But yellow LIE was already split, so this time the red LIE is selected, subdivided and smoothed. Final refined BNP is shown in Figure \ref{fig:refinement_ilu}c.
+The whole process can be seen in Figure \ref{fig:refinement_ilu}. In Figure \ref{fig:refinement_ilu}a the yellow circle marks an intersection vertex that needs to be split twice. Yellow edges represent a LIE corresponding to second intersection vertex and red edges represent a LIE corresponding to third intersection vertex. Both LIEs have the same need to be split and none of them was split previously. For the first split the yellow LIE is selected subdivided once and smoothed. The result of the first split is shown in Figure \ref{fig:refinement_ilu}b. For the second split the need of both LIEs is still the same. But yellow LIE was already split so this time the red LIE is selected, subdivided, and smoothed. Final refined BNP is shown in Figure \ref{fig:refinement_ilu}c.
 
 \subsection{Smoothing}
-Since we always split only one representative edge of a LIE, we are applying a smoothing scheme, to equalize the length of edges in a subdivided LIE. The smoothing is very important, because generated base mesh quality directly depends on the selected smoothing scheme. Ideally, the length of each edge in a smoothed LIE would be equal. However since smoothing is applied after every subdivision, the smoothing algorithm should be reasonably fast. We propose four smoothing schemes. These smoothing schemes are illustrated in Figure \ref{fig:smoothing_ilu}, where the polyhedron from Figure \ref{fig:refinement_ilu}a is subdivided twice and then smoothed with various smoothing schemes.
+Since we always split only one representative edge of a LIE we are applying a smoothing scheme to equalize the length of edges in a subdivided LIE. The smoothing is very important because generated base mesh quality directly depends on the selected smoothing scheme. Ideally, the length of each edge in a smoothed LIE would be equal. However since smoothing is applied after every subdivision the smoothing algorithm should be reasonably fast. We propose four smoothing schemes. These smoothing schemes are illustrated in Figure \ref{fig:smoothing_ilu} where the polyhedron from Figure \ref{fig:refinement_ilu}a is subdivided twice and then smoothed with various smoothing schemes.
 
 \paragraph{Averaging smoothing}
-New position for each vertex on a LIE is calculated by averaging one-ring neighbourhood corresponding to the vertex. We start with the last vertex of a LIE, that is the vertex on the last edge of a LIE and move towards the first vertex. We move each vertex, except the first and the last vertices, to the barycentre of its one-ring neighbourhood and project them back onto the sphere corresponding to BNPs node. The resulting smoothed polyhedron is shown in Figure \ref{fig:smoothing_ilu}a. This approach is iterative and would need several iteration to achieve global optimum, however we have found that one iteration is enough for our needs.
+New position for each vertex on a LIE is calculated by averaging one-ring neighbourhood corresponding to the vertex. We start with the last vertex of a LIE that is the vertex on the last edge of a LIE and move towards the first vertex. We move each vertex, except the first and the last vertices, to the barycentre of its one-ring neighbourhood and project them back onto the sphere corresponding to BNPs node. The resulting smoothed polyhedron is shown in Figure \ref{fig:smoothing_ilu}a. This approach is iterative and would need several iteration to achieve global optimum. However, we have found that one iteration is enough for our needs.
 
 \paragraph{Quaternion smoothing}
-For each LIE we calculate a quaternion representing the rotation from the first vertex of the LIE to the last vertex of the LIE. From each quaternion we extract its corresponding axis of rotation and angle of rotation. We smooth only points between the first and the last vertex, so the calculated axis of rotation and angle are constant. During each smoothing step, we first count the number of vertices in a LIE. Then we divide the angle of rotation by that number and form a new quaternion from already calculated axis of rotation and the newly calculated angle. For each vertex in a LIE between first and last we apply the rotation stored in the quaternion and update its position. This method produces LIEs, that lie on small circles of their corresponding sphere. The spacing between vertices is regular and thus its very suitable for our needs. The result of quaternion smoothing is shown in Figure \ref{fig:smoothing_ilu}b.
+For each LIE we calculate a quaternion representing the rotation from the first vertex of the LIE to the last vertex of the LIE. From each quaternion we extract its corresponding axis of rotation and angle of rotation. We smooth only points between the first and the last vertex so the calculated axis of rotation and angle are constant. During each smoothing step we first count the number of vertices in a LIE. Then we divide the angle of rotation by that number and form a new quaternion from already calculated axis of rotation and the newly calculated angle. For each vertex in a LIE between first and last we apply the rotation stored in the quaternion and update its position. This method produces LIEs that lie on small circles of their corresponding sphere. The spacing between vertices is regular and thus its very suitable for our needs. The result of quaternion smoothing is shown in Figure \ref{fig:smoothing_ilu}b.
 
 \paragraph{Area weighted Laplacian}
-For Laplacian smoothing we have adapted the algorithm described in \cite{laplac_phd}. The weights used for smoothing are based on the one-ring area of each vertex. We use one iteration of Laplacian smoothing and then project the new vertices back onto their corresponding sphere. The result is shown in Figure \ref{fig:smoothing_ilu}c. The result is usable, since the edges have better distributed length, than without smoothing. But averaging and quaternion smoothing produce results of better quality.
+For Laplacian smoothing we have adapted the algorithm described in \cite{laplac}. The weights used for smoothing are based on the one-ring area of each vertex. We use one iteration of Laplacian smoothing and then project the new vertices back onto their corresponding sphere. The result is shown in Figure \ref{fig:smoothing_ilu}c. The result is usable since the edges have better distributed length, than without smoothing. However, averaging and quaternion smoothing produce results of better quality.
 
 \begin{figure}[h]
     \centering
     \includegraphics[width=\textwidth]{images/smoothing_ilu.png}
-    \caption[LIE smoothing schemes]{LIE smoothing schemes. (a) shows results after applying averaging smoothing; (b) quaternion smoothing; (c) area weighted Laplacian smoothing; (d) valency weighted Laplacian smoothing.}
+    \caption[LIE smoothing schemes]{LIE smoothing schemes. Shows results after applying: (a) averaging smoothing; (b) quaternion smoothing; (c) area weighted Laplacian smoothing; (d) valence weighted Laplacian smoothing.}
     \label{fig:smoothing_ilu}
 \end{figure}
 
-\paragraph{Valency weighted Laplacian}
-We use the same algorithm as for area weighted Laplacian, but we use different weights for vertices. The weights depend on the valency of each vertex. After Laplacian smoothing vertices are projected back onto their corresponding sphere. The result of this smoothing is very similar to area weighted Laplacian and is shown in Figure \ref{fig:smoothing_ilu}d.
+\paragraph{valence weighted Laplacian}
+We use the same algorithm as for area weighted Laplacian with different different contraction weights. The weights depend on the valence of each vertex. After Laplacian smoothing vertices are projected back onto their corresponding sphere. The result of this smoothing is very similar to area weighted Laplacian and is shown in Figure \ref{fig:smoothing_ilu}d.
 
 \section{BNP joining}\label{sec:bnp_join}
-After refinement of BNPs intersection vertices connected via path have the same valency. Now BNPs can be joined by tubes consisting from quadrilaterals only. We loop through each branch node in a depth-first search from skeletons root. We process each BNP in the following manner. We start with the whole BNP Figure \ref{fig:joining_process_ilu}a. We loop through all intersection vertices corresponding to current BNP. We remove each intersection vertex and its corresponding faces and edges from current BNP. In Figure \ref{fig:joining_process_ilu}b we can see the removal of third intersection vertex after first and second intersection vertices were joined. After the removal of an intersection vertex we continue joining all nodes on the path that produced the removed intersection vertex. We take the vertices forming the former one-ring of the removed intersection vertex. For each connection node on the path we duplicate the one-ring vertices, translate them to the nodes position and project them onto the sphere associated with the connection node. For the translation we construct a plane. The origin of the plane is the position of the connection node. The normal is the vector from the branch node to the connection node. Each vertex is translated along the normal until it lies on the plane. The projection is done by normalizing the vector from connection nodes position to each vertex, and multiplying it by the radius of connection nodes corresponding sphere. These new vertices are then connected with previous set of vertices with faces and they are passed as current one-ring vertices for joining. In Figure \ref{fig:joining_process_ilu}c, we can see the translated connection node vertices, before projection was applied. In Figure \ref{fig:joining_process_ilu}d, the duplicated one-ring vertices are projected onto their associated sphere. After going through all connection nodes we can end either in a branch node or in a leaf node.
+After refinement of BNPs intersection vertices connected via path have the same valence. Now BNPs can be joined by tubes consisting from quadrilaterals only. We loop through each branch node in a depth-first search from skeletons root. We process each BNP in the following manner. We start with the whole BNP Figure \ref{fig:joining_process_ilu}a. We loop through all intersection vertices corresponding to current BNP. We remove each intersection vertex and its corresponding faces and edges from current BNP. In Figure \ref{fig:joining_process_ilu}b we can see the removal of third intersection vertex after first and second intersection vertices were joined. After the removal of an intersection vertex we continue joining all nodes on the path that produced the removed intersection vertex. We take the vertices forming the former one-ring of the removed intersection vertex. For each connection node on the path we duplicate the one-ring vertices, translate them to the nodes position and project them onto the sphere associated with the connection node. For the translation we construct a plane. The origin of the plane is the position of the connection node. The normal is the vector from the branch node to the connection node. Each vertex is translated along the normal until it lies on the plane. The projection is done by normalizing the vector from connection nodes position to each vertex and multiplying it by the radius of connection nodes corresponding sphere. These new vertices are then connected with previous set of vertices with faces and they are passed as current one-ring vertices for joining. In Figure \ref{fig:joining_process_ilu}c, we can see the translated connection node vertices, before projection was applied. In Figure \ref{fig:joining_process_ilu}d the duplicated one-ring vertices are projected onto their associated sphere. After going through all connection nodes we can end either in a branch node or in a leaf node.
 
 \begin{figure}[h]
     \centering
@@ -127,12 +127,12 @@ After refinement of BNPs intersection vertices connected via path have the same 
 We start by removing the destination branch node corresponding intersection vertex and faces and edges connected to it. The tube generated from connection nodes should be joined with destination intersection vertex former one-ring. For this we need to find two corresponding vertices, which would form the first pair and define the pairing of the rest of the vertices. We can use multiple methods to find the first pair. The choice of the method affect output base mesh quality, as a wrong selection can lead into twists in the base mesh. We tested three methods.
 \begin{itemize}
 	\itemsep-0.25em 
-	\item \textbf{Minimal Euclidean distance} - An arbitrary vertex is selected from current one-ring and its euclidean distance to each vertex of destination one-ring is calculated. We match the vertex with the closest one. The main disadvantage of this method is that it is greedy end ends in local minima. That is to have the best overall mesh quality a more distant vertex would be a better choice. This can be seen in Figure \ref{fig:join_pairing_ilu}a, where some connecting faces are twisted.
-	\item \textbf{Minimal angle} - An arbitrary vertex is selected from the current one-ring. The direction from the selected vertex to each vertex of destination one-ring is calculated. Then we calculate the angle between this direction and the direction from original branch node to destination branch node. As a match we pick a vertex, where the calculated angle was minimal. As before this method is greedy and can fall into local minima. An example of this is shown in Figure \ref{fig:join_pairing_ilu}b, where some faces connecting the hand are twisted.
-	\item \textbf{Minimal total euclidean distance} - An arbitrary vertex is selected from current one-ring. We pair the vertex with each vertex of destination one-ring. Each pair defines a mapping from the current one-ring vertices to destination one-ring vertices. We calculate the euclidean distance between all paired vertices and store it as total euclidean distance. Then we pick as pair the vertex where the total distance was minimal. The disadvantage of this approach is that it takes longer to compute, but it avoids local minima, by testing all the possible solutions and picking the best one. Since one-rings usually consist of few vertices, we have decided to use this method. The resulting mesh using this pairing is shown in Figure \ref{fig:join_pairing_ilu}c. Among the possible results in Figure \ref{fig:join_pairing_ilu}c has minimal twisting compared to Figure \ref{fig:join_pairing_ilu}a and Figure \ref{fig:join_pairing_ilu}b. 
+	\item \textbf{Minimal Euclidean distance} - An arbitrary vertex is selected from current one-ring and its euclidean distance to each vertex of destination one-ring is calculated. We match the vertex with the closest one. The main disadvantage of this method is that it is greedy end ends in local minima. That is to have the best overall mesh quality a more distant vertex would be a better choice. This can be seen in Figure \ref{fig:join_pairing_ilu}a where some connecting faces are twisted.
+	\item \textbf{Minimal angle} - An arbitrary vertex is selected from the current one-ring. The direction from the selected vertex to each vertex of destination one-ring is calculated. Then we calculate the angle between this direction and the direction from original branch node to destination branch node. As a match we pick a vertex where the calculated angle was minimal. As before this method is greedy and can fall into local minima. An example of this is shown in Figure \ref{fig:join_pairing_ilu}b where some faces connecting the hand are twisted.
+	\item \textbf{Minimal total euclidean distance} - An arbitrary vertex is selected from current one-ring. We pair the vertex with each vertex of destination one-ring. Each pair defines a mapping from the current one-ring vertices to destination one-ring vertices. We calculate the euclidean distance between all paired vertices and store it as total euclidean distance. Then we pick as pair the vertex where the total distance was minimal. The disadvantage of this approach is that it takes longer to compute. The advantage is that this approach avoids local minima by testing all the possible solutions and picking the best one. Since one-rings usually consist of few vertices we have decided to use this method. The resulting mesh using this pairing is shown in Figure \ref{fig:join_pairing_ilu}c. Among the possible results in Figure \ref{fig:join_pairing_ilu}c has minimal twisting compared to Figure \ref{fig:join_pairing_ilu}a and Figure \ref{fig:join_pairing_ilu}b. 
 \end{itemize}
 
-When the pairing of vertices is defined, new edges can be formed between each pair and connect the geometry.
+When the pairing of vertices is defined new edges can be formed between each pair and connect the geometry.
 
 \begin{figure}[h]
     \centering
@@ -142,7 +142,7 @@ When the pairing of vertices is defined, new edges can be formed between each pa
 \end{figure}
 
 \paragraph{Leaf node termination}
-As in original paper \cite{sqm}, we have decided to terminate leaf nodes with triangular faces. Each face has two vertices from the current one-ring and one vertex is the position of the leaf node.
+As in original paper \cite{sqm} we have decided to terminate leaf nodes with triangular faces. Each face has two vertices from the current one-ring and one vertex is the position of the leaf node.
 
 \section{Final vertex placement}\label{sec:fvp}
 We use quaternions calculated during skeleton straightening.
@@ -150,16 +150,16 @@ For each skeletal node we accumulate the final rotation in a matrix.
 Matrices are used because they are more suitable for GPU calculations than quaternions.
 Linear blend skinning, as described in \cite{Kavan-07-SDQ}, is used to combine skinning matrices corresponding to each vertex on GPU.
 We apply skinning transformation on GPU in vertex or tessellation shaders.
-We have also implemented Linear Blend Skinning on CPU.
-This is advantageous for comparison purposes, as well as when we are generating base meshes from cyclic skeletons.
-Since we are using triangulations on CPU to close generate cyclic skeletons, we need to apply Linear Blend Skinning before the triangulations.
-Skinning could be still calculated on GPU and the resulting geometry could be send back to CPU for processing, however we have found that our generated base meshes are relatively simple and the overhead from transmitting data between CPU and GPU is unnecessary.
+We have also implemented linear blend skinning on CPU.
+This is advantageous for comparison purposes as well as when we are generating base meshes from cyclic skeletons.
+Since we are using triangulations on CPU to close generate cyclic skeletons, we need to apply linear blend skinning before the triangulations.
+Skinning could be still calculated on GPU and the resulting geometry could be send back to CPU for processing. However, we have found that our generated base meshes are relatively simple and the overhead from transmitting data between CPU and GPU is unnecessary.
 
 \section{Ellipsoid Nodes}
 An ellipsoid can be defined as a sphere with associated transformation matrix.
 We take advantage of this representation of ellipsoids.
 Instead of more complex ray-ellipsoid intersection that would have to be computed at each ellipsoid node, we have decided to represent each ellipsoid node as a sphere and a transformation matrix.
-First our base mesh algorithm is evaluated as described in Chapter~\ref{ch:proposed_solution} with spherical nodes.
+First our base mesh algorithm is evaluated as described in previously with spherical nodes.
 After that we send the transformation matrices corresponding to each ellipsoid node to GPU.
 The vertices corresponding to each ellipsoid node are transformed directly in vertex shader.
 Thanks to this, ellipsoid nodes require minimal extra computing resources from CPU.
@@ -179,7 +179,7 @@ The base of the cone has the radius of parent spherical node and the top of the 
 Each vertex generated during tessellation is projected onto this cone.
 The projection is done by translating the vertex along its normal until it reaches the surfaces of the cone.
 Tessellation is shown in Figure \ref{fig:tessellation_ilu}, the generated base mesh is shown in Figure \ref{fig:tessellation_ilu}a and the tessellated base mesh in Figure \ref{fig:tessellation_ilu}b.
-However during this step the generated base mesh gains volume and the newly generated vertices can intersect the tessellated base mesh.
+However, during this step the generated base mesh gains volume and the newly generated vertices can intersect the tessellated base mesh.
 This effect can be seen in Figure \ref{fig:tessellation_ilu}c.
 To recover from this situation, we detect sharp vertices in the input mesh and apply a radius scaling scheme.
 Sharp vertices are vertices which faces are forming acute angles.
@@ -187,13 +187,13 @@ In tessellation shader we have access only to one patch and its vertices.
 So we compute the sharpness of each vertex by comparing and thresholding the normal of each vertex with the normal of the patch.
 The smaller the angle between vertex normal and patch direction is, the sharper the vertex is.
 We apply Bézier curves to modify the radius of the truncated cone.
-We use bezier curves that yield values between $[0;1]$.
+We use Bézier curves that yield values between $[0;1]$.
 For each tessellated vertex its distance from the beginning of the patch is calculated.
-The distance is equal to tessellation parameter v computed by the GPU.
+The distance is equal to tessellation parameter $v$ computed by the GPU.
 Scaling reduction factor is calculated by sampling a point on Bézier curve at point $t = distance$.
 The radius of each vertex is then multiplied with calculated factor.
 The smoothed mesh is shown in Figure \ref{fig:tessellation_ilu}d.
-Currently, the scaling bezier curve is constant, but it could be dynamically changed based on the sharpness of the vertices.
+Currently, the scaling bezier curve is constant but it could be dynamically changed based on the sharpness of the vertices.
 
 \begin{figure}[ht]
     \centering
@@ -203,15 +203,16 @@ Currently, the scaling bezier curve is constant, but it could be dynamically cha
 \end{figure}
 
 \section{Capsule Ending}
+A capsule is a hemisphere generated at each leaf node of the input skeleton.
+This hemisphere replaces the triangle fan pyramid generated by original SQM algorithm.
 Generating of capsules can be approached in two ways.
 The first is to generate a capsule at each leaf node corresponding to its radius.
 The second is inserting additional nodes into the input skeleton with decreasing radius that would approximate a capsule.
 We have implemented the second approach because it fits nicely into our pipeline.
 Capsules generated this way, can be directly tessellated on the GPU without any additional processing.
-At each capsule leaf node, we insert additional nodes into the input skeleton, proportional to the radius of the capsule node.
-This transformation is shown in Figure \ref{fig:capsule_ilu} where the input skeleton Figure \ref{fig:capsule_ilu}a transforms into Figure \ref{fig:capsule_ilu}b.
+At each capsule leaf node, we insert additional nodes into the input skeleton proportional to the radius of the capsule node.
 The radius of each node is decreased according to Equation \ref{eq:radius_change} where $nodeRadius$ is the radius of capsule node and $step$ is a number between $(0-1]$, that represents the distance from center of the capsule to its edge.
-Final tessellated capsule is shown in Figure \ref{fig:capsule_ilu}c.
+Final tessellated capsule is shown in Figure \ref{fig:capsule_ilu}.
 
 \begin{equation}
 newRadius = \sqrt{nodeRadius^{2} * (1 - step^{2})}
@@ -220,23 +221,23 @@ newRadius = \sqrt{nodeRadius^{2} * (1 - step^{2})}
 
 \begin{figure}[ht]
     \centering
-    \includegraphics[width=0.5\textwidth]{images/capsule_process}
-    \caption[Capsule generation]{Capsule generation. (a) input skeleton; (b) skeleton with generated extra nodes; (c) tessellated base mesh with capsule.}
+    \includegraphics[width=0.5\textwidth]{images/capsule}
+    \caption[Capsule generation]{Capsule generated by our algorithm and tessellated on GPU in tessellation shaders.}
     \label{fig:capsule_ilu}
 \end{figure}
 
 \section{Linear Skeletons}
 Linear skeletons without branch nodes lack the initial geometry that is generated during BNP generation step described in Section~\ref{sec:bnp_gen}.
-Additional nodes could be inserted into the input skeleton to form at least one branch node, but we have found that it needlessly disturbs the flow of the output mesh.
+Additional nodes could be inserted into the input skeleton to form at least one branch node but we have found that it needlessly disturbs the flow of the output mesh.
 Instead we decided to use a different approach.
-We introduce an additional input parameter $N$ which specifies how many vertices should be generated, for each node of the linear skeleton.
+We introduce an additional input parameter $N$ which specifies how many vertices should be generated for each node of the linear skeleton.
 This parameter does not decrease the robustness of our approach, because additional vertices are generated during tessellation and the original number of vertices is negligible.
 
 First step of the algorithm is setting the root to be the head of the input linear skeleton.
 Next step of the algorithm is straightening of the input linear skeleton.
 The input skeleton is shown in Figure \ref{fig:worm_ilu}a.
-Next, $N$ vertices are generated around first connection node, which is a child of the root node.
-These vertices are distributed regularly around the node by slerping a quaternion, which center of rotation is nodes position, axis of rotation is the direction from connection node to root node and magnitude is $360/N$.
+Next, $N$ vertices are generated around first connection node which is a child of the root node.
+These vertices are distributed regularly around the node by slerping a quaternion which center of rotation is nodes position, axis of rotation is the direction from connection node to root node and magnitude is $360/N$.
 Newly generated vertices are then joined with other vertices as in original base mesh algorithm.
 Leaf nodes form a triangle fan and connection nodes form a tube of quadrilaterals.
 The joined linear base mesh is shown in Figure \ref{fig:worm_ilu}b.
@@ -244,7 +245,7 @@ Skinning matrices are used to transform the generated linear skeleton into its i
 
 \begin{figure}[ht]
     \centering
-    \includegraphics[width=0.5\textwidth]{images/worm_generation}
+    \includegraphics[width=0.7\textwidth]{images/worm_generation}
     \caption[Linear base mesh]{Linear base mesh generation. (a) input linear skeleton; (b) straightened and joined linear skeleton; (c) final linear base mesh.}
     \label{fig:worm_ilu}
 \end{figure}
@@ -286,8 +287,8 @@ This way we ascend along the skeleton, until we reach the former root node and t
 \section{Cyclic Skeletons}
 Our last improvement is generation of base meshes from cyclic skeletons.
 The cycle can be placed anywhere in the input skeleton.
-The base algorithm could not be modified to allow generation of cyclic meshes, because during BNP refinement step of the algorithm a cycle could cause an infinite loop.
-However we can modify the input skeleton in a way that would allow us to generate cyclic skeletons.
+The base algorithm could not be modified to allow generation of cyclic meshes because during BNP refinement step of the algorithm a cycle could cause an infinite loop.
+However, we can modify the input skeleton in a way that would allow us to generate cyclic skeletons.
 As the input we have a cyclic skeleton Figure \ref{fig:cycle_skeleton}.
 Cyclic edge is marked with yellow color and cyclic nodes with green and violet colors.
 
@@ -299,10 +300,10 @@ The triangles that should been generated for light green and pink nodes were omi
 Now the gap between cyclic nodes can be closed.
 We first project vertices associated to each cyclic node to a plane with origin at $O(0, 0, 0)$ and normal $n(0, 1, 0)$.
 Next, we normalize the vertices so that vertices associated with violet node lie at a circumference with radius 1 and vertices associated with green node lie at circumference with radius 2.
-The position of projected points is shown in Figure \ref{fig:cycle_del_before}, where vertices associated with green node have green color and vertices associated with violet node have violet color.
+The position of projected points is shown in Figure \ref{fig:cycle_del_before} where vertices associated with green node have green color and vertices associated with violet node have violet color.
 Now we execute a Delaunay triangulation on the transformed points.
 After the triangulation is done, we exclude triangles generated solely between green or violet vertices.
-The remaining triangles represent the faces that should be generated in order to close the gap between cyclic nodes, as can be seen in Figure \ref{fig:cycle_del_after}.
+The remaining triangles represent the faces that should be generated in order to close the gap between cyclic nodes as can be seen in Figure \ref{fig:cycle_del_after}.
 Final cyclic mesh is shown in Figure \ref{fig:cycle_after}.
 
 %\begin{figure}[ht]
@@ -324,7 +325,7 @@ Final cyclic mesh is shown in Figure \ref{fig:cycle_after}.
         \begin{subfigure}[b]{0.4\linewidth}
         \centering
 			\includegraphics[width=0.9\linewidth]{images/cyclic_skeletons_1}
-            \caption{Cyclic skeleton, cyclic edge marked with dark blue color, cyclic nodes with dark green and  dark violet}
+            \caption{Cyclic skeleton, cyclic edge marked with yellow color, cyclic nodes with green and violet}
             \label{fig:cycle_skeleton}
         \end{subfigure}%
         ~ %add desired spacing between images, e. g. ~, \quad, \qquad etc.
@@ -332,7 +333,7 @@ Final cyclic mesh is shown in Figure \ref{fig:cycle_after}.
         \begin{subfigure}[b]{0.4\linewidth}
         \centering
 			\includegraphics[width=0.9\linewidth]{images/cyclic_skeletons_2}
-            \caption{Split cycle with one inserted node for each former cyclic nodes light green for green node and light pink for violet node}
+            \caption{Split cycle with one inserted node for each former cyclic nodes light green for green node and pink for violet node}
             \label{fig:cycle_break}
         \end{subfigure}
         \\ %add desired spacing between images, e. g. ~, \quad, \qquad etc.

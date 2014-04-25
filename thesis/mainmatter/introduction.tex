@@ -13,8 +13,23 @@ This technique can also be used to procedurally generate articulated models.
 A skeleton can be either procedurally generated or manually entered.
 A base mesh generated from a supplied skeleton can be augmented with procedurally generated displacement maps in order to generate a complex model.
 
-In this thesis we will start with presenting the related work in the field of generating base meshes from skeletal structures.
+In this thesis we will start with presenting the state of the art algorithms in the field of generating base meshes from skeletal structures.
 We will analyse each proposed solution and pick the one best suited for our needs as base of our own algorithm.
-Next, we will describe the functionality of our own solution, the implementation and proposed extensions.
+Next, we will describe how we implemented the selected base algorithm as well as how we implemented our proposed extensions to the algorithm..
 In the following chapter, we will present implementation details of our system, used programming language, libraries and design patterns.
 In the last two chapters, we will present results of our work and summarize our goals in conclusion.
+
+\pagebreak
+
+\section*{Goals}
+\addcontentsline{toc}{section}{Goals}
+
+The goal of this thesis is to implement an algorithm that would be able to generate base manifold meshes corresponding to input skeletons.
+The algorithm should be able to handle various types of input skeletons such as cyclic skeletons and linear skeletons, without branching.
+The generated base mesh should be quad dominant.
+Good edge flow of the generated base mesh is desired.
+That means faces of the generated base meshes should be aligned with bones of their corresponding input skeleton.
+The generated base meshes should have an option to terminate leaf nodes as capsules.
+The algorithm should not be iterative and should not have any input parameters.
+This way it could be used in interactive or fully automatic systems.
+To subdivide the generated base mesh tessellation shaders should be used as they are hardware accelerated.

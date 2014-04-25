@@ -1,19 +1,19 @@
 \chapter{Related Work}
-Generating base meshes from skeletons aids in modelling and rigging of more complex meshes. The most notable algorithms are B-Mesh\cite{ji_bm} by Ji et al. and Skeleton to Quad Dominant Mesh\cite{sqm} (SQM) by J. A. Bærentzen et al. This algorithms are capable of generating quad-dominant manifold meshes with good edge flow. Generated meshes are convenient because thanks to quad dominance and good edge flow they are easily skinned. Since the mesh is generated from skeleton we also implicitly know how much each bone affects vertices of the mesh during animation. We will also discuss some results from Michal Mc Donells master thesis Skeleton-based and interactive 3D modelling\cite{sqm_phd}. In particular the generation of capsule endings in SQM algorithm as we also wanted our algorithm to be capable of generating capsules.
+Generating base meshes from skeletons aids in modelling and rigging of more complex meshes. The most notable algorithms are B-Mesh by Ji et al. \cite{ji_bm} and Skeleton to Quad Dominant Mesh (SQM) by J. A. Bærentzen et al. \cite{sqm} This algorithms are capable of generating quad-dominant manifold meshes with good edge flow. Generated meshes are convenient because thanks to quad dominance and good edge flow they are easily skinned. Since the mesh is generated from skeleton we also implicitly know how much each bone affects vertices of the mesh during animation. We will also discuss some results from Michal Mc Donells master thesis Skeleton-based and interactive 3D modelling\cite{sqm_phd}. In particular the generation of capsule endings in SQM algorithm as we also wanted our algorithm to be capable of generating capsules.
 
 B-Mesh algorithm and SQM algorithm present two different approaches to generation of base meshes from skeletons. B-Mesh algorithm firstly generates mesh for the limbs of the skeletons. These limb meshes are later joined together. On the other SQM algorithm firstly creates polyhedrons for branch nodes of the input skeleton. These polyhedrons are later joined with tubes consisting solely from quadrilaterals.
 
 There are more techniques that generate base meshes but are not limited or used on skeletal structures only.
-In Solidifying wireframes \cite{wireframes} Srinivasan et al. proposed a method similar to B-Mesh.
+In Solidifying wireframes Srinivasan et al. \cite{wireframes} proposed a method similar to B-Mesh.
 The proposed method firstly generated mesh corresponding to tubular parts of wireframes.
 These paths were later joined on branch nodes in a similar manner as in B-Mesh.
 Although the method is more general than B-Mesh it suffers from the same drawbacks mainly the stitching geometry which produces undesired triangular faces.
 In a more recent paper Leblanc et al. \cite{blocks} proposed generating base meshes by iteratively combining blocks into cuboid shapes.
 Since our algorithm should operate on skeletal structures, by limiting the connectivity of blocks to skeletal structures only, we would lose many of the advantages of the original technique.
 Base mesh could be also recovered from medial axis transform \cite{mat}.
-However, due to the nature of medial axis transform it is not suitable for editing by artists.
+However, due to the nature of medial axis transform it is not suitable for manual editing by artists.
 
-In this chapter we will describe both algorithms with their advantages and disadvantages. This serves to show why we have based our implementation on SQM algorithm.
+In this chapter we will describe B.Mesh and SQM algorithms with their advantages and disadvantages. This serves to show why we have based our implementation on SQM algorithm.
 
 \section{B-Mesh algorithm}
 \paragraph{Input}
@@ -26,12 +26,12 @@ The algorithm consist of five steps:
 	\item Sweeping - generation of mesh for skeletons limbs.
 	\item Stitching - joining of limb meshes at branch nodes.
 	\item B-Mesh evolution - subdivision and smoothing of generated mesh.
-	\item B-Mesh fairing - fairing to improve edges flow.
+	\item B-Mesh fairing - fairing to improve edge flow.
 \end{enumerate}
 \begin{figure}[h]
     \centering
     \includegraphics{images/b_mesh_ilu.png}
-    \caption[B-Mesh sweeping and stitching illustration]{B-Mesh sweeping and stitching illustration. (a) local coordinates of a bone; (b) sweeping step; (c) stitching step; (d) after stitching simplification. Image from \cite{ji_bm}.}.
+    \caption[B-Mesh sweeping and stitching illustration]{B-Mesh sweeping and stitching illustration. (a) local coordinates of a bone; (b) sweeping step; (c) stitching step; (d) simplification after stitching. Image from \cite{ji_bm}.}.
     \label{fig:b_mesh_stitch}
 \end{figure}
 
@@ -40,7 +40,7 @@ The algorithm consist of five steps:
 \paragraph{Sphere generation}
 Additional spheres are generated along the bones of the input skeleton.
 The distance between two spheres is divided by a sampling step and the radius of each sphere is interpolated from radii corresponding to the bones nodes.
-These generated spheres are used to refine the generated mesh and to calculate scalar field need in B-Mesh fairing step.
+These generated spheres are used to refine the generated mesh and to calculate scalar field needed in B-Mesh fairing step.
 
 %\subsection{Sweeping}
 %\paragraph{}
@@ -56,7 +56,7 @@ Limb meshes generated in sweeping step are now stitched together. This is done b
 Catmull-Clark subdivision is used to smooth the stitched mesh. However after smoothing the mesh shrinks and deviates from the spheres. A scalar field is generated and used to evolve the mesh. Each vertex of the stitched mesh is translated according to the scalar field and its evolution speed. This means the further away is the vertex from its corresponding sphere the more it is attracted to it. In this phase the auxiliary spheres are used to manipulate the scalar field and thus the final shape of the mesh. This step can be repeated multiple times to further smooth the mesh.
 
 \paragraph{B-Mesh fairing}
-After the evolution step certain edges may not be aligned with their principal directions. New vertex positions are calculated by iterative minimization of a function.
+After the evolution step certain edges may not be aligned with their principal directions. New vertex positions are calculated by iterative minimization of a fairing function.
 
 \paragraph{Conclusion}
 The biggest problem with B-Mesh algorithm for our use is its iterative nature. The number of iterations is an input parameter and we wanted to avoid input parameters, so that the base mesh generation is as automatic as possible. Without the evolution step B-Mesh approximates input geometry worse than SQM. This is caused by the stitching phase which creates flat rectangular geometry at branch nodes, instead of the input spherical or elliptical geometry. Because of this evolution phase can not be avoided if we want to approximate the input as much as possible.
@@ -83,7 +83,7 @@ The algorithm consist of four steps and one preprocessing step:\\
 \begin{figure}[h]
     \centering
     \includegraphics[width=\textwidth]{images/sqm_viz.png}
-    \caption[Steps of SQM algorithm]{Steps of SQM algorithm. (a) the input skeleton; (b) generated BNPs; (c) refined BNPs; (d) BNPs bridges with quadrilateral tubes. Image from \cite{sqm}.}.
+    \caption[Steps of SQM algorithm]{Steps of SQM algorithm. (a) the input skeleton; (b) generated BNPs; (c) refined BNPs; (d) BNPs bridged with quadrilateral tubes. Image from \cite{sqm}.}.
     \label{fig:sqm_algorithm_steps}
 \end{figure}
 
@@ -94,18 +94,21 @@ This is a preprocessing step of the algorithm that simplifies the generation of 
 A Branch Node Polyhedron (BNP) is a polyhedron assigned to a branch node. Vertices of a BNP correspond to a set of points that are generated by intersecting the sphere assigned to a branch node with each edge connected to said branch node. We will call this vertices intersection vertices. To form a BNP intersection vertices are triangulated. After that each triangle is split into six triangles by inserting one vertex in the middle of each triangle and in the middle of each of the edges of the triangle. These vertices are then projected back onto the sphere associated with a branch node. This projection is needed because if the intersection vertices are coplanar the generated polyhedron would have zero volume. The result of this step can be seen in Figure \ref{fig:sqm_algorithm_steps}b.
 
 \paragraph{BNP refinement}
-During step 3 of the algorithm, the BNPs connected via path are bridged with tubes consisting solely from quadrilaterals. This is done be connecting the one-rings of two corresponding intersection vertices with faces. To ensure that we can use only quadrilaterals the one-rings need to have the same valence. Each BNP is refined so that the valence of two intersection nodes lying on the same path are equal. This can be seen in Figure \ref{fig:sqm_algorithm_steps}c.
+During step 3 of the algorithm, the BNPs connected via path are bridged with tubes consisting solely from quadrilaterals. This is done be connecting the one-rings of two corresponding intersection vertices with faces. To ensure that we can use quadrilaterals only the one-rings need to have the same valence. Each BNP is refined so that the valence of two intersection nodes lying on the same path are equal. This can be seen in Figure \ref{fig:sqm_algorithm_steps}c.
 
 \paragraph{Creating the tubular structure}
-After previous step of the algorithm, connected BNPs can be joined by a tube formed by quadrilaterals. The tube is divided into segments. Each of the segments corresponds to a connection node. Vertices corresponding to a certain connection node are projected onto its corresponding sphere. Leaf nodes are terminated with a triangle fan, which central vertex corresponds to the leaf nodes position. The result is illustrated in Figure \ref{fig:sqm_algorithm_steps}d.
+After previous step of the algorithm, connected BNPs can be joined by a tube formed by quadrilaterals. The tube is divided into segments. Each of the segments corresponds to a connection node. Vertices corresponding to a certain connection node are projected onto its corresponding sphere. Leaf nodes are terminated with a triangle fan which central vertex corresponds to the leaf nodes position. The result is illustrated in Figure \ref{fig:sqm_algorithm_steps}d.
 
 \paragraph{Vertex placement}
 The base mesh is now finished. All that remains is to reverse the rotations used to straighten the input skeleton. After final vertex placement the resulting mesh is smoothed with three iterations of Laplacian smoothing and attraction scheme.
 
 \paragraph{Conclusion}
-Each of SQMs steps are one pass algorithms except the final smoothing and attraction scheme application. But since SQM generates branch node geometry by generating a polyhedron it better resembles the geometry of the input skeleton even without smoothing.
+Each of SQMs steps are one pass algorithms except the final smoothing and attraction scheme application. But since SQM generates branch node geometry by generating a polyhedron it better resembles the geometry of the input skeleton than B-Mesh even without smoothing.
 SQM has good edge flow as each vertex in the generated base mesh corresponds to two nodes in the input skeleton which is equivalent to one bone for animation purposes.
-Cyclic meshes can be problematic to implement because in the refinement step of the algorithm a cyclic mesh may cause an infinite loop of refining. SQM produces smaller number of triangles because in the joining phase all triangles corresponding to branch nodes are removed and their former vertices are used to generate connecting tubes. On the other hand during the stitching phase B-Mesh introduces triangles into the mesh. SQM algorithm was also capable of generating cycles from two symmetric leaf nodes, that were close to each other. However these cycles can not be created explicitly. Another limitation is that cycles have to lie on input skeletons axis of symmetry.
+SQM produces smaller number of triangles because in the joining phase all triangles corresponding to branch nodes are removed and their former vertices are used to generate connecting tubes. On the other hand during the stitching phase B-Mesh introduces triangles into the mesh.
+SQM algorithm was also capable of generating cycles from two symmetric leaf nodes, that were close to each other.
+However, these cycles can not be created explicitly.
+Cyclic meshes with explicitly defined cycles can be problematic to implement because in the refinement step of the algorithm a cyclic mesh may cause an infinite loop of refining.
 
 \section{Skeleton-based and interactive 3D modelling} 
 Michal Mc Donells master thesis studies the capabilities of SQM algorithm. It aims to extend SQM algorithm through pre-processing of SQMs input skeleton and post-processing of the output mesh. Altering SQM algorithm itself was out of scope of the thesis. Among the improvements to the algorithm were cone, cube, sphere and hemisphere leaf nodes, cube connection and branch nodes as well as concavities and branch node root requirement. The most important parts for us are spherical leaf nodes and branch node root requirement.
@@ -113,7 +116,7 @@ Michal Mc Donells master thesis studies the capabilities of SQM algorithm. It ai
 \begin{figure}[h]
     \centering
     \includegraphics[]{images/spherical_node.png}
-    \caption[Spherical nodes radii]{Left: arc subdivided at fixed intervals; Right: radii of newly inserted nodes sampled from an arc on the left. Image from \cite{sqm_phd}.}.
+    \caption[Spherical nodes radii]{Left: arc subdivided at fixed intervals; right: radii of newly inserted nodes sampled from an arc on the left. Image from \cite{sqm_phd}.}.
     \label{fig:esqm_spherical}
 \end{figure}
 
@@ -124,7 +127,7 @@ Original SQM algorithm was not able to create spheres at leaf nodes. This also l
 The approach to create spherical nodes presented in the thesis seems suitable for our needs. Since we would not implement Laplacian smoothing we would not have problems with deformation of the generated sphere. On the contrary this approach is beneficial to our needs, since we wanted to smooth the generated mesh in tessellation shaders and keeping spherical meshes generated without post-processing can potentially ease the work-flow.
 
 \paragraph{Root branch node requirement}
-One of the limitations of SQM algorithm is that the root node has to be a branch node. The proposed solution to this limitation was to generate pseudo paths from the root to ensure that it always will have at least three child nodes. For example, if the root has only two childes the new node would be generated in a direction perpendicular to a line connecting the intersection of roots associated sphere and edges from root to its childes.
+One of the limitations of SQM algorithm is that the root node has to be a branch node. The proposed solution to this limitation was to generate pseudo paths from the root to ensure that it always will have at least three child nodes. For example, if the root has only two child nodes the new node would be generated in a direction perpendicular to a line connecting the intersection of roots associated sphere and edges from root to its childes.
 
 \paragraph{Conclusion}
 This pseudo path generation would disturb the edge flow as it would introduce new unnecessary edges. We believe that a better approach would be to re-root the tree and replace its former root with a node with at least three childes. Linear skeletons without branching and skeletons consisting only from a single node would become special cases that would be handled separately. This would allow us to avoid the requirement without altering the expected edge flow of the input skeleton.
