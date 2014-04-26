@@ -11,7 +11,7 @@ First, is $OpenGL$ window which displays data provided from controller.
 Second, is a Windows form that provides graphical user interface (GUI) elements which serve to make input easier.
 
 In this chapter we will describe how we implemented our solution.
-We will start with used programming language, integrated developer environment (IDE), tools and libraries.
+We will start with used programming language, integrated developer environment (IDE), tools, and libraries.
 Next, we will describe implemented classes, grouped by model-view-controller pattern in greater detail.
 After that we will show some programmable shaders used in our implementation.
 Finally, we will describe our implementation of base manifold mesh library.
@@ -24,14 +24,14 @@ Also the open source libraries that we intended to use are available for C++ and
 As IDE we are using Visual Studio 2012 which was the newest version of Visual Studio when we started our work.
 Visual Studio is supported by all of the used libraries.
 We have used nVidia nSight for Visual Studio 2012 that is a debugger for graphics cards which allows to set breakpoints in shaders during execution. We have also used several open source libraries in our project. We will briefly describe the key libraries.
-To program the GPU we use OpenGL Shading Language (GLSL) version 4.3.
+To program the GPU we use OpenGL Shading Language (GLSL) version 430.
 
 \begin{itemize}
 	\item \textbf{Boost \cite{Boost}} Boost is a set of libraries encapsulating various task like basic input output system, smart pointers, serialization, matrices, etc. We use Boost primary for class serialization. Thanks to boost we can serialize classes into XML files which can be stored and loaded from disk. This XML files can even be shared between different applications so we can import skeletons from third party programs.
 	\item \textbf{OpenMesh \cite{OpenMesh}} Is an open source half edge data structure library. We use it to store all meshes in our applications. OpenMesh library is capable of storing meshes composed solely from triangles as well as meshes composed of arbitrary polygons. OpenMesh has pre-calculated many convenient iterators for one-ring neighbourhoods, faces and edges adjacent to a vertex, etc. The library is also capable of exporting stored meshes into Wavefront .obj files.
 	\item \textbf{GLEW \cite{glew}} The OpenGL Extension Wrangler Library (GLEW) provides efficient run-time mechanisms for activating OpenGL extensions. We use this library to expose OpenGL 4.3 functionality to our application.
 	\item \textbf{OpenGL \cite{opengl}} Open source cross platform application programming interface. We use it to leverage the computation capability of GPUs to achieve hardware accelerated rendering.
-	\item \textbf{GLM \cite{glm}} OpenGL Mathematics library that provides the same vector and matrix operations as available in GLSL. GLM also provides several function, that are deprecated in newer versions of OpenGL. We use this library to manipulate camera, model matrices, and for general matrix computations. GLM library is also capable of quaternion computations that are used during smoothing of BNPs and during computation of skinning matrices.
+	\item \textbf{GLM \cite{glm}} OpenGL Mathematics library that provides the same vector and matrix operations as available in GLSL. GLM also provides several function that are deprecated in newer versions of OpenGL. We use this library to manipulate camera, model matrices, and for general matrix computations. GLM library is also capable of quaternion computations that are used during smoothing of BNPs and during computation of skinning matrices.
 \end{itemize}
 
 \pagebreak
@@ -45,7 +45,7 @@ The relationships between the most important classes are shown in Figure \ref{fi
 Model provides interface for the controller which allows to query models data for visualization.
 The interface provided by model also allows to change its state and attributes of various classes.
 View provides an interface for the controller which allows the controller to display models data.
-Views is also capable of receiving users input either via mouse or by setting values exactly in an inspector panel.
+Views is also capable of receiving users input either via mouse or by setting exact values in an inspector panel.
 Controller connects model and view together.
 At constant intervals data from model and input from view are gathered.
 The model is updated according to users input and the data changes are immediately reflected in the view.
@@ -118,10 +118,10 @@ All necessary data for drawing, tessellation, and subsequent algorithm steps are
 BMMAlgorithm class provides interface that hides the underlying oriented graph and implements states discussed previously.
 All queries to BMMAlgorithm are forwarded to the root node which recursively produces output that BMMAlgorithm returns.
 This way if we would later decide to change base mesh algorithm in any way basic functionality would still be accessible through BMMALgorithm.
-Furthermore BMM algorithm computes certain pre and post processing that simplifies algorithms in BMMNode.
+Furthermore, BMM algorithm computes certain pre and post processing that simplifies algorithms in BMMNode.
 BMMAlgorithm implements the re-rooting algorithm so we do not need to check for invalid parents in recursive functions.
 The rooted oriented graph is stored twice in BMMAlgorithm.
-One copy is used to execute the base mesh algorithm itself and the other copy is used to store the input of the algorithm so that it can be re-executed.
+One copy is used to execute the base mesh algorithm itself, and the other copy is used to store the input of the algorithm so that it can be re-executed.
 
 \subsection{View}
 
@@ -138,7 +138,7 @@ Otherwise view displays previously stored data.
 This reduces unnecessary commands to reload buffers with data that is already stored.
 Buffers are filled with data and active OpenGL programs are selected depending on models state.
 
-In skeleton input and skeleton straightening states, buffers are filled with lines connecting skeletal nodes and spheres corresponding to each node.
+In skeleton input and skeleton straightening states buffers are filled with lines connecting skeletal nodes, and spheres corresponding to each node.
 Elliptical nodes transformation matrices are also stored in buffers.
 Two shader programs are used to render skeletal structures.
 One is specifically designed for line drawing.
@@ -169,11 +169,11 @@ The mouse 2D location was mapped onto near plane and yellow ray was casted into 
 The first hit object is then selected.
 Mouse actions are context dependant.
 
-If the ray intersects a node the node is selected, its corresponding attributes are displayed in the inspector.
+If the ray intersects a node the node is selected, and its corresponding attributes are displayed in the inspector.
 A selected node can be moved in the scene and this way its position attributes are updated.
-With selected node user can create new nodes as child of selected node with middle click of the mouse.
+With selected node user can create new nodes as childes of selected node with middle click of the mouse.
 Right clicking on a different node creates a cycle between selected and clicked node.
-User can also rotated child nodes of a node.
+User can also rotate child nodes of a node.
 In this mode left, right, and middle clicks produce rotations around X, Y, and Z axis, respectively.
 
 If after tracing the ray we do not encounter a node the resulting interaction is handled as rotations and translations of camera.
@@ -201,12 +201,12 @@ Then controller serializes and stores the received skeletal structure.
 Through a different interface BMMController can query the generated base mesh represented as Wavefront .obj and store it in a file.
 Since controllers only interaction with model is providing input and output it can be replaced at any time to accommodate for a different application.
 For example in a library for base manifold mesh generation, where a one-shot algorithm would be desired, the controller would  send input skeleton to BMMAlgorithm.
-Let BMMAlgorithm execute and return the generated base mesh either as a Wavefron .obj suitable for storing or transferring to a different application or indexed face data structure suitable for rendering or in half edge data structure suitable for further mesh processing.
+Let BMMAlgorithm execute and return the generated base mesh either as a Wavefron .obj suitable for storing or transferring to a different application, or indexed face data structure suitable for rendering or in half edge data structure suitable for further mesh processing.
 
 \section{GPU Shaders}
 
 GPU shaders are used to program graphics hardware.
-With shaders one can control the position of rendered vertices, lighting in scene and even compute certain calculation directly on GPU.
+With shaders one can control the position of rendered vertices, lighting in scene, and even compute certain calculation directly on GPU.
 Since we are using OpenGL API to draw geometry, we are also using OpenGL Shading Language (GLSL) to program graphics hardware.
 We are programming in GLSL version 430 which was released along with OpenGL 4.3.
 We choose this version of GLSL because of two main reasons.
@@ -234,15 +234,15 @@ In this section we will describe the most interesting and important of our imple
 
 Linear blend skinning is a technique of animating characters.
 As we described previously, we can compute final vertex placement as an animation from straightened skeletons pose to input skeletons pose.
-There are two attributes needed for linear blend skinning: skinning matrices derived from rotation of bones around their degrees of freedom and per-vertex weights.
+There are two attributes needed for linear blend skinning: skinning matrices derived from rotation of bones around their degrees of freedom, and per-vertex weights.
 The weight resemble how much is a vertex influenced by each matrix.
 
 For our case a vertex can not be influenced by more than two skinning matrices.
-The first is rotation of a bone from bind pose (straightened skeleton) to reference pose (input skeleton).
-The second matrix is matrix representing the rotation of the next bone from bind to reference pose.
+The first matrix, is rotation of a bone from bind pose (straightened skeleton) to reference pose (input skeleton).
+The second matrix, is matrix representing the rotation of the next bone from bind to reference pose.
 This combination of matrices produces junctions that are not self collapsing.
 Since we are using only two matrices per vertex, most of the matrices have assigned a weight of 0, so we can send as per-vertex data only weight for actually used matrices.
-We are only sending weights for used matrices we also need to send index for each used matrix.
+Since we are only sending weights for used matrices, we also need to send index for each used matrix.
 In practice GLSL reserves for each per-vertex attribute a space that can hold a vector of four components.
 So we are sending four weights and four indices for each vertex even though only two of them are used.
 This can potentially allow us to use more complex skinning animations if we so desire.
@@ -254,7 +254,7 @@ Alternatively, if we are sending matrices in shader uniforms we can reserve spac
 For our implementation we only need do display one object, so we decided to send skinning matrices to GPU via shader uniforms due to the efficiency of the method compared to textures.
 
 We have implemented linear blend skinning in vertex and tessellation evaluation shaders.
-Vertex implementation resembles the CPU implementation because for the rest of the graphics pipeline vertex positions are equal.
+Vertex implementation resembles the CPU implementation because for the rest of the graphics pipeline vertex positions are undistinguishable.
 We also implemented linear blend skinning in tessellation evaluation shaders in order to compare visual results of skinning vertices after they have been tessellated.
 
 \subsubsection{Vertex Shader Implementation}

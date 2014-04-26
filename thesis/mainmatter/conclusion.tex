@@ -5,13 +5,13 @@ The generated skeletons are automatically converted to base manifold meshes.
 The procedure is fully automatic and no user interaction is needed.
 Our algorithm also improves on already existing algorithms.
 Our algorithm can handle base meshes from linear skeletons which do not have branch nodes.
-Skeletons, which root is not a branch node, can also be generated naturally with our algorithm.
+Skeletons, which root is not a branch node can also be generated naturally with our algorithm.
 Explicitly defined cyclic skeletons of arbitrary topology can be set as input to our algorithm.
 The algorithm is capable of generating a base mesh with genus corresponding to the input skeleton.
 To accelerate the computation of the algorithm we have implemented one step of the algorithm in GPU, thereby saving CPU processing time.
 We have also generalized spherical nodes of the input skeleton to ellipsoids.
 The computation of ellipsoid nodes is also accelerated on the GPU.
-Lastly we are using tessellation shaders to subdivide the generated base mesh and improve its visual quality.
+Lastly, we are using tessellation shaders to subdivide the generated base mesh and improve its visual quality.
 
 The generated base meshes have good edge flow and can be animated with standard animation techniques.
 Base meshes consists mainly from quadrilateral faces.

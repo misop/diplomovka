@@ -4,9 +4,9 @@
 Skeletal structures are often used in computer graphics to represent basic topology of a model.
 This representation allows artists to conveniently animate articulated models, by manipulating key points represented as nodes in skeletons.
 Skeletons corresponding to a model, are often provided by an artist, or extracted directly from a model \cite{laplac}.
-Since skeletal structures carry an information about the topology of  a model, we could apply a reverse process to skeleton extraction and recover the base mesh represented by a skeleton.
+Since skeletal structures carry information about the topology of a model, we could apply a reverse process to skeleton extraction and recover the base mesh represented by a skeleton.
 
-Such base meshes, generated directly from skeletal structures, could be used to ease the modelling of base models of articulated characters.
+Such base meshes, generated directly from skeletal structures, could be used to ease the modeling of base models of articulated characters.
 An artist would only design the skeleton of the model and the base mesh would be generated automatically.
 
 This technique can also be used to procedurally generate articulated models.
@@ -14,8 +14,8 @@ A skeleton can be either procedurally generated or manually entered.
 A base mesh generated from a supplied skeleton can be augmented with procedurally generated displacement maps in order to generate a complex model.
 
 In this thesis we will start with presenting the state of the art algorithms in the field of generating base meshes from skeletal structures.
-We will analyse each proposed solution and pick the one best suited for our needs as base of our own algorithm.
-Next, we will describe how we implemented the selected base algorithm as well as how we implemented our proposed extensions to the algorithm..
+We will analyze each proposed solution and pick the one best suited for our needs as base of our own algorithm.
+Next, we will describe how we implemented the selected base algorithm as well as how we implemented our proposed extensions to the algorithm.
 In the following chapter, we will present implementation details of our system, used programming language, libraries and design patterns.
 In the last two chapters, we will present results of our work and summarize our goals in conclusion.
 
@@ -32,4 +32,4 @@ That means faces of the generated base meshes should be aligned with bones of th
 The generated base meshes should have an option to terminate leaf nodes as capsules.
 The algorithm should not be iterative and should not have any input parameters.
 This way it could be used in interactive or fully automatic systems.
-To subdivide the generated base mesh tessellation shaders should be used as they are hardware accelerated.
+GPU computation capability should be leveraged wherever possible to increase the speed of base mesh generation.
