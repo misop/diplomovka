@@ -3,6 +3,7 @@
 #include <OpenMesh\Core\System\mostream.hh>
 #include <gtc\type_ptr.hpp>
 #include "Delaunay.h"
+#include "poly2tri\poly2tri.h"
 
 #define LOG_COMPUTATION_TIME true
 
@@ -407,6 +408,39 @@ void SQMAlgorithm::addTrianglesToMesh(SQMNode* node, SQMNode* cycleNode, std::ve
 	}
 }
 
+void SQMAlgorithm::polyg2tri(vector<glm::vec3> *nodePoints, vector<glm::vec3> *cyclePoints, vector<glm::ivec3> &o_triangles) {
+	int id = 0;
+	vector<p2t::Point *> polyline;
+	polyline.reserve((*nodePoints).size());
+	for (int i = 0; i < (*nodePoints).size(); i++) {
+		polyline.push_back(new p2t::Point((*nodePoints)[i].x, (*nodePoints)[i].y, id));
+		id++;
+	}
+	vector<p2t::Point *> hole;
+	hole.reserve((*cyclePoints).size());
+	for (int i = 0; i < (*cyclePoints).size(); i++) {
+		hole.push_back(new p2t::Point((*cyclePoints)[i].x, (*cyclePoints)[i].y, id));
+		id++;
+	}
+	p2t::CDT cdt(polyline);
+	cdt.AddHole(hole);
+	cdt.Triangulate();
+	vector<p2t::Triangle*> triangles = cdt.GetTriangles();
+	for (int i = 0; i < triangles.size(); i++) {
+		p2t::Triangle &t = *triangles[i];
+		p2t::Point& a = *t.GetPoint(0);
+		p2t::Point& b = *t.GetPoint(1);
+		p2t::Point& c = *t.GetPoint(2);
+		o_triangles.push_back(glm::ivec3(a.id, b.id, c.id));
+	}
+	for (vector<p2t::Point*>::iterator it = polyline.begin(); it != polyline.end(); ++it) {
+		delete *it;
+	}
+	for (vector<p2t::Point*>::iterator it = hole.begin(); it != hole.end(); ++it) {
+		delete *it;
+	}
+}
+
 void SQMAlgorithm::triangulateOneRings2() {
 	deque<SQMNode*> queue;
 	if (root != NULL) queue.push_back(root);
@@ -429,7 +463,9 @@ void SQMAlgorithm::triangulateOneRings2() {
 			points.insert(points.end(), (*nodePoints).begin(), (*nodePoints).end());
 			points.insert(points.end(), (*cyclePoints).begin(), (*cyclePoints).end());
 			vector<glm::ivec3> triangles;
-			Triangulate(points, triangles);
+			//Triangulate(points, triangles);
+			polyg2tri(nodePoints, cyclePoints, triangles);
+
 			//add triangles to mesh
 			addTrianglesToMesh(node, cycleNode, triangles, (*nodePoints).size());
 		}

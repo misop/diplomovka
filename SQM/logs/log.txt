@@ -1,16 +1,25 @@
 Skeleton straightening
 	Cycles preprocess took 1 clicks (0.001 seconds)
-	Capsule preprocess took 13 clicks (0.013 seconds)
-	It took 53 clicks (0.053 seconds)
-	Skinning computation took 2 clicks (0.002 seconds)
+	Capsule preprocess took 0 clicks (0 seconds)
+	It took 1 clicks (0.001 seconds)
+	Skinning computation took 0 clicks (0 seconds)
+
+Convex hull computation
+	It took 16 clicks (0.016 seconds)
+
+Convex hull subdivision
+	It took 12 clicks (0.012 seconds)
+
+BNP joining
+	It took 4 clicks (0.004 seconds)
 
 Final vertex placement
 	Cycle preprocessing took 0 clicks (0 seconds)
-	Preprocessing took 8 clicks (0.008 seconds)
-	It took 1 clicks (0.001 seconds)
+	Preprocessing took 0 clicks (0 seconds)
+	It took 0 clicks (0 seconds)
 
 
-Preprocess time 23 clicks (0.023 seconds)
-Algorithm time 54 clicks (0.054 seconds)
-Total time 77 clicks (0.077 seconds)
+Preprocess time 0 clicks (0 seconds)
+Algorithm time 33 clicks (0.033 seconds)
+Total time 33 clicks (0.033 seconds)
 

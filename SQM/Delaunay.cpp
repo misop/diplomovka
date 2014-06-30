@@ -70,7 +70,7 @@ int Triangulate(vector<glm::vec3> &pxyz, vector<glm::ivec3> &v) {
 	vector<int> complete;
 	vector<glm::ivec2> edges;
 	int nedge = 0;
-	int trimax, emax = 200;
+	int trimax = 200, emax = 200;
 	int status = 0;
 	int inside;
 	int i, j, k;
@@ -213,4 +213,4 @@ int Triangulate(vector<glm::vec3> &pxyz, vector<glm::ivec3> &v) {
 	}
 
 	return 0;
-} 
+}

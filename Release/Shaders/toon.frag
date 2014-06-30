@@ -24,7 +24,7 @@ layout (location = 0) out vec4 fColor;
 
 void main(void) {	   
 	vec4 diffuse_material = texture(DiffuseSampler, uv);
-	diffuse_material = floor(diffuse_material * Toonines) * Toonines_1;
+	//diffuse_material = floor(diffuse_material * Toonines) * Toonines_1;
 	vec4 color = vec4(0.0, 0.75, 0.75, 1);
 
 	vec4 V = normalize(vertex_eye);

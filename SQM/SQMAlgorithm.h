@@ -3,6 +3,7 @@
 #include <fstream>
 #include <ostream>
 #include <time.h>
+#include <glm.hpp>
 
 typedef enum {
 	SQMStart = 0,
@@ -59,6 +60,7 @@ public:
 	void refreshIDs();
 	void calculateSkinSkeletonIDs();
 	void rotateCycleOneRings();
+	void polyg2tri(std::vector<glm::vec3> *nodePoints, std::vector<glm::vec3> *cyclePoints, std::vector<glm::ivec3> &o_triangles);
 	void triangulateOneRings();
 	void triangulateOneRings2();
 	void addTrianglesToMesh(SQMNode* node, SQMNode* cycleNode, std::vector<glm::ivec3> &triangles, int split);

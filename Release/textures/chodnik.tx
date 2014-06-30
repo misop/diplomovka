@@ -1,0 +1,8 @@
+# m = model: ambient, shinines
+# a = albedo
+# d = displacement
+# n = normal
+m 10 0 0.001
+a ./textures/chodnik_a.png
+d ./textures/chodnik_d.png
+n ./textures/chodnik_n.png

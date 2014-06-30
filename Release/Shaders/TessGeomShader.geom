@@ -4,6 +4,7 @@ layout(triangles) in;
 layout(triangle_strip, max_vertices = 3) out;
 
 uniform mat3 NormalMatrix;
+uniform mat4 ViewMatrix;
 
 in int teTriPatch[];
 in vec3 tePosition[3];
@@ -20,24 +21,34 @@ out vec3 gVertex;
 out vec3 gNormal;
 out vec3 gColor;
 out vec3 gLight;
+out vec4 vertex_eye;
+out vec4 normal_eye;
+out vec4 light_eye;
 
 void main()
 {    
 	/*vec3 p0 = vec3(gl_in[0].gl_Position);
 	vec3 p1 = vec3(gl_in[1].gl_Position);
 	vec3 p2 = vec3(gl_in[2].gl_Position);*/
-	
+
 	vec3 p0 = vec3(tePos[0]);
 	vec3 p1 = vec3(tePos[1]);
 	vec3 p2 = vec3(tePos[2]);
+		
+	//gNormal = normalize(NormalMatrix * normalize(cross(p1 - p0, p2 - p0)));
+	gNormal = normalize(cross(p1 - p0, p2 - p0));
+	gVertex = (p0 + p1 + p2) / 3.0;
+	
+	vertex_eye = ViewMatrix * vec4(gVertex, 1);
+	light_eye = vec4(0, 0, 0, 1) - vertex_eye;
+	normal_eye = ViewMatrix * vec4(gNormal, 0);
+	vertex_eye = vec4(0, 0, 0, 1) - vertex_eye;
+	
 	
 	float d01 = length(p1 - p0);
 	float d02 = length(p2 - p0);
 	float d12 = length(p2 - p1);
 	gTriDistanceCtrl = vec3(d01, d02, d12);
-	
-	gNormal = normalize(NormalMatrix * normalize(cross(p1 - p0, p2 - p0)));
-	gVertex = (p0 + p1 + p2) / 3.0;
 
 	gPatchDistanceCtrl = tePatchDistanceCtrl[0];
 

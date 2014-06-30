@@ -1,8 +1,8 @@
 \chapter{Abstrakt}
 V tejto práci navrhujeme algortimus, ktorý generuje základné 2-varietné polygonálne siete zo vstupnej kostry, založený na algoritme Skeleton to Quad Dominant Mesh (SQM), ktorý konvertuje kostry na polygonálne siete zložené prevažne zo štvoruholníkov.
 Každý uzol kostry má priradenú guľu.
-Algoritmus SQM najprv pre každý uzol v ktorom sa kostra vetví vygeneruje polyhedrón, aproximujúci guľu príslušného vetviaceho sa uzla.
-Neskôr sú tieto polyhedróny spojené štvoruholními, čím sa vytvorí základná polygonálna sieť.
+Algoritmus SQM najprv pre každý uzol, v ktorom sa kostra vetví, vygeneruje polyhedrón, aproximujúci guľu príslušného vetviaceho sa uzla.
+Neskôr sú tieto polyhedróny spojené štvoruholníkmi, čím sa vytvorí základná polygonálna sieť.
 Rozšírili sme SQM algoritmus tak, aby generoval základné polygonálne siete aj z cyklických kostier.
 Tiež sme zovšeobecnili vstupnú kostru tak, aby bolo možné zadávať elipsoidy namiesto gulí pre každý uzol.
 Nakoniec sme rozšírili algoritmus tak, aby generoval základné polygonálne siete aj z lineárnych kostier a z kostier, ktorých koreň nie je vetviaci sa uzol.

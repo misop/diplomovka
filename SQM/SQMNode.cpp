@@ -553,6 +553,7 @@ void SQMNode::projectOnPlaneRotateAndScale(MyMesh *mesh, glm::vec3 origin, glm::
 	glm::vec3 axis = glm::normalize(glm::vec3(axisAngle.i, axisAngle.j, axisAngle.k));
 	glm::mat4 rotate = glm::length(axis) != 0 ? glm::rotate(glm::mat4(1), axisAngle.s, axis) : glm::mat4(1);
 	glm::mat4 scale = cycleNode != NULL ? glm::scale(glm::mat4(1), glm::vec3(2, 2, 2)) : glm::mat4(1);
+	//glm::mat4 scale = cycleNode != NULL ? glm::scale(glm::mat4(1), glm::vec3(10)) : glm::scale(glm::mat4(1), glm::vec3(5));
 	glm::mat4 M = scale * rotate;
 	//rotate points
 	for (int i = 0; i < cyclePoints.size(); i++) {
@@ -948,7 +949,7 @@ void SQMNode::createPolyhedra(vector<OpenMesh::Vec3i> triangles) {
 			u31Index = vertices.size();
 			vertices.push_back(u31);
 			visited.push_back(e3);
-		}	
+		}
 		bool isObtuse = isObtuseTriangle(v1, v2, v3);
 
 		OpenMesh::Vec3f center = centers[i];
