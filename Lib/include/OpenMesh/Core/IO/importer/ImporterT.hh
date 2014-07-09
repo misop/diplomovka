@@ -1,13 +1,13 @@
 /*===========================================================================*\
  *                                                                           *
  *                               OpenMesh                                    *
- *      Copyright (C) 2001-2011 by Computer Graphics Group, RWTH Aachen      *
+ *      Copyright (C) 2001-2014 by Computer Graphics Group, RWTH Aachen      *
  *                           www.openmesh.org                                *
  *                                                                           *
- *---------------------------------------------------------------------------* 
+ *---------------------------------------------------------------------------*
  *  This file is part of OpenMesh.                                           *
  *                                                                           *
- *  OpenMesh is free software: you can redistribute it and/or modify         * 
+ *  OpenMesh is free software: you can redistribute it and/or modify         *
  *  it under the terms of the GNU Lesser General Public License as           *
  *  published by the Free Software Foundation, either version 3 of           *
  *  the License, or (at your option) any later version with the              *
@@ -30,12 +30,12 @@
  *  License along with OpenMesh.  If not,                                    *
  *  see <http://www.gnu.org/licenses/>.                                      *
  *                                                                           *
-\*===========================================================================*/ 
+\*===========================================================================*/
 
 /*===========================================================================*\
- *                                                                           *             
- *   $Revision: 362 $                                                         *
- *   $Date: 2011-01-26 10:21:12 +0100 (Wed, 26 Jan 2011) $                   *
+ *                                                                           *
+ *   $Revision: 990 $                                                         *
+ *   $Date: 2014-02-05 10:01:07 +0100 (Mi, 05 Feb 2014) $                   *
  *                                                                           *
 \*===========================================================================*/
 
@@ -86,7 +86,7 @@ public:
   typedef std::vector<VertexHandle>  VHandles;
 
 
-  ImporterT(Mesh& _mesh) : mesh_(_mesh) {}
+  ImporterT(Mesh& _mesh) : mesh_(_mesh), halfedgeNormals_() {}
 
 
   virtual VertexHandle add_vertex(const Vec3f& _point)
@@ -103,7 +103,7 @@ public:
     {
       VHandles::const_iterator it, it2, end(_indices.end());
 
-      
+
       // test for valid vertex indices
       for (it=_indices.begin(); it!=end; ++it)
         if (! mesh_.is_valid_handle(*it))
@@ -131,8 +131,24 @@ public:
         failed_faces_.push_back(_indices);
         return fh;
       }
-    }
 
+      //write the half edge normals
+      if (mesh_.has_halfedge_normals())
+      {
+        //iterate over all incoming haldedges of the added face
+        for (typename Mesh::FaceHalfedgeIter fh_iter = mesh_.fh_begin(fh);
+            fh_iter != mesh_.fh_end(fh); ++fh_iter)
+        {
+          //and write the normals to it
+          typename Mesh::HalfedgeHandle heh = *fh_iter;
+          typename Mesh::VertexHandle vh = mesh_.to_vertex_handle(heh);
+          typename std::map<VertexHandle,Normal>::iterator it_heNs = halfedgeNormals_.find(vh);
+          if (it_heNs != halfedgeNormals_.end())
+            mesh_.set_normal(heh,it_heNs->second);
+        }
+        halfedgeNormals_.clear();
+      }
+    }
     return fh;
   }
 
@@ -142,6 +158,11 @@ public:
   {
     if (mesh_.has_vertex_normals())
       mesh_.set_normal(_vh, vector_cast<Normal>(_normal));
+
+    //saves normals for half edges.
+    //they will be written, when the face is added
+    if (mesh_.has_halfedge_normals())
+      halfedgeNormals_[_vh] = vector_cast<Normal>(_normal);
   }
 
   virtual void set_color(VertexHandle _vh, const Vec4uc& _color)
@@ -156,6 +177,17 @@ public:
       mesh_.set_color(_vh, color_cast<Color>(_color));
   }
 
+  virtual void set_color(VertexHandle _vh, const Vec4f& _color)
+  {
+    if (mesh_.has_vertex_colors())
+      mesh_.set_color(_vh, color_cast<Color>(_color));
+  }
+
+  virtual void set_color(VertexHandle _vh, const Vec3f& _color)
+  {
+    if (mesh_.has_vertex_colors())
+      mesh_.set_color(_vh, color_cast<Color>(_color));
+  }
 
   virtual void set_texcoord(VertexHandle _vh, const Vec2f& _texcoord)
   {
@@ -170,14 +202,26 @@ public:
   }
 
   // edge attributes
-  
+
   virtual void set_color(EdgeHandle _eh, const Vec4uc& _color)
   {
       if (mesh_.has_edge_colors())
           mesh_.set_color(_eh, color_cast<Color>(_color));
   }
-  
+
   virtual void set_color(EdgeHandle _eh, const Vec3uc& _color)
+  {
+      if (mesh_.has_edge_colors())
+          mesh_.set_color(_eh, color_cast<Color>(_color));
+  }
+
+  virtual void set_color(EdgeHandle _eh, const Vec4f& _color)
+  {
+      if (mesh_.has_edge_colors())
+          mesh_.set_color(_eh, color_cast<Color>(_color));
+  }
+
+  virtual void set_color(EdgeHandle _eh, const Vec3f& _color)
   {
       if (mesh_.has_edge_colors())
           mesh_.set_color(_eh, color_cast<Color>(_color));
@@ -198,6 +242,18 @@ public:
   }
 
   virtual void set_color(FaceHandle _fh, const Vec4uc& _color)
+  {
+    if (mesh_.has_face_colors())
+      mesh_.set_color(_fh, color_cast<Color>(_color));
+  }
+
+  virtual void set_color(FaceHandle _fh, const Vec3f& _color)
+  {
+    if (mesh_.has_face_colors())
+      mesh_.set_color(_fh, color_cast<Color>(_color));
+  }
+
+  virtual void set_color(FaceHandle _fh, const Vec4f& _color)
   {
     if (mesh_.has_face_colors())
       mesh_.set_color(_fh, color_cast<Color>(_color));
@@ -276,7 +332,7 @@ public:
           vhandles[j] = mesh_.add_vertex(p);
           // DO STORE p, reference may not work since vertex array
           // may be relocated after adding a new vertex !
-          
+
           // Mark vertices of failed face as non-manifold
           if (mesh_.has_vertex_status()) {
               mesh_.status(vhandles[j]).set_fixed_nonmanifold(true);
@@ -285,16 +341,16 @@ public:
 
         // add face
         FaceHandle fh = mesh_.add_face(vhandles);
-        
+
         // Mark failed face as non-manifold
         if (mesh_.has_face_status())
             mesh_.status(fh).set_fixed_nonmanifold(true);
-        
+
         // Mark edges of failed face as non-two-manifold
         if (mesh_.has_edge_status()) {
             typename Mesh::FaceEdgeIter fe_it = mesh_.fe_iter(fh);
-            for(; fe_it; ++fe_it) {
-                mesh_.status(fe_it).set_fixed_nonmanifold(true);
+            for(; fe_it.is_valid(); ++fe_it) {
+                mesh_.status(*fe_it).set_fixed_nonmanifold(true);
             }
         }
       }
@@ -309,6 +365,8 @@ private:
 
   Mesh& mesh_;
   std::vector<VHandles>  failed_faces_;
+  // stores normals for halfedges of the next face
+  std::map<VertexHandle,Normal> halfedgeNormals_;
 };
 
 

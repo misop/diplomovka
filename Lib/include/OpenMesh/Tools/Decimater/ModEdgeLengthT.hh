@@ -1,7 +1,7 @@
 /*===========================================================================*\
  *                                                                           *
  *                               OpenMesh                                    *
- *      Copyright (C) 2001-2011 by Computer Graphics Group, RWTH Aachen      *
+ *      Copyright (C) 2001-2014 by Computer Graphics Group, RWTH Aachen      *
  *                           www.openmesh.org                                *
  *                                                                           *
  *---------------------------------------------------------------------------*
@@ -34,8 +34,8 @@
 
 /*===========================================================================*\
  *                                                                           *
- *   $Revision: 448 $                                                        *
- *   $Date: 2011-11-04 13:59:37 +0100 (Fri, 04 Nov 2011) $                   *
+ *   $Revision: 990 $                                                        *
+ *   $Date: 2014-02-05 10:01:07 +0100 (Mi, 05 Feb 2014) $                   *
  *                                                                           *
  \*===========================================================================*/
 
@@ -53,7 +53,7 @@
 //== INCLUDES =================================================================
 
 #include <OpenMesh/Tools/Decimater/ModBaseT.hh>
-#include <float.h>
+#include <cfloat>
 
 //== NAMESPACES ===============================================================
 
@@ -70,15 +70,15 @@ namespace Decimater {
  *  - The length after the collapse is lower than the given tolerance
  *
  */
-template<class DecimaterT>
-class ModEdgeLengthT: public ModBaseT<DecimaterT> {
+template<class MeshT>
+class ModEdgeLengthT: public ModBaseT<MeshT> {
   public:
 
-    DECIMATING_MODULE( ModEdgeLengthT, DecimaterT, EdgeLength )
+    DECIMATING_MODULE( ModEdgeLengthT, MeshT, EdgeLength )
     ;
 
     /// Constructor
-    ModEdgeLengthT(DecimaterT& _dec, float _edge_length = FLT_MAX,
+    ModEdgeLengthT(MeshT& _mesh, float _edge_length = FLT_MAX,
         bool _is_binary = true);
 
     /// get edge_length
@@ -98,6 +98,9 @@ class ModEdgeLengthT: public ModBaseT<DecimaterT> {
      don't collapse edges longer as edge_length_
      */
     float collapse_priority(const CollapseInfo& _ci);
+
+    /// set the percentage of edge length
+    void set_error_tolerance_factor(double _factor);
 
   private:
 

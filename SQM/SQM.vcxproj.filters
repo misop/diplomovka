@@ -37,15 +37,6 @@
     <Filter Include="Shaders\Phong">
       <UniqueIdentifier>{dec6bf33-29bc-461b-b2e9-161e5017b2ad}</UniqueIdentifier>
     </Filter>
-    <Filter Include="poly2tri">
-      <UniqueIdentifier>{4f7e82b5-c2d8-4018-96d8-c6816a2eb069}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="poly2tri\common">
-      <UniqueIdentifier>{74762456-2daf-49de-a043-e0e661929a84}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="poly2tri\sweep">
-      <UniqueIdentifier>{e2e8b46f-31b6-4c59-a6b0-249ec835a487}</UniqueIdentifier>
-    </Filter>
   </ItemGroup>
   <ItemGroup>
     <Text Include="ReadMe.txt" />
@@ -149,21 +140,6 @@
     </ClCompile>
     <ClCompile Include="GLText.cpp">
       <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="poly2tri\common\shapes.cc">
-      <Filter>poly2tri\common</Filter>
-    </ClCompile>
-    <ClCompile Include="poly2tri\sweep\advancing_front.cc">
-      <Filter>poly2tri\sweep</Filter>
-    </ClCompile>
-    <ClCompile Include="poly2tri\sweep\cdt.cc">
-      <Filter>poly2tri\sweep</Filter>
-    </ClCompile>
-    <ClCompile Include="poly2tri\sweep\sweep.cc">
-      <Filter>poly2tri\sweep</Filter>
-    </ClCompile>
-    <ClCompile Include="poly2tri\sweep\sweep_context.cc">
-      <Filter>poly2tri\sweep</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -280,27 +256,6 @@
     </ClInclude>
     <ClInclude Include="GLText.h">
       <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="poly2tri\poly2tri.h">
-      <Filter>poly2tri</Filter>
-    </ClInclude>
-    <ClInclude Include="poly2tri\common\shapes.h">
-      <Filter>poly2tri\common</Filter>
-    </ClInclude>
-    <ClInclude Include="poly2tri\common\utils.h">
-      <Filter>poly2tri\common</Filter>
-    </ClInclude>
-    <ClInclude Include="poly2tri\sweep\advancing_front.h">
-      <Filter>poly2tri\sweep</Filter>
-    </ClInclude>
-    <ClInclude Include="poly2tri\sweep\cdt.h">
-      <Filter>poly2tri\sweep</Filter>
-    </ClInclude>
-    <ClInclude Include="poly2tri\sweep\sweep.h">
-      <Filter>poly2tri\sweep</Filter>
-    </ClInclude>
-    <ClInclude Include="poly2tri\sweep\sweep_context.h">
-      <Filter>poly2tri\sweep</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

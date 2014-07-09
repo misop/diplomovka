@@ -1,7 +1,7 @@
 /*===========================================================================*\
  *                                                                           *
  *                               OpenMesh                                    *
- *      Copyright (C) 2001-2011 by Computer Graphics Group, RWTH Aachen      *
+ *      Copyright (C) 2001-2014 by Computer Graphics Group, RWTH Aachen      *
  *                           www.openmesh.org                                *
  *                                                                           *
  *---------------------------------------------------------------------------* 
@@ -34,8 +34,8 @@
 
 /*===========================================================================*\
  *                                                                           *             
- *   $Revision: 460 $                                                         *
- *   $Date: 2011-11-16 10:45:08 +0100 (Wed, 16 Nov 2011) $                   *
+ *   $Revision: 990 $                                                         *
+ *   $Date: 2014-02-05 10:01:07 +0100 (Mi, 05 Feb 2014) $                   *
  *                                                                           *
  \*===========================================================================*/
 
@@ -65,15 +65,15 @@ namespace Decimater { // BEGIN_NS_DECIMATER
 /** Lock one-ring around remaining vertex after a collapse to prevent
  *  further collapses of halfedges incident to the one-ring vertices.
  */
-template<class DecimaterType>
-class ModIndependentSetsT: public ModBaseT<DecimaterType> {
+template<class MeshT>
+class ModIndependentSetsT: public ModBaseT<MeshT> {
   public:
-    DECIMATING_MODULE( ModIndependentSetsT, DecimaterType, IndependentSets )
+    DECIMATING_MODULE( ModIndependentSetsT, MeshT, IndependentSets )
     ;
 
     /// Constructor
-    ModIndependentSetsT(DecimaterType &_dec) :
-        Base(_dec, true) {
+    ModIndependentSetsT(MeshT &_mesh) :
+        Base(_mesh, true) {
     }
 
     /// override
@@ -82,8 +82,8 @@ class ModIndependentSetsT: public ModBaseT<DecimaterType> {
 
       Base::mesh().status(_ci.v1).set_locked(true);
       vv_it = Base::mesh().vv_iter(_ci.v1);
-      for (; vv_it; ++vv_it)
-        Base::mesh().status(vv_it).set_locked(true);
+      for (; vv_it.is_valid(); ++vv_it)
+        Base::mesh().status(*vv_it).set_locked(true);
     }
 
   private:

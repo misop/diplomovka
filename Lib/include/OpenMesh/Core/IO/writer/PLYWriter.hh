@@ -1,13 +1,13 @@
 /*===========================================================================*\
  *                                                                           *
  *                               OpenMesh                                    *
- *      Copyright (C) 2001-2011 by Computer Graphics Group, RWTH Aachen      *
+ *      Copyright (C) 2001-2014 by Computer Graphics Group, RWTH Aachen      *
  *                           www.openmesh.org                                *
  *                                                                           *
- *---------------------------------------------------------------------------* 
+ *---------------------------------------------------------------------------*
  *  This file is part of OpenMesh.                                           *
  *                                                                           *
- *  OpenMesh is free software: you can redistribute it and/or modify         * 
+ *  OpenMesh is free software: you can redistribute it and/or modify         *
  *  it under the terms of the GNU Lesser General Public License as           *
  *  published by the Free Software Foundation, either version 3 of           *
  *  the License, or (at your option) any later version with the              *
@@ -30,12 +30,12 @@
  *  License along with OpenMesh.  If not,                                    *
  *  see <http://www.gnu.org/licenses/>.                                      *
  *                                                                           *
-\*===========================================================================*/ 
+\*===========================================================================*/
 
 /*===========================================================================*\
- *                                                                           *             
- *   $Revision: 362 $                                                         *
- *   $Date: 2011-01-26 10:21:12 +0100 (Wed, 26 Jan 2011) $                   *
+ *                                                                           *
+ *   $Revision: 990 $                                                         *
+ *   $Date: 2014-02-05 10:01:07 +0100 (Mi, 05 Feb 2014) $                   *
  *                                                                           *
 \*===========================================================================*/
 
@@ -83,7 +83,7 @@ namespace IO {
     - Binary
     - Binary -> MSB
 */
-class _PLYWriter_ : public BaseWriter
+class OPENMESHDLLEXPORT _PLYWriter_ : public BaseWriter
 {
 public:
 
@@ -95,10 +95,10 @@ public:
   std::string get_description() const { return "PLY polygon file format"; }
   std::string get_extensions() const  { return "ply"; }
 
-  bool write(const std::string&, BaseExporter&, Options) const;
+  bool write(const std::string&, BaseExporter&, Options, std::streamsize _precision = 6) const;
 
-  bool write(std::ostream&, BaseExporter&, Options) const;
-  
+  bool write(std::ostream&, BaseExporter&, Options, std::streamsize _precision = 6) const;
+
   size_t binary_size(BaseExporter& _be, Options _opt) const;
 
   enum ValueType {
@@ -116,8 +116,9 @@ protected:
   void writeValue(ValueType _type, std::ostream& _out, unsigned int value) const;
   void writeValue(ValueType _type, std::ostream& _out, float value) const;
 
-  bool write_ascii(std::ostream& _in, BaseExporter&, Options) const;
-  bool write_binary(std::ostream& _in, BaseExporter&, Options) const;
+  bool write_ascii(std::ostream& _out, BaseExporter&, Options) const;
+  bool write_binary(std::ostream& _out, BaseExporter&, Options) const;
+  void write_header(std::ostream& _out, BaseExporter& _be, Options& _opt) const;
 };
 
 
@@ -126,7 +127,7 @@ protected:
 
 /// Declare the single entity of the PLY writer.
 extern _PLYWriter_  __PLYWriterInstance;
-_PLYWriter_& PLYWriter();
+OPENMESHDLLEXPORT _PLYWriter_& PLYWriter();
 
 
 //=============================================================================

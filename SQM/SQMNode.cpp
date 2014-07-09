@@ -2171,8 +2171,11 @@ void SQMNode::wormCreate(MyMesh *mesh, int vertices) {
 	oldPosition = position;
 	nodes[0]->wormStraighten(direction);
 	//first add self
-	MyMesh::VHandle vh_Q = mesh->add_vertex(position);
-	meshVhandlesToRotate.push_back(vh_Q);
+	MyMesh::VHandle vh_Q;
+	if (sqmNodeType != SQMCycleLeaf) {
+		vh_Q = mesh->add_vertex(position);
+		meshVhandlesToRotate.push_back(vh_Q);
+	}
 	//create one ring
 	OpenMesh::Vec3f axis = getAxisForCross(direction);
 	OpenMesh::Vec3f normal = cross(direction, axis).normalize();
@@ -2199,9 +2202,13 @@ void SQMNode::wormCreate(MyMesh *mesh, int vertices) {
 	}
 	//extend
 	//first self
-	for (int i = 0; i < vertices; i++) {
-		int j = (i == vertices - 1) ? 0 : (i + 1);
-		mesh->add_face(oneRing[j], vh_Q, oneRing[i]);
+	if (sqmNodeType == SQMCycleLeaf) {
+		cycleVHandles.insert(cycleVHandles.end(), oneRing.begin(), oneRing.end());
+	} else {
+		for (int i = 0; i < vertices; i++) {
+			int j = (i == vertices - 1) ? 0 : (i + 1);
+			mesh->add_face(oneRing[j], vh_Q, oneRing[i]);
+		}
 	}
 	//then others
 	(*nodes[0]->getNodes())[0]->wormStep(mesh, oneRing, direction);
@@ -2234,11 +2241,15 @@ void SQMNode::wormStraighten(OpenMesh::Vec3f lineVector) {
 
 void SQMNode::wormStep(MyMesh *mesh, vector<MyMesh::VHandle> &oneRing, OpenMesh::Vec3f lineVector) {
 	if (nodes.size() == 0) {
-		MyMesh::VHandle vh = mesh->add_vertex(position);
-		meshVhandlesToRotate.push_back(vh);
-		for (int i = 0; i < oneRing.size(); i++) {
-			int j = (i == oneRing.size() - 1) ? 0 : (i + 1);
-			mesh->add_face(oneRing[i], vh, oneRing[j]);
+		if (sqmNodeType == SQMCycleLeaf) {
+			cycleVHandles.insert(cycleVHandles.end(), oneRing.begin(), oneRing.end());
+		} else {
+			MyMesh::VHandle vh = mesh->add_vertex(position);
+			meshVhandlesToRotate.push_back(vh);
+			for (int i = 0; i < oneRing.size(); i++) {
+				int j = (i == oneRing.size() - 1) ? 0 : (i + 1);
+				mesh->add_face(oneRing[i], vh, oneRing[j]);
+			}
 		}
 		return;
 	}

@@ -46,6 +46,7 @@
     <Import Project="freetype.props" />
     <Import Project="assimp.props" />
     <Import Project="iL.props" />
+    <Import Project="poly2tri_d.props" />
   </ImportGroup>
   <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
@@ -59,6 +60,7 @@
     <Import Project="freetype.props" />
     <Import Project="assimp.props" />
     <Import Project="iL.props" />
+    <Import Project="poly2tri.props" />
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
@@ -127,21 +129,6 @@
     <ClCompile Include="MyMesh.cpp" />
     <ClCompile Include="m_math.cpp" />
     <ClCompile Include="OpenMeshVecOperations.cpp" />
-    <ClCompile Include="poly2tri\common\shapes.cc">
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
-    </ClCompile>
-    <ClCompile Include="poly2tri\sweep\advancing_front.cc">
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
-    </ClCompile>
-    <ClCompile Include="poly2tri\sweep\cdt.cc">
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
-    </ClCompile>
-    <ClCompile Include="poly2tri\sweep\sweep.cc">
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
-    </ClCompile>
-    <ClCompile Include="poly2tri\sweep\sweep_context.cc">
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
-    </ClCompile>
     <ClCompile Include="ShaderUtility.cpp" />
     <ClCompile Include="SkeletonNode.cpp" />
     <ClCompile Include="SkinSkeleton.cpp" />
@@ -185,13 +172,6 @@
     <ClInclude Include="m_math.h" />
     <ClInclude Include="OpenGL.h" />
     <ClInclude Include="OpenMeshVecOperations.h" />
-    <ClInclude Include="poly2tri\common\shapes.h" />
-    <ClInclude Include="poly2tri\common\utils.h" />
-    <ClInclude Include="poly2tri\poly2tri.h" />
-    <ClInclude Include="poly2tri\sweep\advancing_front.h" />
-    <ClInclude Include="poly2tri\sweep\cdt.h" />
-    <ClInclude Include="poly2tri\sweep\sweep.h" />
-    <ClInclude Include="poly2tri\sweep\sweep_context.h" />
     <ClInclude Include="resource.h" />
     <ClInclude Include="ShaderUtility.h" />
     <ClInclude Include="SkeletonNode.h" />

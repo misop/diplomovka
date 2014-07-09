@@ -1,7 +1,7 @@
 /*===========================================================================*\
  *                                                                           *
  *                               OpenMesh                                    *
- *      Copyright (C) 2001-2011 by Computer Graphics Group, RWTH Aachen      *
+ *      Copyright (C) 2001-2014 by Computer Graphics Group, RWTH Aachen      *
  *                           www.openmesh.org                                *
  *                                                                           *
  *---------------------------------------------------------------------------* 
@@ -34,8 +34,8 @@
 
 /*===========================================================================*\
  *                                                                           *             
- *   $Revision: 557 $                                                         *
- *   $Date: 2012-03-19 09:25:50 +0100 (Mon, 19 Mar 2012) $                   *
+ *   $Revision: 990 $                                                         *
+ *   $Date: 2014-02-05 10:01:07 +0100 (Mi, 05 Feb 2014) $                   *
  *                                                                           *
 \*===========================================================================*/
 
@@ -458,12 +458,12 @@ public:
   {
 #if DIM==N
     Scalar s(0);
-#define expr(i) s += abs(Base::values_[i]);
+#define expr(i) s += std::abs(Base::values_[i]);
     unroll(expr);
 #undef expr
     return s;
 #else
-#define expr(i) abs(Base::values_[i])
+#define expr(i) std::abs(Base::values_[i])
     return (unroll_comb(expr, +));
 #undef expr
 #endif
@@ -493,10 +493,10 @@ public:
   /// return the maximal absolute component
   inline Scalar max_abs() const
   {
-    Scalar m(abs(Base::values_[0]));
+    Scalar m(std::abs(Base::values_[0]));
     for(int i=1; i<DIM; ++i) 
-      if(abs(Base::values_[i])>m)
-        m=abs(Base::values_[i]);
+      if(std::abs(Base::values_[i])>m)
+        m=std::abs(Base::values_[i]);
     return m;
   }
 
@@ -512,10 +512,10 @@ public:
   /// return the minimal absolute component
   inline Scalar min_abs() const 
   {
-    Scalar m(abs(Base::values_[0]));
+    Scalar m(std::abs(Base::values_[0]));
     for(int i=1; i<DIM; ++i) 
-      if(abs(Base::values_[i])<m)
-        m=abs(Base::values_[i]);
+      if(std::abs(Base::values_[i])<m)
+        m=std::abs(Base::values_[i]);
     return m;
   }
 
@@ -528,14 +528,14 @@ public:
 
   /// return absolute arithmetic mean
   inline Scalar mean_abs() const {
-    Scalar m(abs(Base::values_[0]));
-    for(int i=1; i<DIM; ++i) m+=abs(Base::values_[i]);
+    Scalar m(std::abs(Base::values_[0]));
+    for(int i=1; i<DIM; ++i) m+=std::abs(Base::values_[i]);
     return m/Scalar(DIM);
   }
 
 
   /// minimize values: same as *this = min(*this, _rhs), but faster
-  inline vector_type minimize(const vector_type& _rhs) {
+  inline vector_type& minimize(const vector_type& _rhs) {
 #define expr(i) if (_rhs[i] < Base::values_[i]) Base::values_[i] = _rhs[i];
     unroll(expr);
 #undef expr
@@ -552,7 +552,7 @@ public:
   }
 
   /// maximize values: same as *this = max(*this, _rhs), but faster
-  inline vector_type maximize(const vector_type& _rhs) {
+  inline vector_type& maximize(const vector_type& _rhs) {
 #define expr(i) if (_rhs[i] > Base::values_[i]) Base::values_[i] = _rhs[i];
     unroll(expr);
 #undef expr
@@ -569,12 +569,12 @@ public:
   }
 
   /// component-wise min
-  inline vector_type min(const vector_type& _rhs) {
+  inline vector_type min(const vector_type& _rhs) const {
     return vector_type(*this).minimize(_rhs);
   }
 
   /// component-wise max
-  inline vector_type max(const vector_type& _rhs) {
+  inline vector_type max(const vector_type& _rhs) const {
     return vector_type(*this).maximize(_rhs);
   }
 

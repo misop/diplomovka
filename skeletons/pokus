@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<!DOCTYPE boost_serialization>
+<boost_serialization signature="serialization::archive" version="9">
+<node class_id="0" tracking_level="1" version="0" object_id="_0">
+	<id>0</id>
+	<point class_id="1" tracking_level="0" version="0">
+		<x>0</x>
+		<y>0</y>
+		<z>0</z>
+	</point>
+	<father class_id="-1"></father>
+	<cyclic class_id="-1"></cyclic>
+	<nodes class_id="2" tracking_level="0" version="0">
+		<count>2</count>
+		<item_version>0</item_version>
+		<item class_id_reference="0" object_id="_1">
+			<id>1</id>
+			<point>
+				<x>0</x>
+				<y>0</y>
+				<z>0</z>
+			</point>
+			<father class_id_reference="0" object_id_reference="_0"></father>
+			<cyclic class_id_reference="0" object_id="_2">
+				<id>2</id>
+				<point>
+					<x>0</x>
+					<y>0</y>
+					<z>0</z>
+				</point>
+				<father class_id_reference="0" object_id_reference="_0"></father>
+				<cyclic class_id_reference="0" object_id_reference="_1"></cyclic>
+				<nodes>
+					<count>0</count>
+					<item_version>0</item_version>
+				</nodes>
+			</cyclic>
+			<nodes>
+				<count>0</count>
+				<item_version>0</item_version>
+			</nodes>
+		</item>
+		<item class_id_reference="0" object_id_reference="_2"></item>
+	</nodes>
+</node>
+</boost_serialization>
+

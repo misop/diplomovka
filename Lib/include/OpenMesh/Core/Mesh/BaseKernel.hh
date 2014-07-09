@@ -1,7 +1,7 @@
 /*===========================================================================*\
  *                                                                           *
  *                               OpenMesh                                    *
- *      Copyright (C) 2001-2011 by Computer Graphics Group, RWTH Aachen      *
+ *      Copyright (C) 2001-2014 by Computer Graphics Group, RWTH Aachen      *
  *                           www.openmesh.org                                *
  *                                                                           *
  *---------------------------------------------------------------------------* 
@@ -34,8 +34,8 @@
 
 /*===========================================================================*\
  *                                                                           *             
- *   $Revision: 543 $                                                         *
- *   $Date: 2012-02-29 14:21:06 +0100 (Wed, 29 Feb 2012) $                   *
+ *   $Revision: 990 $                                                         *
+ *   $Date: 2014-02-05 10:01:07 +0100 (Mi, 05 Feb 2014) $                   *
  *                                                                           *
 \*===========================================================================*/
 
@@ -88,7 +88,7 @@ namespace OpenMesh {
 /// \attention Since the class PolyMeshT derives from a kernel, hence all public
 /// elements of %BaseKernel are usable.
 
-class BaseKernel
+class OPENMESHDLLEXPORT BaseKernel
 {
 public: //-------------------------------------------- constructor / destructor
 
@@ -123,7 +123,6 @@ public: //-------------------------------------------------- add new properties
    *                -# The prefixes matching "^[vhefm]:" are reserved for
    *                   internal usage.
    *                -# The expression "^<.*>$" is reserved for internal usage.
-   *  \return \c true on success else \c false.
    *
    */
 
@@ -218,7 +217,7 @@ public: //--------------------------------------------------- remove properties
   }
 
   //@}
-
+  
 public: //------------------------------------------------ get handle from name
 
   /// \name Get property handle by name
@@ -404,6 +403,138 @@ public: //-------------------------------------------- access property elements
 
   //@}
 
+
+public: //------------------------------------------------ copy property
+
+  /** Copies a single property from one mesh element to another (of the same type)
+   *
+   * @param _ph       A vertex property handle
+   * @param _vh_from  From vertex handle
+   * @param _vh_to    To vertex handle
+   */
+  template <class T>
+  void copy_property(VPropHandleT<T>& _ph, VertexHandle _vh_from, VertexHandle _vh_to) {
+    if(_vh_from.is_valid() && _vh_to.is_valid())
+      vprops_.property(_ph)[_vh_to.idx()] = vprops_.property(_ph)[_vh_from.idx()];
+  }
+
+  /** Copies a single property from one mesh element to another (of the same type)
+    *
+    * @param _ph       A halfedge property handle
+    * @param _hh_from  From halfedge handle
+    * @param _hh_to    To halfedge handle
+    */
+  template <class T>
+  void copy_property(HPropHandleT<T> _ph, HalfedgeHandle _hh_from, HalfedgeHandle _hh_to) {
+    if(_hh_from.is_valid() && _hh_to.is_valid())
+      hprops_.property(_ph)[_hh_to.idx()] = hprops_.property(_ph)[_hh_from.idx()];
+  }
+
+  /** Copies a single property from one mesh element to another (of the same type)
+    *
+    * @param _ph       An edge property handle
+    * @param _eh_from  From edge handle
+    * @param _eh_to    To edge handle
+    */
+  template <class T>
+  void copy_property(EPropHandleT<T> _ph, EdgeHandle _eh_from, EdgeHandle _eh_to) {
+    if(_eh_from.is_valid() && _eh_to.is_valid())
+      eprops_.property(_ph)[_eh_to.idx()] = eprops_.property(_ph)[_eh_from.idx()];
+  }
+
+  /** Copies a single property from one mesh element to another (of the same type)
+    *
+    * @param _ph       A face property handle
+    * @param _fh_from  From face handle
+    * @param _fh_to    To face handle
+    */
+  template <class T>
+  void copy_property(FPropHandleT<T> _ph, FaceHandle _fh_from, FaceHandle _fh_to) {
+    if(_fh_from.is_valid() && _fh_to.is_valid())
+      fprops_.property(_ph)[_fh_to.idx()] = fprops_.property(_ph)[_fh_from.idx()];
+  }
+
+
+public:
+  //------------------------------------------------ copy all properties
+
+  /** Copies all properties from one mesh element to another (of the same type)
+   *
+   *
+   * @param _vh_from A vertex handle - source
+   * @param _vh_to   A vertex handle - target
+   * @param _copyBuildIn Should the internal properties (position, normal, texture coordinate,..) be copied?
+   */
+  void copy_all_properties(VertexHandle _vh_from, VertexHandle _vh_to, bool _copyBuildIn = false) {
+
+    for( PropertyContainer::iterator p_it = vprops_.begin();
+        p_it != vprops_.end(); ++p_it) {
+
+      // Copy all properties, if build in is true
+      // Otherwise, copy only properties without build in specifier
+      if ( *p_it && ( _copyBuildIn || (*p_it)->name().substr(0,2) != "v:" ) )
+        (*p_it)->copy(_vh_from.idx(), _vh_to.idx());
+
+    }
+  }
+
+  /** Copies all properties from one mesh element to another (of the same type)
+   *
+   * @param _hh_from A halfedge handle - source
+   * @param _hh_to   A halfedge handle - target
+   * @param _copyBuildIn Should the internal properties (position, normal, texture coordinate,..) be copied?
+   */
+  void copy_all_properties(HalfedgeHandle _hh_from, HalfedgeHandle _hh_to, bool _copyBuildIn = false) {
+
+    for( PropertyContainer::iterator p_it = hprops_.begin();
+        p_it != hprops_.end(); ++p_it) {
+
+      // Copy all properties, if build in is true
+      // Otherwise, copy only properties without build in specifier
+      if ( *p_it && ( _copyBuildIn || (*p_it)->name().substr(0,2) != "h:") )
+        (*p_it)->copy(_hh_from.idx(), _hh_to.idx());
+
+    }
+  }
+
+  /** Copies all properties from one mesh element to another (of the same type)
+   *
+   * @param _eh_from An edge handle - source
+   * @param _eh_to   An edge handle - target
+   * @param _copyBuildIn Should the internal properties (position, normal, texture coordinate,..) be copied?
+   */
+  void copy_all_properties(EdgeHandle _eh_from, EdgeHandle _eh_to, bool _copyBuildIn = false) {
+    for( PropertyContainer::iterator p_it = eprops_.begin();
+        p_it != eprops_.end(); ++p_it) {
+
+      // Copy all properties, if build in is true
+      // Otherwise, copy only properties without build in specifier
+      if ( *p_it && ( _copyBuildIn || (*p_it)->name().substr(0,2) != "e:") )
+        (*p_it)->copy(_eh_from.idx(), _eh_to.idx());
+
+    }
+  }
+
+  /** Copies all properties from one mesh element to another (of the same type)
+    *
+    * @param _fh_from A face handle - source
+    * @param _fh_to   A face handle - target
+    * @param _copyBuildIn Should the internal properties (position, normal, texture coordinate,..) be copied?
+    *
+    */
+  void copy_all_properties(FaceHandle _fh_from, FaceHandle _fh_to, bool _copyBuildIn = false) {
+
+    for( PropertyContainer::iterator p_it = fprops_.begin();
+        p_it != fprops_.end(); ++p_it) {
+
+      // Copy all properties, if build in is true
+      // Otherwise, copy only properties without build in specifier
+      if ( *p_it && ( _copyBuildIn || (*p_it)->name().substr(0,2) != "f:") )
+        (*p_it)->copy(_fh_from.idx(), _fh_to.idx());
+    }
+
+  }
+
 protected: //------------------------------------------------- low-level access
 
 public: // used by non-native kernel and MeshIO, should be protected
@@ -499,16 +630,16 @@ protected: // low-level access non-public
 public: //----------------------------------------------------- element numbers
 
 
-  virtual uint n_vertices()  const { return 0; }
-  virtual uint n_halfedges() const { return 0; }
-  virtual uint n_edges()     const { return 0; }
-  virtual uint n_faces()     const { return 0; }
+  virtual size_t n_vertices()  const { return 0; }
+  virtual size_t n_halfedges() const { return 0; }
+  virtual size_t n_edges()     const { return 0; }
+  virtual size_t n_faces()     const { return 0; }
 
 
 protected: //------------------------------------------- synchronize properties
 
-  void vprops_reserve(unsigned int _n) const { vprops_.reserve(_n); }
-  void vprops_resize(unsigned int _n) const { vprops_.resize(_n); }
+  void vprops_reserve(size_t _n) const { vprops_.reserve(_n); }
+  void vprops_resize(size_t _n) const { vprops_.resize(_n); }
   void vprops_clear() {
     vprops_.clear();
   }
@@ -516,8 +647,8 @@ protected: //------------------------------------------- synchronize properties
     vprops_.swap(_i0, _i1);
   }
 
-  void hprops_reserve(unsigned int _n) const { hprops_.reserve(_n); }
-  void hprops_resize(unsigned int _n) const { hprops_.resize(_n); }
+  void hprops_reserve(size_t _n) const { hprops_.reserve(_n); }
+  void hprops_resize(size_t _n) const { hprops_.resize(_n); }
   void hprops_clear() {
     hprops_.clear();
   }
@@ -525,8 +656,8 @@ protected: //------------------------------------------- synchronize properties
     hprops_.swap(_i0, _i1);
   }
 
-  void eprops_reserve(unsigned int _n) const { eprops_.reserve(_n); }
-  void eprops_resize(unsigned int _n) const { eprops_.resize(_n); }
+  void eprops_reserve(size_t _n) const { eprops_.reserve(_n); }
+  void eprops_resize(size_t _n) const { eprops_.resize(_n); }
   void eprops_clear() {
     eprops_.clear();
   }
@@ -534,8 +665,8 @@ protected: //------------------------------------------- synchronize properties
     eprops_.swap(_i0, _i1);
   }
 
-  void fprops_reserve(unsigned int _n) const { fprops_.reserve(_n); }
-  void fprops_resize(unsigned int _n) const { fprops_.resize(_n); }
+  void fprops_reserve(size_t _n) const { fprops_.reserve(_n); }
+  void fprops_resize(size_t _n) const { fprops_.resize(_n); }
   void fprops_clear() {
     fprops_.clear();
   }
@@ -543,7 +674,7 @@ protected: //------------------------------------------- synchronize properties
     fprops_.swap(_i0, _i1);
   }
 
-  void mprops_resize(unsigned int _n) const { mprops_.resize(_n); }
+  void mprops_resize(size_t _n) const { mprops_.resize(_n); }
   void mprops_clear() {
     mprops_.clear();
   }

@@ -1,7 +1,7 @@
 /*===========================================================================*\
  *                                                                           *
  *                               OpenMesh                                    *
- *      Copyright (C) 2001-2011 by Computer Graphics Group, RWTH Aachen      *
+ *      Copyright (C) 2001-2014 by Computer Graphics Group, RWTH Aachen      *
  *                           www.openmesh.org                                *
  *                                                                           *
  *---------------------------------------------------------------------------* 
@@ -34,8 +34,8 @@
 
 /*===========================================================================*\
  *                                                                           *             
- *   $Revision: 552 $                                                         *
- *   $Date: 2012-03-02 17:16:30 +0100 (Fri, 02 Mar 2012) $                   *
+ *   $Revision: 990 $                                                         *
+ *   $Date: 2014-02-05 10:01:07 +0100 (Mi, 05 Feb 2014) $                   *
  *                                                                           *
 \*===========================================================================*/
 
@@ -97,32 +97,31 @@ void
 JacobiLaplaceSmootherT<Mesh>::
 compute_new_positions_C0()
 {
-  typename Mesh::VertexIter  v_it, v_end(Base::mesh_.vertices_end());
-  typename Mesh::CVVIter     vv_it;
-  typename Mesh::Normal      u, p, zero(0,0,0);
-  typename Mesh::Scalar      w;
+  typename Mesh::VertexIter  							v_it, v_end(Base::mesh_.vertices_end());
+  typename Mesh::ConstVertexOHalfedgeIter voh_it;
+  typename Mesh::Normal      							u, p, zero(0,0,0);
+  typename Mesh::Scalar      							w;
 
   for (v_it=Base::mesh_.vertices_begin(); v_it!=v_end; ++v_it)
   {
-    if (this->is_active(v_it))
+    if (this->is_active(*v_it))
     {
       // compute umbrella
       u = zero;
-      for (vv_it=Base::mesh_.cvv_iter(v_it); vv_it; ++vv_it)
-      {
-        w = this->weight(Base::mesh_.edge_handle(vv_it.current_halfedge_handle()));
-        u += vector_cast<typename Mesh::Normal>(Base::mesh_.point(vv_it)) * w;
+      for (voh_it = Base::mesh_.cvoh_iter(*v_it); voh_it.is_valid(); ++voh_it) {
+        w = this->weight(Base::mesh_.edge_handle(*voh_it));
+        u += vector_cast<typename Mesh::Normal>(Base::mesh_.point(Base::mesh_.to_vertex_handle(*voh_it))) * w;
       }
-      u *= this->weight(v_it);
-      u -= vector_cast<typename Mesh::Normal>(Base::mesh_.point(v_it));
+      u *= this->weight(*v_it);
+      u -= vector_cast<typename Mesh::Normal>(Base::mesh_.point(*v_it));
 
       // damping
       u *= 0.5;
     
       // store new position
-      p  = vector_cast<typename Mesh::Normal>(Base::mesh_.point(v_it));
+      p  = vector_cast<typename Mesh::Normal>(Base::mesh_.point(*v_it));
       p += u;
-      this->set_new_position(v_it, p);
+      this->set_new_position(*v_it, p);
     }
   }
 }
@@ -136,53 +135,51 @@ void
 JacobiLaplaceSmootherT<Mesh>::
 compute_new_positions_C1()
 {
-  typename Mesh::VertexIter  v_it, v_end(Base::mesh_.vertices_end());
-  typename Mesh::CVVIter     vv_it;
-  typename Mesh::Normal      u, uu, p, zero(0,0,0);
-  typename Mesh::Scalar      w, diag;
+  typename Mesh::VertexIter  							v_it, v_end(Base::mesh_.vertices_end());
+  typename Mesh::ConstVertexOHalfedgeIter voh_it;
+  typename Mesh::Normal      							u, uu, p, zero(0,0,0);
+  typename Mesh::Scalar      							w, diag;
 
 
   // 1st pass: compute umbrellas
   for (v_it=Base::mesh_.vertices_begin(); v_it!=v_end; ++v_it)
   {
     u = zero;
-    for (vv_it=Base::mesh_.cvv_iter(v_it); vv_it; ++vv_it)
-    {
-      w  = this->weight(Base::mesh_.edge_handle(vv_it.current_halfedge_handle()));
-      u -= vector_cast<typename Mesh::Normal>(Base::mesh_.point(vv_it))*w;
+    for (voh_it = Base::mesh_.cvoh_iter(*v_it); voh_it.is_valid(); ++voh_it) {
+      w  = this->weight(Base::mesh_.edge_handle(*voh_it));
+      u -= vector_cast<typename Mesh::Normal>(Base::mesh_.point(Base::mesh_.to_vertex_handle(*voh_it)))*w;
     }
-    u *= this->weight(v_it);
-    u += vector_cast<typename Mesh::Normal>(Base::mesh_.point(v_it));
+    u *= this->weight(*v_it);
+    u += vector_cast<typename Mesh::Normal>(Base::mesh_.point(*v_it));
 
-    Base::mesh_.property(umbrellas_, v_it) = u;
+    Base::mesh_.property(umbrellas_, *v_it) = u;
   }
 
 
   // 2nd pass: compute updates
   for (v_it=Base::mesh_.vertices_begin(); v_it!=v_end; ++v_it)
   {
-    if (this->is_active(v_it))
+    if (this->is_active(*v_it))
     {
       uu   = zero;
       diag = 0.0;   
-      for (vv_it=Base::mesh_.cvv_iter(v_it); vv_it; ++vv_it)
-      {
-	w     = this->weight(Base::mesh_.edge_handle(vv_it.current_halfedge_handle()));
-	uu   -= Base::mesh_.property(umbrellas_, vv_it);
-	diag += (w * this->weight(vv_it) + 1.0) * w;
+      for (voh_it = Base::mesh_.cvoh_iter(*v_it); voh_it.is_valid(); ++voh_it) {
+        w  = this->weight(Base::mesh_.edge_handle(*voh_it));
+        uu   -= Base::mesh_.property(umbrellas_, Base::mesh_.to_vertex_handle(*voh_it));
+        diag += (w * this->weight(Base::mesh_.to_vertex_handle(*voh_it)) + 1.0) * w;
       }
-      uu   *= this->weight(v_it);
-      diag *= this->weight(v_it);
-      uu   += Base::mesh_.property(umbrellas_, v_it);
+      uu   *= this->weight(*v_it);
+      diag *= this->weight(*v_it);
+      uu   += Base::mesh_.property(umbrellas_, *v_it);
       if (diag) uu *= 1.0/diag;
 
       // damping
       uu *= 0.25;
     
       // store new position
-      p  = vector_cast<typename Mesh::Normal>(Base::mesh_.point(v_it));
+      p  = vector_cast<typename Mesh::Normal>(Base::mesh_.point(*v_it));
       p -= uu;
-      this->set_new_position(v_it, p);
+      this->set_new_position(*v_it, p);
     }
   }
 }

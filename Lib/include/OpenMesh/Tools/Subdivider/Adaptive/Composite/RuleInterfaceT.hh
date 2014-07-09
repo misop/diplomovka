@@ -1,7 +1,7 @@
 /*===========================================================================*\
  *                                                                           *
  *                               OpenMesh                                    *
- *      Copyright (C) 2001-2011 by Computer Graphics Group, RWTH Aachen      *
+ *      Copyright (C) 2001-2014 by Computer Graphics Group, RWTH Aachen      *
  *                           www.openmesh.org                                *
  *                                                                           *
  *---------------------------------------------------------------------------* 
@@ -34,8 +34,8 @@
 
 /*===========================================================================*\
  *                                                                           *             
- *   $Revision: 362 $                                                         *
- *   $Date: 2011-01-26 10:21:12 +0100 (Wed, 26 Jan 2011) $                   *
+ *   $Revision: 990 $                                                         *
+ *   $Date: 2014-02-05 10:01:07 +0100 (Mi, 05 Feb 2014) $                   *
  *                                                                           *
 \*===========================================================================*/
 
@@ -237,16 +237,16 @@ public:
 
     if (_target_state > 1) {
 
-      for (fe_it = mesh_.fe_iter(_fh); fe_it; ++fe_it) {
+      for (fe_it = mesh_.fe_iter(_fh); fe_it.is_valid(); ++fe_it) {
 
-	eh = fe_it.handle();
-	prev_rule()->raise(eh, _target_state - 1);
+        eh = *fe_it;
+        prev_rule()->raise(eh, _target_state - 1);
       }
 
-      for (fv_it = mesh_.fv_iter(_fh); fv_it; ++fv_it) {
+      for (fv_it = mesh_.fv_iter(_fh); fv_it.is_valid(); ++fv_it) {
 
-	vh = fv_it.handle();
-	prev_rule()->raise(vh, _target_state - 1);
+        vh = *fv_it;
+        prev_rule()->raise(vh, _target_state - 1);
       }
     }
   }
@@ -304,19 +304,19 @@ public:
     if (_target_state > 1)
     {
 
-      for (voh_it = mesh_.voh_iter(_vh); voh_it; ++voh_it) {
-	halfedge_vector.push_back(voh_it.handle());
+      for (voh_it = mesh_.voh_iter(_vh); voh_it.is_valid(); ++voh_it) {
+        halfedge_vector.push_back(*voh_it);
       }
 
       while ( !halfedge_vector.empty() ) {
-	eh = mesh_.edge_handle(halfedge_vector.back());
-	halfedge_vector.pop_back();
+        eh = mesh_.edge_handle(halfedge_vector.back());
+        halfedge_vector.pop_back();
 
-	prev_rule()->raise(eh, _target_state - 1);
+        prev_rule()->raise(eh, _target_state - 1);
       }
 
-      for (voh_it = mesh_.voh_iter(_vh); voh_it; ++voh_it) {
-	halfedge_vector.push_back(voh_it.handle());
+      for (voh_it = mesh_.voh_iter(_vh); voh_it.is_valid(); ++voh_it) {
+        halfedge_vector.push_back(*voh_it);
       }
 
       while ( !halfedge_vector.empty() ) {

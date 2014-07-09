@@ -1,7 +1,7 @@
 /*===========================================================================*\
  *                                                                           *
  *                               OpenMesh                                    *
- *      Copyright (C) 2001-2011 by Computer Graphics Group, RWTH Aachen      *
+ *      Copyright (C) 2001-2014 by Computer Graphics Group, RWTH Aachen      *
  *                           www.openmesh.org                                *
  *                                                                           *
  *---------------------------------------------------------------------------* 
@@ -34,8 +34,8 @@
 
 /*===========================================================================*\
  *                                                                           *             
- *   $Revision: 393 $                                                         *
- *   $Date: 2011-05-24 12:22:17 +0200 (Tue, 24 May 2011) $                   *
+ *   $Revision: 990 $                                                         *
+ *   $Date: 2014-02-05 10:01:07 +0100 (Mi, 05 Feb 2014) $                   *
  *                                                                           *
 \*===========================================================================*/
 
@@ -228,7 +228,7 @@ template <> struct binary< std::string > {
     if (_v.size() < std::numeric_limits<length_t>::max() )
 #endif
     {
-      length_t len = _v.size();
+      length_t len = length_t(_v.size());
 
       if (_swap) reverse_byte_order(len);
 

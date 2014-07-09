@@ -1,7 +1,7 @@
 /*===========================================================================*\
  *                                                                           *
  *                               OpenMesh                                    *
- *      Copyright (C) 2001-2011 by Computer Graphics Group, RWTH Aachen      *
+ *      Copyright (C) 2001-2014 by Computer Graphics Group, RWTH Aachen      *
  *                           www.openmesh.org                                *
  *                                                                           *
  *---------------------------------------------------------------------------* 
@@ -34,8 +34,8 @@
 
 /*===========================================================================*\
  *                                                                           *             
- *   $Revision: 553 $                                                         *
- *   $Date: 2012-03-02 17:54:35 +0100 (Fri, 02 Mar 2012) $                   *
+ *   $Revision: 990 $                                                         *
+ *   $Date: 2014-02-05 10:01:07 +0100 (Mi, 05 Feb 2014) $                   *
  *                                                                           *
 \*===========================================================================*/
 
@@ -167,29 +167,184 @@ public:
 
   //--- halfedge collapse / vertex split ---
 
-  /// Vertex Split: inverse operation to collapse().
+  /** \brief Vertex Split: inverse operation to collapse().
+   *
+   * Insert the new vertex at position v0. The vertex will be added
+   * as the inverse of the vertex split. The faces above the split
+   * will be correctly attached to the two new edges
+   *
+   * Before:
+   * v_l     v0     v_r
+   *  x      x      x
+   *   \           /
+   *    \         /
+   *     \       /
+   *      \     /
+   *       \   /
+   *        \ /
+   *         x
+   *         v1
+   *
+   * After:
+   * v_l    v0      v_r
+   *  x------x------x
+   *   \     |     /
+   *    \    |    /
+   *     \   |   /
+   *      \  |  /
+   *       \ | /
+   *        \|/
+   *         x
+   *         v1
+   *
+   * @param _v0_point Point position for the new point
+   * @param _v1       Vertex that will be split
+   * @param _vl       Left vertex handle
+   * @param _vr       Right vertex handle
+   * @return Newly inserted halfedge
+   */
   inline HalfedgeHandle vertex_split(Point _v0_point,  VertexHandle _v1,
                                      VertexHandle _vl, VertexHandle _vr)
   { return PolyMesh::vertex_split(add_vertex(_v0_point), _v1, _vl, _vr); }
 
+  /** \brief Vertex Split: inverse operation to collapse().
+   *
+   * Insert the new vertex at position v0. The vertex will be added
+   * as the inverse of the vertex split. The faces above the split
+   * will be correctly attached to the two new edges
+   *
+   * Before:
+   * v_l     v0     v_r
+   *  x      x      x
+   *   \           /
+   *    \         /
+   *     \       /
+   *      \     /
+   *       \   /
+   *        \ /
+   *         x
+   *         v1
+   *
+   * After:
+   * v_l    v0      v_r
+   *  x------x------x
+   *   \     |     /
+   *    \    |    /
+   *     \   |   /
+   *      \  |  /
+   *       \ | /
+   *        \|/
+   *         x
+   *         v1
+   *
+   * @param _v0 Vertex handle for the newly inserted point (Input has to be unconnected!)
+   * @param _v1 Vertex that will be split
+   * @param _vl Left vertex handle
+   * @param _vr Right vertex handle
+   * @return Newly inserted halfedge
+   */
   inline HalfedgeHandle vertex_split(VertexHandle _v0, VertexHandle _v1,
                                      VertexHandle _vl, VertexHandle _vr)
   { return PolyMesh::vertex_split(_v0, _v1, _vl, _vr); }
 
-  /// Edge split (= 2-to-4 split)
-  /// Do not call PolyMeshT function below as this does the wrong operation
-  inline void split(EdgeHandle _eh, const Point& _p)
-  { Kernel::split(_eh, this->add_vertex(_p)); }
+  /** \brief Edge split (= 2-to-4 split)
+   *
+   * The properties of the new edges will be undefined!
+   *
+   *
+   * @param _eh Edge handle that should be splitted
+   * @param _p  New point position that will be inserted at the edge
+   * @return    Vertex handle of the newly added vertex
+   */
+  inline VertexHandle split(EdgeHandle _eh, const Point& _p)
+  {
+    //Do not call PolyMeshT function below as this does the wrong operation
+    const VertexHandle vh = this->add_vertex(_p); Kernel::split(_eh, vh); return vh;
+  }
 
+  /** \brief Edge split (= 2-to-4 split)
+   *
+   * The properties of the new edges will be adjusted to the properties of the original edge
+   *
+   * @param _eh Edge handle that should be splitted
+   * @param _p  New point position that will be inserted at the edge
+   * @return    Vertex handle of the newly added vertex
+   */
+  inline VertexHandle split_copy(EdgeHandle _eh, const Point& _p)
+  {
+    //Do not call PolyMeshT function below as this does the wrong operation
+    const VertexHandle vh = this->add_vertex(_p); Kernel::split_copy(_eh, vh); return vh;
+  }
+
+  /** \brief Edge split (= 2-to-4 split)
+   *
+   * The properties of the new edges will be undefined!
+   *
+   * @param _eh Edge handle that should be splitted
+   * @param _vh Vertex handle that will be inserted at the edge
+   */
   inline void split(EdgeHandle _eh, VertexHandle _vh)
-  { Kernel::split(_eh, _vh); }
+  {
+    //Do not call PolyMeshT function below as this does the wrong operation
+    Kernel::split(_eh, _vh);
+  }
 
-  /// Face split (= 1-to-3 split, calls corresponding PolyMeshT function).
-  inline void split(FaceHandle _fh, const Point& _p)
-  { PolyMesh::split(_fh, _p); }
+  /** \brief Edge split (= 2-to-4 split)
+   *
+   * The properties of the new edges will be adjusted to the properties of the original edge
+   *
+   * @param _eh Edge handle that should be splitted
+   * @param _vh Vertex handle that will be inserted at the edge
+   */
+  inline void split_copy(EdgeHandle _eh, VertexHandle _vh)
+  {
+    //Do not call PolyMeshT function below as this does the wrong operation
+    Kernel::split_copy(_eh, _vh);
+  }
 
+  /** \brief Face split (= 1-to-3 split, calls corresponding PolyMeshT function).
+   *
+   * The properties of the new faces will be undefined!
+   *
+   * @param _fh Face handle that should be splitted
+   * @param _p  New point position that will be inserted in the face
+   *
+   * @return Vertex handle of the new vertex
+   */
+  inline VertexHandle split(FaceHandle _fh, const Point& _p)
+  { const VertexHandle vh = this->add_vertex(_p); PolyMesh::split(_fh, vh); return vh; }
+
+  /** \brief Face split (= 1-to-3 split, calls corresponding PolyMeshT function).
+   *
+   * The properties of the new faces will be adjusted to the properties of the original face
+   *
+   * @param _fh Face handle that should be splitted
+   * @param _p  New point position that will be inserted in the face
+   *
+   * @return Vertex handle of the new vertex
+   */
+  inline VertexHandle split_copy(FaceHandle _fh, const Point& _p)
+  { const VertexHandle vh = this->add_vertex(_p);  PolyMesh::split_copy(_fh, vh); return vh; }
+
+  /** \brief Face split (= 1-to-3 split, calls corresponding PolyMeshT function).
+   *
+   * The properties of the new faces will be undefined!
+   *
+   * @param _fh Face handle that should be splitted
+   * @param _vh Vertex handle that will be inserted at the face
+   */
   inline void split(FaceHandle _fh, VertexHandle _vh)
   { PolyMesh::split(_fh, _vh); }
+
+  /** \brief Face split (= 1-to-3 split, calls corresponding PolyMeshT function).
+   *
+   * The properties of the new faces will be adjusted to the properties of the original face
+   *
+   * @param _fh Face handle that should be splitted
+   * @param _vh Vertex handle that will be inserted at the face
+   */
+  inline void split_copy(FaceHandle _fh, VertexHandle _vh)
+  { PolyMesh::split_copy(_fh, _vh); }
   
   /** \name Normal vector computation
   */

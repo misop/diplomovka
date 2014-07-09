@@ -1,7 +1,7 @@
 /*===========================================================================*\
  *                                                                           *
  *                               OpenMesh                                    *
- *      Copyright (C) 2001-2011 by Computer Graphics Group, RWTH Aachen      *
+ *      Copyright (C) 2001-2014 by Computer Graphics Group, RWTH Aachen      *
  *                           www.openmesh.org                                *
  *                                                                           *
  *---------------------------------------------------------------------------* 
@@ -34,8 +34,8 @@
 
 /*===========================================================================*\
  *                                                                           *             
- *   $Revision: 362 $                                                         *
- *   $Date: 2011-01-26 10:21:12 +0100 (Wed, 26 Jan 2011) $                   *
+ *   $Revision: 990 $                                                         *
+ *   $Date: 2014-02-05 10:01:07 +0100 (Mi, 05 Feb 2014) $                   *
  *                                                                           *
 \*===========================================================================*/
 
@@ -52,7 +52,7 @@
 //== INCLUDES =================================================================
 
 #include <OpenMesh/Tools/VDPM/VHierarchy.hh>
-
+#include <algorithm>
 
 //== FORWARDDECLARATIONS ======================================================
 
@@ -77,7 +77,7 @@ private:
   // bits buffer (byte units)
   unsigned char *buffer_;
   int           buffer_min_;
-  int           buffer_max_;
+  size_t        buffer_max_;
   int           current_pos_;
 
   // window (byte units)
@@ -114,7 +114,7 @@ private:
   { return (_node_handle.idx()/8 < buffer_min_) ? true : false; }
 
   bool overflow(VHierarchyNodeHandle _node_handle) const
-  { return (_node_handle.idx()/8 < buffer_max_) ? false : true; }  
+  { return (_node_handle.idx()/8 < int(buffer_max_) ) ? false : true; }
 
   bool update_buffer(VHierarchyNodeHandle _node_handle);
 
@@ -172,7 +172,7 @@ public:
   bool end() { return !(current_pos_ < window_max_-buffer_min_); }
 
   int window_size() const      { return  window_max_ - window_min_; }
-  int buffer_size() const      { return  buffer_max_ - buffer_min_; }
+  size_t buffer_size() const      { return  buffer_max_ - buffer_min_; }
 
   VHierarchyNodeHandle node_handle()
   {

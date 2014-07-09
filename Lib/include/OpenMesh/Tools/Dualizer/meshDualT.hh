@@ -1,7 +1,7 @@
 /*===========================================================================*\
  *                                                                           *
  *                               OpenMesh                                    *
- *      Copyright (C) 2001-2011 by Computer Graphics Group, RWTH Aachen      *
+ *      Copyright (C) 2001-2014 by Computer Graphics Group, RWTH Aachen      *
  *                           www.openmesh.org                                *
  *                                                                           *
  *---------------------------------------------------------------------------*
@@ -34,8 +34,8 @@
 
 /*===========================================================================*\
  *                                                                           *
- *   $Revision: 362 $                                                         *
- *   $Date: 2011-01-26 10:21:12 +0100 (Wed, 26 Jan 2011) $                   *
+ *   $Revision: 990 $                                                         *
+ *   $Date: 2014-02-05 10:01:07 +0100 (Mi, 05 Feb 2014) $                   *
  *                                                                           *
 \*===========================================================================*/
 
@@ -99,32 +99,32 @@ PolyMesh_ArrayKernelT<MeshTraits>* MeshDual (PolyMesh_ArrayKernelT<MeshTraits> &
   for(typename PolyMesh_ArrayKernelT<MeshTraits>::ConstFaceIter fit=primal.faces_begin(); fit!=primal.faces_end(); ++fit)
   {
       typename PolyMesh_ArrayKernelT<MeshTraits>::Point centerPoint(0,0,0);
-      unsigned int degree= 0;
-      for(typename PolyMesh_ArrayKernelT<MeshTraits>::ConstFaceVertexIter vit=primal.cfv_iter(fit); vit; ++vit, ++degree)
-	  centerPoint += primal.point(vit.handle());
-      assert(degree!=0);
-      centerPoint /= degree;
-      primal.property(primalToDual, fit) = dual->add_vertex(centerPoint);
+      typename PolyMesh_ArrayKernelT<MeshTraits>::Scalar degree= 0.0;
+      for(typename PolyMesh_ArrayKernelT<MeshTraits>::ConstFaceVertexIter vit=primal.cfv_iter(*fit); vit.is_valid(); ++vit, ++degree)
+        centerPoint += primal.point(*vit);
+        assert(degree!=0);
+        centerPoint /= degree;
+        primal.property(primalToDual, *fit) = dual->add_vertex(centerPoint);
   }
 
   //for each vertex in the primal, add a face in the dual
   std::vector< typename PolyMesh_ArrayKernelT<MeshTraits>::VertexHandle >  face_vhandles;
   for(typename PolyMesh_ArrayKernelT<MeshTraits>::ConstVertexIter vit=primal.vertices_begin(); vit!=primal.vertices_end(); ++vit)
   {
-      if(!primal.is_boundary(vit.handle()))
-      {
-	  face_vhandles.clear();
-	  for(typename PolyMesh_ArrayKernelT<MeshTraits>::ConstVertexFaceIter fit=primal.cvf_iter(vit); fit; ++fit)
-	      face_vhandles.push_back(primal.property(primalToDual, fit));
-	  dual->add_face(face_vhandles);
-      }
+    if(!primal.is_boundary(*vit))
+    {
+      face_vhandles.clear();
+      for(typename PolyMesh_ArrayKernelT<MeshTraits>::ConstVertexFaceIter fit=primal.cvf_iter(*vit); fit.is_valid(); ++fit)
+        face_vhandles.push_back(primal.property(primalToDual, *fit));
+      dual->add_face(face_vhandles);
+    }
   }
 
   primal.remove_property(primalToDual);
 
   return dual;
 
-};
+}
 
 //=============================================================================
 } // namespace Util

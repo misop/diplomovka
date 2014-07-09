@@ -1,7 +1,7 @@
 /*===========================================================================*\
  *                                                                           *
  *                               OpenMesh                                    *
- *      Copyright (C) 2001-2011 by Computer Graphics Group, RWTH Aachen      *
+ *      Copyright (C) 2001-2014 by Computer Graphics Group, RWTH Aachen      *
  *                           www.openmesh.org                                *
  *                                                                           *
  *---------------------------------------------------------------------------*
@@ -34,8 +34,8 @@
 
 /*===========================================================================*\
  *                                                                           *
- *   $Revision: 362 $                                                         *
- *   $Date: 2011-01-26 10:21:12 +0100 (Wed, 26 Jan 2011) $                   *
+ *   $Revision: 990 $                                                         *
+ *   $Date: 2014-02-05 10:01:07 +0100 (Mi, 05 Feb 2014) $                   *
  *                                                                           *
 \*===========================================================================*/
 
@@ -111,7 +111,7 @@ class BaseImporter;
 
 */
 
-class _OFFReader_ : public BaseReader
+class OPENMESHDLLEXPORT _OFFReader_ : public BaseReader
 {
 public:
 
@@ -136,8 +136,8 @@ private:
 
   bool can_u_read(std::istream& _is) const;
 
-  bool read_ascii(std::istream& _in, BaseImporter& _bi) const;
-  bool read_binary(std::istream& _in, BaseImporter& _bi, bool swap) const;
+  bool read_ascii(std::istream& _in, BaseImporter& _bi, Options& _opt) const;
+  bool read_binary(std::istream& _in, BaseImporter& _bi, Options& _opt, bool swap) const;
 
   void readValue(std::istream& _in, float& _value) const;
   void readValue(std::istream& _in, int& _value) const;
@@ -157,7 +157,7 @@ private:
 
 /// Declare the single entity of the OFF reader
 extern _OFFReader_  __OFFReaderInstance;
-_OFFReader_&  OFFReader();
+OPENMESHDLLEXPORT _OFFReader_& OFFReader();
 
 
 //=============================================================================

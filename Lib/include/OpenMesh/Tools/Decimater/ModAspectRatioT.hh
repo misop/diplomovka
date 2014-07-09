@@ -1,7 +1,7 @@
 /*===========================================================================*\
  *                                                                           *
  *                               OpenMesh                                    *
- *      Copyright (C) 2001-2011 by Computer Graphics Group, RWTH Aachen      *
+ *      Copyright (C) 2001-2014 by Computer Graphics Group, RWTH Aachen      *
  *                           www.openmesh.org                                *
  *                                                                           *
  *---------------------------------------------------------------------------*
@@ -34,8 +34,8 @@
 
 /*===========================================================================*\
  *                                                                           *
- *   $Revision: 448 $                                                        *
- *   $Date: 2011-11-04 13:59:37 +0100 (Fri, 04 Nov 2011) $                   *
+ *   $Revision: 1050 $                                                        *
+ *   $Date: 2014-05-09 10:12:41 +0200 (Fr, 09 Mai 2014) $                   *
  *                                                                           *
  \*===========================================================================*/
 
@@ -76,20 +76,20 @@ namespace Decimater {
  *
  *
  */
-template<class DecimaterT>
-class ModAspectRatioT: public ModBaseT<DecimaterT> {
+template<class MeshT>
+class ModAspectRatioT: public ModBaseT<MeshT> {
   public:
 
-    DECIMATING_MODULE( ModAspectRatioT, DecimaterT, Roundness )
+    DECIMATING_MODULE( ModAspectRatioT, MeshT, AspectRatio )
     ;
 
     typedef typename Mesh::Scalar Scalar;
     typedef typename Mesh::Point Point;
 
     /// constructor
-    ModAspectRatioT(DecimaterT& _dec, float _min_aspect = 5.0, bool _is_binary =
+    ModAspectRatioT(MeshT& _mesh, float _min_aspect = 5.0, bool _is_binary =
         true) :
-        Base(_dec, _is_binary), mesh_(Base::mesh()), min_aspect_(
+        Base(_mesh, _is_binary), mesh_(Base::mesh()), min_aspect_(
             1.0 / _min_aspect) {
       mesh_.add_property(aspect_);
     }
@@ -117,6 +117,9 @@ class ModAspectRatioT: public ModBaseT<DecimaterT> {
 
     /// update aspect ratio of one-ring
     void preprocess_collapse(const CollapseInfo& _ci);
+
+    /// set percentage of aspect ratio
+    void set_error_tolerance_factor(double _factor);
 
   private:
 

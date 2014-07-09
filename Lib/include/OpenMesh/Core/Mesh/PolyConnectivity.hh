@@ -1,7 +1,7 @@
 /*===========================================================================*\
  *                                                                           *
  *                               OpenMesh                                    *
- *      Copyright (C) 2001-2011 by Computer Graphics Group, RWTH Aachen      *
+ *      Copyright (C) 2001-2014 by Computer Graphics Group, RWTH Aachen      *
  *                           www.openmesh.org                                *
  *                                                                           *
  *---------------------------------------------------------------------------* 
@@ -34,8 +34,8 @@
 
 /*===========================================================================*\
  *                                                                           *             
- *   $Revision: 570 $                                                         *
- *   $Date: 2012-04-05 16:25:45 +0200 (Thu, 05 Apr 2012) $                   *
+ *   $Revision: 1035 $                                                         *
+ *   $Date: 2014-05-02 10:58:56 +0200 (Fr, 02 Mai 2014) $                   *
  *                                                                           *
 \*===========================================================================*/
 
@@ -51,7 +51,7 @@ namespace OpenMesh
 
 /** \brief Connectivity Class for polygonal meshes
 */
-class PolyConnectivity : public ArrayKernel
+class OPENMESHDLLEXPORT PolyConnectivity : public ArrayKernel
 {
 public:
   /// \name Mesh Handles
@@ -94,26 +94,69 @@ public:
       for documentation.
   */
   //@{
-  /// Circulator
-  typedef Iterators::VertexVertexIterT<This>          VertexVertexIter;
-  typedef Iterators::VertexOHalfedgeIterT<This>       VertexOHalfedgeIter;
-  typedef Iterators::VertexIHalfedgeIterT<This>       VertexIHalfedgeIter;
-  typedef Iterators::VertexEdgeIterT<This>            VertexEdgeIter;
-  typedef Iterators::VertexFaceIterT<This>            VertexFaceIter;
-  typedef Iterators::FaceVertexIterT<This>            FaceVertexIter;
-  typedef Iterators::FaceHalfedgeIterT<This>          FaceHalfedgeIter;
-  typedef Iterators::FaceEdgeIterT<This>              FaceEdgeIter;
-  typedef Iterators::FaceFaceIterT<This>              FaceFaceIter;
 
-  typedef Iterators::ConstVertexVertexIterT<This>     ConstVertexVertexIter;
-  typedef Iterators::ConstVertexOHalfedgeIterT<This>  ConstVertexOHalfedgeIter;
-  typedef Iterators::ConstVertexIHalfedgeIterT<This>  ConstVertexIHalfedgeIter;
-  typedef Iterators::ConstVertexEdgeIterT<This>       ConstVertexEdgeIter;
-  typedef Iterators::ConstVertexFaceIterT<This>       ConstVertexFaceIter;
-  typedef Iterators::ConstFaceVertexIterT<This>       ConstFaceVertexIter;
-  typedef Iterators::ConstFaceHalfedgeIterT<This>     ConstFaceHalfedgeIter;
-  typedef Iterators::ConstFaceEdgeIterT<This>         ConstFaceEdgeIter;
-  typedef Iterators::ConstFaceFaceIterT<This>         ConstFaceFaceIter;
+  /*
+   * Vertex-centered circulators
+   */
+  typedef Iterators::GenericCirculatorT<This,  This::VertexHandle,  This::VertexHandle,
+          &Iterators::GenericCirculatorBaseT<This>::toVertexHandle>
+  VertexVertexIter;
+
+  typedef Iterators::GenericCirculatorT<This,  This::VertexHandle,  This::HalfedgeHandle,
+          &Iterators::GenericCirculatorBaseT<This>::toHalfedgeHandle>
+  VertexOHalfedgeIter;
+
+  typedef Iterators::GenericCirculatorT<This,  This::VertexHandle,  This::HalfedgeHandle,
+          &Iterators::GenericCirculatorBaseT<This>::toOppositeHalfedgeHandle>
+  VertexIHalfedgeIter;
+
+  typedef Iterators::GenericCirculatorT<This,  This::VertexHandle,  This::FaceHandle,
+          &Iterators::GenericCirculatorBaseT<This>::toFaceHandle>
+  VertexFaceIter;
+
+  typedef Iterators::GenericCirculatorT<This,  This::VertexHandle,  This::EdgeHandle,
+          &Iterators::GenericCirculatorBaseT<This>::toEdgeHandle>
+  VertexEdgeIter;
+
+  typedef Iterators::GenericCirculatorT<This, This::FaceHandle, This::HalfedgeHandle,
+      &Iterators::GenericCirculatorBaseT<This>::toHalfedgeHandle>
+  HalfedgeLoopIter;
+
+  typedef VertexVertexIter    ConstVertexVertexIter;
+  typedef VertexOHalfedgeIter ConstVertexOHalfedgeIter;
+  typedef VertexIHalfedgeIter ConstVertexIHalfedgeIter;
+  typedef VertexFaceIter      ConstVertexFaceIter;
+  typedef VertexEdgeIter      ConstVertexEdgeIter;
+
+  /*
+   * Face-centered circulators
+   */
+  typedef Iterators::GenericCirculatorT<This,  This::FaceHandle,  This::VertexHandle,
+          &Iterators::GenericCirculatorBaseT<This>::toVertexHandle>
+  FaceVertexIter;
+
+  typedef Iterators::GenericCirculatorT<This,  This::FaceHandle,  This::HalfedgeHandle,
+          &Iterators::GenericCirculatorBaseT<This>::toHalfedgeHandle>
+  FaceHalfedgeIter;
+
+  typedef Iterators::GenericCirculatorT<This,  This::FaceHandle,  This::EdgeHandle,
+          &Iterators::GenericCirculatorBaseT<This>::toEdgeHandle>
+  FaceEdgeIter;
+
+  typedef Iterators::GenericCirculatorT<This,  This::FaceHandle,  This::FaceHandle,
+          &Iterators::GenericCirculatorBaseT<This>::toOppositeFaceHandle>
+  FaceFaceIter;
+
+  typedef FaceVertexIter      ConstFaceVertexIter;
+  typedef FaceHalfedgeIter    ConstFaceHalfedgeIter;
+  typedef FaceEdgeIter        ConstFaceEdgeIter;
+  typedef FaceFaceIter        ConstFaceFaceIter;
+
+  /*
+   * Halfedge circulator
+   */
+  typedef HalfedgeLoopIter   ConstHalfedgeLoopIter;
+
   //@}
 
   // --- shortcuts
@@ -187,8 +230,7 @@ public:
   *
   * @param _vhandles sorted list of vertex handles (also defines order in which the vertices are added to the face)
   */
-  FaceHandle add_face(const std::vector<VertexHandle>& _vhandles)
-  { return add_face(&_vhandles.front(), _vhandles.size()); }
+  FaceHandle add_face(const std::vector<VertexHandle>& _vhandles);
  
    
   /** \brief Add and connect a new face
@@ -200,11 +242,7 @@ public:
   * @param _vh1 Second vertex handle
   * @param _vh2 Third  vertex handle
   */
-  FaceHandle add_face(VertexHandle _vh0, VertexHandle _vh1, VertexHandle _vh2)
-  { 
-    VertexHandle vhs[3] = { _vh0, _vh1, _vh2 };
-    return add_face(vhs, 3); 
-  }
+  FaceHandle add_face(VertexHandle _vh0, VertexHandle _vh1, VertexHandle _vh2);
 
   /** \brief Add and connect a new face
   *
@@ -216,11 +254,7 @@ public:
   * @param _vh2 Third  vertex handle
   * @param _vh3 Fourth vertex handle
   */
-  FaceHandle add_face(VertexHandle _vh0, VertexHandle _vh1, VertexHandle _vh2, VertexHandle _vh3)
-  { 
-    VertexHandle vhs[4] = { _vh0, _vh1, _vh2, _vh3 };
-    return add_face(vhs, 4); 
-  }
+  FaceHandle add_face(VertexHandle _vh0, VertexHandle _vh1, VertexHandle _vh2, VertexHandle _vh3);
  
   /** \brief Add and connect a new face
   *
@@ -231,6 +265,7 @@ public:
   * @param _vhs_size number of vertex handles in the array
   */
   FaceHandle add_face(const VertexHandle* _vhandles, size_t _vhs_size);
+
   //@}
 
   /// \name Deleting mesh items and other connectivity/topology modifications
@@ -261,7 +296,7 @@ public:
   void delete_edge(EdgeHandle _eh, bool _delete_isolated_vertices=true);
 
   /** Delete face _fh and resulting degenerated empty halfedges as
-      well.  Resultling isolated vertices will be deleted if
+      well.  Resulting isolated vertices will be deleted if
       _delete_isolated_vertices is true.
 
       \attention All item will only be marked to be deleted. They will
@@ -279,59 +314,41 @@ public:
   //@{
 
   /// Begin iterator for vertices
-  VertexIter vertices_begin()
-  { return VertexIter(*this, VertexHandle(0)); }
+  VertexIter vertices_begin();
   /// Const begin iterator for vertices
-  ConstVertexIter vertices_begin() const
-  { return ConstVertexIter(*this, VertexHandle(0)); }
+  ConstVertexIter vertices_begin() const;
   /// End iterator for vertices
-  VertexIter vertices_end()
-  { return VertexIter(*this, VertexHandle(n_vertices())); }
+  VertexIter vertices_end();
   /// Const end iterator for vertices
-  ConstVertexIter vertices_end() const
-  { return ConstVertexIter(*this, VertexHandle(n_vertices())); }
+  ConstVertexIter vertices_end() const;
 
   /// Begin iterator for halfedges
-  HalfedgeIter halfedges_begin()
-  { return HalfedgeIter(*this, HalfedgeHandle(0)); }
+  HalfedgeIter halfedges_begin();
   /// Const begin iterator for halfedges
-  ConstHalfedgeIter halfedges_begin() const
-  { return ConstHalfedgeIter(*this, HalfedgeHandle(0)); }
+  ConstHalfedgeIter halfedges_begin() const;
   /// End iterator for halfedges
-  HalfedgeIter halfedges_end()
-  { return HalfedgeIter(*this, HalfedgeHandle(n_halfedges())); }
+  HalfedgeIter halfedges_end();
   /// Const end iterator for halfedges
-  ConstHalfedgeIter halfedges_end() const
-  { return ConstHalfedgeIter(*this, HalfedgeHandle(n_halfedges())); }
+  ConstHalfedgeIter halfedges_end() const;
 
   /// Begin iterator for edges
-  EdgeIter edges_begin()
-  { return EdgeIter(*this, EdgeHandle(0)); }
+  EdgeIter edges_begin();
   /// Const begin iterator for edges
-  ConstEdgeIter edges_begin() const
-  { return ConstEdgeIter(*this, EdgeHandle(0)); }
+  ConstEdgeIter edges_begin() const;
   /// End iterator for edges
-  EdgeIter edges_end()
-  { return EdgeIter(*this, EdgeHandle(n_edges())); }
+  EdgeIter edges_end();
   /// Const end iterator for edges
-  ConstEdgeIter edges_end() const
-  { return ConstEdgeIter(*this, EdgeHandle(n_edges())); }
+  ConstEdgeIter edges_end() const;
 
   /// Begin iterator for faces
-  FaceIter faces_begin()
-  { return FaceIter(*this, FaceHandle(0)); }
+  FaceIter faces_begin();
   /// Const begin iterator for faces
-  ConstFaceIter faces_begin() const
-  { return ConstFaceIter(*this, FaceHandle(0)); }
+  ConstFaceIter faces_begin() const;
   /// End iterator for faces
-  FaceIter faces_end()
-  { return FaceIter(*this, FaceHandle(n_faces())); }
+  FaceIter faces_end();
   /// Const end iterator for faces
-  ConstFaceIter faces_end() const
-  { return ConstFaceIter(*this, FaceHandle(n_faces())); }
-
+  ConstFaceIter faces_end() const;
   //@}
-
 
 
   /** \name Begin for skipping iterators
@@ -478,6 +495,9 @@ public:
   /// face - face circulator
   FaceFaceIter ff_begin(FaceHandle _fh)
   { return FaceFaceIter(*this, _fh); }
+  /// halfedge circulator
+  HalfedgeLoopIter hl_begin(HalfedgeHandle _heh)
+  { return HalfedgeLoopIter(*this, _heh); }
 
   /// const face - vertex circulator
   ConstFaceVertexIter cfv_begin(FaceHandle _fh) const
@@ -491,6 +511,9 @@ public:
   /// const face - face circulator
   ConstFaceFaceIter cff_begin(FaceHandle _fh) const
   { return ConstFaceFaceIter(*this, _fh); }
+  /// const halfedge circulator
+  ConstHalfedgeLoopIter chl_begin(HalfedgeHandle _heh) const
+  { return ConstHalfedgeLoopIter(*this, _heh); }
   
   // 'end' circulators
   
@@ -538,6 +561,9 @@ public:
   /// face - face circulator
   FaceFaceIter ff_end(FaceHandle _fh)
   { return FaceFaceIter(*this, _fh, true); }
+  /// face - face circulator
+  HalfedgeLoopIter hl_end(HalfedgeHandle _heh)
+  { return HalfedgeLoopIter(*this, _heh, true); }
 
   /// const face - vertex circulator
   ConstFaceVertexIter cfv_end(FaceHandle _fh) const
@@ -551,38 +577,293 @@ public:
   /// const face - face circulator
   ConstFaceFaceIter cff_end(FaceHandle _fh) const
   { return ConstFaceFaceIter(*this, _fh, true); }
+  /// const face - face circulator
+  ConstHalfedgeLoopIter chl_end(HalfedgeHandle _heh) const
+  { return ConstHalfedgeLoopIter(*this, _heh, true); }
   //@}
 
-  /** \name Boundary and manifold tests
-  */
+  /** @name Range based iterators and circulators */
   //@{
+
+  /// Generic class for vertex/halfedge/edge/face ranges.
+  template<
+      typename CONTAINER_TYPE,
+      typename ITER_TYPE,
+      ITER_TYPE (CONTAINER_TYPE::*begin_fn)() const,
+      ITER_TYPE (CONTAINER_TYPE::*end_fn)() const>
+  class EntityRange {
+      public:
+          EntityRange(CONTAINER_TYPE &container) : container_(container) {}
+          ITER_TYPE begin() { return (container_.*begin_fn)(); }
+          ITER_TYPE end() { return (container_.*end_fn)(); }
+
+      private:
+          CONTAINER_TYPE &container_;
+  };
+  typedef EntityRange<
+          const PolyConnectivity,
+          PolyConnectivity::ConstVertexIter,
+          &PolyConnectivity::vertices_begin,
+          &PolyConnectivity::vertices_end> ConstVertexRange;
+  typedef EntityRange<
+          const PolyConnectivity,
+          PolyConnectivity::ConstHalfedgeIter,
+          &PolyConnectivity::halfedges_begin,
+          &PolyConnectivity::halfedges_end> ConstHalfedgeRange;
+  typedef EntityRange<
+          const PolyConnectivity,
+          PolyConnectivity::ConstEdgeIter,
+          &PolyConnectivity::edges_begin,
+          &PolyConnectivity::edges_end> ConstEdgeRange;
+  typedef EntityRange<
+          const PolyConnectivity,
+          PolyConnectivity::ConstFaceIter,
+          &PolyConnectivity::faces_begin,
+          &PolyConnectivity::faces_end> ConstFaceRange;
+
+  /**
+   * @return The vertices as a range object suitable
+   * for C++11 range based for loops.
+   */
+  ConstVertexRange vertices() const { return ConstVertexRange(*this); }
+
+  /**
+   * @return The halfedges as a range object suitable
+   * for C++11 range based for loops.
+   */
+  ConstHalfedgeRange halfedges() const { return ConstHalfedgeRange(*this); }
+
+  /**
+   * @return The edges as a range object suitabl
+   * for C++11 range based for loops.
+   */
+  ConstEdgeRange edges() const { return ConstEdgeRange(*this); }
+
+  /**
+   * @return The faces as a range object suitable
+   * for C++11 range based for loops.
+   */
+  ConstFaceRange faces() const { return ConstFaceRange(*this); }
+
+  /// Generic class for iterator ranges.
+  template<
+      typename CONTAINER_TYPE,
+      typename ITER_TYPE,
+      typename CENTER_ENTITY_TYPE,
+      ITER_TYPE (CONTAINER_TYPE::*begin_fn)(CENTER_ENTITY_TYPE) const,
+      ITER_TYPE (CONTAINER_TYPE::*end_fn)(CENTER_ENTITY_TYPE) const>
+  class CirculatorRange {
+      public:
+          CirculatorRange(
+                  CONTAINER_TYPE &container,
+                  CENTER_ENTITY_TYPE center) :
+              container_(container), center_(center) {}
+          ITER_TYPE begin() { return (container_.*begin_fn)(center_); }
+          ITER_TYPE end() { return (container_.*end_fn)(center_); }
+
+      private:
+          CONTAINER_TYPE &container_;
+          CENTER_ENTITY_TYPE center_;
+  };
+
+  typedef CirculatorRange<
+          const PolyConnectivity,
+          ConstVertexVertexIter,
+          VertexHandle,
+          &PolyConnectivity::cvv_begin,
+          &PolyConnectivity::cvv_end> ConstVertexVertexRange;
+  typedef CirculatorRange<
+          const PolyConnectivity,
+          ConstVertexIHalfedgeIter,
+          VertexHandle,
+          &PolyConnectivity::cvih_begin,
+          &PolyConnectivity::cvih_end> ConstVertexIHalfedgeRange;
+  typedef CirculatorRange<
+          const PolyConnectivity,
+          ConstVertexOHalfedgeIter, VertexHandle,
+          &PolyConnectivity::cvoh_begin,
+          &PolyConnectivity::cvoh_end> ConstVertexOHalfedgeRange;
+  typedef CirculatorRange<
+          const PolyConnectivity,
+          ConstVertexEdgeIter,
+          VertexHandle,
+          &PolyConnectivity::cve_begin,
+          &PolyConnectivity::cve_end> ConstVertexEdgeRange;
+  typedef CirculatorRange<
+          const PolyConnectivity,
+          ConstVertexFaceIter,
+          VertexHandle,
+          &PolyConnectivity::cvf_begin,
+          &PolyConnectivity::cvf_end> ConstVertexFaceRange;
+  typedef CirculatorRange<
+          const PolyConnectivity,
+          ConstFaceVertexIter,
+          FaceHandle,
+          &PolyConnectivity::cfv_begin,
+          &PolyConnectivity::cfv_end> ConstFaceVertexRange;
+  typedef CirculatorRange<
+          const PolyConnectivity,
+          ConstFaceHalfedgeIter,
+          FaceHandle,
+          &PolyConnectivity::cfh_begin,
+          &PolyConnectivity::cfh_end> ConstFaceHalfedgeRange;
+  typedef CirculatorRange<
+          const PolyConnectivity,
+          ConstFaceEdgeIter,
+          FaceHandle,
+          &PolyConnectivity::cfe_begin,
+          &PolyConnectivity::cfe_end> ConstFaceEdgeRange;
+  typedef CirculatorRange<
+          const PolyConnectivity,
+          ConstFaceFaceIter,
+          FaceHandle,
+          &PolyConnectivity::cff_begin,
+          &PolyConnectivity::cff_end> ConstFaceFaceRange;
+
+  /**
+   * @return The vertices adjacent to the specified vertex
+   * as a range object suitable for C++11 range based for loops.
+   */
+  ConstVertexVertexRange vv_range(VertexHandle _vh) const {
+      return ConstVertexVertexRange(*this, _vh);
+  }
+
+  /**
+   * @return The incoming halfedges incident to the specified vertex
+   * as a range object suitable for C++11 range based for loops.
+   */
+  ConstVertexIHalfedgeRange vih_range(VertexHandle _vh) const {
+      return ConstVertexIHalfedgeRange(*this, _vh);
+  }
+
+  /**
+   * @return The outgoing halfedges incident to the specified vertex
+   * as a range object suitable for C++11 range based for loops.
+   */
+  ConstVertexOHalfedgeRange voh_range(VertexHandle _vh) const {
+      return ConstVertexOHalfedgeRange(*this, _vh);
+  }
+
+  /**
+   * @return The edges incident to the specified vertex
+   * as a range object suitable for C++11 range based for loops.
+   */
+  ConstVertexEdgeRange ve_range(VertexHandle _vh) const {
+      return ConstVertexEdgeRange(*this, _vh);
+  }
+
+  /**
+   * @return The faces incident to the specified vertex
+   * as a range object suitable for C++11 range based for loops.
+   */
+  ConstVertexFaceIter vf_range(VertexHandle _vh) const {
+      return ConstVertexFaceIter(*this, _vh);
+  }
+
+  /**
+   * @return The vertices incident to the specified face
+   * as a range object suitable for C++11 range based for loops.
+   */
+  ConstFaceVertexRange fv_range(FaceHandle _fh) const {
+      return ConstFaceVertexRange(*this, _fh);
+  }
+
+  /**
+   * @return The halfedges incident to the specified face
+   * as a range object suitable for C++11 range based for loops.
+   */
+  ConstFaceHalfedgeRange fh_range(FaceHandle _fh) const {
+      return ConstFaceHalfedgeRange(*this, _fh);
+  }
+
+  /**
+   * @return The edges incident to the specified face
+   * as a range object suitable for C++11 range based for loops.
+   */
+  ConstFaceEdgeRange fe_range(FaceHandle _fh) const {
+      return ConstFaceEdgeRange(*this, _fh);
+  }
+
+  /**
+   * @return The faces adjacent to the specified face
+   * as a range object suitable for C++11 range based for loops.
+   */
+  ConstFaceFaceIter ff_range(FaceHandle _fh) const {
+      return ConstFaceFaceIter(*this, _fh);
+  }
+
+  //@}
+
+  //===========================================================================
+  /** @name Boundary and manifold tests
+   * @{ */
+  //===========================================================================
+
+  /** \brief Check if the halfedge is at the boundary
+   *
+   * The halfedge is at the boundary, if no face is incident to it.
+   *
+   * @param _heh HalfedgeHandle to test
+   * @return boundary?
+   */
   bool is_boundary(HalfedgeHandle _heh) const
   { return ArrayKernel::is_boundary(_heh); }
 
-  /** Is the edge _eh a boundary edge, i.e. is one of its halfedges
-      a boundary halfege ? */
+  /** \brief Is the edge a boundary edge?
+   *
+   * Checks it the edge _eh is a boundary edge, i.e. is one of its halfedges
+   * a boundary halfedge.
+   *
+   * @param _eh Edge handle to test
+   * @return boundary?
+   */
   bool is_boundary(EdgeHandle _eh) const
   {
     return (is_boundary(halfedge_handle(_eh, 0)) ||
             is_boundary(halfedge_handle(_eh, 1)));
   }
-  /// Is vertex _vh a boundary vertex ?
+
+  /** \brief Is vertex _vh a boundary vertex ?
+   *
+   * Checks if the associated halfedge (which would on a boundary be the outside
+   * halfedge), is connected to a face. Which is equivalent, if the vertex is
+   * at the boundary of the mesh, as OpenMesh will make sure, that if there is a
+   * boundary halfedge at the vertex, the halfedge will be the one which is associated
+   * to the vertex.
+   *
+   * @param _vh VertexHandle to test
+   * @return boundary?
+   */
   bool is_boundary(VertexHandle _vh) const
   {
     HalfedgeHandle heh(halfedge_handle(_vh));
     return (!(heh.is_valid() && face_handle(heh).is_valid()));
   }
 
-  /** Is face _fh at boundary, i.e. is one of its edges (or vertices)
-   *   a boundary edge?
-   *  \param _fh Check this face
-   *  \param _check_vertex If \c true, check the corner vertices of
-   *         the face, too.
+  /** \brief Check if face is at the boundary
+   *
+   * Is face _fh at boundary, i.e. is one of its edges (or vertices)
+   * a boundary edge?
+   *
+   * @param _fh Check this face
+   * @param _check_vertex If \c true, check the corner vertices of the face, too.
+   * @return boundary?
    */
   bool is_boundary(FaceHandle _fh, bool _check_vertex=false) const;
-  /// Is (the mesh at) vertex _vh  two-manifold ?
+
+  /** \brief Is (the mesh at) vertex _vh  two-manifold ?
+   *
+   * The vertex is non-manifold if more than one gap exists, i.e.
+   * more than one outgoing boundary halfedge. If (at least) one
+   * boundary halfedge exists, the vertex' halfedge must be a
+   * boundary halfedge.
+   *
+   * @param _vh VertexHandle to test
+   * @return manifold?
+   */
   bool is_manifold(VertexHandle _vh) const;
-  //@}
+
+  /** @} */
 
   // --- shortcuts ---
   
@@ -596,6 +877,7 @@ public:
       boundary halfedge whenever possible. 
   */
   void adjust_outgoing_halfedge(VertexHandle _vh);
+
   /// Find halfedge from _vh0 to _vh1. Returns invalid handle if not found.
   HalfedgeHandle find_halfedge(VertexHandle _start_vh, VertexHandle _end_vh) const;
   /// Vertex valence
@@ -658,9 +940,35 @@ public:
   */
   HalfedgeHandle insert_edge(HalfedgeHandle _prev_heh, HalfedgeHandle _next_heh);
     
-  /// Face split (= 1-to-n split)
+  /** \brief Face split (= 1-to-n split).
+     *
+     * Split an arbitrary face into triangles by connecting each vertex of fh to vh.
+     *
+     * \note fh will remain valid (it will become one of the triangles)
+     * \note the halfedge handles of the new triangles will point to the old halfeges
+     *
+     * \note The properties of the new faces and all other new primitives will be undefined!
+     *
+     * @param _fh Face handle that should be splitted
+     * @param _vh Vertex handle of the new vertex that will be inserted in the face
+     */
   void split(FaceHandle _fh, VertexHandle _vh);
 
+  /** \brief Face split (= 1-to-n split).
+   *
+   * Split an arbitrary face into triangles by connecting each vertex of fh to vh.
+   *
+   * \note fh will remain valid (it will become one of the triangles)
+   * \note the halfedge handles of the new triangles will point to the old halfeges
+   *
+   * \note The properties of the new faces will be adjusted to the properties of the original faces
+   * \note Properties of the new edges and halfedges will be undefined
+   *
+   * @param _fh Face handle that should be splitted
+   * @param _vh Vertex handle of the new vertex that will be inserted in the face
+   */
+  void split_copy(FaceHandle _fh, VertexHandle _vh);
+  
   /** \brief Triangulate the face _fh
 
     Split an arbitrary face into triangles by connecting
@@ -680,8 +988,30 @@ public:
   */
   void triangulate();
   
-  /// Edge split (inserts a vertex on the edge only)
+  /** Edge split (inserts a vertex on the edge only)
+   *
+   * This edge split only splits the edge without introducing new faces!
+   * As this is for polygonal meshes, we can have valence 2 vertices here.
+   *
+   * \note The properties of the new edges and halfedges will be undefined!
+   *
+   * @param _eh Handle of the edge, that will be splitted
+   * @param _vh Handle of the vertex that will be inserted at the edge
+   */
   void split_edge(EdgeHandle _eh, VertexHandle _vh);
+
+  /** Edge split (inserts a vertex on the edge only)
+   *
+   * This edge split only splits the edge without introducing new faces!
+   * As this is for polygonal meshes, we can have valence 2 vertices here.
+   *
+   * \note The properties of the new edge will be copied from the splitted edge
+   * \note Properties of the new halfedges will be undefined
+   *
+   * @param _eh Handle of the edge, that will be splitted
+   * @param _vh Handle of the vertex that will be inserted at the edge
+   */
+  void split_edge_copy(EdgeHandle _eh, VertexHandle _vh);
 
 
   /** \name Generic handle derefertiation.

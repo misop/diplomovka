@@ -1,7 +1,7 @@
 /*===========================================================================*\
  *                                                                           *
  *                               OpenMesh                                    *
- *      Copyright (C) 2001-2011 by Computer Graphics Group, RWTH Aachen      *
+ *      Copyright (C) 2001-2014 by Computer Graphics Group, RWTH Aachen      *
  *                           www.openmesh.org                                *
  *                                                                           *
  *---------------------------------------------------------------------------* 
@@ -34,8 +34,8 @@
 
 /*===========================================================================*\
  *                                                                           *             
- *   $Revision: 362 $                                                         *
- *   $Date: 2011-01-26 10:21:12 +0100 (Wed, 26 Jan 2011) $                   *
+ *   $Revision: 990 $                                                         *
+ *   $Date: 2014-02-05 10:01:07 +0100 (Mi, 05 Feb 2014) $                   *
  *                                                                           *
 \*===========================================================================*/
 
@@ -62,9 +62,9 @@
 
 #include <OpenMesh/Core/System/config.h>
 #include <iostream>
-#include <assert.h>
-#include <math.h>
-#include <string.h>
+#include <cmath>
+#include <cassert>
+#include <cstring>
 
 #if defined(__GNUC__) && defined(__SSE__)
 #include <xmmintrin.h>
@@ -300,6 +300,8 @@ typedef VectorT<unsigned int,3> Vec3ui;
 typedef VectorT<float,3> Vec3f;
 /** 3-double vector */
 typedef VectorT<double,3> Vec3d;
+/** 3-bool vector */
+typedef VectorT<bool,3> Vec3b;
 
 /** 4-byte signed vector */
 typedef VectorT<signed char,4> Vec4c;

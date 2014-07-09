@@ -1,7 +1,7 @@
 /*===========================================================================*\
  *                                                                           *
  *                               OpenMesh                                    *
- *      Copyright (C) 2001-2011 by Computer Graphics Group, RWTH Aachen      *
+ *      Copyright (C) 2001-2014 by Computer Graphics Group, RWTH Aachen      *
  *                           www.openmesh.org                                *
  *                                                                           *
  *---------------------------------------------------------------------------*
@@ -34,8 +34,8 @@
 
 /*===========================================================================*\
  *                                                                           *
- *   $Revision: 448 $                                                        *
- *   $Date: 2011-11-04 13:59:37 +0100 (Fri, 04 Nov 2011) $                   *
+ *   $Revision: 990 $                                                        *
+ *   $Date: 2014-02-05 10:01:07 +0100 (Mi, 05 Feb 2014) $                   *
  *                                                                           *
  \*===========================================================================*/
 
@@ -60,8 +60,8 @@ namespace Decimater {
 
 //== IMPLEMENTATION ==========================================================
 
-template<class DecimaterT>
-typename ModAspectRatioT<DecimaterT>::Scalar ModAspectRatioT<DecimaterT>::aspectRatio(
+template<class MeshT>
+typename ModAspectRatioT<MeshT>::Scalar ModAspectRatioT<MeshT>::aspectRatio(
     const Point& _v0, const Point& _v1, const Point& _v2) {
   Point d0 = _v0 - _v1;
   Point d1 = _v1 - _v2;
@@ -91,33 +91,35 @@ typename ModAspectRatioT<DecimaterT>::Scalar ModAspectRatioT<DecimaterT>::aspect
 
 //-----------------------------------------------------------------------------
 
-template<class DecimaterT>
-void ModAspectRatioT<DecimaterT>::initialize() {
+template<class MeshT>
+void ModAspectRatioT<MeshT>::initialize() {
   typename Mesh::FaceIter f_it, f_end(mesh_.faces_end());
   typename Mesh::FVIter fv_it;
 
   for (f_it = mesh_.faces_begin(); f_it != f_end; ++f_it) {
-    typename Mesh::Point& p0 = mesh_.point(fv_it = mesh_.fv_iter(f_it));
-    typename Mesh::Point& p1 = mesh_.point(++fv_it);
-    typename Mesh::Point& p2 = mesh_.point(++fv_it);
+    fv_it = mesh_.fv_iter(*f_it);
+    typename Mesh::Point& p0 = mesh_.point(*fv_it);
+    typename Mesh::Point& p1 = mesh_.point(*(++fv_it));
+    typename Mesh::Point& p2 = mesh_.point(*(++fv_it));
 
-    mesh_.property(aspect_, f_it) = 1.0 / aspectRatio(p0, p1, p2);
+    mesh_.property(aspect_, *f_it) = 1.0 / aspectRatio(p0, p1, p2);
   }
 }
 
 //-----------------------------------------------------------------------------
 
-template<class DecimaterT>
-void ModAspectRatioT<DecimaterT>::preprocess_collapse(const CollapseInfo& _ci) {
+template<class MeshT>
+void ModAspectRatioT<MeshT>::preprocess_collapse(const CollapseInfo& _ci) {
   typename Mesh::FaceHandle fh;
   typename Mesh::FVIter fv_it;
 
-  for (typename Mesh::VFIter vf_it = mesh_.vf_iter(_ci.v0); vf_it; ++vf_it) {
-    fh = vf_it.handle();
+  for (typename Mesh::VFIter vf_it = mesh_.vf_iter(_ci.v0); vf_it.is_valid(); ++vf_it) {
+    fh = *vf_it;
     if (fh != _ci.fl && fh != _ci.fr) {
-      typename Mesh::Point& p0 = mesh_.point(fv_it = mesh_.fv_iter(fh));
-      typename Mesh::Point& p1 = mesh_.point(++fv_it);
-      typename Mesh::Point& p2 = mesh_.point(++fv_it);
+      fv_it = mesh_.fv_iter(fh);
+      typename Mesh::Point& p0 = mesh_.point(*fv_it);
+      typename Mesh::Point& p1 = mesh_.point(*(++fv_it));
+      typename Mesh::Point& p2 = mesh_.point(*(++fv_it));
 
       mesh_.property(aspect_, fh) = 1.0 / aspectRatio(p0, p1, p2);
     }
@@ -126,25 +128,26 @@ void ModAspectRatioT<DecimaterT>::preprocess_collapse(const CollapseInfo& _ci) {
 
 //-----------------------------------------------------------------------------
 
-template<class DecimaterT>
-float ModAspectRatioT<DecimaterT>::collapse_priority(const CollapseInfo& _ci) {
+template<class MeshT>
+float ModAspectRatioT<MeshT>::collapse_priority(const CollapseInfo& _ci) {
   typename Mesh::VertexHandle v2, v3;
   typename Mesh::FaceHandle fh;
   const typename Mesh::Point *p1(&_ci.p1), *p2, *p3;
   typename Mesh::Scalar r0, r1, r0_min(1.0), r1_min(1.0);
-  typename Mesh::CVVIter vv_it(mesh_, _ci.v0);
+  typename Mesh::ConstVertexOHalfedgeIter voh_it(mesh_, _ci.v0);
 
-  v3 = vv_it.handle();
+  v3 = mesh_.to_vertex_handle(*voh_it);
   p3 = &mesh_.point(v3);
 
-  while (vv_it) {
+  while (voh_it.is_valid()) {
     v2 = v3;
     p2 = p3;
 
-    v3 = (++vv_it).handle();
+    ++voh_it;
+    v3 = mesh_.to_vertex_handle(*voh_it);
     p3 = &mesh_.point(v3);
 
-    fh = mesh_.face_handle(vv_it.current_halfedge_handle());
+    fh = mesh_.face_handle(*voh_it);
 
     // if not boundary
     if (fh.is_valid()) {
@@ -170,6 +173,20 @@ float ModAspectRatioT<DecimaterT>::collapse_priority(const CollapseInfo& _ci) {
     else
       return
           (r1_min > min_aspect_) ? 2.0 - r1_min : float(Base::ILLEGAL_COLLAPSE);
+  }
+}
+
+//-----------------------------------------------------------------------------
+
+template<class MeshT>
+void ModAspectRatioT<MeshT>::set_error_tolerance_factor(double _factor) {
+  if (_factor >= 0.0 && _factor <= 1.0) {
+    // the smaller the factor, the larger min_aspect_ gets
+    // thus creating a stricter constraint
+    // division by (2.0 - error_tolerance_factor_) is for normalization
+    double min_aspect = min_aspect_ * (2.0 - _factor) / (2.0 - this->error_tolerance_factor_);
+    set_aspect_ratio(1.0/min_aspect);
+    this->error_tolerance_factor_ = _factor;
   }
 }
 

@@ -1,7 +1,7 @@
 /*===========================================================================*\
  *                                                                           *
  *                               OpenMesh                                    *
- *      Copyright (C) 2001-2011 by Computer Graphics Group, RWTH Aachen      *
+ *      Copyright (C) 2001-2014 by Computer Graphics Group, RWTH Aachen      *
  *                           www.openmesh.org                                *
  *                                                                           *
  *---------------------------------------------------------------------------* 
@@ -34,8 +34,8 @@
 
 /*===========================================================================*\
  *                                                                           *             
- *   $Revision: 525 $                                                         *
- *   $Date: 2012-01-23 15:42:13 +0100 (Mon, 23 Jan 2012) $                   *
+ *   $Revision: 995 $                                                         *
+ *   $Date: 2014-02-12 15:29:15 +0100 (Mi, 12 Feb 2014) $                   *
  *                                                                           *
 \*===========================================================================*/
 
@@ -58,6 +58,7 @@
 #include <OpenMesh/Core/System/config.hh>
 #include <OpenMesh/Tools/Subdivider/Uniform/SubdividerT.hh>
 #include <OpenMesh/Core/Utils/vector_cast.hh>
+#include <OpenMesh/Core/Utils/Property.hh>
 // -------------------- STL
 #include <vector>
 #if defined(OM_CC_MIPS)
@@ -159,13 +160,13 @@ protected:
       if(_update_points) {
         // compute new positions for old vertices
         for (vit = _m.vertices_begin(); vit != _m.vertices_end(); ++vit) {
-          smooth(_m, vit.handle());
+          smooth(_m, *vit);
         }
       }
 
       // Compute position for new vertices and store them in the edge property
       for (eit=_m.edges_begin(); eit != _m.edges_end(); ++eit)
-        compute_midpoint( _m, eit.handle() );
+        compute_midpoint( _m, *eit );
 
       // Split each edge at midpoint and store precomputed positions (stored in
       // edge property ep_pos_) in the vertex property vp_pos_;
@@ -173,7 +174,7 @@ protected:
       // Attention! Creating new edges, hence make sure the loop ends correctly.
       e_end = _m.edges_end();
       for (eit=_m.edges_begin(); eit != e_end; ++eit)
-        split_edge(_m, eit.handle() );
+        split_edge(_m, *eit );
 
 
       // Commit changes in topology and reconsitute consistency
@@ -181,13 +182,13 @@ protected:
       // Attention! Creating new faces, hence make sure the loop ends correctly.
       f_end   = _m.faces_end();
       for (fit = _m.faces_begin(); fit != f_end; ++fit)
-        split_face(_m, fit.handle() );
+        split_face(_m, *fit );
 
       if(_update_points) {
         // Commit changes in geometry
         for ( vit  = _m.vertices_begin();
             vit != _m.vertices_end(); ++vit) {
-            _m.set_point(vit, _m.property( vp_pos_, vit ) );
+            _m.set_point(*vit, _m.property( vp_pos_, *vit ) );
         }
       }
 
@@ -436,13 +437,13 @@ private: // geometry helper
       size_t                            valence(0);
 
       // Calculate Valence and sum up neighbour points
-      for (vvit=_m.vv_iter(_vh); vvit; ++vvit) {
+      for (vvit=_m.vv_iter(_vh); vvit.is_valid(); ++vvit) {
         ++valence;
-        pos += vector_cast< Vec >( _m.point(vvit) );
+        pos += vector_cast< Vec >( _m.point(*vvit) );
       }
       pos *= weights_[valence].second; // alpha(n)/n * Sum q, q in one-ring of p
       pos += weights_[valence].first
-           * vector_cast<Vec>(_m.point(_vh)); // + (1-a)*p
+          * vector_cast<Vec>(_m.point(_vh)); // + (1-a)*p
     }
 
     _m.property( vp_pos_, _vh ) = pos;

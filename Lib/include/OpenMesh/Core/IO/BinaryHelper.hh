@@ -1,13 +1,13 @@
 /*===========================================================================*\
  *                                                                           *
  *                               OpenMesh                                    *
- *      Copyright (C) 2001-2011 by Computer Graphics Group, RWTH Aachen      *
+ *      Copyright (C) 2001-2014 by Computer Graphics Group, RWTH Aachen      *
  *                           www.openmesh.org                                *
  *                                                                           *
- *---------------------------------------------------------------------------* 
+ *---------------------------------------------------------------------------*
  *  This file is part of OpenMesh.                                           *
  *                                                                           *
- *  OpenMesh is free software: you can redistribute it and/or modify         * 
+ *  OpenMesh is free software: you can redistribute it and/or modify         *
  *  it under the terms of the GNU Lesser General Public License as           *
  *  published by the Free Software Foundation, either version 3 of           *
  *  the License, or (at your option) any later version with the              *
@@ -30,12 +30,12 @@
  *  License along with OpenMesh.  If not,                                    *
  *  see <http://www.gnu.org/licenses/>.                                      *
  *                                                                           *
-\*===========================================================================*/ 
+\*===========================================================================*/
 
 /*===========================================================================*\
- *                                                                           *             
- *   $Revision: 362 $                                                         *
- *   $Date: 2011-01-26 10:21:12 +0100 (Wed, 26 Jan 2011) $                   *
+ *                                                                           *
+ *   $Revision: 990 $                                                         *
+ *   $Date: 2014-02-05 10:01:07 +0100 (Mi, 05 Feb 2014) $                   *
  *                                                                           *
 \*===========================================================================*/
 
@@ -96,6 +96,22 @@ float read_float(FILE* _in, bool _swap=false);
     \c _swap is true */
 double read_double(FILE* _in, bool _swap=false);
 
+/** Binary read a \c short from \c _is and perform byte swapping if
+    \c _swap is true */
+short int read_short(std::istream& _in, bool _swap=false);
+
+/** Binary read an \c int from \c _is and perform byte swapping if
+    \c _swap is true */
+int read_int(std::istream& _in, bool _swap=false);
+
+/** Binary read a \c float from \c _is and perform byte swapping if
+    \c _swap is true */
+float read_float(std::istream& _in, bool _swap=false);
+
+/** Binary read a \c double from \c _is and perform byte swapping if
+    \c _swap is true */
+double read_double(std::istream& _in, bool _swap=false);
+
 
 /** Binary write a \c short to \c _os and perform byte swapping if
     \c _swap is true */
@@ -113,7 +129,22 @@ void write_float(float _f, FILE* _out, bool _swap=false);
     \c _swap is true */
 void write_double(double _d, FILE* _out, bool _swap=false);
 
-   
+/** Binary write a \c short to \c _os and perform byte swapping if
+    \c _swap is true */
+void write_short(short int _i, std::ostream& _out, bool _swap=false);
+
+/** Binary write an \c int to \c _os and perform byte swapping if
+    \c _swap is true */
+void write_int(int _i, std::ostream& _out, bool _swap=false);
+
+/** Binary write a \c float to \c _os and perform byte swapping if
+    \c _swap is true */
+void write_float(float _f, std::ostream& _out, bool _swap=false);
+
+/** Binary write a \c double to \c _os and perform byte swapping if
+    \c _swap is true */
+void write_double(double _d, std::ostream& _out, bool _swap=false);
+
 //@}
 
 

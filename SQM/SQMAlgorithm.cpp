@@ -3,7 +3,8 @@
 #include <OpenMesh\Core\System\mostream.hh>
 #include <gtc\type_ptr.hpp>
 #include "Delaunay.h"
-#include "poly2tri\poly2tri.h"
+//#include "poly2tri\poly2tri.h"
+#include <poly2tri\poly2tri.h>
 
 #define LOG_COMPUTATION_TIME true
 

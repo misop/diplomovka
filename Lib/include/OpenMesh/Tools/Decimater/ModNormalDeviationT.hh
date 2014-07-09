@@ -1,7 +1,7 @@
 /*===========================================================================*\
  *                                                                           *
  *                               OpenMesh                                    *
- *      Copyright (C) 2001-2011 by Computer Graphics Group, RWTH Aachen      *
+ *      Copyright (C) 2001-2014 by Computer Graphics Group, RWTH Aachen      *
  *                           www.openmesh.org                                *
  *                                                                           *
  *---------------------------------------------------------------------------*
@@ -34,8 +34,8 @@
 
 /*===========================================================================*\
  *                                                                           *
- *   $Revision: 448 $                                                        *
- *   $Date: 2011-11-04 13:59:37 +0100 (Fri, 04 Nov 2011) $                   *
+ *   $Revision: 1049 $                                                        *
+ *   $Date: 2014-05-09 10:12:17 +0200 (Fr, 09 Mai 2014) $                   *
  *                                                                           *
 \*===========================================================================*/
 
@@ -83,12 +83,12 @@ namespace Decimater {
   *
   * In continuous mode the maximal deviation is returned
   */
-template <class DecimaterT>
-class ModNormalDeviationT : public ModBaseT< DecimaterT >
+template <class MeshT>
+class ModNormalDeviationT : public ModBaseT< MeshT >
 {
 public:
-   
-  DECIMATING_MODULE( ModNormalDeviationT, DecimaterT, NormalDeviation );
+
+  DECIMATING_MODULE( ModNormalDeviationT, MeshT, NormalDeviation );
 
   typedef typename Mesh::Scalar                     Scalar;
   typedef typename Mesh::Point                      Point;
@@ -103,17 +103,27 @@ public:
 public:
 
   /// Constructor
-  ModNormalDeviationT(DecimaterT& _dec, float _max_dev = 180.0) 
-  : Base(_dec, true), mesh_(Base::mesh())
+  ModNormalDeviationT(MeshT& _mesh, float _max_dev = 180.0)
+  : Base(_mesh, true), mesh_(Base::mesh())
   {
     set_normal_deviation(_max_dev);
     mesh_.add_property(normal_cones_);
+
+    const bool mesh_has_normals = _mesh.has_face_normals();
+    _mesh.request_face_normals();
+
+    if (!mesh_has_normals)
+    {
+      std::cerr << "Mesh has no face normals. Compute them automatically." << std::endl;
+      _mesh.update_face_normals();
+    }
   }
 
 
   /// Destructor
   ~ModNormalDeviationT() {
-    mesh_.add_property(normal_cones_);
+    mesh_.remove_property(normal_cones_);
+    mesh_.release_face_normals();
   }
 
 
@@ -137,7 +147,7 @@ public:
         f_end = mesh_.faces_end();
 
     for (; f_it != f_end; ++f_it)
-      mesh_.property(normal_cones_, f_it) = NormalCone(mesh_.normal(f_it));
+      mesh_.property(normal_cones_, *f_it) = NormalCone(mesh_.normal(*f_it));
   }
 
   /** \brief Control normals when Decimating
@@ -166,8 +176,8 @@ public:
     if (_ci.v0vl.is_valid())  fhl = mesh_.face_handle(_ci.v0vl);
     if (_ci.vrv0.is_valid())  fhr = mesh_.face_handle(_ci.vrv0);
 
-    for (; vf_it; ++vf_it) {
-      fh = vf_it.handle();
+    for (; vf_it.is_valid(); ++vf_it) {
+      fh = *vf_it;
       if (fh != _ci.fl && fh != _ci.fr) {
         NormalCone nc = mesh_.property(normal_cones_, fh);
 
@@ -191,13 +201,25 @@ public:
     return (max_angle < 0.5 * normal_deviation_ ? max_angle : float( Base::ILLEGAL_COLLAPSE ));
   }
 
+  /// set the percentage of normal deviation
+  void set_error_tolerance_factor(double _factor) {
+    if (_factor >= 0.0 && _factor <= 1.0) {
+      // the smaller the factor, the smaller normal_deviation_ gets
+      // thus creating a stricter constraint
+      // division by error_tolerance_factor_ is for normalization
+      Scalar normal_deviation = (normal_deviation_ * 180.0/M_PI) * _factor / this->error_tolerance_factor_;
+      set_normal_deviation(normal_deviation);
+      this->error_tolerance_factor_ = _factor;
+    }
+  }
+
 
   void  postprocess_collapse(const CollapseInfo& _ci) {
     // account for changed normals
     typename Mesh::VertexFaceIter vf_it(mesh_, _ci.v1);
-    for (; vf_it; ++vf_it)
-      mesh_.property(normal_cones_, vf_it).
-      merge(NormalCone(mesh_.normal(vf_it)));
+    for (; vf_it.is_valid(); ++vf_it)
+      mesh_.property(normal_cones_, *vf_it).
+      merge(NormalCone(mesh_.normal(*vf_it)));
 
 
     // normal cones of deleted triangles

@@ -1,7 +1,7 @@
 /*===========================================================================*\
  *                                                                           *
  *                               OpenMesh                                    *
- *      Copyright (C) 2001-2011 by Computer Graphics Group, RWTH Aachen      *
+ *      Copyright (C) 2001-2014 by Computer Graphics Group, RWTH Aachen      *
  *                           www.openmesh.org                                *
  *                                                                           *
  *---------------------------------------------------------------------------* 
@@ -34,8 +34,8 @@
 
 /*===========================================================================*\
  *                                                                           *             
- *   $Revision: 362 $                                                         *
- *   $Date: 2011-01-26 10:21:12 +0100 (Wed, 26 Jan 2011) $                   *
+ *   $Revision: 990 $                                                         *
+ *   $Date: 2014-02-05 10:01:07 +0100 (Mi, 05 Feb 2014) $                   *
  *                                                                           *
 \*===========================================================================*/
 
@@ -79,7 +79,7 @@ bool CompositeT<MeshType,RealType>::prepare( MeshType& _m )
   typename MeshType::VertexIter v_it(_m.vertices_begin());
 
   for (; v_it != _m.vertices_end(); ++v_it)
-    _m.data(v_it).set_position(_m.point(v_it.handle()));
+    _m.data(*v_it).set_position(_m.point(*v_it));
 
   return true;
 }
@@ -109,7 +109,7 @@ void CompositeT<MeshType,RealType>::Tvv3()
   // set new positions for vertices
   v_it = mesh_.vertices_begin();
   for (j = 0; j < n_vertices; ++j) {
-    mesh_.data(v_it).set_position(mesh_.data(v_it).position() * 3.0);
+    mesh_.data(*v_it).set_position(mesh_.data(*v_it).position() * 3.0);
     ++v_it;
   }
 
@@ -121,7 +121,7 @@ void CompositeT<MeshType,RealType>::Tvv3()
 
     mesh_.data(vh).set_position(zero_point);
 
-    mesh_.split(f_it.handle(), vh);
+    mesh_.split(*f_it, vh);
 
     ++f_it;
   }
@@ -132,10 +132,10 @@ void CompositeT<MeshType,RealType>::Tvv3()
 
   e_it = mesh_.edges_begin();
   for (j = 0; j < n_edges; ++j) {
-    if (mesh_.is_flip_ok(e_it.handle())) {
-      mesh_.flip(e_it.handle());
+    if (mesh_.is_flip_ok(*e_it)) {
+      mesh_.flip(*e_it);
     } else {
-      edge_vector.push_back(e_it.handle());
+      edge_vector.push_back(*e_it);
     }
     ++e_it;
   }
@@ -173,7 +173,7 @@ void CompositeT<MeshType,RealType>::Tvv4()
   // set new positions for vertices
   v_it = mesh_.vertices_begin();
   for (j = 0; j < n_vertices; ++j) {
-    mesh_.data(v_it).set_position(mesh_.data(v_it).position() * 4.0);
+    mesh_.data(*v_it).set_position(mesh_.data(*v_it).position() * 4.0);
     ++v_it;
   }
 
@@ -181,7 +181,7 @@ void CompositeT<MeshType,RealType>::Tvv4()
   e_it = mesh_.edges_begin();
   for (j = 0; j < n_edges; ++j) {
 
-    vh = split_edge(mesh_.halfedge_handle(e_it.handle(), 0));
+    vh = split_edge(mesh_.halfedge_handle(*e_it, 0));
     mesh_.data(vh).set_position(zero_point);
 
     ++e_it;
@@ -190,7 +190,7 @@ void CompositeT<MeshType,RealType>::Tvv4()
   // Corner Cutting of Each Face
   f_it = mesh_.faces_begin();
   for (j = 0; j < n_faces; ++j) {
-    typename MeshType::HalfedgeHandle heh1(mesh_.halfedge_handle(f_it.handle()));
+    typename MeshType::HalfedgeHandle heh1(mesh_.halfedge_handle(*f_it));
     typename MeshType::HalfedgeHandle heh2(mesh_.next_halfedge_handle(mesh_.next_halfedge_handle(heh1)));
     typename MeshType::HalfedgeHandle heh3(mesh_.next_halfedge_handle(mesh_.next_halfedge_handle(heh2)));
 
@@ -233,7 +233,7 @@ void CompositeT<MeshType,RealType>::Tfv()
   for (j = 0; j < n_vertices; ++j) {
     valence = 0;
     cog = zero_point;
-    for (vf_it = mesh_.vf_iter(v_it.handle()); vf_it; ++vf_it) {
+    for (vf_it = mesh_.vf_iter(*v_it); vf_it; ++vf_it) {
       ++valence;
       cog += vf_it->position();
     }
@@ -251,13 +251,13 @@ void CompositeT<MeshType,RealType>::Tfv()
 
     valence = 0;
     cog = zero_point;
-    for (ff_it = mesh_.ff_iter(f_it.handle()); ff_it; ++ff_it) {
+    for (ff_it = mesh_.ff_iter(*f_it); ff_it; ++ff_it) {
       ++valence;
       cog += ff_it->position();
     }
     cog /= valence;
 
-    mesh_.split(f_it.handle(), vh);
+    mesh_.split(*f_it, vh);
 
     for (vf_it = mesh_.vf_iter(vh); vf_it; ++vf_it) {
       vf_it->set_position(f_it->position());
@@ -273,8 +273,8 @@ void CompositeT<MeshType,RealType>::Tfv()
   // Flip each old edge
   e_it = mesh_.edges_begin();
   for (j = 0; j < n_edges; ++j) {
-    if (mesh_.is_flip_ok(e_it.handle()))
-      mesh_.flip(e_it.handle());
+    if (mesh_.is_flip_ok(*e_it))
+      mesh_.flip(*e_it);
     ++e_it;
   }
 }
@@ -286,23 +286,21 @@ void CompositeT<MeshType,RealType>::VF()
 {
   assert(p_mesh_); MeshType& mesh_ = *p_mesh_;
 
-  unsigned int                  valence;
-  typename MeshType::Point          cog,
-                                zero_point(0.0, 0.0, 0.0);
+  typename MeshType::Point          cog,zero_point(0.0, 0.0, 0.0);
   typename MeshType::FaceVertexIter fv_it;
   typename MeshType::FaceIter       f_it;
 
   for (f_it = mesh_.faces_begin(); f_it != mesh_.faces_end(); ++f_it) {
 
-    valence = 0;
+    unsigned int valence = 0;
     cog = zero_point;
 
-    for (fv_it = mesh_.fv_iter(f_it.handle()); fv_it; ++fv_it) {
-      cog += mesh_.data(fv_it).position();
+    for (fv_it = mesh_.fv_iter(*f_it); fv_it.is_valid(); ++fv_it) {
+      cog += mesh_.data(*fv_it).position();
       ++valence;
     }
     cog /= valence;
-    mesh_.data(f_it).set_position(cog);
+    mesh_.data(*f_it).set_position(cog);
   }
 }
 
@@ -313,8 +311,7 @@ void CompositeT<MeshType,RealType>::VFa(Coeff& _coeff)
   assert(p_mesh_); MeshType& mesh_ = *p_mesh_;
 
   unsigned int                        valence[3], i;
-  typename MeshType::Point                cog,
-                                      zero_point(0.0, 0.0, 0.0);
+  typename MeshType::Point                cog,zero_point(0.0, 0.0, 0.0);
   typename MeshType::Scalar               alpha;
   typename MeshType::FaceIter             f_it;
   typename MeshType::HalfedgeHandle       heh;
@@ -324,14 +321,14 @@ void CompositeT<MeshType,RealType>::VFa(Coeff& _coeff)
 
   for (f_it = mesh_.faces_begin(); f_it != mesh_.faces_end(); ++f_it) {
 
-    heh = mesh_.halfedge_handle(f_it.handle());
+    heh = mesh_.halfedge_handle(*f_it);
     for (i = 0; i <= 2; ++i) {
 
       valence[i] = 0;
       vh[i] = mesh_.to_vertex_handle(heh);
 
       for (voh_it = mesh_.voh_iter(vh[i]); voh_it; ++voh_it) {
-  ++valence[i];
+        ++valence[i];
       }
 
       heh = mesh_.next_halfedge_handle(heh);
@@ -339,24 +336,24 @@ void CompositeT<MeshType,RealType>::VFa(Coeff& _coeff)
 
     if (valence[0] <= valence[1])
       if (valence[0] <= valence[2])
-  i = 0;
+        i = 0;
       else
-  i = 2;
+        i = 2;
     else
       if (valence[1] <= valence[2])
-  i = 1;
+        i = 1;
       else
-  i = 2;
+        i = 2;
 
     alpha = _coeff(valence[i]);
 
     cog = zero_point;
 
-    for (fv_it = mesh_.fv_iter(f_it.handle()); fv_it; ++fv_it) {
-      if (fv_it.handle() == vh[i]) {
-  cog += fv_it->position() * alpha;
+    for (fv_it = mesh_.fv_iter(*f_it); fv_it.is_valid(); ++fv_it) {
+      if (*fv_it == vh[i]) {
+        cog += fv_it->position() * alpha;
       } else {
-  cog += fv_it->position() * (1.0 - alpha) / 2.0;
+        cog += fv_it->position() * (1.0 - alpha) / 2.0;
       }
     }
 
@@ -372,7 +369,7 @@ void CompositeT<MeshType,RealType>::VFa(scalar_t _alpha)
 
   unsigned int                        valence[3], i;
   typename MeshType::Point                cog,
-                                      zero_point(0.0, 0.0, 0.0);
+  zero_point(0.0, 0.0, 0.0);
   typename MeshType::FaceIter             f_it;
   typename MeshType::HalfedgeHandle       heh;
   typename MeshType::VertexHandle         vh[3];
@@ -381,14 +378,14 @@ void CompositeT<MeshType,RealType>::VFa(scalar_t _alpha)
 
   for (f_it = mesh_.faces_begin(); f_it != mesh_.faces_end(); ++f_it) {
 
-    heh = mesh_.halfedge_handle(f_it.handle());
+    heh = mesh_.halfedge_handle(*f_it);
     for (i = 0; i <= 2; ++i) {
 
       valence[i] = 0;
       vh[i] = mesh_.to_vertex_handle(heh);
 
       for (voh_it = mesh_.voh_iter(vh[i]); voh_it; ++voh_it) {
-  ++valence[i];
+        ++valence[i];
       }
 
       heh = mesh_.next_halfedge_handle(heh);
@@ -396,22 +393,22 @@ void CompositeT<MeshType,RealType>::VFa(scalar_t _alpha)
 
     if (valence[0] <= valence[1])
       if (valence[0] <= valence[2])
-  i = 0;
+        i = 0;
       else
-  i = 2;
+        i = 2;
     else
       if (valence[1] <= valence[2])
-  i = 1;
+        i = 1;
       else
-  i = 2;
+        i = 2;
 
     cog = zero_point;
 
-    for (fv_it = mesh_.fv_iter(f_it.handle()); fv_it; ++fv_it) {
-      if (fv_it.handle() == vh[i]) {
-  cog += fv_it->position() * _alpha;
+    for (fv_it = mesh_.fv_iter(*f_it); fv_it.is_valid(); ++fv_it) {
+      if (*fv_it == vh[i]) {
+        cog += fv_it->position() * _alpha;
       } else {
-  cog += fv_it->position() * (1.0 - _alpha) / 2.0;
+        cog += fv_it->position() * (1.0 - _alpha) / 2.0;
       }
     }
 
@@ -425,7 +422,6 @@ void CompositeT<MeshType,RealType>::FF()
 {
   assert(p_mesh_); MeshType& mesh_ = *p_mesh_;
 
-  unsigned int valence;
   typename MeshType::Point              cog,
                                     zero_point(0.0, 0.0, 0.0);
   typename MeshType::FaceFaceIter       ff_it;
@@ -436,12 +432,12 @@ void CompositeT<MeshType,RealType>::FF()
 
   for (f_it = mesh_.faces_begin(); f_it != mesh_.faces_end(); ++f_it)
   {
-    valence = 0;
+    unsigned int valence = 0;
     cog = zero_point;
 
-    for (ff_it = mesh_.ff_iter(f_it.handle()); ff_it; ++ff_it)
+    for (ff_it = mesh_.ff_iter(*f_it); ff_it.is_valid(); ++ff_it)
     {
-      cog += mesh_.data(ff_it).position();
+      cog += mesh_.data(*ff_it).position();
       ++valence;
     }
     cog /= valence;
@@ -451,7 +447,7 @@ void CompositeT<MeshType,RealType>::FF()
   for (f_it = mesh_.faces_end(); f_it != mesh_.faces_begin(); )
   {
     --f_it;
-    mesh_.data(f_it).set_position(point_vector.back());
+    mesh_.data(*f_it).set_position(point_vector.back());
     point_vector.pop_back();
   }
 }
@@ -462,7 +458,6 @@ void CompositeT<MeshType,RealType>::FFc(Coeff& _coeff)
 {
   assert(p_mesh_); MeshType& mesh_ = *p_mesh_;
 
-  unsigned int                   valence;
   typename MeshType::Point           cog,
                                  zero_point(0.0, 0.0, 0.0);
   typename MeshType::FaceFaceIter    ff_it;
@@ -472,10 +467,10 @@ void CompositeT<MeshType,RealType>::FFc(Coeff& _coeff)
 
   for (f_it = mesh_.faces_begin(); f_it != mesh_.faces_end(); ++f_it) {
 
-    valence = 0;
+    unsigned int valence = 0;
     cog = zero_point;
 
-    for (ff_it = mesh_.ff_iter(f_it.handle()); ff_it; ++ff_it) {
+    for (ff_it = mesh_.ff_iter(*f_it); ff_it; ++ff_it) {
       cog += ff_it->position();
       ++valence;
     }
@@ -503,19 +498,17 @@ void CompositeT<MeshType,RealType>::FFc(scalar_t _c)
 {
   assert(p_mesh_); MeshType& mesh_ = *p_mesh_;
 
-  unsigned int                   valence;
-  typename MeshType::Point           cog,
-    zero_point(0.0, 0.0, 0.0);
+  typename MeshType::Point           cog, zero_point(0.0, 0.0, 0.0);
   typename MeshType::FaceFaceIter    ff_it;
   typename MeshType::FaceIter        f_it;
   std::vector<typename MeshType::Point> point_vector;
 
   for (f_it = mesh_.faces_begin(); f_it != mesh_.faces_end(); ++f_it) {
 
-    valence = 0;
+    unsigned int valence = 0;
     cog = zero_point;
 
-    for (ff_it = mesh_.ff_iter(f_it.handle()); ff_it; ++ff_it) {
+    for (ff_it = mesh_.ff_iter(*f_it); ff_it; ++ff_it) {
       cog += ff_it->position();
       ++valence;
     }
@@ -540,7 +533,6 @@ void CompositeT<MeshType,RealType>::FV()
 {
   assert(p_mesh_); MeshType& mesh_ = *p_mesh_;
 
-  unsigned int                  valence;
   typename MeshType::Point          cog,
                                 zero_point(0.0, 0.0, 0.0);
   typename MeshType::VertexFaceIter vf_it;
@@ -548,10 +540,10 @@ void CompositeT<MeshType,RealType>::FV()
 
   for (v_it = mesh_.vertices_begin(); v_it != mesh_.vertices_end(); ++v_it) {
 
-    valence = 0;
+    unsigned int  valence = 0;
     cog = zero_point;
 
-    for (vf_it = mesh_.vf_iter(v_it.handle()); vf_it; ++vf_it) {
+    for (vf_it = mesh_.vf_iter(*v_it); vf_it; ++vf_it) {
       cog += vf_it->position();
       ++valence;
     }
@@ -566,7 +558,7 @@ void CompositeT<MeshType,RealType>::FVc(Coeff& _coeff)
 {
   assert(p_mesh_); MeshType& mesh_ = *p_mesh_;
 
-  unsigned int                        valence;
+
   typename MeshType::Point                cog,
                                       zero_point(0.0, 0.0, 0.0);
   scalar_t               c;
@@ -575,34 +567,34 @@ void CompositeT<MeshType,RealType>::FVc(Coeff& _coeff)
 
   for (v_it = mesh_.vertices_begin(); v_it != mesh_.vertices_end(); ++v_it) {
 
-    valence = 0;
+    unsigned int valence = 0;
     cog = zero_point;
 
-    for (voh_it = mesh_.voh_iter(v_it.handle()); voh_it; ++voh_it) {
+    for (voh_it = mesh_.voh_iter(*v_it); voh_it.is_valid(); ++voh_it) {
       ++valence;
     }
 
     c = _coeff(valence);
 
-    for (voh_it = mesh_.voh_iter(v_it.handle()); voh_it; ++voh_it) {
+    for (voh_it = mesh_.voh_iter(*v_it); voh_it.is_valid(); ++voh_it) {
 
-      if (mesh_.face_handle(voh_it.handle()).is_valid()) {
+      if (mesh_.face_handle(*voh_it).is_valid()) {
 
-  if (mesh_.face_handle(mesh_.opposite_halfedge_handle(mesh_.next_halfedge_handle(voh_it.handle()))).is_valid()) {
-    cog += mesh_.data(mesh_.face_handle(voh_it.handle())).position() * c;
-    cog += mesh_.data(mesh_.face_handle(mesh_.opposite_halfedge_handle(mesh_.next_halfedge_handle(voh_it.handle())))).position() * (1.0 - c);
-  } else {
-    cog += mesh_.data(mesh_.face_handle(voh_it.handle())).position();
-  }
+        if (mesh_.face_handle(mesh_.opposite_halfedge_handle(mesh_.next_halfedge_handle(*voh_it))).is_valid()) {
+          cog += mesh_.data(mesh_.face_handle(*voh_it)).position() * c;
+          cog += mesh_.data(mesh_.face_handle(mesh_.opposite_halfedge_handle(mesh_.next_halfedge_handle(*voh_it)))).position() * (1.0 - c);
+        } else {
+          cog += mesh_.data(mesh_.face_handle(*voh_it)).position();
+        }
       } else {
-  --valence;
+        --valence;
       }
     }
 
     if (valence > 0)
       cog /= valence;
 
-    mesh_.data(v_it).set_position(cog);
+    mesh_.data(*v_it).set_position(cog);
   }
 }
 
@@ -612,33 +604,31 @@ void CompositeT<MeshType,RealType>::FVc(scalar_t _c)
 {
   assert(p_mesh_); MeshType& mesh_ = *p_mesh_;
 
-  unsigned int                       valence;
-  typename MeshType::Point               cog,
-                                     zero_point(0.0, 0.0, 0.0);
+  typename MeshType::Point               cog, zero_point(0.0, 0.0, 0.0);
   typename MeshType::VertexOHalfedgeIter voh_it;
   typename MeshType::VertexIter          v_it;
 
   for (v_it = mesh_.vertices_begin(); v_it != mesh_.vertices_end(); ++v_it) {
 
-    valence = 0;
+    unsigned int valence = 0;
     cog = zero_point;
 
-    for (voh_it = mesh_.voh_iter(v_it.handle()); voh_it; ++voh_it) {
+    for (voh_it = mesh_.voh_iter(*v_it); voh_it; ++voh_it) {
       ++valence;
     }
 
-    for (voh_it = mesh_.voh_iter(v_it.handle()); voh_it; ++voh_it) {
+    for (voh_it = mesh_.voh_iter(*v_it); voh_it; ++voh_it) {
 
-      if (mesh_.face_handle(voh_it.handle()).is_valid()) {
+      if (mesh_.face_handle(*voh_it).is_valid()) {
 
-  if (mesh_.face_handle(mesh_.opposite_halfedge_handle(mesh_.next_halfedge_handle(voh_it.handle()))).is_valid()) {
-    cog += mesh_.deref(mesh_.face_handle(voh_it.handle())).position() * _c;
-    cog += mesh_.deref(mesh_.face_handle(mesh_.opposite_halfedge_handle(mesh_.next_halfedge_handle(voh_it.handle())))).position() * (1.0 - _c);
-  } else {
-    cog += mesh_.deref(mesh_.face_handle(voh_it.handle())).position();
-  }
+        if (mesh_.face_handle(mesh_.opposite_halfedge_handle(mesh_.next_halfedge_handle(*voh_it))).is_valid()) {
+          cog += mesh_.deref(mesh_.face_handle(*voh_it)).position() * _c;
+          cog += mesh_.deref(mesh_.face_handle(mesh_.opposite_halfedge_handle(mesh_.next_halfedge_handle(*voh_it)))).position() * (1.0 - _c);
+        } else {
+          cog += mesh_.deref(mesh_.face_handle(*voh_it)).position();
+        }
       } else {
-  --valence;
+        --valence;
       }
     }
 
@@ -656,17 +646,15 @@ void CompositeT<MeshType,RealType>::VdE()
   assert(p_mesh_); MeshType& mesh_ = *p_mesh_;
 
   typename MeshType::EdgeIter             e_it;
-  typename MeshType::Point                cog,
-                                      zero_point(0.0, 0.0, 0.0);
+  typename MeshType::Point                cog, zero_point(0.0, 0.0, 0.0);
   typename MeshType::HalfedgeHandle       heh1, heh2;
-  unsigned int                        valence;
 
   for (e_it = mesh_.edges_begin(); e_it != mesh_.edges_end(); ++e_it) {
 
     cog = zero_point;
-    valence = 2;
+    unsigned int valence = 2;
 
-    heh1 = mesh_.halfedge_handle(e_it.handle(), 0);
+    heh1 = mesh_.halfedge_handle(*e_it, 0);
     heh2 = mesh_.opposite_halfedge_handle(heh1);
     cog += mesh_.data(mesh_.to_vertex_handle(heh1)).position();
     cog += mesh_.data(mesh_.to_vertex_handle(heh2)).position();
@@ -683,7 +671,7 @@ void CompositeT<MeshType,RealType>::VdE()
 
     cog /= valence;
 
-    mesh_.data(e_it).set_position(cog);
+    mesh_.data(*e_it).set_position(cog);
   }
 }
 
@@ -694,8 +682,7 @@ void CompositeT<MeshType,RealType>::VdEc(scalar_t _c)
   assert(p_mesh_); MeshType& mesh_ = *p_mesh_;
 
   typename MeshType::EdgeIter           e_it;
-  typename MeshType::Point              cog,
-                                    zero_point(0.0, 0.0, 0.0);
+  typename MeshType::Point              cog, zero_point(0.0, 0.0, 0.0);
   typename MeshType::HalfedgeHandle     heh;
 
   for (e_it = mesh_.edges_begin(); e_it != mesh_.edges_end(); ++e_it) {
@@ -704,7 +691,7 @@ void CompositeT<MeshType,RealType>::VdEc(scalar_t _c)
 
     for (int i = 0; i <= 1; ++i) {
 
-      heh = mesh_.halfedge_handle(e_it.handle(), i);
+      heh = mesh_.halfedge_handle(*e_it, i);
       if (!mesh_.is_boundary(heh))
       {
         cog += mesh_.point(mesh_.to_vertex_handle(mesh_.next_halfedge_handle(heh))) * (0.5 - _c);
@@ -716,7 +703,7 @@ void CompositeT<MeshType,RealType>::VdEc(scalar_t _c)
       }
     }
 
-    mesh_.data(e_it).set_position(cog);
+    mesh_.data(*e_it).set_position(cog);
   }
 }
 
@@ -727,8 +714,7 @@ void CompositeT<MeshType,RealType>::VdEg(scalar_t _gamma)
   assert(p_mesh_); MeshType& mesh_ = *p_mesh_;
 
   typename MeshType::EdgeIter             e_it;
-  typename MeshType::Point                cog,
-                                      zero_point(0.0, 0.0, 0.0);
+  typename MeshType::Point                cog, zero_point(0.0, 0.0, 0.0);
   typename MeshType::HalfedgeHandle       heh;
   typename MeshType::VertexOHalfedgeIter  voh_it;
   unsigned int                        valence[2], i;
@@ -739,7 +725,7 @@ void CompositeT<MeshType,RealType>::VdEg(scalar_t _gamma)
 
     for (i = 0; i <= 1; ++i)
     {
-      heh = mesh_.halfedge_handle(e_it.handle(), i);
+      heh = mesh_.halfedge_handle(*e_it, i);
       valence[i] = 0;
 
       // look for lowest valence vertex
@@ -754,7 +740,7 @@ void CompositeT<MeshType,RealType>::VdEg(scalar_t _gamma)
     else
       i = 1;
 
-    heh = mesh_.halfedge_handle(e_it.handle(), i);
+    heh = mesh_.halfedge_handle(*e_it, i);
 
     if (!mesh_.is_boundary(heh)) {
       cog += mesh_.point(mesh_.to_vertex_handle(mesh_.next_halfedge_handle(heh))) * (_gamma);
@@ -764,7 +750,7 @@ void CompositeT<MeshType,RealType>::VdEg(scalar_t _gamma)
     }
 
 
-    heh = mesh_.halfedge_handle(e_it.handle(), 1-i);
+    heh = mesh_.halfedge_handle(*e_it, 1-i);
 
     if (!mesh_.is_boundary(heh))
     {
@@ -776,7 +762,7 @@ void CompositeT<MeshType,RealType>::VdEg(scalar_t _gamma)
       cog += mesh_.data(mesh_.to_vertex_handle(heh)).position() * 2.0 * _gamma;
     }
 
-    mesh_.data(e_it).set_position(cog);
+    mesh_.data(*e_it).set_position(cog);
   }
 }
 
@@ -787,8 +773,7 @@ void CompositeT<MeshType,RealType>::VdEg(Coeff& _coeff)
   assert(p_mesh_); MeshType& mesh_ = *p_mesh_;
 
   typename MeshType::EdgeIter             e_it;
-  typename MeshType::Point                cog,
-                                      zero_point(0.0, 0.0, 0.0);
+  typename MeshType::Point                cog, zero_point(0.0, 0.0, 0.0);
   typename MeshType::HalfedgeHandle       heh;
   typename MeshType::VertexOHalfedgeIter  voh_it;
   unsigned int                        valence[2], i;
@@ -800,7 +785,7 @@ void CompositeT<MeshType,RealType>::VdEg(Coeff& _coeff)
 
     for (i = 0; i <= 1; ++i) {
 
-      heh = mesh_.halfedge_handle(e_it.handle(), i);
+      heh = mesh_.halfedge_handle(*e_it, i);
       valence[i] = 0;
 
       // look for lowest valence vertex
@@ -817,7 +802,7 @@ void CompositeT<MeshType,RealType>::VdEg(Coeff& _coeff)
 
     gamma = _coeff(valence[i]);
 
-    heh = mesh_.halfedge_handle(e_it.handle(), i);
+    heh = mesh_.halfedge_handle(*e_it, i);
 
     if (!mesh_.is_boundary(heh))
     {
@@ -830,7 +815,7 @@ void CompositeT<MeshType,RealType>::VdEg(Coeff& _coeff)
     }
 
 
-    heh = mesh_.halfedge_handle(e_it.handle(), 1-i);
+    heh = mesh_.halfedge_handle(*e_it, 1-i);
 
     if (!mesh_.is_boundary(heh)) {
       cog += mesh_.point(mesh_.to_vertex_handle(mesh_.next_halfedge_handle(heh))) * (gamma);
@@ -839,7 +824,7 @@ void CompositeT<MeshType,RealType>::VdEg(Coeff& _coeff)
       cog += mesh_.data(mesh_.to_vertex_handle(heh)).position() * 2.0 * gamma;
     }
 
-    mesh_.data(e_it).set_position(cog);
+    mesh_.data(*e_it).set_position(cog);
   }
 }
 
@@ -850,24 +835,22 @@ void CompositeT<MeshType,RealType>::EV()
   assert(p_mesh_); MeshType& mesh_ = *p_mesh_;
 
   typename MeshType::VertexIter       v_it;
-  typename MeshType::Point            cog,
-                                  zero_point(0.0, 0.0, 0.0);
-  unsigned int                    valence;
+  typename MeshType::Point            cog, zero_point(0.0, 0.0, 0.0);
   typename MeshType::VertexEdgeIter   ve_it;
 
   for (v_it = mesh_.vertices_begin(); v_it != mesh_.vertices_end(); ++v_it)
   {
-    valence = 0;
+    unsigned int valence = 0;
     cog = zero_point;
 
-    for (ve_it = mesh_.ve_iter(v_it.handle()); ve_it; ++ve_it) {
+    for (ve_it = mesh_.ve_iter(*v_it); ve_it; ++ve_it) {
       cog += mesh_.data(ve_it).position();
       ++valence;
     }
 
     cog /= valence;
 
-    mesh_.data(v_it).set_position(cog);
+    mesh_.data(*v_it).set_position(cog);
   }
 }
 
@@ -878,32 +861,30 @@ void CompositeT<MeshType,RealType>::EVc(Coeff& _coeff)
   assert(p_mesh_); MeshType& mesh_ = *p_mesh_;
 
   typename MeshType::VertexIter            v_it;
-  typename MeshType::Point                 cog,
-                                       zero_point(0.0, 0.0, 0.0);
-  unsigned int                         valence;
+  typename MeshType::Point                 cog, zero_point(0.0, 0.0, 0.0);
   typename MeshType::VertexOHalfedgeIter   voh_it;
   scalar_t                c;
 
   for (v_it = mesh_.vertices_begin(); v_it != mesh_.vertices_end(); ++v_it)
   {
-    valence = 0;
+    unsigned int valence = 0;
     cog = zero_point;
 
-    for (voh_it = mesh_.voh_iter(v_it.handle()); voh_it; ++voh_it)
+    for (voh_it = mesh_.voh_iter(*v_it); voh_it.is_valid(); ++voh_it)
     {
       ++valence;
     }
 
     c = _coeff(valence);
 
-    for (voh_it = mesh_.voh_iter(v_it.handle()); voh_it; ++voh_it) {
-      cog += mesh_.data(mesh_.edge_handle(voh_it.handle())).position() * c;
-      cog += mesh_.data(mesh_.edge_handle(mesh_.next_halfedge_handle(voh_it.handle()))).position() * (1.0 - c);
+    for (voh_it = mesh_.voh_iter(*v_it); voh_it.is_valid(); ++voh_it) {
+      cog += mesh_.data(mesh_.edge_handle(*voh_it)).position() * c;
+      cog += mesh_.data(mesh_.edge_handle(mesh_.next_halfedge_handle(*voh_it))).position() * (1.0 - c);
     }
 
     cog /= valence;
 
-    mesh_.data(v_it).set_position(cog);
+    mesh_.data(*v_it).set_position(cog);
   }
 }
 
@@ -913,27 +894,25 @@ void CompositeT<MeshType,RealType>::EVc(scalar_t _c)
 {
   assert(p_mesh_); MeshType& mesh_ = *p_mesh_;
   typename MeshType::VertexIter           v_it;
-  typename MeshType::Point                cog,
-                                      zero_point(0.0, 0.0, 0.0);
-  unsigned int                        valence;
+  typename MeshType::Point                cog, zero_point(0.0, 0.0, 0.0);
   typename MeshType::VertexOHalfedgeIter  voh_it;
 
   for (v_it = mesh_.vertices_begin(); v_it != mesh_.vertices_end(); ++v_it) {
-    valence = 0;
+    unsigned int valence = 0;
     cog = zero_point;
 
-    for (voh_it = mesh_.voh_iter(v_it.handle()); voh_it; ++voh_it) {
+    for (voh_it = mesh_.voh_iter(*v_it); voh_it; ++voh_it) {
       ++valence;
     }
 
-    for (voh_it = mesh_.voh_iter(v_it.handle()); voh_it; ++voh_it) {
-      cog += mesh_.data(mesh_.edge_handle(voh_it.handle())).position() * _c;
-      cog += mesh_.data(mesh_.edge_handle(mesh_.next_halfedge_handle(voh_it.handle()))).position() * (1.0 - _c);
+    for (voh_it = mesh_.voh_iter(*v_it); voh_it; ++voh_it) {
+      cog += mesh_.data(mesh_.edge_handle(*voh_it)).position() * _c;
+      cog += mesh_.data(mesh_.edge_handle(mesh_.next_halfedge_handle(*voh_it))).position() * (1.0 - _c);
     }
 
     cog /= valence;
 
-    mesh_.data(v_it).set_position(cog);
+    mesh_.data(*v_it).set_position(cog);
   }
 }
 
@@ -945,21 +924,19 @@ void CompositeT<MeshType,RealType>::EF()
 
   typename MeshType::FaceIter         f_it;
   typename MeshType::FaceEdgeIter     fe_it;
-  unsigned int                    valence;
-  typename MeshType::Point            cog,
-                                  zero_point(0.0, 0.0, 0.0);
+  typename MeshType::Point            cog, zero_point(0.0, 0.0, 0.0);
 
   for (f_it = mesh_.faces_begin(); f_it != mesh_.faces_end(); ++f_it) {
-    valence = 0;
+    unsigned int valence = 0;
     cog = zero_point;
 
-    for (fe_it = mesh_.fe_iter(f_it.handle()); fe_it; ++fe_it) {
+    for (fe_it = mesh_.fe_iter(*f_it); fe_it; ++fe_it) {
       ++valence;
       cog += mesh_.data(fe_it).position();
     }
 
     cog /= valence;
-    mesh_.data(f_it).set_position(cog);
+    mesh_.data(*f_it).set_position(cog);
   }
 }
 
@@ -970,26 +947,24 @@ void CompositeT<MeshType,RealType>::FE()
   assert(p_mesh_); MeshType& mesh_ = *p_mesh_;
 
   typename MeshType::EdgeIter       e_it;
-  unsigned int                  valence;
-  typename MeshType::Point          cog,
-                                zero_point(0.0, 0.0, 0.0);
+  typename MeshType::Point          cog, zero_point(0.0, 0.0, 0.0);
 
   for (e_it = mesh_.edges_begin(); e_it != mesh_.edges_end(); ++e_it) {
-    valence = 0;
+    unsigned int valence = 0;
     cog = zero_point;
 
-    if (mesh_.face_handle(mesh_.halfedge_handle(e_it.handle(), 0)).is_valid()) {
-      cog += mesh_.data(mesh_.face_handle(mesh_.halfedge_handle(e_it.handle(), 0))).position();
+    if (mesh_.face_handle(mesh_.halfedge_handle(*e_it, 0)).is_valid()) {
+      cog += mesh_.data(mesh_.face_handle(mesh_.halfedge_handle(*e_it, 0))).position();
       ++valence;
     }
 
-    if (mesh_.face_handle(mesh_.halfedge_handle(e_it.handle(), 1)).is_valid()) {
-      cog += mesh_.data(mesh_.face_handle(mesh_.halfedge_handle(e_it.handle(), 1))).position();
+    if (mesh_.face_handle(mesh_.halfedge_handle(*e_it, 1)).is_valid()) {
+      cog += mesh_.data(mesh_.face_handle(mesh_.halfedge_handle(*e_it, 1))).position();
       ++valence;
     }
 
     cog /= valence;
-    mesh_.data(e_it).set_position(cog);
+    mesh_.data(*e_it).set_position(cog);
   }
 }
 
@@ -1004,10 +979,10 @@ void CompositeT<MeshType,RealType>::VE()
 
   for (e_it = mesh_.edges_begin(); e_it != mesh_.edges_end(); ++e_it)
   {
-    cog = mesh_.data(mesh_.to_vertex_handle(mesh_.halfedge_handle(e_it.handle(), 0))).position();
-    cog += mesh_.data(mesh_.to_vertex_handle(mesh_.halfedge_handle(e_it.handle(), 1))).position();
+    cog = mesh_.data(mesh_.to_vertex_handle(mesh_.halfedge_handle(*e_it, 0))).position();
+    cog += mesh_.data(mesh_.to_vertex_handle(mesh_.halfedge_handle(*e_it, 1))).position();
     cog /= 2.0;
-    mesh_.data(e_it).set_position(cog);
+    mesh_.data(*e_it).set_position(cog);
   }
 }
 
@@ -1017,9 +992,7 @@ void CompositeT<MeshType,RealType>::VV()
 {
   assert(p_mesh_); MeshType& mesh_ = *p_mesh_;
 
-  unsigned int                        valence;
-  typename MeshType::Point                cog,
-                                      zero_point(0.0, 0.0, 0.0);
+  typename MeshType::Point                cog, zero_point(0.0, 0.0, 0.0);
   typename MeshType::VertexVertexIter     vv_it;
   typename MeshType::VertexIter           v_it;
   std::vector<typename MeshType::Point>   point_vector;
@@ -1028,10 +1001,10 @@ void CompositeT<MeshType,RealType>::VV()
 
   for (v_it = mesh_.vertices_begin(); v_it != mesh_.vertices_end(); ++v_it) {
 
-    valence = 0;
+    unsigned int valence = 0;
     cog = zero_point;
 
-    for (vv_it = mesh_.vv_iter(v_it.handle()); vv_it; ++vv_it) {
+    for (vv_it = mesh_.vv_iter(*v_it); vv_it; ++vv_it) {
       cog += vv_it->position();
       ++valence;
     }
@@ -1042,7 +1015,7 @@ void CompositeT<MeshType,RealType>::VV()
   for (v_it = mesh_.vertices_end(); v_it != mesh_.vertices_begin(); )
   {
     --v_it;
-    mesh_.data(v_it).set_position(point_vector.back());
+    mesh_.data(*v_it).set_position(point_vector.back());
     point_vector.pop_back();
   }
 }
@@ -1053,7 +1026,6 @@ void CompositeT<MeshType,RealType>::VVc(Coeff& _coeff)
 {
   assert(p_mesh_); MeshType& mesh_ = *p_mesh_;
 
-  unsigned int                      valence;
   typename MeshType::Point              cog,
                                     zero_point(0.0, 0.0, 0.0);
   typename MeshType::VertexVertexIter   vv_it;
@@ -1063,23 +1035,23 @@ void CompositeT<MeshType,RealType>::VVc(Coeff& _coeff)
 
   for (v_it = mesh_.vertices_begin(); v_it != mesh_.vertices_end(); ++v_it)
   {
-    valence = 0;
+    unsigned int valence = 0;
     cog = zero_point;
 
-    for (vv_it = mesh_.vv_iter(v_it.handle()); vv_it; ++vv_it)
+    for (vv_it = mesh_.vv_iter(*v_it); vv_it; ++vv_it)
     {
       cog += vv_it->position();
       ++valence;
     }
     cog /= valence;
     c = _coeff(valence);
-    cog = cog * (1 - c) + mesh_.data(v_it).position() * c;
+    cog = cog * (1 - c) + mesh_.data(*v_it).position() * c;
     point_vector.push_back(cog);
   }
   for (v_it = mesh_.vertices_end(); v_it != mesh_.vertices_begin(); )
   {
     --v_it;
-    mesh_.data(v_it).set_position(point_vector.back());
+    mesh_.data(*v_it).set_position(point_vector.back());
     point_vector.pop_back();
   }
 }
@@ -1090,19 +1062,17 @@ void CompositeT<MeshType,RealType>::VVc(scalar_t _c)
 {
   assert(p_mesh_); MeshType& mesh_ = *p_mesh_;
 
-  unsigned int                      valence;
-  typename MeshType::Point              cog,
-                                    zero_point(0.0, 0.0, 0.0);
+  typename MeshType::Point              cog, zero_point(0.0, 0.0, 0.0);
   typename MeshType::VertexVertexIter   vv_it;
   typename MeshType::VertexIter         v_it;
   std::vector<typename MeshType::Point> point_vector;
 
   for (v_it = mesh_.vertices_begin(); v_it != mesh_.vertices_end(); ++v_it) {
 
-    valence = 0;
+    unsigned int valence = 0;
     cog = zero_point;
 
-    for (vv_it = mesh_.vv_iter(v_it.handle()); vv_it; ++vv_it) {
+    for (vv_it = mesh_.vv_iter(*v_it); vv_it; ++vv_it) {
       cog += mesh_.data(vv_it).position();
       ++valence;
     }
@@ -1116,7 +1086,7 @@ void CompositeT<MeshType,RealType>::VVc(scalar_t _c)
   for (v_it = mesh_.vertices_end(); v_it != mesh_.vertices_begin(); ) {
 
     --v_it;
-    mesh_.data(v_it).set_position(point_vector.back());
+    mesh_.data(*v_it).set_position(point_vector.back());
     point_vector.pop_back();
 
   }
@@ -1128,9 +1098,7 @@ void CompositeT<MeshType,RealType>::EdE()
 {
   assert(p_mesh_); MeshType& mesh_ = *p_mesh_;
 
-  unsigned int                      valence;
-  typename MeshType::Point              cog,
-                                    zero_point(0.0, 0.0, 0.0);
+  typename MeshType::Point              cog, zero_point(0.0, 0.0, 0.0);
   typename MeshType::EdgeIter           e_it;
   typename MeshType::HalfedgeHandle     heh;
   std::vector<typename MeshType::Point> point_vector;
@@ -1139,11 +1107,11 @@ void CompositeT<MeshType,RealType>::EdE()
 
   for (e_it = mesh_.edges_begin(); e_it != mesh_.edges_end(); ++e_it) {
 
-    valence = 0;
+    unsigned int valence = 0;
     cog = zero_point;
 
     for (int i = 0; i <= 1; ++i) {
-      heh = mesh_.halfedge_handle(e_it.handle(), i);
+      heh = mesh_.halfedge_handle(*e_it, i);
       if (mesh_.face_handle(heh).is_valid())
       {
         cog += mesh_.data(mesh_.edge_handle(mesh_.next_halfedge_handle(heh))).position();
@@ -1160,7 +1128,7 @@ void CompositeT<MeshType,RealType>::EdE()
   for (e_it = mesh_.edges_end(); e_it != mesh_.edges_begin(); )
   {
     --e_it;
-    mesh_.data(e_it).set_position(point_vector.back());
+    mesh_.data(*e_it).set_position(point_vector.back());
     point_vector.pop_back();
   }
 }
@@ -1171,9 +1139,7 @@ void CompositeT<MeshType,RealType>::EdEc(scalar_t _c)
 {
   assert(p_mesh_); MeshType& mesh_ = *p_mesh_;
 
-  unsigned int                         valence;
-  typename MeshType::Point                 cog,
-                                       zero_point(0.0, 0.0, 0.0);
+  typename MeshType::Point                 cog, zero_point(0.0, 0.0, 0.0);
   typename MeshType::EdgeIter              e_it;
   typename MeshType::HalfedgeHandle        heh;
   std::vector<typename MeshType::Point>    point_vector;
@@ -1182,11 +1148,11 @@ void CompositeT<MeshType,RealType>::EdEc(scalar_t _c)
 
   for (e_it = mesh_.edges_begin(); e_it != mesh_.edges_end(); ++e_it)
   {
-    valence = 0;
+    unsigned int valence = 0;
     cog = zero_point;
 
     for (int i = 0; i <= 1; ++i) {
-      heh = mesh_.halfedge_handle(e_it.handle(), i);
+      heh = mesh_.halfedge_handle(*e_it, i);
       if (mesh_.face_handle(heh).is_valid())
       {
         cog += mesh_.data(mesh_.edge_handle(mesh_.next_halfedge_handle(heh))).position() * (1.0 - _c);
@@ -1204,7 +1170,7 @@ void CompositeT<MeshType,RealType>::EdEc(scalar_t _c)
   for (e_it = mesh_.edges_end(); e_it != mesh_.edges_begin(); ) {
 
     --e_it;
-    mesh_.data(e_it).set_position(point_vector.back());
+    mesh_.data(*e_it).set_position(point_vector.back());
     point_vector.pop_back();
   }
 }

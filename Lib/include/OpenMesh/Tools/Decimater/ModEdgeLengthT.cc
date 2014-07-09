@@ -1,7 +1,7 @@
 /*===========================================================================*\
  *                                                                           *
  *                               OpenMesh                                    *
- *      Copyright (C) 2001-2011 by Computer Graphics Group, RWTH Aachen      *
+ *      Copyright (C) 2001-2014 by Computer Graphics Group, RWTH Aachen      *
  *                           www.openmesh.org                                *
  *                                                                           *
  *---------------------------------------------------------------------------*
@@ -34,8 +34,8 @@
 
 /*===========================================================================*\
  *                                                                           *
- *   $Revision: 448 $                                                        *
- *   $Date: 2011-11-04 13:59:37 +0100 (Fri, 04 Nov 2011) $                   *
+ *   $Revision: 990 $                                                        *
+ *   $Date: 2014-02-05 10:01:07 +0100 (Mi, 05 Feb 2014) $                   *
  *                                                                           *
  \*===========================================================================*/
 
@@ -60,20 +60,34 @@ namespace Decimater {
 
 //== IMPLEMENTATION ==========================================================
 
-template<class DecimaterT>
-ModEdgeLengthT<DecimaterT>::ModEdgeLengthT(DecimaterT &_dec, float _edge_length,
+template<class MeshT>
+ModEdgeLengthT<MeshT>::ModEdgeLengthT(MeshT &_mesh, float _edge_length,
     bool _is_binary) :
-    Base(_dec, _is_binary), mesh_(Base::mesh()) {
+    Base(_mesh, _is_binary), mesh_(Base::mesh()) {
   set_edge_length(_edge_length);
 }
 
 //-----------------------------------------------------------------------------
 
-template<class DecimaterT>
-float ModEdgeLengthT<DecimaterT>::collapse_priority(const CollapseInfo& _ci) {
+template<class MeshT>
+float ModEdgeLengthT<MeshT>::collapse_priority(const CollapseInfo& _ci) {
   typename Mesh::Scalar sqr_length = (_ci.p0 - _ci.p1).sqrnorm();
 
   return ( (sqr_length <= sqr_edge_length_) ? sqr_length : float(Base::ILLEGAL_COLLAPSE));
+}
+
+//-----------------------------------------------------------------------------
+
+template<class MeshT>
+void ModEdgeLengthT<MeshT>::set_error_tolerance_factor(double _factor) {
+  if (_factor >= 0.0 && _factor <= 1.0) {
+    // the smaller the factor, the smaller edge_length_ gets
+    // thus creating a stricter constraint
+    // division by error_tolerance_factor_ is for normalization
+    float edge_length = edge_length_ * _factor / this->error_tolerance_factor_;
+    set_edge_length(edge_length);
+    this->error_tolerance_factor_ = _factor;
+  }
 }
 
 //=============================================================================

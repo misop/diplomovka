@@ -1,7 +1,7 @@
 /*===========================================================================*\
  *                                                                           *
  *                               OpenMesh                                    *
- *      Copyright (C) 2001-2011 by Computer Graphics Group, RWTH Aachen      *
+ *      Copyright (C) 2001-2014 by Computer Graphics Group, RWTH Aachen      *
  *                           www.openmesh.org                                *
  *                                                                           *
  *---------------------------------------------------------------------------*
@@ -34,8 +34,8 @@
 
 /*===========================================================================*\
  *                                                                           *
- *   $Revision: 362 $                                                         *
- *   $Date: 2011-01-26 10:21:12 +0100 (Wed, 26 Jan 2011) $                   *
+ *   $Revision: 990 $                                                         *
+ *   $Date: 2014-02-05 10:01:07 +0100 (Mi, 05 Feb 2014) $                   *
  *                                                                           *
 \*===========================================================================*/
 
@@ -83,7 +83,7 @@ class BaseImporter;
     Implementation of the STL format reader. This class is singleton'ed by
     SingletonT to STLReader.
 */
-class _STLReader_ : public BaseReader
+class OPENMESHDLLEXPORT _STLReader_ : public BaseReader
 {
 public:
 
@@ -120,8 +120,10 @@ private:
   enum STL_Type { STLA, STLB, NONE };
   STL_Type check_stl_type(const std::string& _filename) const;
 
-  bool read_stla(const std::string& _filename, BaseImporter& _bi) const;
-  bool read_stlb(const std::string& _filename, BaseImporter& _bi) const;
+  bool read_stla(const std::string& _filename, BaseImporter& _bi, Options& _opt) const;
+  bool read_stla(std::istream& _in, BaseImporter& _bi, Options& _opt) const;
+  bool read_stlb(const std::string& _filename, BaseImporter& _bi, Options& _opt) const;
+  bool read_stlb(std::istream& _in, BaseImporter& _bi, Options& _opt) const;
 
 
 private:
@@ -135,7 +137,7 @@ private:
 
 /// Declare the single entity of the STL reader
 extern _STLReader_  __STLReaderInstance;
-_STLReader_&  STLReader();
+OPENMESHDLLEXPORT _STLReader_&  STLReader();
 
 
 //=============================================================================

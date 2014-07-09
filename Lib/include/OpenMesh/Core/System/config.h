@@ -1,7 +1,7 @@
 /*===========================================================================*\
  *                                                                           *
  *                               OpenMesh                                    *
- *      Copyright (C) 2001-2009 by Computer Graphics Group, RWTH Aachen      *
+ *      Copyright (C) 2001-2014 by Computer Graphics Group, RWTH Aachen      *
  *                           www.openmesh.org                                *
  *                                                                           *
  *---------------------------------------------------------------------------* 
@@ -34,8 +34,8 @@
 
 /*===========================================================================*\
  *                                                                           *             
- *   $Revision: 213 $                                                         *
- *   $Date: 2009-10-16 14:46:28 +0200 (Fri, 16 Oct 2009) $                   *
+ *   $Revision: 1051 $                                                         *
+ *   $Date: 2014-05-09 12:21:25 +0200 (Fr, 09 Mai 2014) $                   *
  *                                                                           *
 \*===========================================================================*/
 
@@ -53,13 +53,15 @@
 
 #include <assert.h>
 #include <OpenMesh/Core/System/compiler.hh>
+#include <OpenMesh/Core/System/OpenMeshDLLMacros.hh>
 
 // ----------------------------------------------------------------------------
 
-#define OM_VERSION 0x10000
+#define OM_VERSION 0x30100
+//#define OM_VERSION 0x20400
 
 // only defined, if it is a beta version
-#define OM_VERSION_BETA 4
+//#define OM_VERSION_BETA 4
 
 #define OM_GET_VER ((OM_VERSION && 0xf0000) >> 16)
 #define OM_GET_MAJ ((OM_VERSION && 0x0ff00) >> 8)
@@ -67,13 +69,27 @@
 
 #ifdef WIN32
 #  ifdef min
-#    pragma message("Detected min macro! OpenMesh does not compiled with min/max macros active! Please add a define NOMINMAX to your compiler flags !")
+#    pragma message("Detected min macro! OpenMesh does not compile with min/max macros active! Please add a define NOMINMAX to your compiler flags or add #undef min before including OpenMesh headers !")
 #    error min macro active 
 #  endif
 #  ifdef max
-#    pragma message("Detected max macro! OpenMesh does not compiled with min/max macros active! Please add a define NOMINMAX to your compiler flags !")
+#    pragma message("Detected max macro! OpenMesh does not compile with min/max macros active! Please add a define NOMINMAX to your compiler flags or add #undef max before including OpenMesh headers !")
 #    error max macro active 
 #  endif
+#endif
+
+#if defined(_MSC_VER)
+#  define DEPRECATED(msg) __declspec(deprecated(msg))
+#elif defined(__GNUC__)
+#  if (__GNUC__ * 10000 + __GNUC_MINOR__ * 100 + __GNUC_PATCHLEVEL__) >= 40500 /* Test for GCC >= 4.5.0 */
+#    define DEPRECATED(msg) __attribute__ ((deprecated(msg)))
+#  else
+#    define DEPRECATED(msg) __attribute__ ((deprecated))
+#  endif
+#elif defined(__clang__)
+#  define DEPRECATED(msg) __attribute__ ((deprecated(msg)))
+#else
+#  define DEPRECATED(msg)
 #endif
 
 typedef unsigned int uint;

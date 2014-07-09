@@ -1,7 +1,7 @@
 /*===========================================================================*\
  *                                                                           *
  *                               OpenMesh                                    *
- *      Copyright (C) 2001-2011 by Computer Graphics Group, RWTH Aachen      *
+ *      Copyright (C) 2001-2014 by Computer Graphics Group, RWTH Aachen      *
  *                           www.openmesh.org                                *
  *                                                                           *
  *---------------------------------------------------------------------------*
@@ -34,8 +34,8 @@
 
 /*===========================================================================*\
  *                                                                           *
- *   $Revision: 518 $                                                         *
- *   $Date: 2012-01-20 11:52:00 +0100 (Fri, 20 Jan 2012) $                   *
+ *   $Revision: 990 $                                                         *
+ *   $Date: 2014-02-05 10:01:07 +0100 (Mi, 05 Feb 2014) $                   *
  *                                                                           *
 \*===========================================================================*/
 
@@ -121,29 +121,29 @@ merge(const NormalConeT& _cone)
 {
   Scalar dotp = (center_normal_ | _cone.center_normal_);
 
-  if (fabs(dotp) < 0.99999)
+  if (fabs(dotp) < 0.99999f)
   {
     // new angle
     Scalar centerAngle = acos(dotp);
     Scalar minAngle    = std::min(-angle(), centerAngle - _cone.angle());
     Scalar maxAngle    = std::max( angle(), centerAngle + _cone.angle());
-    angle_     = (maxAngle - minAngle) * 0.5;
+    angle_     = (maxAngle - minAngle) * Scalar(0.5f);
 
     // axis by SLERP
-    Scalar axisAngle = 0.5*(minAngle + maxAngle);
+    Scalar axisAngle =  Scalar(0.5f) * (minAngle + maxAngle);
     center_normal_ = ((center_normal_ * sin(centerAngle-axisAngle)
-		       + _cone.center_normal_ * sin(axisAngle))
-		       / sin(centerAngle));
+		                   + _cone.center_normal_ * sin(axisAngle))
+		                    / sin(centerAngle));
   }
   else
   {
     // axes point in same direction
-    if (dotp > 0.0)
+    if (dotp > 0.0f)
       angle_ = std::max(angle_, _cone.angle_);
 
     // axes point in opposite directions
     else
-      angle_ = 2*M_PI;
+      angle_ =  Scalar(2.0f * M_PI);
   }
 }
 

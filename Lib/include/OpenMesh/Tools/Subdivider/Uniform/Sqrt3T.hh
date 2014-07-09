@@ -1,7 +1,7 @@
 /*===========================================================================*\
  *                                                                           *
  *                               OpenMesh                                    *
- *      Copyright (C) 2001-2011 by Computer Graphics Group, RWTH Aachen      *
+ *      Copyright (C) 2001-2014 by Computer Graphics Group, RWTH Aachen      *
  *                           www.openmesh.org                                *
  *                                                                           *
  *---------------------------------------------------------------------------* 
@@ -34,8 +34,8 @@
 
 /*===========================================================================*\
  *                                                                           *             
- *   $Revision: 520 $                                                         *
- *   $Date: 2012-01-20 15:29:31 +0100 (Fri, 20 Jan 2012) $                   *
+ *   $Revision: 990 $                                                         *
+ *   $Date: 2014-02-05 10:01:07 +0100 (Mi, 05 Feb 2014) $                   *
  *                                                                           *
 \*===========================================================================*/
 
@@ -107,10 +107,10 @@ public:
 public:
 
 
-  Sqrt3T(void) : parent_t(), _1over3( 1.0/3.0 ), _1over27( 1.0/27.0 )
+  Sqrt3T(void) : parent_t(), _1over3( real_t(1.0/3.0) ), _1over27( real_t(1.0/27.0) )
   { init_weights(); }
 
-  Sqrt3T(MeshType &_m) : parent_t(_m), _1over3( 1.0/3.0 ), _1over27( 1.0/27.0 )
+  Sqrt3T(MeshType &_m) : parent_t(_m), _1over3( real_t(1.0/3.0) ), _1over27( real_t(1.0/27.0) )
   { init_weights(); }
 
   virtual ~Sqrt3T() {}
@@ -175,20 +175,20 @@ protected:
       // tag existing edges
       for (eit=_m.edges_begin(); eit != _m.edges_end();++eit)
       {
-        _m.status( eit ).set_tagged( true );
-        if ( (gen%2) && _m.is_boundary(eit) )
-          compute_new_boundary_points( _m, eit ); // *) creates new vertices
+        _m.status( *eit ).set_tagged( true );
+        if ( (gen%2) && _m.is_boundary(*eit) )
+          compute_new_boundary_points( _m, *eit ); // *) creates new vertices
       }
 
       // do relaxation of old vertices, but store new pos in property vp_pos_
 
       for (vit=_m.vertices_begin(); vit!=_m.vertices_end(); ++vit)
       {
-        if ( _m.is_boundary(vit) )
+        if ( _m.is_boundary(*vit) )
         {
           if ( gen%2 )
           {
-            heh  = _m.halfedge_handle(vit);
+            heh  = _m.halfedge_handle(*vit);
             if (heh.is_valid()) // skip isolated newly inserted vertices *)
             {
               typename OpenMesh::HalfedgeHandle 
@@ -201,28 +201,28 @@ protected:
               pos += _m.point(_m.from_vertex_handle(prev_heh));
               pos *= real_t(4.0);
 
-              pos += real_t(19.0) * _m.point( vit );
+              pos += real_t(19.0) * _m.point( *vit );
               pos *= _1over27;
 
-              _m.property( vp_pos_, vit ) = pos;
+              _m.property( vp_pos_, *vit ) = pos;
             }
           }
           else
-            _m.property( vp_pos_, vit ) = _m.point( vit );
+            _m.property( vp_pos_, *vit ) = _m.point( *vit );
         }
         else
         {
           size_t valence=0;
 
           pos = zero;
-          for ( vvit = _m.vv_iter(vit); vvit; ++vvit)
+          for ( vvit = _m.vv_iter(*vit); vvit.is_valid(); ++vvit)
           {
-            pos += _m.point( vvit );
+            pos += _m.point( *vvit );
             ++valence;
           }
           pos *= weights_[ valence ].second;
-          pos += weights_[ valence ].first * _m.point(vit);
-          _m.property( vp_pos_, vit ) =  pos;
+          pos += weights_[ valence ].first * _m.point(*vit);
+          _m.property( vp_pos_, *vit ) =  pos;
         }
       }   
 
@@ -230,31 +230,31 @@ protected:
       typename MeshType::FaceIter fend = _m.faces_end();
       for (fit = _m.faces_begin();fit != fend; ++fit)
       {
-        if ( (gen%2) && _m.is_boundary(fit))
+        if ( (gen%2) && _m.is_boundary(*fit))
         {
-          boundary_split( _m, fit );
+          boundary_split( _m, *fit );
         }
         else
         {
-          fvit = _m.fv_iter( fit );        
-          pos  = _m.point(  fvit);
-          pos += _m.point(++fvit);
-          pos += _m.point(++fvit);
+          fvit = _m.fv_iter( *fit );
+          pos  = _m.point(  *fvit);
+          pos += _m.point(*(++fvit));
+          pos += _m.point(*(++fvit));
           pos *= _1over3;
           vh   = _m.add_vertex( zero );
           _m.property( vp_pos_, vh ) = pos;
-          _m.split( fit, vh );
+          _m.split( *fit, vh );
         }
       }
 
       // commit new positions (now iterating over all vertices)
       for (vit=_m.vertices_begin();vit != _m.vertices_end(); ++vit)
-        _m.set_point(vit, _m.property( vp_pos_, vit ) );
+        _m.set_point(*vit, _m.property( vp_pos_, *vit ) );
       
       // flip old edges
       for (eit=_m.edges_begin(); eit != _m.edges_end(); ++eit)
-        if ( _m.status( eit ).tagged() && !_m.is_boundary( eit ) )
-          _m.flip(eit);
+        if ( _m.status( *eit ).tagged() && !_m.is_boundary( *eit ) )
+          _m.flip(*eit);
 
       // Now we have an consistent mesh!
       ASSERT_CONSISTENCY( MeshType, _m );
@@ -279,10 +279,10 @@ private:
 #endif
       if (++valence)
       {
-        real_t alpha = (4.0-2.0*cos(2.0*M_PI / (double)valence))/9.0;
+        real_t alpha = real_t( (4.0-2.0*cos(2.0*M_PI / real_t(valence)) )/9.0 );
         return weight_t( real_t(1)-alpha, alpha/real_t(valence) );
       }
-      return weight_t(0.0, 0.0);
+      return weight_t(real_t(0.0), real_t(0.0) );
     }    
     int valence;
   };
@@ -348,11 +348,11 @@ private:
     typename MeshType::HalfedgeHandle   heh;
 
     // find boundary edge
-    for( fe_it=_m.fe_iter( _fh ); fe_it && !_m.is_boundary( fe_it ); ++fe_it ) {};
+    for( fe_it=_m.fe_iter( _fh ); fe_it.is_valid() && !_m.is_boundary( *fe_it ); ++fe_it ) {};
 
     // use precomputed, already inserted but not linked vertices
-    vhl = _m.property(ep_nv_, fe_it).first;
-    vhr = _m.property(ep_nv_, fe_it).second;
+    vhl = _m.property(ep_nv_, *fe_it).first;
+    vhr = _m.property(ep_nv_, *fe_it).second;
 
     /*
     //       *---------*---------*
@@ -367,8 +367,8 @@ private:
     */
     // get halfedge pointing from P2 to P3 (inner boundary halfedge)
 
-    heh = _m.halfedge_handle(fe_it, 
-                             _m.is_boundary(_m.halfedge_handle(fe_it,0)));
+    heh = _m.halfedge_handle(*fe_it,
+                             _m.is_boundary(_m.halfedge_handle(*fe_it,0)));
 
     typename MeshType::HalfedgeHandle pl_P3;
 

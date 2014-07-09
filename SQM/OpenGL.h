@@ -747,7 +747,7 @@ namespace OpenGLForm
 		void loadSkeletonFromFile(string fileName) {
 			sqmControler->loadSkeletonFromFile(fileName);
 			glCamera->reset();
-			//setupView();
+			setupView();
 		}
 		void saveSkeletonToFile(string fileName) {
 			sqmControler->saveSkeletonToFile(fileName);

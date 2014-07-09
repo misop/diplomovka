@@ -1,13 +1,13 @@
 /*===========================================================================*\
  *                                                                           *
  *                               OpenMesh                                    *
- *      Copyright (C) 2001-2011 by Computer Graphics Group, RWTH Aachen      *
+ *      Copyright (C) 2001-2014 by Computer Graphics Group, RWTH Aachen      *
  *                           www.openmesh.org                                *
  *                                                                           *
- *---------------------------------------------------------------------------* 
+ *---------------------------------------------------------------------------*
  *  This file is part of OpenMesh.                                           *
  *                                                                           *
- *  OpenMesh is free software: you can redistribute it and/or modify         * 
+ *  OpenMesh is free software: you can redistribute it and/or modify         *
  *  it under the terms of the GNU Lesser General Public License as           *
  *  published by the Free Software Foundation, either version 3 of           *
  *  the License, or (at your option) any later version with the              *
@@ -30,12 +30,12 @@
  *  License along with OpenMesh.  If not,                                    *
  *  see <http://www.gnu.org/licenses/>.                                      *
  *                                                                           *
-\*===========================================================================*/ 
+\*===========================================================================*/
 
 /*===========================================================================*\
- *                                                                           *             
- *   $Revision: 362 $                                                         *
- *   $Date: 2011-01-26 10:21:12 +0100 (Wed, 26 Jan 2011) $                   *
+ *                                                                           *
+ *   $Revision: 990 $                                                         *
+ *   $Date: 2014-02-05 10:01:07 +0100 (Mi, 05 Feb 2014) $                   *
  *                                                                           *
 \*===========================================================================*/
 
@@ -80,7 +80,7 @@ initialize()
                              v_end = Base::mesh().vertices_end();
 
   for (; v_it != v_end; ++v_it)
-    Base::mesh().property(quadrics_, v_it).clear();
+    Base::mesh().property(quadrics_, *v_it).clear();
 
   // calc (normal weighted) quadric
   typename Mesh::FaceIter          f_it  = Base::mesh().faces_begin(),
@@ -89,14 +89,13 @@ initialize()
   typename Mesh::FaceVertexIter    fv_it;
   typename Mesh::VertexHandle      vh0, vh1, vh2;
   typedef Vec3d                    Vec3;
-  double                           a,b,c,d, area;
 
   for (; f_it != f_end; ++f_it)
   {
-    fv_it = Base::mesh().fv_iter(f_it.handle());
-    vh0 = fv_it.handle();  ++fv_it;
-    vh1 = fv_it.handle();  ++fv_it;
-    vh2 = fv_it.handle();
+    fv_it = Base::mesh().fv_iter(*f_it);
+    vh0 = *fv_it;  ++fv_it;
+    vh1 = *fv_it;  ++fv_it;
+    vh2 = *fv_it;
 
     Vec3 v0, v1, v2;
     {
@@ -108,17 +107,17 @@ initialize()
     }
 
     Vec3 n = (v1-v0) % (v2-v0);
-    area = n.norm();
+    double area = n.norm();
     if (area > FLT_MIN)
     {
       n /= area;
       area *= 0.5;
     }
 
-    a = n[0];
-    b = n[1];
-    c = n[2];
-    d = -(vector_cast<Vec3>(Base::mesh().point(vh0))|n);
+    const double a = n[0];
+    const double b = n[1];
+    const double c = n[2];
+    const double d = -(vector_cast<Vec3>(Base::mesh().point(vh0))|n);
 
     Quadricd q(a, b, c, d);
     q *= area;
@@ -129,6 +128,23 @@ initialize()
   }
 }
 
+//-----------------------------------------------------------------------------
+
+template<class MeshT>
+void ModQuadricT<MeshT>::set_error_tolerance_factor(double _factor) {
+  if (this->is_binary()) {
+    if (_factor >= 0.0 && _factor <= 1.0) {
+      // the smaller the factor, the smaller max_err_ gets
+      // thus creating a stricter constraint
+      // division by error_tolerance_factor_ is for normalization
+      double max_err = max_err_ * _factor / this->error_tolerance_factor_;
+      set_max_err(max_err);
+      this->error_tolerance_factor_ = _factor;
+
+      initialize();
+    }
+  }
+}
 
 //=============================================================================
 } // END_NS_DECIMATER

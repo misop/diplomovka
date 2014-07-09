@@ -1,7 +1,7 @@
 /*===========================================================================*\
  *                                                                           *
  *                               OpenMesh                                    *
- *      Copyright (C) 2001-2011 by Computer Graphics Group, RWTH Aachen      *
+ *      Copyright (C) 2001-2014 by Computer Graphics Group, RWTH Aachen      *
  *                           www.openmesh.org                                *
  *                                                                           *
  *---------------------------------------------------------------------------* 
@@ -34,8 +34,8 @@
 
 /*===========================================================================*\
  *                                                                           *             
- *   $Revision: 566 $                                                         *
- *   $Date: 2012-03-23 18:00:57 +0100 (Fri, 23 Mar 2012) $                   *
+ *   $Revision: 990 $                                                         *
+ *   $Date: 2014-02-05 10:01:07 +0100 (Mi, 05 Feb 2014) $                   *
  *                                                                           *
 \*===========================================================================*/
 
@@ -66,9 +66,9 @@
     \see OpenMesh::mostream
 */
 //@{
-OpenMesh::mostream& omlog();
-OpenMesh::mostream& omout();
-OpenMesh::mostream& omerr();
+OPENMESHDLLEXPORT OpenMesh::mostream& omlog();
+OPENMESHDLLEXPORT OpenMesh::mostream& omout();
+OPENMESHDLLEXPORT OpenMesh::mostream& omerr();
 //@}
 
 //=============================================================================

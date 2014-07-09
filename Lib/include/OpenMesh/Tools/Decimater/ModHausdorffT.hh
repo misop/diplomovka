@@ -1,7 +1,7 @@
 /*===========================================================================*\
  *                                                                           *
  *                               OpenMesh                                    *
- *      Copyright (C) 2001-2011 by Computer Graphics Group, RWTH Aachen      *
+ *      Copyright (C) 2001-2014 by Computer Graphics Group, RWTH Aachen      *
  *                           www.openmesh.org                                *
  *                                                                           *
  *---------------------------------------------------------------------------*
@@ -34,8 +34,8 @@
 
 /*===========================================================================*\
  *                                                                           *
- *   $Revision: 448 $                                                        *
- *   $Date: 2011-11-04 13:59:37 +0100 (Fri, 04 Nov 2011) $                   *
+ *   $Revision: 1050 $                                                        *
+ *   $Date: 2014-05-09 10:12:41 +0200 (Fr, 09 Mai 2014) $                   *
  *                                                                           *
  \*===========================================================================*/
 
@@ -56,7 +56,7 @@
 #include <OpenMesh/Tools/Decimater/ModBaseT.hh>
 #include <OpenMesh/Core/Utils/Property.hh>
 #include <vector>
-#include <float.h>
+#include <cfloat>
 
 //== NAMESPACES ===============================================================
 
@@ -74,11 +74,11 @@ namespace Decimater {
  *
  * No continuous mode
  */
-template<class DecimaterT>
-class ModHausdorffT: public ModBaseT<DecimaterT> {
+template<class MeshT>
+class ModHausdorffT: public ModBaseT<MeshT> {
   public:
 
-    DECIMATING_MODULE( ModHausdorffT, DecimaterT, Roundness );
+    DECIMATING_MODULE( ModHausdorffT, MeshT, Hausdorff );
 
     typedef typename Mesh::Scalar Scalar;
     typedef typename Mesh::Point Point;
@@ -86,8 +86,8 @@ class ModHausdorffT: public ModBaseT<DecimaterT> {
     typedef std::vector<Point> Points;
 
     /// Constructor
-    ModHausdorffT(DecimaterT& _dec, Scalar _error_tolerance = FLT_MAX) :
-        Base(_dec, true), mesh_(Base::mesh()), tolerance_(_error_tolerance) {
+    ModHausdorffT(MeshT& _mesh, Scalar _error_tolerance = FLT_MAX) :
+        Base(_mesh, true), mesh_(Base::mesh()), tolerance_(_error_tolerance) {
       mesh_.add_property(points_);
     }
 
@@ -124,18 +124,23 @@ class ModHausdorffT: public ModBaseT<DecimaterT> {
     /// re-distribute points
     virtual void postprocess_collapse(const CollapseInfo& _ci);
 
+    /// set the percentage of tolerance
+    void set_error_tolerance_factor(double _factor);
+
   private:
 
     /// squared distance from point _p to triangle (_v0, _v1, _v2)
-    Scalar distPointTriangleSquared(const Point& _p, const Point& _v0,
-        const Point& _v1, const Point& _v2, Point& _nearestPoint);
+    Scalar distPointTriangleSquared(const Point& _p, const Point& _v0, const Point& _v1, const Point& _v2);
 
     /// compute max error for face _fh w.r.t. its point list and _p
     Scalar compute_sqr_error(FaceHandle _fh, const Point& _p) const;
 
   private:
 
-    Mesh& mesh_;
+    /// Temporary point storage
+    Points tmp_points_;
+
+    Mesh&  mesh_;
     Scalar tolerance_;
 
     OpenMesh::FPropHandleT<Points> points_;

@@ -1,13 +1,13 @@
 /*===========================================================================*\
  *                                                                           *
  *                               OpenMesh                                    *
- *      Copyright (C) 2001-2011 by Computer Graphics Group, RWTH Aachen      *
+ *      Copyright (C) 2001-2014 by Computer Graphics Group, RWTH Aachen      *
  *                           www.openmesh.org                                *
  *                                                                           *
- *---------------------------------------------------------------------------* 
+ *---------------------------------------------------------------------------*
  *  This file is part of OpenMesh.                                           *
  *                                                                           *
- *  OpenMesh is free software: you can redistribute it and/or modify         * 
+ *  OpenMesh is free software: you can redistribute it and/or modify         *
  *  it under the terms of the GNU Lesser General Public License as           *
  *  published by the Free Software Foundation, either version 3 of           *
  *  the License, or (at your option) any later version with the              *
@@ -30,12 +30,12 @@
  *  License along with OpenMesh.  If not,                                    *
  *  see <http://www.gnu.org/licenses/>.                                      *
  *                                                                           *
-\*===========================================================================*/ 
+\*===========================================================================*/
 
 /*===========================================================================*\
- *                                                                           *             
- *   $Revision: 362 $                                                         *
- *   $Date: 2011-01-26 10:21:12 +0100 (Wed, 26 Jan 2011) $                   *
+ *                                                                           *
+ *   $Revision: 990 $                                                         *
+ *   $Date: 2014-02-05 10:01:07 +0100 (Mi, 05 Feb 2014) $                   *
  *                                                                           *
 \*===========================================================================*/
 
@@ -78,7 +78,7 @@ namespace IO {
  *   structure. This is basically a wrapper providing virtual versions
  *   for the required mesh functions.
  */
-class BaseImporter
+class OPENMESHDLLEXPORT BaseImporter
 {
 public:
 
@@ -108,6 +108,12 @@ public:
   // set vertex color
   virtual void set_color(VertexHandle _vh, const Vec4uc& _color) = 0;
 
+  // set vertex color
+  virtual void set_color(VertexHandle _vh, const Vec3f& _color) = 0;
+
+  // set vertex color
+  virtual void set_color(VertexHandle _vh, const Vec4f& _color) = 0;
+
   // set vertex texture coordinate
   virtual void set_texcoord(VertexHandle _vh, const Vec2f& _texcoord) = 0;
 
@@ -116,10 +122,16 @@ public:
 
   // set edge color
   virtual void set_color(EdgeHandle _eh, const Vec3uc& _color) = 0;
-  
+
   // set edge color
   virtual void set_color(EdgeHandle _eh, const Vec4uc& _color) = 0;
-  
+
+  // set edge color
+  virtual void set_color(EdgeHandle _eh, const Vec3f& _color) = 0;
+
+  // set edge color
+  virtual void set_color(EdgeHandle _eh, const Vec4f& _color) = 0;
+
   // set face normal
   virtual void set_normal(FaceHandle _fh, const Vec3f& _normal) = 0;
 
@@ -128,6 +140,12 @@ public:
 
   // set face color
   virtual void set_color(FaceHandle _fh, const Vec4uc& _color) = 0;
+
+  // set face color
+  virtual void set_color(FaceHandle _fh, const Vec3f& _color) = 0;
+
+  // set face color
+  virtual void set_color(FaceHandle _fh, const Vec4f& _color) = 0;
 
   // Store a property in the mesh mapping from an int to a texture file
   // Use set_face_texindex to set the index for each face

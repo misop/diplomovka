@@ -1,13 +1,13 @@
 /*===========================================================================*\
  *                                                                           *
  *                               OpenMesh                                    *
- *      Copyright (C) 2001-2011 by Computer Graphics Group, RWTH Aachen      *
+ *      Copyright (C) 2001-2014 by Computer Graphics Group, RWTH Aachen      *
  *                           www.openmesh.org                                *
  *                                                                           *
- *---------------------------------------------------------------------------* 
+ *---------------------------------------------------------------------------*
  *  This file is part of OpenMesh.                                           *
  *                                                                           *
- *  OpenMesh is free software: you can redistribute it and/or modify         * 
+ *  OpenMesh is free software: you can redistribute it and/or modify         *
  *  it under the terms of the GNU Lesser General Public License as           *
  *  published by the Free Software Foundation, either version 3 of           *
  *  the License, or (at your option) any later version with the              *
@@ -30,12 +30,12 @@
  *  License along with OpenMesh.  If not,                                    *
  *  see <http://www.gnu.org/licenses/>.                                      *
  *                                                                           *
-\*===========================================================================*/ 
+\*===========================================================================*/
 
 /*===========================================================================*\
- *                                                                           *             
- *   $Revision: 543 $                                                         *
- *   $Date: 2012-02-29 14:21:06 +0100 (Wed, 29 Feb 2012) $                   *
+ *                                                                           *
+ *   $Revision: 990 $                                                         *
+ *   $Date: 2014-02-05 10:01:07 +0100 (Mi, 05 Feb 2014) $                   *
  *                                                                           *
 \*===========================================================================*/
 
@@ -82,7 +82,7 @@ namespace OpenMesh {
     \see OpenMesh::Concepts::KernelT, \ref mesh_type
 */
 
-class ArrayKernel : public BaseKernel, public ArrayItems
+class OPENMESHDLLEXPORT ArrayKernel : public BaseKernel, public ArrayItems
 {
 public:
 
@@ -103,50 +103,36 @@ public:
   ArrayKernel();
   virtual ~ArrayKernel();
 
-  /** ArrayKernel uses the default copy constructor and assignment operator, which means 
+  /** ArrayKernel uses the default copy constructor and assignment operator, which means
       that the connectivity and all properties are copied, including reference
-      counters, allocated bit status masks, etc.. In contrast assign_connectivity 
+      counters, allocated bit status masks, etc.. In contrast assign_connectivity
       copies only the connectivity, i.e. vertices, edges, faces and their status fields.
-      NOTE: The geometry (the points property) is NOT copied. Poly/TriConnectivity 
+      NOTE: The geometry (the points property) is NOT copied. Poly/TriConnectivity
       override(and hide) that function to provide connectivity consistence.*/
-  void                                      assign_connectivity(const ArrayKernel& _other);
-  
+  void assign_connectivity(const ArrayKernel& _other);
+
   // --- handle -> item ---
-  VertexHandle handle(const Vertex& _v) const
-  {return VertexHandle(&_v - &vertices_.front()); }
+  VertexHandle handle(const Vertex& _v) const;
 
-  HalfedgeHandle handle(const Halfedge& _he) const
-  {
-    // Calculate edge belonging to given halfedge
-    // There are two halfedges stored per edge
-    // Get memory position inside edge vector and devide by size of an edge
-    // to get the corresponding edge for the requested halfedge
-    uint eh = ( (char*)&_he - (char*)&edges_.front() ) /  sizeof(Edge)  ;
-    assert((&_he == &edges_[eh].halfedges_[0]) ||
-           (&_he == &edges_[eh].halfedges_[1]));
-    return ((&_he == &edges_[eh].halfedges_[0]) ?
-                      HalfedgeHandle(eh<<1) : HalfedgeHandle((eh<<1)+1));
-  }
+  HalfedgeHandle handle(const Halfedge& _he) const;
 
-  EdgeHandle handle(const Edge& _e) const 
-  { return EdgeHandle(&_e - &edges_.front()); }
+  EdgeHandle handle(const Edge& _e) const;
 
-  FaceHandle handle(const Face& _f) const 
-  { return FaceHandle(&_f - &faces_.front()); }
+  FaceHandle handle(const Face& _f) const;
 
-#define SIGNED(x) signed( (x) )
-  //checks handle validity - useful for debugging
-  bool is_valid_handle(VertexHandle _vh) const
-  { return 0 <= _vh.idx() && _vh.idx() < SIGNED(n_vertices()); }
 
-  bool is_valid_handle(HalfedgeHandle _heh) const
-  { return 0 <= _heh.idx() && _heh.idx() < SIGNED(n_edges()*2); }
+  ///checks handle validity - useful for debugging
+  bool is_valid_handle(VertexHandle _vh) const;
 
-  bool is_valid_handle(EdgeHandle _eh) const
-  { return 0 <= _eh.idx() && _eh.idx() < SIGNED(n_edges()); }
+  ///checks handle validity - useful for debugging
+  bool is_valid_handle(HalfedgeHandle _heh) const;
 
-  bool is_valid_handle(FaceHandle _fh) const
-  { return 0 <= _fh.idx() && _fh.idx() < SIGNED(n_faces()); }
+  ///checks handle validity - useful for debugging
+  bool is_valid_handle(EdgeHandle _eh) const;
+
+  ///checks handle validity - useful for debugging
+  bool is_valid_handle(FaceHandle _fh) const;
+
 
   // --- item -> handle ---
   const Vertex& vertex(VertexHandle _vh) const
@@ -197,23 +183,21 @@ public:
     return faces_[_fh.idx()];
   }
 
-#undef SIGNED
-
   // --- get i'th items ---
 
-  VertexHandle vertex_handle(uint _i) const
+  VertexHandle vertex_handle(unsigned int _i) const
   { return (_i < n_vertices()) ? handle( vertices_[_i] ) : VertexHandle(); }
 
-  HalfedgeHandle halfedge_handle(uint _i) const
+  HalfedgeHandle halfedge_handle(unsigned int _i) const
   {
     return (_i < n_halfedges()) ?
       halfedge_handle(edge_handle(_i/2), _i%2) : HalfedgeHandle();
   }
 
-  EdgeHandle edge_handle(uint _i) const
+  EdgeHandle edge_handle(unsigned int _i) const
   { return (_i < n_edges()) ? handle(edges_[_i]) : EdgeHandle(); }
 
-  FaceHandle face_handle(uint _i) const
+  FaceHandle face_handle(unsigned int _i) const
   { return (_i < n_faces()) ? handle(faces_[_i]) : FaceHandle(); }
 
 public:
@@ -257,18 +241,69 @@ public:
 
 public:
   // --- resize/reserve ---
-  void resize( uint _n_vertices, uint _n_edges, uint _n_faces );
-  void reserve(uint _n_vertices, uint _n_edges, uint _n_faces );
+  void resize( size_t _n_vertices, size_t _n_edges, size_t _n_faces );
+  void reserve(size_t _n_vertices, size_t _n_edges, size_t _n_faces );
 
   // --- deletion ---
+  /** \brief garbage collection
+   *
+   * Usually if you delete primitives in OpenMesh, they are only flagged as deleted.
+   * Only when you call garbage collection, they will be actually removed.
+   *
+   * \note Garbage collection invalidates all handles. If you need to keep track of
+   *       a set of handles, you can pass them to the second garbage collection
+   *       function, which will update a vector of handles.
+   *       See also \ref deletedElements.
+   *
+   * @param _v Remove deleted vertices?
+   * @param _e Remove deleted edges?
+   * @param _f Remove deleted faces?
+   *
+   */
   void garbage_collection(bool _v=true, bool _e=true, bool _f=true);
+
+  /** \brief garbage collection with handle tracking
+   *
+   * Usually if you delete primitives in OpenMesh, they are only flagged as deleted.
+   * Only when you call garbage collection, they will be actually removed.
+   *
+   * \note Garbage collection invalidates all handles. If you need to keep track of
+   *       a set of handles, you can pass them to this function. The handles that the
+   *       given pointers point to are updated in place.
+   *       See also \ref deletedElements.
+   *
+   * @param vh_to_update Pointers to vertex handles that should get updated
+   * @param hh_to_update Pointers to halfedge handles that should get updated
+   * @param fh_to_update Pointers to face handles that should get updated
+   * @param _v Remove deleted vertices?
+   * @param _e Remove deleted edges?
+   * @param _f Remove deleted faces?
+   */
+  template<typename std_API_Container_VHandlePointer,
+           typename std_API_Container_HHandlePointer,
+           typename std_API_Container_FHandlePointer>
+  void garbage_collection(std_API_Container_VHandlePointer& vh_to_update,
+                          std_API_Container_HHandlePointer& hh_to_update,
+                          std_API_Container_FHandlePointer& fh_to_update,
+                          bool _v=true, bool _e=true, bool _f=true);
+
+  /** \brief Clear the whole mesh
+   *
+   *  This will remove all properties and elements from the mesh
+   */
   void clear();
 
+  /** \brief Reset the whole mesh
+   *
+   *  This will remove all elements from the mesh but keeps the properties
+   */
+  void clean();
+
   // --- number of items ---
-  uint n_vertices()  const { return vertices_.size(); }
-  uint n_halfedges() const { return 2*edges_.size(); }
-  uint n_edges()     const { return edges_.size(); }
-  uint n_faces()     const { return faces_.size(); }
+  size_t n_vertices()  const { return vertices_.size(); }
+  size_t n_halfedges() const { return 2*edges_.size(); }
+  size_t n_edges()     const { return edges_.size(); }
+  size_t n_faces()     const { return faces_.size(); }
 
   bool vertices_empty()  const { return vertices_.empty(); }
   bool halfedges_empty() const { return edges_.empty(); }
@@ -292,7 +327,7 @@ public:
   void set_isolated(VertexHandle _vh)
   { vertex(_vh).halfedge_handle_.invalidate(); }
 
-  uint delete_isolated_vertices();
+  unsigned int delete_isolated_vertices();
 
   // --- halfedge connectivity ---
   VertexHandle to_vertex_handle(HalfedgeHandle _heh) const
@@ -394,7 +429,7 @@ public:
   { return next_halfedge_handle(opposite_halfedge_handle(_heh)); }
 
   // --- edge connectivity ---
-  HalfedgeHandle halfedge_handle(EdgeHandle _eh, uint _i) const
+  HalfedgeHandle halfedge_handle(EdgeHandle _eh, unsigned int _i) const
   {
     assert(_i<=1);
     return HalfedgeHandle((_eh.idx() << 1) + _i);
@@ -538,10 +573,10 @@ public:
     ArrayKernel&                            kernel_;
 
   public:
-    const uint                              bit_mask_;
+    const unsigned int                      bit_mask_;
 
   public:
-    StatusSetT(ArrayKernel& _kernel, uint _bit_mask)
+    StatusSetT(ArrayKernel& _kernel, unsigned int _bit_mask)
     : kernel_(_kernel), bit_mask_(_bit_mask)
     {}
 
@@ -552,30 +587,30 @@ public:
     { return kernel_.status(_hnd).is_bit_set(bit_mask_); }
 
     inline void                             insert(Handle _hnd)
-    { return kernel_.status(_hnd).set_bit(bit_mask_); }
+    { kernel_.status(_hnd).set_bit(bit_mask_); }
 
     inline void                             erase(Handle _hnd)
-    { return kernel_.status(_hnd).unset_bit(bit_mask_); }
+    { kernel_.status(_hnd).unset_bit(bit_mask_); }
 
     /// Note: 0(n) complexity
-    uint                                    size() const
+    unsigned int                            size() const
     {
-      uint n_elements = kernel_.status_pph(Handle()).is_valid() ?
-                          kernel_.property(kernel_.status_pph(Handle())).n_elements() : 0;
-      uint sz = 0;
-      for (uint i = 0; i < n_elements; ++i)
+      unsigned int n_elements = kernel_.status_pph(Handle()).is_valid() ?
+                                kernel_.property(kernel_.status_pph(Handle())).n_elements() : 0;
+      unsigned int sz = 0;
+      for (unsigned int i = 0; i < n_elements; ++i)
       {
-        sz += (uint)is_in(Handle(i));
+        sz += (unsigned int)is_in(Handle(i));
       }
       return sz;
     }
-    
+
     /// Note: O(n) complexity
     void                                    clear()
     {
-      uint n_elements = kernel_.status_pph(Handle()).is_valid() ?
-                          kernel_.property(kernel_.status_pph(Handle())).n_elements() : 0;
-      for (uint i = 0; i < n_elements; ++i)
+      unsigned int n_elements = kernel_.status_pph(Handle()).is_valid() ?
+                                kernel_.property(kernel_.status_pph(Handle())).n_elements() : 0;
+      for (unsigned int i = 0; i < n_elements; ++i)
       {
         erase(Handle(i));
       }
@@ -588,7 +623,7 @@ public:
   friend class StatusSetT<HalfedgeHandle>;
 
   /// --- AutoStatusSet API ---
-  
+
   template <class Handle>
   class AutoStatusSetT : public StatusSetT<Handle>
   {
@@ -617,7 +652,7 @@ public:
   typedef AutoStatusSetT<HalfedgeHandle>    HalfedgeStatusSet;
 
   /// --- ExtStatusSet API --- (hybrid between a set and an array)
-  
+
   template <class Handle>
   class ExtStatusSetT : public AutoStatusSetT<Handle>
   {
@@ -634,7 +669,7 @@ public:
     typedef typename HandleContainer::const_iterator
                                             const_iterator;
   public:
-    ExtStatusSetT(ArrayKernel& _kernel, uint _capacity_hint = 0)
+    ExtStatusSetT(ArrayKernel& _kernel, size_t _capacity_hint = 0)
     : Base(_kernel)
     { handles_.reserve(_capacity_hint); }
 
@@ -668,7 +703,7 @@ public:
       assert(_it != end() && is_in(*_it));
       clear(*_it);
       *_it = handles_.back();
-      *_it.pop_back();
+      _it.pop_back();
     }
 
     inline void                             clear()
@@ -682,7 +717,7 @@ public:
     }
 
     /// Complexity: 0(1)
-    inline uint                             size() const
+    inline unsigned int                     size() const
     { return handles_.size(); }
     inline bool                             empty() const
     { return handles_.empty(); }
@@ -713,7 +748,7 @@ public:
   typedef ExtStatusSetT<VertexHandle>       ExtVertexStatusSet;
   typedef ExtStatusSetT<EdgeHandle>         ExtEdgeStatusSet;
   typedef ExtStatusSetT<HalfedgeHandle>     ExtHalfedgeStatusSet;
-  
+
 private:
   // iterators
   typedef std::vector<Vertex>                VertexContainer;
@@ -725,7 +760,7 @@ private:
   typedef EdgeContainer::const_iterator      KernelConstEdgeIter;
   typedef FaceContainer::iterator            KernelFaceIter;
   typedef FaceContainer::const_iterator      KernelConstFaceIter;
-  typedef std::vector<uint>                  BitMaskContainer;
+  typedef std::vector<unsigned int>          BitMaskContainer;
 
 
   KernelVertexIter      vertices_begin()        { return vertices_.begin(); }
@@ -754,16 +789,16 @@ private:
   { return halfedge_bit_masks_; }
 
   template <class Handle>
-  uint                                      pop_bit_mask(Handle _hnd)
+  unsigned int                              pop_bit_mask(Handle _hnd)
   {
     assert(!bit_masks(_hnd).empty());//check if the client request too many status sets
-    uint bit_mask = bit_masks(_hnd).back();
+    unsigned int bit_mask = bit_masks(_hnd).back();
     bit_masks(_hnd).pop_back();
     return bit_mask;
   }
 
   template <class Handle>
-  void                                      push_bit_mask(Handle _hnd, uint _bit_mask)
+  void                                      push_bit_mask(Handle _hnd, unsigned int _bit_mask)
   {
     assert(std::find(bit_masks(_hnd).begin(), bit_masks(_hnd).end(), _bit_mask) ==
            bit_masks(_hnd).end());//this mask should be not already used
@@ -772,7 +807,7 @@ private:
 
   void                                      init_bit_masks(BitMaskContainer& _bmc);
   void                                      init_bit_masks();
-  
+
 private:
   VertexContainer                           vertices_;
   EdgeContainer                             edges_;
@@ -783,10 +818,10 @@ private:
   EdgeStatusPropertyHandle                  edge_status_;
   FaceStatusPropertyHandle                  face_status_;
 
-  uint                                      refcount_vstatus_;
-  uint                                      refcount_hstatus_;
-  uint                                      refcount_estatus_;
-  uint                                      refcount_fstatus_;
+  unsigned int                              refcount_vstatus_;
+  unsigned int                              refcount_hstatus_;
+  unsigned int                              refcount_estatus_;
+  unsigned int                              refcount_fstatus_;
 
   BitMaskContainer                          halfedge_bit_masks_;
   BitMaskContainer                          edge_bit_masks_;
@@ -794,8 +829,14 @@ private:
   BitMaskContainer                          face_bit_masks_;
 };
 
+
 //=============================================================================
 } // namespace OpenMesh
+//=============================================================================
+#if defined(OM_INCLUDE_TEMPLATES) && !defined(OPENMESH_ARRAY_KERNEL_C)
+#  define OPENMESH_ARRAY_KERNEL_TEMPLATES
+#  include "ArrayKernelT.cc"
+#endif
 //=============================================================================
 #endif // OPENMESH_ARRAY_KERNEL_HH defined
 //=============================================================================

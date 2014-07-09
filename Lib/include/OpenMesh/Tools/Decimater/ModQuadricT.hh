@@ -1,13 +1,13 @@
 /*===========================================================================*\
  *                                                                           *
  *                               OpenMesh                                    *
- *      Copyright (C) 2001-2011 by Computer Graphics Group, RWTH Aachen      *
+ *      Copyright (C) 2001-2014 by Computer Graphics Group, RWTH Aachen      *
  *                           www.openmesh.org                                *
  *                                                                           *
- *---------------------------------------------------------------------------* 
+ *---------------------------------------------------------------------------*
  *  This file is part of OpenMesh.                                           *
  *                                                                           *
- *  OpenMesh is free software: you can redistribute it and/or modify         * 
+ *  OpenMesh is free software: you can redistribute it and/or modify         *
  *  it under the terms of the GNU Lesser General Public License as           *
  *  published by the Free Software Foundation, either version 3 of           *
  *  the License, or (at your option) any later version with the              *
@@ -30,12 +30,12 @@
  *  License along with OpenMesh.  If not,                                    *
  *  see <http://www.gnu.org/licenses/>.                                      *
  *                                                                           *
-\*===========================================================================*/ 
+\*===========================================================================*/
 
 /*===========================================================================*\
- *                                                                           *             
- *   $Revision: 460 $                                                         *
- *   $Date: 2011-11-16 10:45:08 +0100 (Wed, 16 Nov 2011) $                   *
+ *                                                                           *
+ *   $Revision: 990 $                                                         *
+ *   $Date: 2014-02-05 10:01:07 +0100 (Mi, 05 Feb 2014) $                   *
  *                                                                           *
 \*===========================================================================*/
 
@@ -72,22 +72,22 @@ namespace Decimater {
  *
  *  This module can be used as a binary and non-binary module.
  */
-template <class DecimaterType>
-class ModQuadricT : public ModBaseT<DecimaterType>
+template <class MeshT>
+class ModQuadricT : public ModBaseT<MeshT>
 {
 public:
 
   // Defines the types Self, Handle, Base, Mesh, and CollapseInfo
   // and the memberfunction name()
-  DECIMATING_MODULE( ModQuadricT, DecimaterType, Quadric );
+  DECIMATING_MODULE( ModQuadricT, MeshT, Quadric );
 
 public:
 
   /** Constructor
    *  \internal
    */
-  ModQuadricT( DecimaterType &_dec )
-    : Base(_dec, false)
+  ModQuadricT( MeshT &_mesh )
+    : Base(_mesh, false)
   {
     unset_max_err();
     Base::mesh().add_property( quadrics_ );
@@ -137,6 +137,9 @@ public: // inherited
     Base::mesh().property(quadrics_, _ci.v1) +=
       Base::mesh().property(quadrics_, _ci.v0);
   }
+
+  /// set the percentage of maximum quadric error
+  void set_error_tolerance_factor(double _factor);
 
 
 

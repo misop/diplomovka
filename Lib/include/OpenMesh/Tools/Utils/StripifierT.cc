@@ -1,7 +1,7 @@
 /*===========================================================================*\
  *                                                                           *
  *                               OpenMesh                                    *
- *      Copyright (C) 2001-2011 by Computer Graphics Group, RWTH Aachen      *
+ *      Copyright (C) 2001-2014 by Computer Graphics Group, RWTH Aachen      *
  *                           www.openmesh.org                                *
  *                                                                           *
  *---------------------------------------------------------------------------* 
@@ -34,8 +34,8 @@
 
 /*===========================================================================*\
  *                                                                           *             
- *   $Revision: 362 $                                                         *
- *   $Date: 2011-01-26 10:21:12 +0100 (Wed, 26 Jan 2011) $                   *
+ *   $Revision: 990 $                                                         *
+ *   $Date: 2014-02-05 10:01:07 +0100 (Mi, 05 Feb 2014) $                   *
  *                                                                           *
 \*===========================================================================*/
 
@@ -75,7 +75,7 @@ StripifierT<Mesh>::
 }
 
 template <class Mesh>
-unsigned int
+size_t
 StripifierT<Mesh>::
 stripify()
 {
@@ -107,7 +107,6 @@ build_strips()
 {
   Strip                           experiments[3];
   typename Mesh::HalfedgeHandle   h[3];
-  unsigned int                    best_idx, best_length, length;
   FaceHandles                     faces[3];
   typename FaceHandles::iterator  fh_it, fh_end;
   typename Mesh::FaceIter         f_it, f_end=mesh_.faces_end();
@@ -119,15 +118,15 @@ build_strips()
   if (mesh_.has_face_status())
   {
     for (f_it=mesh_.faces_begin(); f_it!=f_end; ++f_it)
-      if (mesh_.status(f_it).hidden() || mesh_.status(f_it).deleted())
-        processed(f_it) = used(f_it) = true;
+      if (mesh_.status(*f_it).hidden() || mesh_.status(*f_it).deleted())
+        processed(*f_it) = used(*f_it) = true;
       else
-        processed(f_it) = used(f_it) = false;
+        processed(*f_it) = used(*f_it) = false;
   }
   else
   {
     for (f_it=mesh_.faces_begin(); f_it!=f_end; ++f_it)
-      processed(f_it) = used(f_it) = false;
+      processed(*f_it) = used(*f_it) = false;
   }
 
 
@@ -136,23 +135,27 @@ build_strips()
   {
     // find start face
     for (; f_it!=f_end; ++f_it)
-      if (!processed(f_it))
+      if (!processed(*f_it))
         break;
     if (f_it==f_end) break; // stop if all have been processed
 
 
     // collect starting halfedges
-    h[0] = mesh_.halfedge_handle(f_it.handle());
+    h[0] = mesh_.halfedge_handle(*f_it);
     h[1] = mesh_.next_halfedge_handle(h[0]);
     h[2] = mesh_.next_halfedge_handle(h[1]);
 
 
     // build 3 strips, take best one
-    best_length = best_idx = 0;
-    for (unsigned int i=0; i<3; ++i)
+    size_t best_length = 0;
+    size_t best_idx    = 0;
+
+    for (size_t i=0; i<3; ++i)
     {
       build_strip(h[i], experiments[i], faces[i]);
-      if ((length = experiments[i].size()) > best_length)
+
+      const size_t length = experiments[i].size();
+      if ( length  > best_length)
       {
         best_length = length;
         best_idx    = i;

@@ -1,7 +1,7 @@
 /*===========================================================================*\
 *                                                                           *
 *                               OpenMesh                                    *
-*      Copyright (C) 2001-2011 by Computer Graphics Group, RWTH Aachen      *
+*      Copyright (C) 2001-2014 by Computer Graphics Group, RWTH Aachen      *
 *                           www.openmesh.org                                *
 *                                                                           *
 *---------------------------------------------------------------------------* 
@@ -156,14 +156,14 @@ protected:
     // First element should be longest edge
     typename mesh_t::EdgeIter edgesEnd = _m.edges_end();
     for ( typename mesh_t::EdgeIter eit  = _m.edges_begin(); eit != edgesEnd; ++eit) {
-      const typename MeshType::Point to   = _m.point(_m.to_vertex_handle(_m.halfedge_handle(eit,0)));
-      const typename MeshType::Point from = _m.point(_m.from_vertex_handle(_m.halfedge_handle(eit,0)));
+      const typename MeshType::Point to   = _m.point(_m.to_vertex_handle(_m.halfedge_handle(*eit,0)));
+      const typename MeshType::Point from = _m.point(_m.from_vertex_handle(_m.halfedge_handle(*eit,0)));
 
       real_t length = (to - from).sqrnorm();
 
       // Only push the edges that need to be split
       if ( length > max_edge_length_squared_ )
-        queue.push( queueElement(eit.handle(),length) );
+        queue.push( queueElement(*eit,length) );
     }
 
     bool stop = false;
@@ -182,10 +182,10 @@ protected:
         const typename MeshType::VertexHandle newVertex = _m.add_vertex(midpoint);
         _m.split(a.first,newVertex);
 
-        for ( typename MeshType::VertexOHalfedgeIter voh_it(_m,newVertex); voh_it; ++voh_it) {
-          typename MeshType::EdgeHandle eh = _m.edge_handle(voh_it.handle());
-          const typename MeshType::Point to   = _m.point(_m.to_vertex_handle(voh_it));
-          const typename MeshType::Point from = _m.point(_m.from_vertex_handle(voh_it));
+        for ( typename MeshType::VertexOHalfedgeIter voh_it(_m,newVertex); voh_it.is_valid(); ++voh_it) {
+          typename MeshType::EdgeHandle eh = _m.edge_handle(*voh_it);
+          const typename MeshType::Point to   = _m.point(_m.to_vertex_handle(*voh_it));
+          const typename MeshType::Point from = _m.point(_m.from_vertex_handle(*voh_it));
           real_t length = (to - from).sqrnorm();
 
           // Only push the edges that need to be split

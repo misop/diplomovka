@@ -1,13 +1,13 @@
 /*===========================================================================*\
  *                                                                           *
  *                               OpenMesh                                    *
- *      Copyright (C) 2001-2011 by Computer Graphics Group, RWTH Aachen      *
+ *      Copyright (C) 2001-2014 by Computer Graphics Group, RWTH Aachen      *
  *                           www.openmesh.org                                *
  *                                                                           *
- *---------------------------------------------------------------------------* 
+ *---------------------------------------------------------------------------*
  *  This file is part of OpenMesh.                                           *
  *                                                                           *
- *  OpenMesh is free software: you can redistribute it and/or modify         * 
+ *  OpenMesh is free software: you can redistribute it and/or modify         *
  *  it under the terms of the GNU Lesser General Public License as           *
  *  published by the Free Software Foundation, either version 3 of           *
  *  the License, or (at your option) any later version with the              *
@@ -30,12 +30,12 @@
  *  License along with OpenMesh.  If not,                                    *
  *  see <http://www.gnu.org/licenses/>.                                      *
  *                                                                           *
-\*===========================================================================*/ 
+\*===========================================================================*/
 
 /*===========================================================================*\
- *                                                                           *             
- *   $Revision: 425 $                                                         *
- *   $Date: 2011-10-10 14:31:03 +0200 (Mon, 10 Oct 2011) $                   *
+ *                                                                           *
+ *   $Revision: 990 $                                                         *
+ *   $Date: 2014-02-05 10:01:07 +0100 (Mi, 05 Feb 2014) $                   *
  *                                                                           *
 \*===========================================================================*/
 
@@ -79,69 +79,69 @@ namespace IO   {
 //-----------------------------------------------------------------------------
 
 
-/** \brief Read a mesh from file _filename. 
+/** \brief Read a mesh from file _filename.
 
-    The file format is determined by the file extension. 
+    The file format is determined by the file extension.
 
-    \note If you link statically against OpenMesh, you have to add 
-          the define OM_STATIC_BUILD to your application. This will 
+    \note If you link statically against OpenMesh, you have to add
+          the define OM_STATIC_BUILD to your application. This will
           ensure that readers and writers get initialized correctly.
 
     @param _mesh     The target mesh that will be filled with the read data
     @param _filename fill to load
-    @param _clear    Clear the target data before filling it (allows to
-                     load multiple files into one Mesh)
 
     @return Successful?
  */
 template <class Mesh>
-bool 
+bool
 read_mesh(Mesh&         _mesh,
-	  const std::string&  _filename, 
-	  bool                _clear = true) 
+	  const std::string&  _filename)
 {
   Options opt;
-  return read_mesh(_mesh, _filename, opt, _clear);
+  return read_mesh(_mesh, _filename, opt, true);
 }
 
 
-/** \brief Read a mesh from file _filename. 
+/** \brief Read a mesh from file _filename.
 
-    The file format is determined by the file extension. 
+    The file format is determined by the file extension.
 
-    \note If you link statically against OpenMesh, you have to add 
-          the define OM_STATIC_BUILD to your application. This will 
+    \note If you link statically against OpenMesh, you have to add
+          the define OM_STATIC_BUILD to your application. This will
           ensure that readers and writers get initialized correctly.
 
     @param _mesh     The target mesh that will be filled with the read data
     @param _filename fill to load
     @param _opt      Reader options (e.g. skip loading of normals ... depends
-                     on the reader capabilities)
+                     on the reader capabilities). Note that simply passing an
+                     Options::Flag enum is not sufficient.
     @param _clear    Clear the target data before filling it (allows to
-                     load multiple files into one Mesh)
+                     load multiple files into one Mesh). If you only want to read a mesh
+                     without clearing set _clear to false. Providing a default Options
+                     object is sufficient in this case.
 
     @return Successful?
 */
 template <class Mesh>
-bool 
+bool
 read_mesh(Mesh&         _mesh,
-	  const std::string&  _filename, 
-	  Options&            _opt, 
-	  bool                _clear = true) 
+	  const std::string&  _filename,
+	  Options&            _opt,
+	  bool                _clear = true)
 {
   if (_clear) _mesh.clear();
   ImporterT<Mesh> importer(_mesh);
-  return IOManager().read(_filename, importer, _opt); 
+  return IOManager().read(_filename, importer, _opt);
 }
 
 
-/** \brief Read a mesh from file open std::istream. 
+/** \brief Read a mesh from file open std::istream.
 
-    The file format is determined by parameter _ext. _ext has to include 
+    The file format is determined by parameter _ext. _ext has to include
     ".[format]" in order to work properly (e.g. ".OFF")
 
-    \note If you link statically against OpenMesh, you have to add 
-          the define OM_STATIC_BUILD to your application. This will 
+    \note If you link statically against OpenMesh, you have to add
+          the define OM_STATIC_BUILD to your application. This will
           ensure that readers and writers get initialized correctly.
 
     @param _mesh     The target mesh that will be filled with the read data
@@ -155,16 +155,16 @@ read_mesh(Mesh&         _mesh,
     @return Successful?
 */
 template <class Mesh>
-bool 
+bool
 read_mesh(Mesh&         _mesh,
 	  std::istream&       _is,
 	  const std::string&  _ext,
-	  Options&            _opt, 
-	  bool                _clear = true) 
+	  Options&            _opt,
+	  bool                _clear = true)
 {
   if (_clear) _mesh.clear();
   ImporterT<Mesh> importer(_mesh);
-  return IOManager().read(_is,_ext, importer, _opt); 
+  return IOManager().read(_is,_ext, importer, _opt);
 }
 
 
@@ -172,41 +172,43 @@ read_mesh(Mesh&         _mesh,
 //-----------------------------------------------------------------------------
 
 
-/** \brief Write a mesh to the file _filename. 
+/** \brief Write a mesh to the file _filename.
 
-    The file format is determined by _filename's extension. 
+    The file format is determined by _filename's extension.
 
-    \note If you link statically against OpenMesh, you have to add 
-          the define OM_STATIC_BUILD to your application. This will 
+    \note If you link statically against OpenMesh, you have to add
+          the define OM_STATIC_BUILD to your application. This will
           ensure that readers and writers get initialized correctly.
 
     @param _mesh     The mesh that will be written to file
     @param _filename output filename
     @param _opt      Writer options (e.g. writing of normals ... depends
                      on the writer capabilities)
+    @param _precision specifies stream precision for ascii files
 
     @return Successful?
 */
 template <class Mesh>
-bool write_mesh(const Mesh&        _mesh, 
+bool write_mesh(const Mesh&        _mesh,
                 const std::string& _filename,
-                Options            _opt = Options::Default) 
-{ 
+                Options            _opt = Options::Default,
+                std::streamsize    _precision = 6)
+{
   ExporterT<Mesh> exporter(_mesh);
-  return IOManager().write(_filename, exporter, _opt); 
+  return IOManager().write(_filename, exporter, _opt, _precision);
 }
 
 
 //-----------------------------------------------------------------------------
 
 
-/** Write a mesh to an open std::ostream. 
+/** Write a mesh to an open std::ostream.
 
-    The file format is determined by parameter _ext. _ext has to include 
+    The file format is determined by parameter _ext. _ext has to include
     ".[format]" in order to work properly (e.g. ".OFF")
 
-    \note If you link statically against OpenMesh, you have to add 
-          the define OM_STATIC_BUILD to your application. This will 
+    \note If you link statically against OpenMesh, you have to add
+          the define OM_STATIC_BUILD to your application. This will
           ensure that readers and writers get initialized correctly.
 
     @param _mesh     The mesh that will be written to file
@@ -214,17 +216,19 @@ bool write_mesh(const Mesh&        _mesh,
     @param _ext      extension defining the type of output
     @param _opt      Writer options (e.g. writing of normals ... depends
                      on the writer capabilities)
+    @param _precision specifies stream precision for ascii files
 
     @return Successful?
 */
 template <class Mesh>
-bool write_mesh(const Mesh&        _mesh, 
-		            std::ostream&      _os,
-		            const std::string& _ext,
-                Options            _opt = Options::Default) 
-{ 
+bool write_mesh(const Mesh&        _mesh,
+		std::ostream&      _os,
+	        const std::string& _ext,
+                Options            _opt = Options::Default,
+                std::streamsize    _precision = 6)
+{
   ExporterT<Mesh> exporter(_mesh);
-  return IOManager().write(_os,_ext, exporter, _opt); 
+  return IOManager().write(_os,_ext, exporter, _opt, _precision);
 }
 
 
@@ -246,7 +250,7 @@ bool write_mesh(const Mesh&        _mesh,
   @return Binary size in bytes used when writing the data
 */
 template <class Mesh>
-size_t binary_size(const Mesh&        _mesh, 
+size_t binary_size(const Mesh&        _mesh,
                    const std::string& _ext,
                    Options            _opt = Options::Default)
 {
