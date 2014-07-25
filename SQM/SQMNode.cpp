@@ -517,11 +517,82 @@ void SQMNode::rotateCycleOneRing() {
 	}
 }
 
+/*void SQMNode::projectOnPlaneRotateAndScale(MyMesh *mesh, glm::vec3 origin, glm::vec3 normal) {
+//get points from mesh
+vector<MyMesh::Point> points;
+if (parent != NULL && parent->isBranchNode()) {
+//we need to transform points to ensure they lie on a cicle
+OpenMesh::Vec3f norm(normal.x, normal.y, normal.z);
+parent->translateAndScalePointsToSphere(mesh, cycleVHandles, norm, points); 
+} else {
+//just take points from mesh
+for (int i = 0; i < cycleVHandles.size(); i++) {
+points.push_back(mesh->point(cycleVHandles[i]));
+}
+}
+for (int i = 0; i < points.size(); i++) {
+MyMesh::Point P = points[i];
+glm::vec3 Q(P[0], P[1], P[2]);
+cyclePoints.push_back(Q);
+}
+//project them onto plane and translate to O(0, 0, 0)
+for (int i = 0; i < cyclePoints.size(); i++) {
+//project point onto plane
+cyclePoints[i] = projectPointOntoPlane(cyclePoints[i], origin, normal);
+//translate point to origin
+cyclePoints[i] = cyclePoints[i] - origin;
+}
+//rotate points so that the normal faces (0, 0, 1)
+CVector3 from(normal.x, normal.y, normal.z);
+CVector3 to(0, 0, 1);
+Quaternion q = SQMQuaternionBetweenVectors(from, to);
+Quaternion axisAngle = QuaternionToAxisAngle(q);
+axisAngle.s = axisAngle.s*180.0f/M_PI;
+glm::vec3 axis = glm::normalize(glm::vec3(axisAngle.i, axisAngle.j, axisAngle.k));
+glm::mat4 rotate = glm::length(axis) != 0 ? glm::rotate(glm::mat4(1), axisAngle.s, axis) : glm::mat4(1);
+//rotate points
+for (int i = 0; i < cyclePoints.size(); i++) {
+cyclePoints[i] = glm::vec3(rotate * glm::vec4(cyclePoints[i], 0));
+}
+//scale points to circle
+vector<glm::vec3> temp;
+for (int i = 0; i < cyclePoints.size(); i++) {
+//get points
+glm::vec3 A = cyclePoints[i-1 >= 0 ? i-1 : cyclePoints.size()-1];
+glm::vec3 B = cyclePoints[i];
+glm::vec3 C = cyclePoints[i+1 < cyclePoints.size() ? i+1 : 0];
+//set Z to zero due to numerical inacuracy
+A.z = 0;
+B.z = 0;
+C.z = 0;
+//get vectors
+glm::vec3 u = glm::normalize(B-A);
+glm::vec3 v = glm::normalize(B-C);
+//get orientation
+float o = u.x*v.y - u.y*v.x;
+//get perpendicular vectors
+u = glm::vec3(u.y, -u.x, 0) * (o > 0 ? 1.f : -1.f);
+v = glm::vec3(u.y, -u.x, 0) * (o > 0 ? -1.f : 1.f);
+//get point vector
+glm::vec3 d = glm::normalize((u+v)*0.5f);
+//calculate new position
+float t = 0;
+float r = cycleNode != NULL ? 10 : 1;
+if (raySphereIntersection(B, d, glm::vec3(0), r, t)) {
+temp.push_back(B + d*r);
+} else {
+temp.push_back(glm::normalize(B) * r);
+}
+//temp.push_back(glm::normalize(B) * r);
+}
+cyclePoints = temp;
+}*/
+
 void SQMNode::projectOnPlaneRotateAndScale(MyMesh *mesh, glm::vec3 origin, glm::vec3 normal) {
 	//get points from mesh
 	vector<MyMesh::Point> points;
 	if (parent != NULL && parent->isBranchNode()) {
-		//we need to transform points to ensure they lie on a cicle
+		//we need to transform points to ensure they lie on a circle
 		OpenMesh::Vec3f norm(normal.x, normal.y, normal.z);
 		parent->translateAndScalePointsToSphere(mesh, cycleVHandles, norm, points); 
 	} else {
@@ -719,6 +790,9 @@ void SQMNode::straightenSkl(glm::vec4 odir, glm::mat4 M) {
 	OpenMesh::Vec3f parentPos = parent->getPosition();
 	glm::vec4 Q(parentPos[0], parentPos[1], parentPos[2], 1);
 	//float length = (originalPosition - parent->getOriginalPosition()).norm();
+	if (this->isBranchNode()) {
+		intersections.reserve(nodes.size() + parent == NULL ? 0 : 1);
+	}
 	//rotate P like parent
 	P = M * P;
 	//adjust dir if parent is branch node
@@ -825,7 +899,9 @@ void SQMNode::calculateConvexHull() {
 void SQMNode::createPolyhedra(vector<OpenMesh::Vec3i> triangles) {
 	//calculate triangle normals
 	vector<OpenMesh::Vec3f> normals;
+	normals.reserve(triangles.size());
 	vector<OpenMesh::Vec3f> centers;
+	centers.reserve(triangles.size());
 	for (int i = 0; i < triangles.size(); i++) {
 		OpenMesh::Vec3i triangle = triangles[i];
 		OpenMesh::Vec3f A = intersections[triangle.values_[0]];
@@ -838,8 +914,8 @@ void SQMNode::createPolyhedra(vector<OpenMesh::Vec3i> triangles) {
 		normals.push_back(normal);		
 		centers.push_back(center);
 	}
-	normals2 = normals;
-	centers2 = centers;
+	//normals2 = normals;
+	//centers2 = centers;
 	map<OpenMesh::Vec2i, vector<int>, OpenMeshVec2iComp> edgeFaceIndexMap;
 	for (int i = 0; i < triangles.size(); i++) {
 		OpenMesh::Vec3i triangle = triangles[i];
@@ -849,6 +925,9 @@ void SQMNode::createPolyhedra(vector<OpenMesh::Vec3i> triangles) {
 		vector<int> faces1;
 		vector<int> faces2;
 		vector<int> faces3;
+		faces1.reserve(2);
+		faces2.reserve(2);
+		faces3.reserve(2);
 		for (int j = 0; j < triangles.size(); j++) {
 			OpenMesh::Vec3i triangle2 = triangles[j];
 			OpenMesh::Vec2i v1(triangle2.values_[0], triangle2.values_[1]);
@@ -870,8 +949,11 @@ void SQMNode::createPolyhedra(vector<OpenMesh::Vec3i> triangles) {
 	}
 	//for each triangle create 6 new triangles and translate new vertices and translate vertices with face normals add only unique
 	vector<OpenMesh::Vec3f> vertices;
+	vertices.reserve(triangles.size()*6);
 	vector<OpenMesh::Vec3i> faces;
+	faces.reserve(triangles.size()*6);
 	vector<OpenMesh::Vec2i> visited;
+	visited.reserve(edgeFaceIndexMap.size());
 	for (int i = 0; i < triangles.size(); i++) {
 		//get triangle points and create new ones
 		OpenMesh::Vec3i triangle = triangles[i];
@@ -1035,6 +1117,7 @@ vector<int> SQMNode::getNormalIndexis(vector<int> indexis, int index) {
 void SQMNode::openMeshFromIdexedFace(vector<OpenMesh::Vec3f> vertices, vector<OpenMesh::Vec3i> faces) {
 	if (polyhedron != NULL) delete polyhedron;
 	polyhedron = new MyTriMesh();
+	polyhedron->reserve(vertices.size(), faces.size()*3, faces.size());
 	polyhedronPoints.clear();
 	intersectionVHandles.clear();
 	intersectionVHandles.resize(intersections.size());
@@ -1061,6 +1144,7 @@ void SQMNode::createPolyhedraFromCenter(vector<OpenMesh::Vec3i> triangles) {
 	OpenMesh::Vec3f meshCenter = polyhedronBoundingBoxCenter();
 	//get the center of each triangle
 	vector<OpenMesh::Vec3f> centers;
+	centers.reserve(triangles.size());
 	for (int i = 0; i < triangles.size(); i++) {
 		OpenMesh::Vec3i triangle = triangles[i];
 		OpenMesh::Vec3f A = intersections[triangle.values_[0]];
@@ -1158,6 +1242,7 @@ OpenMesh::Vec3f SQMNode::translatePointToSphereFromCenter(OpenMesh::Vec3f point,
 
 void SQMNode::subdividePolyhedra(SQMNode* parentBranchNode, int count, SQMSmoothingAlgorithm algorithm) {
 	vector<SQMNode*> branchingNodes;
+	branchingNodes.reserve(nodes.size());
 	for (int i = 0; i < nodes.size(); i++) {
 		branchingNodes.push_back(getDescendantBranchNode(nodes[i]));
 	}
@@ -1206,6 +1291,7 @@ void SQMNode::fillLIEMap(int parentNeed, std::map<int, LIENeedEntry>& lieMap, st
 
 		//we could check for uncreated LIEs only but the list could be long and thus take more time that creating new one
 		vector<LIE> verticeLIEs;
+		verticeLIEs.reserve(intersections.size());
 		//get first halfedge
 		MyTriMesh::HHandle heh = polyhedron->voh_begin(vhandle).current_halfedge_handle();
 		heh = polyhedron->next_halfedge_handle(heh);
@@ -1222,6 +1308,7 @@ void SQMNode::fillLIEMap(int parentNeed, std::map<int, LIENeedEntry>& lieMap, st
 		MyTriMesh::VHandle covh = ovhandle;
 		vector<MyTriMesh::EdgeHandle> edges;
 		edges.push_back(polyhedron->edge_handle(heh));
+		edges.reserve(polyhedron->n_edges());
 		//for quaternion
 		MyTriMesh::VHandle firstLieVertex = polyhedron->to_vertex_handle(polyhedron->opposite_halfedge_handle(heh));
 		MyTriMesh::VHandle secondLieVertex = polyhedron->to_vertex_handle(heh);
@@ -1611,7 +1698,7 @@ void SQMNode::smoothLIEByAvaraging(LIE lie) {
 
 #pragma region BNP Joining
 
-void SQMNode::joinBNPs(MyMesh* mesh, SQMNode* parentBNPNode, vector<MyMesh::VertexHandle> oneRing, OpenMesh::Vec3f directionVector) {
+void SQMNode::joinBNPs(MyMesh* mesh, SQMNode* parentBNPNode, vector<MyMesh::VertexHandle> &oneRing, OpenMesh::Vec3f directionVector) {
 	if (this->isLeafNode()) {
 		//finish mesh somehow
 		if (sqmNodeType == SQMCycleLeaf)
@@ -1643,6 +1730,8 @@ void SQMNode::addPolyhedronAndRememberVHandles(MyMesh* mesh, SQMNode* parentBNPN
 	int vectorSize = intersectionVHandles.size();
 	vector<vector<int> > intersectionOneRingIndexes(vectorSize);
 	vector<MyMesh::VHandle> addedVHandles;
+	addedVHandles.reserve(polyhedron->n_vertices());
+	meshVhandlesToRotate.reserve(meshVhandlesToRotate.size() + polyhedron->n_vertices());
 	for (MyTriMesh::VIter v_it = polyhedron->vertices_begin(); v_it != polyhedron->vertices_end(); ++v_it) {
 		MyTriMesh::VHandle vhandle = v_it.handle();
 		int position = getPositionInArray<MyTriMesh::VHandle>(vhandle, intersectionVHandles);
@@ -1654,14 +1743,17 @@ void SQMNode::addPolyhedronAndRememberVHandles(MyMesh* mesh, SQMNode* parentBNPN
 		} else {
 			addedVHandles.push_back(vhandle);
 			//collect one ring indexis
+			intersectionOneRingIndexes[position].reserve(std::distance(polyhedron->vv_begin(vhandle), polyhedron->vv_end(vhandle)));
 			for (MyTriMesh::VVIter vv_it = polyhedron->vv_begin(vhandle); vv_it != polyhedron->vv_end(vhandle); ++vv_it) {
 				intersectionOneRingIndexes[position].push_back(vv_it.handle().idx());
 			}
 		}
 	}
 	//prepare one rings
+	oneRingsOfPolyhedron.reserve(intersectionOneRingIndexes.size());
 	for (int i = 0; i < intersectionOneRingIndexes.size(); i++) {
 		vector<MyMesh::VHandle> vhandles;
+		vhandles.reserve(intersectionOneRingIndexes[i].size());
 		for (int j = 0; j < intersectionOneRingIndexes[i].size(); j++) {
 			int vertexIndex = intersectionOneRingIndexes[i][j];
 			vhandles.push_back(addedVHandles[vertexIndex]);
@@ -1742,6 +1834,7 @@ void SQMNode::addPolyhedronAndRememberVHandles(MyMesh* mesh, SQMNode* parentBNPN
 		}
 		}*/
 		//reorder array
+		newOneRing.reserve(oldOneRing.size());
 		for (int i = 0; i < oldOneRing.size(); i++) {
 			if (index == oldOneRing.size()) {
 				index = 0;
@@ -1766,6 +1859,8 @@ void SQMNode::extendMesh(MyMesh* mesh, SQMNode* parentBNPNode, vector<MyMesh::Ve
 	translateAndScalePointsToSphere(mesh, oneRing, directionVector, points);
 	//insert new points into mesh
 	vector<MyMesh::VertexHandle> newOneRing;
+	newOneRing.reserve(points.size());
+	meshVhandlesToRotate.reserve(points.size());
 	for (int i = 0; i < points.size(); i++) {
 		MyMesh::VHandle vhandle = mesh->add_vertex(points[i]);
 		newOneRing.push_back(vhandle);
@@ -1773,6 +1868,7 @@ void SQMNode::extendMesh(MyMesh* mesh, SQMNode* parentBNPNode, vector<MyMesh::Ve
 	}
 	//create new faces for the points
 	vector<MyMesh::FaceHandle> temp;
+	temp.reserve(newOneRing.size());
 	for (int i = 0; i < newOneRing.size(); i++) {
 		int j = 0;
 		if (i + 1 < newOneRing.size()) {
@@ -1789,7 +1885,7 @@ void SQMNode::extendMesh(MyMesh* mesh, SQMNode* parentBNPNode, vector<MyMesh::Ve
 void SQMNode::finishLeafeNode(MyMesh* mesh, vector<MyMesh::VertexHandle>& oneRing) {
 	//TODO finish as desired
 	MyMesh::Point P(position[0], position[1], position[2]);
-	MyMesh::VHandle vhandle = mesh->add_vertex(P);		
+	MyMesh::VHandle vhandle = mesh->add_vertex(P);	
 	meshVhandlesToRotate.push_back(vhandle);
 	for (int i = 0; i < oneRing.size(); i++) {	
 		int j = 0;
@@ -2378,6 +2474,7 @@ MyTriMesh::VHandle SQMNode::oppositeVHandle(MyTriMesh::HalfedgeHandle heh) {
 
 void SQMNode::translateAndScalePointsToSphere(MyMesh* mesh, vector<MyMesh::VertexHandle>& oneRing, OpenMesh::Vec3f& directionVector, vector<MyMesh::Point>& points) {
 	float d = -(position[0]*directionVector[0] + position[1]*directionVector[1] + position[2]*directionVector[2]);
+	points.reserve(points.size() + oneRing.size());
 	for (int i = 0; i < oneRing.size(); i++) {
 		MyMesh::Point P = mesh->point(oneRing[i]);
 		//OpenMesh::Vec3f u = (position - parentBNPNode->getPosition()).norm() * directionVector;
